@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Mustamal (DEV)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_dev.dart",
+            "args": [
+                "--flavor",
+                "development",
+                "--target",
+                "lib/main_dev.dart"
+            ],
+            "flutterMode": "debug"
+        },
+        {
+            "name": "Mustamal (PROD)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_prod.dart",
+            "args": [
+                "--flavor",
+                "production",
+                "--target",
+                "lib/main_prod.dart"
+            ],
+            "flutterMode": "release"
+        }
+    ]
+}

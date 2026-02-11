@@ -1,0 +1,9 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    - always_declare_return_types
+    - unawaited_futures
+    - prefer_const_constructors
+    - prefer_final_locals
+    - avoid_print # Use LogService instead
