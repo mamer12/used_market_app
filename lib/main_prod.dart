@@ -2,6 +2,6 @@ import 'app/view/app.dart';
 import 'bootstrap.dart';
 import 'core/config/flavor.dart';
 
-void main() {
-  bootstrap(() => const App(), AppFlavor.production);
+Future<void> main() async {
+  await bootstrap(() => const App(), AppFlavor.production);
 }

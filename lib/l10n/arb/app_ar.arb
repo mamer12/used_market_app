@@ -1,7 +1,59 @@
 {
   "@@locale": "ar",
+
   "appTitle": "مستعمل",
-  "@appTitle": {
-    "description": "عنوان التطبيق"
-  }
+  "onboardingSkip": "تخطي",
+  "onboardingNext": "التالي",
+  "onboardingGetStarted": "ابدأ التصفّح",
+
+  "onboardingTitle1": "اشترِ بثقة",
+  "onboardingDesc1": "كل إعلان موثّق. تسوّق بأمان.",
+
+  "onboardingTitle2": "بيع في دقائق",
+  "onboardingDesc2": "صوّر، حدّد السعر، وخلّص.",
+
+  "onboardingTitle3": "مزادات حية",
+  "onboardingDesc3": "زايد بشكل مباشر على منتجات حصرية.",
+
+  "loginWelcomeTo": "أهلاً في",
+  "loginPhoneNumber": "رقم الهاتف",
+  "loginPhoneHint": "7XX XXX XXXX",
+  "loginContinue": "متابعة",
+  "loginOr": "أو",
+  "loginContinueGoogle": "المتابعة مع Google",
+  "loginTerms": "بالمتابعة، أنت توافق على شروط الاستخدام",
+  "loginPhoneEmpty": "الرجاء إدخال رقم الهاتف",
+  "loginPhoneInvalid": "رقم هاتف غير صالح",
+
+  "homeSearch": "ابحث في مستعمل...",
+  "homeCategories": "الأقسام",
+  "homeLiveNow": "مباشر الآن",
+  "homeSeeAll": "عرض الكل",
+  "homeLive": "مباشر",
+
+  "categoryMobile": "موبايل",
+  "categoryCars": "سيارات",
+  "categoryFurniture": "أثاث",
+  "categoryJobs": "وظائف",
+  "categoryRealEstate": "عقارات",
+  "categoryElectronics": "إلكترونيات",
+  "categoryFashion": "أزياء",
+  "categoryMore": "المزيد",
+
+  "bannerTitle1": "صفقات اليوم 🔥",
+  "bannerSub1": "خصم يصل إلى 70%!",
+  "bannerTitle2": "وصل حديثاً 📦",
+  "bannerSub2": "إعلانات جديدة اليوم",
+  "bannerTitle3": "مزاد مباشر 🔨",
+  "bannerSub3": "زايد الآن!",
+
+  "bidders": "{count} مزايدين",
+
+  "authSheetTitle": "سجّل دخولك للمتابعة",
+  "authSheetSubtitle": "تحتاج تسجيل الدخول لتنفيذ هذا الإجراء.",
+  "authGetCode": "أرسل الرمز",
+  "authVerifyTitle": "أدخل رمز التحقق",
+  "authCodeSentTo": "تم إرسال الرمز إلى",
+  "authVerifyCode": "تحقق",
+  "authChangeNumber": "تغيير الرقم"
 }

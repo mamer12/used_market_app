@@ -1,7 +1,146 @@
 {
   "@@locale": "en",
+
   "appTitle": "Mustamal",
-  "@appTitle": {
-    "description": "The title of the application"
-  }
+  "@appTitle": { "description": "App name shown in AppBar and title" },
+
+  "onboardingSkip": "Skip",
+  "@onboardingSkip": { "description": "Skip button on onboarding" },
+
+  "onboardingNext": "Next",
+  "@onboardingNext": { "description": "Next button on onboarding" },
+
+  "onboardingGetStarted": "Start Browsing",
+  "@onboardingGetStarted": { "description": "Final onboarding CTA — enters guest mode" },
+
+  "onboardingTitle1": "Buy with Trust",
+  "@onboardingTitle1": { "description": "Onboarding slide 1 title" },
+
+  "onboardingDesc1": "Every listing is verified. Shop with confidence.",
+  "@onboardingDesc1": { "description": "Onboarding slide 1 description" },
+
+  "onboardingTitle2": "Sell in Minutes",
+  "@onboardingTitle2": { "description": "Onboarding slide 2 title" },
+
+  "onboardingDesc2": "Snap a photo, set a price, done.",
+  "@onboardingDesc2": { "description": "Onboarding slide 2 description" },
+
+  "onboardingTitle3": "Live Auctions",
+  "@onboardingTitle3": { "description": "Onboarding slide 3 title" },
+
+  "onboardingDesc3": "Bid in real-time on exclusive items.",
+  "@onboardingDesc3": { "description": "Onboarding slide 3 description" },
+
+  "loginWelcomeTo": "Welcome to",
+  "@loginWelcomeTo": { "description": "Login header line 1" },
+
+  "loginPhoneNumber": "Phone Number",
+  "@loginPhoneNumber": { "description": "Phone input label" },
+
+  "loginPhoneHint": "7XX XXX XXXX",
+  "@loginPhoneHint": { "description": "Phone input placeholder" },
+
+  "loginContinue": "Continue",
+  "@loginContinue": { "description": "Continue button" },
+
+  "loginOr": "Or",
+  "@loginOr": { "description": "Divider text" },
+
+  "loginContinueGoogle": "Continue with Google",
+  "@loginContinueGoogle": { "description": "Google sign-in button" },
+
+  "loginTerms": "By continuing, you agree to our Terms of Service",
+  "@loginTerms": { "description": "Terms disclaimer" },
+
+  "loginPhoneEmpty": "Please enter your phone number",
+  "@loginPhoneEmpty": { "description": "Validation: empty phone" },
+
+  "loginPhoneInvalid": "Invalid phone number",
+  "@loginPhoneInvalid": { "description": "Validation: invalid phone" },
+
+  "homeSearch": "Search Mustamal...",
+  "@homeSearch": { "description": "Search bar placeholder" },
+
+  "homeCategories": "Categories",
+  "@homeCategories": { "description": "Categories section title" },
+
+  "homeLiveNow": "Live Now",
+  "@homeLiveNow": { "description": "Live section title" },
+
+  "homeSeeAll": "See All",
+  "@homeSeeAll": { "description": "See all link" },
+
+  "homeLive": "LIVE",
+  "@homeLive": { "description": "Live badge text" },
+
+  "categoryMobile": "Mobile",
+  "@categoryMobile": { "description": "Category label" },
+
+  "categoryCars": "Cars",
+  "@categoryCars": { "description": "Category label" },
+
+  "categoryFurniture": "Furniture",
+  "@categoryFurniture": { "description": "Category label" },
+
+  "categoryJobs": "Jobs",
+  "@categoryJobs": { "description": "Category label" },
+
+  "categoryRealEstate": "Real Estate",
+  "@categoryRealEstate": { "description": "Category label" },
+
+  "categoryElectronics": "Electronics",
+  "@categoryElectronics": { "description": "Category label" },
+
+  "categoryFashion": "Fashion",
+  "@categoryFashion": { "description": "Category label" },
+
+  "categoryMore": "More",
+  "@categoryMore": { "description": "Category label" },
+
+  "bannerTitle1": "Daily Deals 🔥",
+  "@bannerTitle1": { "description": "Banner 1 title" },
+
+  "bannerSub1": "Up to 70% off!",
+  "@bannerSub1": { "description": "Banner 1 subtitle" },
+
+  "bannerTitle2": "New Arrivals 📦",
+  "@bannerTitle2": { "description": "Banner 2 title" },
+
+  "bannerSub2": "Fresh listings today",
+  "@bannerSub2": { "description": "Banner 2 subtitle" },
+
+  "bannerTitle3": "Auction Live 🔨",
+  "@bannerTitle3": { "description": "Banner 3 title" },
+
+  "bannerSub3": "Bid now!",
+  "@bannerSub3": { "description": "Banner 3 subtitle" },
+
+  "bidders": "{count} bidders",
+  "@bidders": {
+    "description": "Number of bidders",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "authSheetTitle": "Login to Continue",
+  "@authSheetTitle": { "description": "Auth bottom sheet title" },
+
+  "authSheetSubtitle": "Sign in to perform this action.",
+  "@authSheetSubtitle": { "description": "Auth bottom sheet subtitle" },
+
+  "authGetCode": "Get Code",
+  "@authGetCode": { "description": "Request OTP button" },
+
+  "authVerifyTitle": "Enter Verification Code",
+  "@authVerifyTitle": { "description": "OTP view title" },
+
+  "authCodeSentTo": "Code sent to",
+  "@authCodeSentTo": { "description": "OTP subtitle prefix" },
+
+  "authVerifyCode": "Verify",
+  "@authVerifyCode": { "description": "Verify OTP button" },
+
+  "authChangeNumber": "Change number",
+  "@authChangeNumber": { "description": "Go back to phone input" }
 }
