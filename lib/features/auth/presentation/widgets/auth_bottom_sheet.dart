@@ -51,10 +51,21 @@ class _AuthSheetContent extends StatefulWidget {
 
 class _AuthSheetContentState extends State<_AuthSheetContent> {
   final _phoneController = TextEditingController();
-  final _otpController = TextEditingController();
   final _phoneFocus = FocusNode();
-  final _otpFocus = FocusNode();
+
+  // 4 individual OTP controllers
+  final List<TextEditingController> _otpControllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
+  final List<FocusNode> _otpFocusNodes = List.generate(4, (_) => FocusNode());
+
   StreamSubscription<AuthState>? _sub;
+
+  // Resend timer
+  Timer? _resendTimer;
+  int _resendSeconds = 30;
+  bool _canResend = false;
 
   @override
   void initState() {
@@ -73,18 +84,54 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
           widget.onSuccess?.call();
         });
       }
+
+      // Start resend timer when OTP is sent
+      if (state.status == AuthStatus.otpSent) {
+        _startResendTimer();
+        // Auto-focus first OTP box
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _otpFocusNodes[0].requestFocus();
+        });
+      }
+    });
+  }
+
+  void _startResendTimer() {
+    _resendTimer?.cancel();
+    _resendSeconds = 30;
+    _canResend = false;
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        if (_resendSeconds > 0) {
+          _resendSeconds--;
+        } else {
+          _canResend = true;
+          timer.cancel();
+        }
+      });
     });
   }
 
   @override
   void dispose() {
     _sub?.cancel();
+    _resendTimer?.cancel();
     _phoneController.dispose();
-    _otpController.dispose();
     _phoneFocus.dispose();
-    _otpFocus.dispose();
+    for (final c in _otpControllers) {
+      c.dispose();
+    }
+    for (final f in _otpFocusNodes) {
+      f.dispose();
+    }
     super.dispose();
   }
+
+  String get _fullOtp => _otpControllers.map((c) => c.text).join();
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +180,24 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // ── Lock Icon ─────────────────────────────
+        Container(
+          width: 56.w,
+          height: 56.w,
+          decoration: const BoxDecoration(
+            color: Color(0xFFE8EDF2),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.lock_outline_rounded,
+            size: 28.sp,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        SizedBox(height: 20.h),
+
         // Title
         Text(
           l10n.authSheetTitle,
@@ -143,8 +206,11 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
+          textAlign: TextAlign.center,
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: 8.h),
+
+        // Subtitle
         Text(
           l10n.authSheetSubtitle,
           style: GoogleFonts.cairo(
@@ -152,43 +218,110 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
             fontWeight: FontWeight.w500,
             color: AppTheme.textSecondary,
           ),
+          textAlign: TextAlign.center,
         ),
         SizedBox(height: 24.h),
 
-        // Phone input
-        TextFormField(
-          controller: _phoneController,
-          focusNode: _phoneFocus,
-          keyboardType: TextInputType.phone,
-          textDirection: TextDirection.ltr,
-          style: GoogleFonts.cairo(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
+        // ── Phone Number Label ────────────────────
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            l10n.authPhoneLabel,
+            style: GoogleFonts.cairo(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+              letterSpacing: 1.2,
+            ),
           ),
-          decoration: InputDecoration(
-            hintText: l10n.loginPhoneHint,
-            prefixIcon: Container(
-              width: 90.w,
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(width: 12.w),
-                  Text('🇮🇶', style: TextStyle(fontSize: 20.sp)),
-                  SizedBox(width: 6.w),
-                  Text(
-                    '+964',
-                    style: GoogleFonts.cairo(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
+        ),
+        SizedBox(height: 8.h),
+
+        // ── Phone Input with Country Code ─────────
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: AppTheme.textPrimary.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Row(
+            children: [
+              // Country code section
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(
+                      color: AppTheme.textPrimary.withValues(alpha: 0.2),
                     ),
                   ),
-                  SizedBox(width: 8.w),
-                  Container(width: 1, height: 24.h, color: AppTheme.inactive),
-                ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('🇮🇶', style: TextStyle(fontSize: 20.sp)),
+                    SizedBox(width: 6.w),
+                    Text(
+                      '+964',
+                      style: GoogleFonts.cairo(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 18.sp,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ],
+                ),
               ),
+              // Phone number field
+              Expanded(
+                child: TextFormField(
+                  controller: _phoneController,
+                  focusNode: _phoneFocus,
+                  keyboardType: TextInputType.phone,
+                  textDirection: TextDirection.ltr,
+                  style: GoogleFonts.cairo(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '750 XXX XXXX',
+                    hintStyle: GoogleFonts.cairo(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.inactive,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 14.h,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 8.h),
+
+        // SMS hint text
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            l10n.authPhoneSmsHint,
+            style: GoogleFonts.cairo(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w400,
+              color: AppTheme.textSecondary,
             ),
           ),
         ),
@@ -213,39 +346,52 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
           isLoading: state.isLoading,
           onPressed: () {
             final phone = _phoneController.text.trim();
-            if (phone.length >= 10) {
+            if (phone.isNotEmpty) {
               context.read<AuthBloc>().add(AuthOtpRequested(phone));
             }
           },
         ),
         SizedBox(height: 16.h),
 
-        // ── Or divider + Google ──────────────────────
+        // ── Use email / Need help links ──────────
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Expanded(child: Divider(color: AppTheme.inactive)),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+            TextButton(
+              onPressed: () {},
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               child: Text(
-                l10n.loginOr,
+                l10n.authUseEmail,
                 style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w500,
                   color: AppTheme.textSecondary,
                 ),
               ),
             ),
-            const Expanded(child: Divider(color: AppTheme.inactive)),
+            TextButton(
+              onPressed: () {},
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                l10n.authNeedHelp,
+                style: GoogleFonts.cairo(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.secondary,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppTheme.secondary,
+                ),
+              ),
+            ),
           ],
-        ),
-        SizedBox(height: 16.h),
-
-        PrimaryButton(
-          label: l10n.loginContinueGoogle,
-          isOutlined: true,
-          isLoading: state.isLoading,
-          onPressed: () {
-            context.read<AuthBloc>().add(const AuthGoogleSignInRequested());
-          },
         ),
       ],
     );
@@ -255,38 +401,22 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
   Widget _buildOtpView(AuthState state) {
     final l10n = AppLocalizations.of(context);
 
-    // Auto-focus OTP field
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _otpFocus.requestFocus();
-    });
-
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Back to phone view
-        TextButton.icon(
-          onPressed: () {
-            // Reset to guest so we show phone view again
-            context.read<AuthBloc>().add(const AuthOtpCancelled());
-          },
-          icon: Icon(
-            Icons.arrow_back_ios,
-            size: 16.sp,
-            color: AppTheme.textSecondary,
+        // ── Lock Icon ─────────────────────────────
+        Container(
+          width: 48.w,
+          height: 48.w,
+          decoration: BoxDecoration(
+            color: AppTheme.primary.withValues(alpha: 0.2),
+            shape: BoxShape.circle,
           ),
-          label: Text(
-            l10n.authChangeNumber,
-            style: GoogleFonts.cairo(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textSecondary,
-            ),
-          ),
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          child: Icon(
+            Icons.lock_outline_rounded,
+            size: 24.sp,
+            color: AppTheme.textPrimary,
           ),
         ),
         SizedBox(height: 16.h),
@@ -295,63 +425,121 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
         Text(
           l10n.authVerifyTitle,
           style: GoogleFonts.cairo(
-            fontSize: 24.sp,
+            fontSize: 22.sp,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
         ),
-        SizedBox(height: 4.h),
-        RichText(
-          text: TextSpan(
-            style: GoogleFonts.cairo(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textSecondary,
+        SizedBox(height: 8.h),
+
+        // Code sent to + phone number + Edit
+        Text(
+          l10n.authCodeSentTo,
+          style: GoogleFonts.cairo(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.textSecondary,
+          ),
+        ),
+        SizedBox(height: 2.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '+964 ${state.phoneNumber ?? ''}',
+              style: GoogleFonts.cairo(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
             ),
-            children: [
-              TextSpan(text: '${l10n.authCodeSentTo} '),
-              TextSpan(
-                text: '+964 ${state.phoneNumber ?? ''}',
+            SizedBox(width: 8.w),
+            TextButton(
+              onPressed: () {
+                context.read<AuthBloc>().add(const AuthOtpCancelled());
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                l10n.authEdit,
                 style: GoogleFonts.cairo(
                   fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.secondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 28.h),
+
+        // ── 4 OTP Input Boxes ─────────────────────
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(4, (index) {
+            final hasValue = _otpControllers[index].text.isNotEmpty;
+            final hasFocus = _otpFocusNodes[index].hasFocus;
+
+            return Container(
+              width: 60.w,
+              height: 60.w,
+              margin: EdgeInsets.symmetric(horizontal: 6.w),
+              decoration: BoxDecoration(
+                color: AppTheme.background,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: hasFocus
+                      ? AppTheme.textPrimary
+                      : hasValue
+                      ? AppTheme.textPrimary
+                      : AppTheme.inactive.withValues(alpha: 0.5),
+                  width: hasFocus || hasValue ? 2 : 1,
+                ),
+              ),
+              child: TextField(
+                controller: _otpControllers[index],
+                focusNode: _otpFocusNodes[index],
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                maxLength: 1,
+                style: GoogleFonts.cairo(
+                  fontSize: 24.sp,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.textPrimary,
                 ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 24.h),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(
+                  counterText: '',
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  setState(() {}); // refresh border styling
+                  if (value.isNotEmpty && index < 3) {
+                    // Auto-advance to next box
+                    _otpFocusNodes[index + 1].requestFocus();
+                  } else if (value.isEmpty && index > 0) {
+                    // Go back on delete
+                    _otpFocusNodes[index - 1].requestFocus();
+                  }
 
-        // OTP Input
-        TextFormField(
-          controller: _otpController,
-          focusNode: _otpFocus,
-          keyboardType: TextInputType.number,
-          textAlign: TextAlign.center,
-          maxLength: 6,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: GoogleFonts.cairo(
-            fontSize: 28.sp,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-            letterSpacing: 12.w,
-          ),
-          decoration: InputDecoration(
-            counterText: '',
-            hintText: '• • • • • •',
-            hintStyle: GoogleFonts.cairo(
-              fontSize: 28.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.inactive,
-              letterSpacing: 12.w,
-            ),
-          ),
+                  // Auto-submit when all 4 digits entered
+                  if (_fullOtp.length == 4) {
+                    context.read<AuthBloc>().add(AuthOtpSubmitted(_fullOtp));
+                  }
+                },
+              ),
+            );
+          }),
         ),
 
         // Error message
         if (state.error != null) ...[
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           Text(
             state.error!,
             style: GoogleFonts.cairo(
@@ -361,18 +549,74 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
           ),
         ],
 
-        SizedBox(height: 20.h),
+        SizedBox(height: 24.h),
 
-        // Verify button
+        // Verify & Continue button
         PrimaryButton(
           label: l10n.authVerifyCode,
           isLoading: state.isLoading,
           onPressed: () {
-            final otp = _otpController.text.trim();
-            if (otp.isNotEmpty) {
+            final otp = _fullOtp;
+            if (otp.length == 4) {
               context.read<AuthBloc>().add(AuthOtpSubmitted(otp));
             }
           },
+        ),
+        SizedBox(height: 16.h),
+
+        // ── Resend Timer ──────────────────────────
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              l10n.authResendCode,
+              style: GoogleFonts.cairo(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            if (!_canResend)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+                child: Text(
+                  '${(_resendSeconds ~/ 60).toString().padLeft(2, '0')}:${(_resendSeconds % 60).toString().padLeft(2, '0')}',
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              )
+            else
+              TextButton(
+                onPressed: () {
+                  final phone =
+                      context.read<AuthBloc>().state.phoneNumber ?? '';
+                  if (phone.isNotEmpty) {
+                    context.read<AuthBloc>().add(AuthOtpRequested(phone));
+                  }
+                },
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  'Resend',
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.secondary,
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );

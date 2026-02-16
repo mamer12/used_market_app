@@ -25,12 +25,22 @@
   "loginPhoneEmpty": "الرجاء إدخال رقم الهاتف",
   "loginPhoneInvalid": "رقم هاتف غير صالح",
 
-  "homeSearch": "ابحث في مستعمل...",
+  "homeGreetingSub": "مرحباً بعودتك",
+  "homeGreeting": "صباح الخير، أحمد",
+  "homeSearch": "ابحث عن سيارات، عقارات، أو خدمات...",
   "homeCategories": "الأقسام",
   "homeLiveNow": "مباشر الآن",
+  "homeLiveSubtitle": "فرص لا تعوض تنتهي قريباً",
   "homeSeeAll": "عرض الكل",
-  "homeLive": "مباشر",
+  "homeLive": "LIVE",
+  "homeHighestBid": "أعلى مزايدة",
+  "homeFreshlyListed": "مضاف حديثاً",
+  "homeVerified": "موثوق ١٠٠٪",
+  "homeBannerTitle": "سيارات مستعمل\nالمفحوصة",
+  "homeBannerSubtitle": "ضمان شامل وتقارير فحص دقيقة",
+  "homeBrowseNow": "تصفح الآن",
 
+  "categoryAuctions": "مزادات",
   "categoryMobile": "موبايل",
   "categoryCars": "سيارات",
   "categoryFurniture": "أثاث",
@@ -38,22 +48,72 @@
   "categoryRealEstate": "عقارات",
   "categoryElectronics": "إلكترونيات",
   "categoryFashion": "أزياء",
+  "categoryServices": "خدمات",
   "categoryMore": "المزيد",
-
-  "bannerTitle1": "صفقات اليوم 🔥",
-  "bannerSub1": "خصم يصل إلى 70%!",
-  "bannerTitle2": "وصل حديثاً 📦",
-  "bannerSub2": "إعلانات جديدة اليوم",
-  "bannerTitle3": "مزاد مباشر 🔨",
-  "bannerSub3": "زايد الآن!",
 
   "bidders": "{count} مزايدين",
 
+  "currency": "د.ع",
+
+  "bannerBadge1": "موثوق ١٠٠٪",
+  "bannerTitle1": "سيارات مستعمل\nالمفحوصة",
+  "bannerSub1": "ضمان شامل وتقارير فحص دقيقة",
+  "bannerCta1": "تصفح الآن",
+
+  "bannerBadge2": "عروض حصرية",
+  "bannerTitle2": "صفقات اليوم 🔥",
+  "bannerSub2": "خصم يصل إلى 70% على إلكترونيات مختارة",
+  "bannerCta2": "اكتشف العروض",
+
+  "bannerBadge3": "مزاد مباشر 🔨",
+  "bannerTitle3": "زايد الآن على\nأفضل المنتجات",
+  "bannerSub3": "مزادات حية كل يوم بأسعار لا تقاوم",
+  "bannerCta3": "شاهد المزادات",
+
+  "liveItemTitle1": "طقم كنب إيطالي",
+  "liveItemTitle2": "ساعة رولكس أصلية",
+  "liveItemTitle3": "آيفون 14 برو ماكس",
+
+  "listingTitle1": "حذاء رياضي نايكي أحمر",
+  "listingLocation1": "بغداد، المنصور",
+
+  "listingTitle2": "لابتوب ديل XPS 13",
+  "listingLocation2": "البصرة",
+
+  "listingTitle3": "كرسي استرخاء مخملي",
+  "listingLocation3": "أربيل",
+
+  "listingTitle4": "سماعات بلوتوث سوني",
+  "listingLocation4": "النجف",
+
+  "timeAgo1": "منذ ساعة",
+  "timeAgo2": "منذ ساعتين",
+  "timeAgo4": "منذ ٤ ساعات",
+  "timeAgo5": "منذ ٥ ساعات",
+
+  "auctionCurrentPrice": "السعر الحالي",
+  "auctionBidNowLabel": "زايد الآن",
+  "auctionPlaceYourBid": "ضع سعرك",
+  "auctionIncrease": "زيادة",
+  "auctionSellerName": "معرض بغداد الملكي",
+  "auctionBidder1": "حسن العراقي",
+  "auctionBidder2": "زيد محمد",
+  "auctionBidder3": "علي البصراوي",
+  "auctionYou": "أنت",
+
   "authSheetTitle": "سجّل دخولك للمتابعة",
-  "authSheetSubtitle": "تحتاج تسجيل الدخول لتنفيذ هذا الإجراء.",
-  "authGetCode": "أرسل الرمز",
-  "authVerifyTitle": "أدخل رمز التحقق",
-  "authCodeSentTo": "تم إرسال الرمز إلى",
-  "authVerifyCode": "تحقق",
-  "authChangeNumber": "تغيير الرقم"
+  "authSheetSubtitle": "تحتاج تسجيل الدخول لتنفيذ هذا الإجراء. أدخل رقم هاتفك للمتابعة.",
+  "authPhoneLabel": "رقم الهاتف",
+  "authPhoneSmsHint": "سنرسل لك رمز تحقق عبر SMS.",
+  "authGetCode": "أرسل الرمز  ←",
+  "authUseEmail": "استخدم البريد الإلكتروني",
+  "authNeedHelp": "تحتاج مساعدة؟",
+  "authVerifyTitle": "تحقق من هويتك",
+  "authCodeSentTo": "أرسلنا رمزاً من 4 أرقام إلى",
+  "authEdit": "تعديل",
+  "authVerifyCode": "تحقق ومتابعة  ←",
+  "authResendCode": "إعادة إرسال الرمز خلال",
+  "authChangeNumber": "تغيير الرقم",
+
+  "switchLanguage": "English"
 }

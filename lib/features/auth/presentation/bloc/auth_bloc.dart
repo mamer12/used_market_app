@@ -125,8 +125,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // TODO: Replace with actual OTP verification API call
       await Future<void>.delayed(const Duration(seconds: 1));
 
-      // Mock: any 6-digit code is "correct"
-      if (event.otp.length == 6) {
+      // Mock: any 4-digit code is "correct"
+      if (event.otp.length == 4) {
         // Persist token
         await _storage.write(key: _tokenKey, value: 'mock_token_${event.otp}');
 

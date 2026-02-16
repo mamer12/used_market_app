@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../core/locale/locale_cubit.dart';
 import '../../core/theme/app_theme.dart';
 import '../../features/auth/domain/entities/auth_status.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -21,22 +22,29 @@ class App extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
-      // The builder ensures ScreenUtil is initialized before MaterialApp builds its theme
       builder: (context, child) {
-        return BlocProvider(
-          create: (_) => AuthBloc()..add(const AuthCheckRequested()),
-          child: MaterialApp(
-            title: 'Mustamal',
-            debugShowCheckedModeBanner: false,
-            // Safe to access AppTheme because ScreenUtil is already initialized by the builder
-            theme: AppTheme.lightTheme,
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => AuthBloc()..add(const AuthCheckRequested()),
+            ),
+            BlocProvider(create: (_) => LocaleCubit()),
+          ],
+          child: BlocBuilder<LocaleCubit, Locale>(
+            builder: (context, locale) {
+              return MaterialApp(
+                title: 'Mustamal',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
 
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            locale: const Locale('en'),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                locale: locale,
 
-            // Entry point
-            home: const _AppEntry(),
+                // Entry point
+                home: const _AppEntry(),
+              );
+            },
           ),
         );
       },

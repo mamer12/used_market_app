@@ -58,7 +58,13 @@
   "loginPhoneInvalid": "Invalid phone number",
   "@loginPhoneInvalid": { "description": "Validation: invalid phone" },
 
-  "homeSearch": "Search Mustamal...",
+  "homeGreetingSub": "Welcome back",
+  "@homeGreetingSub": { "description": "Greeting subtitle" },
+
+  "homeGreeting": "Good morning, Ahmed",
+  "@homeGreeting": { "description": "Greeting with name" },
+
+  "homeSearch": "Search for cars, real estate, or services...",
   "@homeSearch": { "description": "Search bar placeholder" },
 
   "homeCategories": "Categories",
@@ -67,11 +73,35 @@
   "homeLiveNow": "Live Now",
   "@homeLiveNow": { "description": "Live section title" },
 
+  "homeLiveSubtitle": "Unmissable deals ending soon",
+  "@homeLiveSubtitle": { "description": "Live section subtitle" },
+
   "homeSeeAll": "See All",
   "@homeSeeAll": { "description": "See all link" },
 
   "homeLive": "LIVE",
   "@homeLive": { "description": "Live badge text" },
+
+  "homeHighestBid": "Highest bid",
+  "@homeHighestBid": { "description": "Bid label on live cards" },
+
+  "homeFreshlyListed": "Freshly Listed",
+  "@homeFreshlyListed": { "description": "Recently added section title" },
+
+  "homeVerified": "100% Verified",
+  "@homeVerified": { "description": "Banner verified badge" },
+
+  "homeBannerTitle": "Mustamal Inspected\nUsed Cars",
+  "@homeBannerTitle": { "description": "Hero banner title" },
+
+  "homeBannerSubtitle": "Full warranty & detailed inspection reports",
+  "@homeBannerSubtitle": { "description": "Hero banner subtitle" },
+
+  "homeBrowseNow": "Browse Now",
+  "@homeBrowseNow": { "description": "Banner CTA button" },
+
+  "categoryAuctions": "Auctions",
+  "@categoryAuctions": { "description": "Category label" },
 
   "categoryMobile": "Mobile",
   "@categoryMobile": { "description": "Category label" },
@@ -94,26 +124,11 @@
   "categoryFashion": "Fashion",
   "@categoryFashion": { "description": "Category label" },
 
+  "categoryServices": "Services",
+  "@categoryServices": { "description": "Category label" },
+
   "categoryMore": "More",
   "@categoryMore": { "description": "Category label" },
-
-  "bannerTitle1": "Daily Deals 🔥",
-  "@bannerTitle1": { "description": "Banner 1 title" },
-
-  "bannerSub1": "Up to 70% off!",
-  "@bannerSub1": { "description": "Banner 1 subtitle" },
-
-  "bannerTitle2": "New Arrivals 📦",
-  "@bannerTitle2": { "description": "Banner 2 title" },
-
-  "bannerSub2": "Fresh listings today",
-  "@bannerSub2": { "description": "Banner 2 subtitle" },
-
-  "bannerTitle3": "Auction Live 🔨",
-  "@bannerTitle3": { "description": "Banner 3 title" },
-
-  "bannerSub3": "Bid now!",
-  "@bannerSub3": { "description": "Banner 3 subtitle" },
 
   "bidders": "{count} bidders",
   "@bidders": {
@@ -123,24 +138,156 @@
     }
   },
 
+  "currency": "IQD",
+  "@currency": { "description": "Currency label" },
+
+  "bannerBadge1": "100% Verified",
+  "@bannerBadge1": { "description": "Slide 1 badge" },
+
+  "bannerTitle1": "Mustamal Inspected\nUsed Cars",
+  "@bannerTitle1": { "description": "Slide 1 title" },
+
+  "bannerSub1": "Full warranty & detailed inspection reports",
+  "@bannerSub1": { "description": "Slide 1 subtitle" },
+
+  "bannerCta1": "Browse Now",
+  "@bannerCta1": { "description": "Slide 1 CTA" },
+
+  "bannerBadge2": "Exclusive Deals",
+  "@bannerBadge2": { "description": "Slide 2 badge" },
+
+  "bannerTitle2": "Daily Deals 🔥",
+  "@bannerTitle2": { "description": "Slide 2 title" },
+
+  "bannerSub2": "Up to 70% off on selected electronics",
+  "@bannerSub2": { "description": "Slide 2 subtitle" },
+
+  "bannerCta2": "Discover Deals",
+  "@bannerCta2": { "description": "Slide 2 CTA" },
+
+  "bannerBadge3": "Live Auction 🔨",
+  "@bannerBadge3": { "description": "Slide 3 badge" },
+
+  "bannerTitle3": "Bid Now on\nTop Products",
+  "@bannerTitle3": { "description": "Slide 3 title" },
+
+  "bannerSub3": "Daily live auctions at unbeatable prices",
+  "@bannerSub3": { "description": "Slide 3 subtitle" },
+
+  "bannerCta3": "View Auctions",
+  "@bannerCta3": { "description": "Slide 3 CTA" },
+
+  "liveItemTitle1": "Italian Sofa Set",
+  "@liveItemTitle1": { "description": "Live item 1" },
+
+  "liveItemTitle2": "Original Rolex Watch",
+  "@liveItemTitle2": { "description": "Live item 2" },
+
+  "liveItemTitle3": "iPhone 14 Pro Max",
+  "@liveItemTitle3": { "description": "Live item 3" },
+
+  "listingTitle1": "Red Nike Running Shoes",
+  "@listingTitle1": { "description": "Listing 1" },
+
+  "listingLocation1": "Baghdad, Mansour",
+  "@listingLocation1": { "description": "Location 1" },
+
+  "listingTitle2": "Dell XPS 13 Laptop",
+  "@listingTitle2": { "description": "Listing 2" },
+
+  "listingLocation2": "Basra",
+  "@listingLocation2": { "description": "Location 2" },
+
+  "listingTitle3": "Velvet Recliner Chair",
+  "@listingTitle3": { "description": "Listing 3" },
+
+  "listingLocation3": "Erbil",
+  "@listingLocation3": { "description": "Location 3" },
+
+  "listingTitle4": "Sony Bluetooth Headphones",
+  "@listingTitle4": { "description": "Listing 4" },
+
+  "listingLocation4": "Najaf",
+  "@listingLocation4": { "description": "Location 4" },
+
+  "timeAgo1": "1h ago",
+  "@timeAgo1": { "description": "Time ago" },
+
+  "timeAgo2": "2h ago",
+  "@timeAgo2": { "description": "Time ago" },
+
+  "timeAgo4": "4h ago",
+  "@timeAgo4": { "description": "Time ago" },
+
+  "timeAgo5": "5h ago",
+  "@timeAgo5": { "description": "Time ago" },
+
+  "auctionCurrentPrice": "Current Price",
+  "@auctionCurrentPrice": { "description": "Auction dock label" },
+
+  "auctionBidNowLabel": "Bid Now",
+  "@auctionBidNowLabel": { "description": "Small label above bid button" },
+
+  "auctionPlaceYourBid": "Place Your Bid",
+  "@auctionPlaceYourBid": { "description": "Primary bid button text" },
+
+  "auctionIncrease": "Increase",
+  "@auctionIncrease": { "description": "Quick bid button label" },
+
+  "auctionSellerName": "Royal Baghdad Auto",
+  "@auctionSellerName": { "description": "Mock seller name" },
+
+  "auctionBidder1": "Hassan Al-Iraqi",
+  "@auctionBidder1": { "description": "Bidder 1 name" },
+
+  "auctionBidder2": "Zaid Mohammed",
+  "@auctionBidder2": { "description": "Bidder 2 name" },
+
+  "auctionBidder3": "Ali Al-Basrawi",
+  "@auctionBidder3": { "description": "Bidder 3 name" },
+
+  "auctionYou": "You",
+  "@auctionYou": { "description": "Label for user's own bids" },
+
   "authSheetTitle": "Login to Continue",
   "@authSheetTitle": { "description": "Auth bottom sheet title" },
 
-  "authSheetSubtitle": "Sign in to perform this action.",
+  "authSheetSubtitle": "You need to be signed in to perform this action. Please enter your phone number to proceed.",
   "@authSheetSubtitle": { "description": "Auth bottom sheet subtitle" },
 
-  "authGetCode": "Get Code",
+  "authPhoneLabel": "PHONE NUMBER",
+  "@authPhoneLabel": { "description": "Phone input label above field" },
+
+  "authPhoneSmsHint": "We'll send you a verification code via SMS.",
+  "@authPhoneSmsHint": { "description": "Helper text below phone input" },
+
+  "authGetCode": "Get Code  →",
   "@authGetCode": { "description": "Request OTP button" },
 
-  "authVerifyTitle": "Enter Verification Code",
+  "authUseEmail": "Use email instead",
+  "@authUseEmail": { "description": "Alternative email login link" },
+
+  "authNeedHelp": "Need help?",
+  "@authNeedHelp": { "description": "Help link on login sheet" },
+
+  "authVerifyTitle": "Verify it's you",
   "@authVerifyTitle": { "description": "OTP view title" },
 
-  "authCodeSentTo": "Code sent to",
+  "authCodeSentTo": "We've sent a 4-digit code to",
   "@authCodeSentTo": { "description": "OTP subtitle prefix" },
 
-  "authVerifyCode": "Verify",
+  "authEdit": "Edit",
+  "@authEdit": { "description": "Edit phone number link in OTP view" },
+
+  "authVerifyCode": "VERIFY & CONTINUE  →",
   "@authVerifyCode": { "description": "Verify OTP button" },
 
+  "authResendCode": "Resend code in",
+  "@authResendCode": { "description": "Resend timer label" },
+
   "authChangeNumber": "Change number",
-  "@authChangeNumber": { "description": "Go back to phone input" }
+  "@authChangeNumber": { "description": "Go back to phone input" },
+
+  "switchLanguage": "العربية",
+  "@switchLanguage": { "description": "Language toggle label — shows the OTHER language name" }
 }

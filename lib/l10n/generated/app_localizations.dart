@@ -212,10 +212,22 @@ abstract class AppLocalizations {
   /// **'Invalid phone number'**
   String get loginPhoneInvalid;
 
+  /// Greeting subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get homeGreetingSub;
+
+  /// Greeting with name
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning, Ahmed'**
+  String get homeGreeting;
+
   /// Search bar placeholder
   ///
   /// In en, this message translates to:
-  /// **'Search Mustamal...'**
+  /// **'Search for cars, real estate, or services...'**
   String get homeSearch;
 
   /// Categories section title
@@ -230,6 +242,12 @@ abstract class AppLocalizations {
   /// **'Live Now'**
   String get homeLiveNow;
 
+  /// Live section subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Unmissable deals ending soon'**
+  String get homeLiveSubtitle;
+
   /// See all link
   ///
   /// In en, this message translates to:
@@ -241,6 +259,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'LIVE'**
   String get homeLive;
+
+  /// Bid label on live cards
+  ///
+  /// In en, this message translates to:
+  /// **'Highest bid'**
+  String get homeHighestBid;
+
+  /// Recently added section title
+  ///
+  /// In en, this message translates to:
+  /// **'Freshly Listed'**
+  String get homeFreshlyListed;
+
+  /// Banner verified badge
+  ///
+  /// In en, this message translates to:
+  /// **'100% Verified'**
+  String get homeVerified;
+
+  /// Hero banner title
+  ///
+  /// In en, this message translates to:
+  /// **'Mustamal Inspected\nUsed Cars'**
+  String get homeBannerTitle;
+
+  /// Hero banner subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Full warranty & detailed inspection reports'**
+  String get homeBannerSubtitle;
+
+  /// Banner CTA button
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Now'**
+  String get homeBrowseNow;
+
+  /// Category label
+  ///
+  /// In en, this message translates to:
+  /// **'Auctions'**
+  String get categoryAuctions;
 
   /// Category label
   ///
@@ -287,50 +347,242 @@ abstract class AppLocalizations {
   /// Category label
   ///
   /// In en, this message translates to:
+  /// **'Services'**
+  String get categoryServices;
+
+  /// Category label
+  ///
+  /// In en, this message translates to:
   /// **'More'**
   String get categoryMore;
-
-  /// Banner 1 title
-  ///
-  /// In en, this message translates to:
-  /// **'Daily Deals 🔥'**
-  String get bannerTitle1;
-
-  /// Banner 1 subtitle
-  ///
-  /// In en, this message translates to:
-  /// **'Up to 70% off!'**
-  String get bannerSub1;
-
-  /// Banner 2 title
-  ///
-  /// In en, this message translates to:
-  /// **'New Arrivals 📦'**
-  String get bannerTitle2;
-
-  /// Banner 2 subtitle
-  ///
-  /// In en, this message translates to:
-  /// **'Fresh listings today'**
-  String get bannerSub2;
-
-  /// Banner 3 title
-  ///
-  /// In en, this message translates to:
-  /// **'Auction Live 🔨'**
-  String get bannerTitle3;
-
-  /// Banner 3 subtitle
-  ///
-  /// In en, this message translates to:
-  /// **'Bid now!'**
-  String get bannerSub3;
 
   /// Number of bidders
   ///
   /// In en, this message translates to:
   /// **'{count} bidders'**
   String bidders(int count);
+
+  /// Currency label
+  ///
+  /// In en, this message translates to:
+  /// **'IQD'**
+  String get currency;
+
+  /// Slide 1 badge
+  ///
+  /// In en, this message translates to:
+  /// **'100% Verified'**
+  String get bannerBadge1;
+
+  /// Slide 1 title
+  ///
+  /// In en, this message translates to:
+  /// **'Mustamal Inspected\nUsed Cars'**
+  String get bannerTitle1;
+
+  /// Slide 1 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Full warranty & detailed inspection reports'**
+  String get bannerSub1;
+
+  /// Slide 1 CTA
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Now'**
+  String get bannerCta1;
+
+  /// Slide 2 badge
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive Deals'**
+  String get bannerBadge2;
+
+  /// Slide 2 title
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Deals 🔥'**
+  String get bannerTitle2;
+
+  /// Slide 2 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 70% off on selected electronics'**
+  String get bannerSub2;
+
+  /// Slide 2 CTA
+  ///
+  /// In en, this message translates to:
+  /// **'Discover Deals'**
+  String get bannerCta2;
+
+  /// Slide 3 badge
+  ///
+  /// In en, this message translates to:
+  /// **'Live Auction 🔨'**
+  String get bannerBadge3;
+
+  /// Slide 3 title
+  ///
+  /// In en, this message translates to:
+  /// **'Bid Now on\nTop Products'**
+  String get bannerTitle3;
+
+  /// Slide 3 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Daily live auctions at unbeatable prices'**
+  String get bannerSub3;
+
+  /// Slide 3 CTA
+  ///
+  /// In en, this message translates to:
+  /// **'View Auctions'**
+  String get bannerCta3;
+
+  /// Live item 1
+  ///
+  /// In en, this message translates to:
+  /// **'Italian Sofa Set'**
+  String get liveItemTitle1;
+
+  /// Live item 2
+  ///
+  /// In en, this message translates to:
+  /// **'Original Rolex Watch'**
+  String get liveItemTitle2;
+
+  /// Live item 3
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone 14 Pro Max'**
+  String get liveItemTitle3;
+
+  /// Listing 1
+  ///
+  /// In en, this message translates to:
+  /// **'Red Nike Running Shoes'**
+  String get listingTitle1;
+
+  /// Location 1
+  ///
+  /// In en, this message translates to:
+  /// **'Baghdad, Mansour'**
+  String get listingLocation1;
+
+  /// Listing 2
+  ///
+  /// In en, this message translates to:
+  /// **'Dell XPS 13 Laptop'**
+  String get listingTitle2;
+
+  /// Location 2
+  ///
+  /// In en, this message translates to:
+  /// **'Basra'**
+  String get listingLocation2;
+
+  /// Listing 3
+  ///
+  /// In en, this message translates to:
+  /// **'Velvet Recliner Chair'**
+  String get listingTitle3;
+
+  /// Location 3
+  ///
+  /// In en, this message translates to:
+  /// **'Erbil'**
+  String get listingLocation3;
+
+  /// Listing 4
+  ///
+  /// In en, this message translates to:
+  /// **'Sony Bluetooth Headphones'**
+  String get listingTitle4;
+
+  /// Location 4
+  ///
+  /// In en, this message translates to:
+  /// **'Najaf'**
+  String get listingLocation4;
+
+  /// Time ago
+  ///
+  /// In en, this message translates to:
+  /// **'1h ago'**
+  String get timeAgo1;
+
+  /// Time ago
+  ///
+  /// In en, this message translates to:
+  /// **'2h ago'**
+  String get timeAgo2;
+
+  /// Time ago
+  ///
+  /// In en, this message translates to:
+  /// **'4h ago'**
+  String get timeAgo4;
+
+  /// Time ago
+  ///
+  /// In en, this message translates to:
+  /// **'5h ago'**
+  String get timeAgo5;
+
+  /// Auction dock label
+  ///
+  /// In en, this message translates to:
+  /// **'Current Price'**
+  String get auctionCurrentPrice;
+
+  /// Small label above bid button
+  ///
+  /// In en, this message translates to:
+  /// **'Bid Now'**
+  String get auctionBidNowLabel;
+
+  /// Primary bid button text
+  ///
+  /// In en, this message translates to:
+  /// **'Place Your Bid'**
+  String get auctionPlaceYourBid;
+
+  /// Quick bid button label
+  ///
+  /// In en, this message translates to:
+  /// **'Increase'**
+  String get auctionIncrease;
+
+  /// Mock seller name
+  ///
+  /// In en, this message translates to:
+  /// **'Royal Baghdad Auto'**
+  String get auctionSellerName;
+
+  /// Bidder 1 name
+  ///
+  /// In en, this message translates to:
+  /// **'Hassan Al-Iraqi'**
+  String get auctionBidder1;
+
+  /// Bidder 2 name
+  ///
+  /// In en, this message translates to:
+  /// **'Zaid Mohammed'**
+  String get auctionBidder2;
+
+  /// Bidder 3 name
+  ///
+  /// In en, this message translates to:
+  /// **'Ali Al-Basrawi'**
+  String get auctionBidder3;
+
+  /// Label for user's own bids
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get auctionYou;
 
   /// Auth bottom sheet title
   ///
@@ -341,38 +593,80 @@ abstract class AppLocalizations {
   /// Auth bottom sheet subtitle
   ///
   /// In en, this message translates to:
-  /// **'Sign in to perform this action.'**
+  /// **'You need to be signed in to perform this action. Please enter your phone number to proceed.'**
   String get authSheetSubtitle;
+
+  /// Phone input label above field
+  ///
+  /// In en, this message translates to:
+  /// **'PHONE NUMBER'**
+  String get authPhoneLabel;
+
+  /// Helper text below phone input
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send you a verification code via SMS.'**
+  String get authPhoneSmsHint;
 
   /// Request OTP button
   ///
   /// In en, this message translates to:
-  /// **'Get Code'**
+  /// **'Get Code  →'**
   String get authGetCode;
+
+  /// Alternative email login link
+  ///
+  /// In en, this message translates to:
+  /// **'Use email instead'**
+  String get authUseEmail;
+
+  /// Help link on login sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Need help?'**
+  String get authNeedHelp;
 
   /// OTP view title
   ///
   /// In en, this message translates to:
-  /// **'Enter Verification Code'**
+  /// **'Verify it\'s you'**
   String get authVerifyTitle;
 
   /// OTP subtitle prefix
   ///
   /// In en, this message translates to:
-  /// **'Code sent to'**
+  /// **'We\'ve sent a 4-digit code to'**
   String get authCodeSentTo;
+
+  /// Edit phone number link in OTP view
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get authEdit;
 
   /// Verify OTP button
   ///
   /// In en, this message translates to:
-  /// **'Verify'**
+  /// **'VERIFY & CONTINUE  →'**
   String get authVerifyCode;
+
+  /// Resend timer label
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in'**
+  String get authResendCode;
 
   /// Go back to phone input
   ///
   /// In en, this message translates to:
   /// **'Change number'**
   String get authChangeNumber;
+
+  /// Language toggle label — shows the OTHER language name
+  ///
+  /// In en, this message translates to:
+  /// **'العربية'**
+  String get switchLanguage;
 }
 
 class _AppLocalizationsDelegate
