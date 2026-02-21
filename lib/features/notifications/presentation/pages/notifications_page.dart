@@ -427,69 +427,68 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   Widget _buildUnauthenticated() {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80.w,
-              height: 80.w,
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(40.w, 40.h, 40.w, 120.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+          Container(
+            width: 80.w,
+            height: 80.w,
+            decoration: BoxDecoration(
+              color: AppTheme.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.lock_outline,
+              size: 36.sp,
+              color: AppTheme.primary,
+            ),
+          ),
+          SizedBox(height: 20.h),
+          Text(
+            'Sign in to view your activity',
+            style: GoogleFonts.cairo(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Track your purchases, sales, and bids all in one place.',
+            style: GoogleFonts.cairo(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 24.h),
+          AuthGuard(
+            onAuthenticated: () {},
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 32.w,
+                vertical: 14.h,
+              ),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.lock_outline,
-                size: 36.sp,
-                color: AppTheme.primary,
-              ),
-            ),
-            SizedBox(height: 20.h),
-            Text(
-              'Sign in to view your activity',
-              style: GoogleFonts.cairo(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
                 color: AppTheme.textPrimary,
+                borderRadius: BorderRadius.circular(12.r),
               ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'Track your purchases, sales, and bids all in one place.',
-              style: GoogleFonts.cairo(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 24.h),
-            AuthGuard(
-              onAuthenticated: () {},
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 32.w,
-                  vertical: 14.h,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.textPrimary,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Text(
-                  'Sign In',
-                  style: GoogleFonts.cairo(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.buttonText,
-                  ),
+              child: Text(
+                'Sign In',
+                style: GoogleFonts.cairo(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.buttonText,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

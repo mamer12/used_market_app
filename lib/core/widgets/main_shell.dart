@@ -118,23 +118,23 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   Widget _buildGlassNavBar(BuildContext ctx, CartState cartState) {
     final safeBottom = MediaQuery.of(ctx).padding.bottom;
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, (safeBottom + 12).h),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, safeBottom + 12),
       child: SizedBox(
-        height: 62.h,
+        height: 62,
         child: Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
             // ── Frosted glass pill ───────────────────────
             ClipRRect(
-              borderRadius: BorderRadius.circular(31.r),
+              borderRadius: BorderRadius.circular(31),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
                 child: Container(
-                  height: 62.h,
+                  height: 62,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.84),
-                    borderRadius: BorderRadius.circular(31.r),
+                    borderRadius: BorderRadius.circular(31),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.65),
                       width: 1.2,
@@ -171,7 +171,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                         onTap: () => _onNavTap(1),
                       ),
                       // Gap for center FAB
-                      SizedBox(width: 54.w),
+                      const SizedBox(width: 54),
                       _NavItem(
                         activeIcon: Icons.notifications_rounded,
                         inactiveIcon: Icons.notifications_outlined,
@@ -194,7 +194,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
 
             // ── Center FAB ───────────────────────────────
             Positioned(
-              top: -20.h,
+              top: -20,
               child: _buildCenterFab(),
             ),
           ],
@@ -215,8 +215,8 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
       child: ScaleTransition(
         scale: _fabScale,
         child: Container(
-          width: 56.w,
-          height: 56.w,
+          width: 56,
+          height: 56,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: const LinearGradient(
@@ -239,9 +239,9 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
               ),
             ],
           ),
-          child: Icon(
+          child: const Icon(
             Icons.add_rounded,
-            size: 28.sp,
+            size: 28,
             color: AppTheme.textPrimary,
           ),
         ),
@@ -274,50 +274,44 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 54.w,
-        height: 62.h,
+        width: 60,
+        height: 62,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Icon with optional badge
             SizedBox(
-              width: 28.w,
-              height: 28.w,
+              width: 28,
+              height: 28,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    transitionBuilder: (child, anim) =>
-                        ScaleTransition(scale: anim, child: child),
-                    child: Icon(
-                      isActive ? activeIcon : inactiveIcon,
-                      key: ValueKey(isActive),
-                      size: 23.sp,
-                      color:
-                          isActive ? AppTheme.textPrimary : AppTheme.inactive,
-                    ),
+                  Icon(
+                    isActive ? activeIcon : inactiveIcon,
+                    size: 23,
+                    color: isActive ? AppTheme.textPrimary : AppTheme.inactive,
                   ),
                   if (badgeCount > 0)
                     Positioned(
-                      top: -3.h,
-                      right: -4.w,
+                      top: -3,
+                      right: -4,
                       child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 4.w,
-                          vertical: 1.h,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 1,
                         ),
-                        constraints: BoxConstraints(minWidth: 16.w),
+                        constraints: const BoxConstraints(minWidth: 16),
                         decoration: BoxDecoration(
                           color: AppTheme.liveBadge,
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.white, width: 1.2),
                         ),
                         child: Text(
                           badgeCount > 99 ? '99+' : '$badgeCount',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.cairo(
-                            fontSize: 8.5.sp,
+                            fontSize: 8.5,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
@@ -327,27 +321,26 @@ class _NavItem extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 2.h),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
+            const SizedBox(height: 2),
+            Text(
+              label,
               style: GoogleFonts.cairo(
-                fontSize: 9.5.sp,
+                fontSize: 9.5,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 color: isActive ? AppTheme.textPrimary : AppTheme.inactive,
               ),
-              child: Text(label),
             ),
-            SizedBox(height: 3.h),
+            const SizedBox(height: 2),
             // Active dot
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutBack,
-              width: isActive ? 14.w : 0,
-              height: 3.h,
-              decoration: BoxDecoration(
-                color: AppTheme.primary,
-                borderRadius: BorderRadius.circular(1.5.r),
-              ),
+            Container(
+              width: isActive ? 14 : 0,
+              height: 3,
+              decoration: isActive
+                  ? BoxDecoration(
+                      color: AppTheme.primary,
+                      borderRadius: BorderRadius.circular(1.5),
+                    )
+                  : null,
             ),
           ],
         ),

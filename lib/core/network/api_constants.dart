@@ -1,23 +1,40 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 class ApiConstants {
-  // Returns the appropriate localhost IP depending on the platform
-  static String get _localhost {
-    if (Platform.isAndroid) {
-      return '10.0.2.2'; // Android Emulator alias for host loopback
-    } else {
-      return 'localhost'; // iOS Simulator & others
-    }
+  /// Resolved host for all API calls.
+  ///
+  /// - Debug builds  → LAN IP of the dev machine (works for both iOS
+  ///   Simulator and a physical device on the same WiFi).
+  ///   Update [_devHost] whenever your Mac's IP changes.
+  /// - Android emulator always routes to the host machine via 10.0.2.2.
+  /// - Release builds → use the [_prodHost] constant.
+  ///
+  /// Override at any time with --dart-define=DEV_HOST=YOUR_IP.
+  static const String _devHost = '192.168.68.104'; // <-- update if IP changes
+  static const String _prodHost = 'api.mustamal.com'; // <-- your prod domain
+
+  static String get _host {
+    // Explicit override wins (useful for CI or a different dev machine).
+    const override = String.fromEnvironment('DEV_HOST');
+    if (override.isNotEmpty) return override;
+
+    if (kReleaseMode) return _prodHost;
+
+    // Debug / profile
+    if (Platform.isAndroid) return '10.0.2.2'; // Android emulator loopback
+    return _devHost; // iOS Simulator + physical iPhone on same LAN
   }
 
   /// REST API Base URL
-  static String get baseUrl => 'http://$_localhost:8080/api/v1';
+  static String get baseUrl => 'http://$_host:8080/api/v1';
 
   /// WebSocket Base URL
-  static String get wsBaseUrl => 'ws://$_localhost:8080/ws';
+  static String get wsBaseUrl => 'ws://$_host:8080/ws';
 
-  /// Media Server Base URL (Assuming it runs on port 9000 like in the docs)
-  static String get mediaBaseUrl => 'http://$_localhost:9000/lugta-media';
+  /// Media Server Base URL
+  static String get mediaBaseUrl => 'http://$_host:9000/lugta-media';
 
   // --- Auth Endpoints ---
   static const String sendOtp = '/auth/otp/send';

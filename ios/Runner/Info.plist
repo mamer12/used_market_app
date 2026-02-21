@@ -74,5 +74,12 @@
 	<string>This app needs access to your location to show nearby listings.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to your microphone to record audio for your listings.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Allow plain HTTP to the local dev backend over LAN (physical device). -->
+		<!-- Remove or restrict this in production builds. -->
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
