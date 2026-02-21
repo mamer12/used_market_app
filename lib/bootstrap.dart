@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/config/flavor.dart';
+import 'core/di/injection.dart';
 import 'core/services/log_service.dart';
 
 Future<void> bootstrap(
@@ -39,8 +40,7 @@ Future<void> bootstrap(
   // ── BLoC Observer ─────────────────────────────────────
   Bloc.observer = _AppBlocObserver();
 
-  // TODO: Initialize DI (GetIt) here
-
+  configureDependencies();
   log.info('🚀 Bootstrapping with flavor: ${flavor.name}');
 
   runApp(await builder());

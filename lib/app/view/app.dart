@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../core/di/injection.dart';
 import '../../core/locale/locale_cubit.dart';
 import '../../core/theme/app_theme.dart';
 import '../../features/auth/domain/entities/auth_status.dart';
@@ -26,7 +27,7 @@ class App extends StatelessWidget {
         return MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (_) => AuthBloc()..add(const AuthCheckRequested()),
+              create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
             ),
             BlocProvider(create: (_) => LocaleCubit()),
           ],
