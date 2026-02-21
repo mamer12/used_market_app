@@ -4,11 +4,21 @@ part 'auth_models.freezed.dart';
 part 'auth_models.g.dart';
 
 @freezed
+abstract class SendOtpRequest with _$SendOtpRequest {
+  const factory SendOtpRequest({
+    @JsonKey(name: 'phone_number') required String phoneNumber,
+  }) = _SendOtpRequest;
+
+  factory SendOtpRequest.fromJson(Map<String, dynamic> json) =>
+      _$SendOtpRequestFromJson(json);
+}
+
+@freezed
 abstract class RegisterRequest with _$RegisterRequest {
   const factory RegisterRequest({
     @JsonKey(name: 'full_name') required String fullName,
     @JsonKey(name: 'phone_number') required String phoneNumber,
-    required String password,
+    required String otp,
   }) = _RegisterRequest;
 
   factory RegisterRequest.fromJson(Map<String, dynamic> json) =>
@@ -19,7 +29,7 @@ abstract class RegisterRequest with _$RegisterRequest {
 abstract class LoginRequest with _$LoginRequest {
   const factory LoginRequest({
     @JsonKey(name: 'phone_number') required String phoneNumber,
-    required String password,
+    required String otp,
   }) = _LoginRequest;
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) =>
@@ -41,7 +51,7 @@ abstract class UserModel with _$UserModel {
 
 @freezed
 abstract class AuthResponse with _$AuthResponse {
-  const factory AuthResponse({required String token, required UserModel user}) =
+  const factory AuthResponse({String? token, required UserModel user}) =
       _AuthResponse;
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) =>

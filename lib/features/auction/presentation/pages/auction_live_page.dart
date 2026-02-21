@@ -2,17 +2,21 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../bloc/auction_cubit.dart';
 
 /// Immersive full-screen auction page.
 ///
 /// Displays a live auction with video/image background, bid ticker,
 /// glassmorphism dock with price + quick-bid buttons, and reaction FABs.
 class AuctionLivePage extends StatefulWidget {
+  final String auctionId;
   final String title;
   final String currentPrice;
   final String currency;
@@ -20,6 +24,7 @@ class AuctionLivePage extends StatefulWidget {
 
   const AuctionLivePage({
     super.key,
+    required this.auctionId,
     required this.title,
     required this.currentPrice,
     required this.currency,
@@ -32,30 +37,20 @@ class AuctionLivePage extends StatefulWidget {
 
 class _AuctionLivePageState extends State<AuctionLivePage>
     with TickerProviderStateMixin {
+  late final AuctionCubit _cubit;
   // Timer countdown
   Timer? _countdownTimer;
-  int _secondsLeft = 45; // start at 00:45
+  int _secondsLeft = 0;
 
   // Animation for new bids
   late final AnimationController _bidBounceCtrl;
 
-  // Mock bid data — populated from l10n in didChangeDependencies
-  List<_BidEntry> _bids = [];
-  bool _bidsInitialized = false;
-
-  String _currentDisplayPrice = '';
-  int _nextBidAmount = 760000;
   int _fireCount = 12;
 
   @override
   void initState() {
     super.initState();
-    _currentDisplayPrice = widget.currentPrice;
-
-    // Parse price for next bid calculation
-    final parsed =
-        int.tryParse(widget.currentPrice.replaceAll(',', '')) ?? 750000;
-    _nextBidAmount = parsed + 10000;
+    _cubit = getIt<AuctionCubit>()..initAuctionLive(widget.auctionId);
 
     _bidBounceCtrl = AnimationController(
       vsync: this,
@@ -71,34 +66,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_bidsInitialized) {
-      final l10n = AppLocalizations.of(context);
-      _bids = [
-        _BidEntry(
-          name: l10n.auctionBidder1,
-          amount: '550,000',
-          avatarUrl:
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuBziPrsdThAFqt5gqE4r6Q2DOaqh7QsQ9uft69hhiwRLp12UZxHdqNWleSm5TYeSqUshOB9Xs7kP2P_Vfnzd9grNhLS5FliPQ6H9yPbj7hqFiL1CIDViUC0OJvGkvcdrXFVGNcAaB40mh_Z3rSYUK3df-ehco_xeaU9O9rQUqBiBW7w9j4tbsXbbDZgNKl_RlXQACR9M1y0SehIFhSQ93cxLUpVE0fFd3g2nJXa1H5EFhY2nXnhnxG9N7Or6eh90pmtx34O9TQQvjh7',
-        ),
-        _BidEntry(
-          name: l10n.auctionBidder2,
-          amount: '620,000',
-          avatarUrl:
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuBzUIAszTfeGpyZ7vqttedaKGhrla2VK8dpfKkGb8ey-y3Jn5zIO76MY08ZjLLg1mLZmPB9dmCR0wHGnnOIACtnktgQcZ_c9zF7qg7tdpJ9FwNLf25VqW_VLGzgAu46q99V3IMHVlpqT4_tBS6Y4wMQxMhO-f1rHxw4XfWXVtY2ftnaZVDPRDBrcpWnmX-2xdVRPxR38jUG3sDYfnYL27BjAEGdMREPnRHIorRelZgrIebeJRjP3cbXsDQrdECxd1bjXP6zn0yWpjQP',
-        ),
-        _BidEntry(
-          name: l10n.auctionBidder3,
-          amount: '750,000',
-          avatarUrl:
-              'https://lh3.googleusercontent.com/aida-public/AB6AXuAx8ziVXbhF60wr52cGvPDQuQk-5JmVoVs5XChJHKir5vJlv1FQ0FAxCQHoy09g2QD_q5_hkxvqMVZBaIVTgnLh_4kPpbaocoQnAOG1Y7FgKZLaw0Sxx5ltUjvQ2mpJ1y6GbDmX1P2e9GaauhyQTmMIMjqoPsoJecYokNxebH-CQ6gXCFa51xkW4LcttMxsKsbwHBvJDGxO0PkmZKLmmoXnTIhqGkHLUZkI-VbYLzB-hvte6Id37prGNrzaOd0UwG9UADY5asS5Aq5u',
-        ),
-      ];
-      _bidsInitialized = true;
-    }
-  }
+  // Bids are now loaded from AuctionCubit. We don't need mock bids in didChangeDependencies.
 
   @override
   void dispose() {
@@ -124,41 +92,50 @@ class _AuctionLivePageState extends State<AuctionLivePage>
   }
 
   void _placeBid(int increment) {
-    final l10n = AppLocalizations.of(context);
+    if (_cubit.state.auction == null) return;
+
+    final currentHigh = _cubit.state.bids.isNotEmpty
+        ? _cubit.state.bids.last.amount.toInt()
+        : (_cubit.state.auction?.currentPrice ?? 0).toInt();
+
+    final amount = currentHigh + increment;
+
+    _cubit.placeBid(amount.toDouble());
+
     setState(() {
-      _nextBidAmount += increment;
-      _currentDisplayPrice = _formatNumber(_nextBidAmount - increment);
-      _bids.add(
-        _BidEntry(
-          name: l10n.auctionYou,
-          amount: _formatNumber(_nextBidAmount - increment),
-          avatarUrl: '',
-          isYou: true,
-        ),
-      );
-      _secondsLeft = 45; // reset timer
+      _secondsLeft = 45; // Simulated timer reset
       _fireCount++;
     });
+
     _bidBounceCtrl.forward(from: 0);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // 1. Background Image
-          _buildBackground(),
+    return BlocProvider.value(
+      value: _cubit,
+      child: BlocBuilder<AuctionCubit, AuctionState>(
+        builder: (context, state) {
+          if (state.isLoading && state.auction == null) {
+            return const Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: CircularProgressIndicator(color: AppTheme.primary),
+              ),
+            );
+          }
 
-          // 2. Top Navigation
-          _buildTopBar(),
-
-          // 3. Bottom Content (bids + dock)
-          _buildBottomContent(),
-
-          // 4. Reaction FABs
-          _buildReactionButtons(),
-        ],
+          return Scaffold(
+            body: Stack(
+              children: [
+                _buildBackground(),
+                _buildTopBar(),
+                _buildBottomContent(),
+                _buildReactionButtons(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -410,16 +387,22 @@ class _AuctionLivePageState extends State<AuctionLivePage>
         child: ListView.builder(
           reverse: false,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: _bids.length,
+          itemCount: _cubit.state.bids.length,
           itemBuilder: (context, index) {
-            final bid = _bids[index];
-            final isLatest = index == _bids.length - 1;
+            final bid = _cubit.state.bids[index];
+            final bidsList = _cubit.state.bids;
+            final isLatest = index == bidsList.length - 1;
             final opacity = isLatest
                 ? 1.0
-                : (index == _bids.length - 2 ? 0.7 : 0.4);
+                : (index == bidsList.length - 2 ? 0.7 : 0.4);
             final scale = isLatest
                 ? 1.0
-                : (index == _bids.length - 2 ? 0.95 : 0.9);
+                : (index == bidsList.length - 2 ? 0.95 : 0.9);
+
+            // Mock identity matching since we don't have AuthBloc user ID here yet
+            final isYou = bid.bidderId == 'my_user_id';
+            final bidderName =
+                'User ${bid.bidderId.length > 4 ? bid.bidderId.substring(0, 4) : bid.bidderId}';
 
             return Transform.scale(
               scale: scale,
@@ -431,15 +414,12 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Avatar
                       Container(
                         width: isLatest ? 32.w : 24.w,
                         height: isLatest ? 32.w : 24.w,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: bid.isYou
-                              ? AppTheme.primary
-                              : Colors.grey[700],
+                          color: isYou ? AppTheme.primary : Colors.grey[700],
                           border: isLatest
                               ? Border.all(
                                   color: AppTheme.primary.withValues(
@@ -450,27 +430,11 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                               : null,
                         ),
                         clipBehavior: Clip.antiAlias,
-                        child: bid.isYou
-                            ? Icon(
-                                Icons.person,
-                                size: 16.sp,
-                                color: Colors.black,
-                              )
-                            : bid.avatarUrl.isNotEmpty
-                            ? Image.network(
-                                bid.avatarUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => Icon(
-                                  Icons.person,
-                                  size: 14.sp,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Icon(
-                                Icons.person,
-                                size: 14.sp,
-                                color: Colors.white,
-                              ),
+                        child: Icon(
+                          Icons.person,
+                          size: isLatest ? 16.sp : 14.sp,
+                          color: isYou ? Colors.black : Colors.white,
+                        ),
                       ),
                       SizedBox(width: 8.w),
                       // Bid bubble
@@ -501,7 +465,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '${bid.name}: ',
+                                text: '$bidderName: ',
                                 style: GoogleFonts.cairo(
                                   fontSize: isLatest ? 13.sp : 11.sp,
                                   fontWeight: FontWeight.w600,
@@ -509,7 +473,8 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                                 ),
                               ),
                               TextSpan(
-                                text: '${bid.amount} ${widget.currency}',
+                                text:
+                                    '${_formatNumber(bid.amount.toInt())} ${widget.currency}',
                                 style: GoogleFonts.inter(
                                   fontSize: isLatest ? 14.sp : 12.sp,
                                   fontWeight: FontWeight.w800,
@@ -575,7 +540,10 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                _currentDisplayPrice,
+                                _formatNumber(
+                                  (_cubit.state.auction?.currentPrice ?? 0)
+                                      .toInt(),
+                                ),
                                 style: GoogleFonts.inter(
                                   fontSize: 34.sp,
                                   fontWeight: FontWeight.w900,
@@ -715,13 +683,23 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                               color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8.r),
                             ),
-                            child: Text(
-                              _formatNumber(_nextBidAmount),
-                              style: GoogleFonts.inter(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.primary,
-                              ),
+                            child: Builder(
+                              builder: (context) {
+                                final currentHigh = _cubit.state.bids.isNotEmpty
+                                    ? _cubit.state.bids.last.amount.toInt()
+                                    : (_cubit.state.auction?.currentPrice
+                                              ?.toInt() ??
+                                          0);
+                                final nextHigh = currentHigh + 10000;
+                                return Text(
+                                  _formatNumber(nextHigh),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.primary,
+                                  ),
+                                );
+                              },
                             ),
                           ),
                           SizedBox(width: 8.w),
@@ -866,16 +844,3 @@ class _AuctionLivePageState extends State<AuctionLivePage>
 }
 
 // ── Data Models ───────────────────────────────────────────
-class _BidEntry {
-  final String name;
-  final String amount;
-  final String avatarUrl;
-  final bool isYou;
-
-  const _BidEntry({
-    required this.name,
-    required this.amount,
-    required this.avatarUrl,
-    this.isYou = false,
-  });
-}

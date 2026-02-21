@@ -273,7 +273,7 @@
   "authVerifyTitle": "Verify it's you",
   "@authVerifyTitle": { "description": "OTP view title" },
 
-  "authCodeSentTo": "We've sent a 4-digit code to",
+  "authCodeSentTo": "We've sent a 6-digit code to",
   "@authCodeSentTo": { "description": "OTP subtitle prefix" },
 
   "authEdit": "Edit",

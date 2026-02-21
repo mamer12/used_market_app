@@ -29,12 +29,16 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart'
     as _i153;
 import '../../features/auth/domain/repositories/auth_repository.dart' as _i787;
 import '../../features/auth/presentation/bloc/auth_bloc.dart' as _i797;
+import '../../features/home/presentation/bloc/home_cubit.dart' as _i816;
 import '../../features/media/data/datasources/media_remote_data_source.dart'
     as _i1028;
 import '../../features/shop/data/datasources/order_remote_data_source.dart'
     as _i239;
 import '../../features/shop/data/datasources/shop_remote_data_source.dart'
     as _i462;
+import '../../features/shop/data/repositories/shop_repository_impl.dart'
+    as _i704;
+import '../../features/shop/domain/repositories/shop_repository.dart' as _i106;
 import '../network/auth_interceptor.dart' as _i908;
 import '../storage/token_storage.dart' as _i973;
 import 'register_module.dart' as _i291;
@@ -79,6 +83,9 @@ _i174.GetIt init(
   gh.lazySingleton<_i462.ShopRemoteDataSource>(
     () => _i462.ShopRemoteDataSourceImpl(gh<_i361.Dio>()),
   );
+  gh.lazySingleton<_i106.ShopRepository>(
+    () => _i704.ShopRepositoryImpl(gh<_i462.ShopRemoteDataSource>()),
+  );
   gh.lazySingleton<_i17.AuctionRemoteDataSource>(
     () => _i17.AuctionRemoteDataSourceImpl(gh<_i361.Dio>()),
   );
@@ -90,6 +97,12 @@ _i174.GetIt init(
   );
   gh.factory<_i94.AuctionCubit>(
     () => _i94.AuctionCubit(gh<_i256.AuctionRepository>()),
+  );
+  gh.factory<_i816.HomeCubit>(
+    () => _i816.HomeCubit(
+      gh<_i256.AuctionRepository>(),
+      gh<_i106.ShopRepository>(),
+    ),
   );
   return getIt;
 }

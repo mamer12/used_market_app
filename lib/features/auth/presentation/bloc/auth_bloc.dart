@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
@@ -27,6 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGuestModeEntered>(_onGuestMode);
     on<AuthOtpRequested>(_onOtpRequested);
     on<AuthOtpSubmitted>(_onOtpSubmitted);
+    on<AuthRegistrationNameSubmitted>(_onRegistrationNameSubmitted);
     on<AuthGoogleSignInRequested>(_onGoogleSignIn);
     on<AuthOtpCancelled>(_onOtpCancelled);
     on<AuthLogoutRequested>(_onLogout);
@@ -97,8 +99,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       // In a real app, we would send the OTP request to the backend.
-      // Since Lugta relies on passwords directly, we just progress to the password stage.
-      LogService().info('📱 Proceeding to password for ${event.phoneNumber}');
+      // Lugta relies on OTPs now. Sending request:
+      await _authRepository.sendOtp(
+        SendOtpRequest(phoneNumber: event.phoneNumber),
+      );
+      LogService().info('📱 OTP Sent to ${event.phoneNumber}');
       emit(
         state.copyWith(
           status:
@@ -132,39 +137,85 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       LogService().info('Attempting login with API...');
       // We pass the OTP code as the password for the login endpoint
       await _authRepository.login(
-        LoginRequest(phoneNumber: state.phoneNumber!, password: event.otp),
+        LoginRequest(phoneNumber: state.phoneNumber!, otp: event.otp),
       );
 
       LogService().info('✅ Login successful');
       emit(state.copyWith(status: AuthStatus.authenticated, isLoading: false));
-    } on ApiException catch (e) {
+    } on DioException catch (e) {
       LogService().error('API Login failed', e, StackTrace.current);
 
-      // If the user doesn't exist, we fallback to attempting a blind registration
-      if (e.message.toLowerCase().contains("not found") ||
-          e.statusCode == 404) {
-        try {
-          LogService().info('Account not found. Attempting registration...');
-          await _authRepository.register(
-            RegisterRequest(
-              fullName: "Verified User",
-              phoneNumber: state.phoneNumber!,
-              password: event.otp,
-            ),
-          );
-          emit(
-            state.copyWith(status: AuthStatus.authenticated, isLoading: false),
-          );
-          return;
-        } on ApiException catch (regEx) {
-          emit(state.copyWith(isLoading: false, error: regEx.message));
-          return;
-        }
+      String errorMessage = "Login failed";
+      int? statusCode = e.response?.statusCode;
+      if (e.error is ApiException) {
+        final apiErr = e.error as ApiException;
+        errorMessage = apiErr.message;
+        statusCode = apiErr.statusCode ?? statusCode;
+      } else {
+        errorMessage = e.message ?? "Unknown error";
       }
 
-      emit(state.copyWith(isLoading: false, error: e.message));
+      // If the user doesn't exist, we fallback to requesting their name for registration
+      // The backend returns 401 "user not found" when logging in with an unregistered phone
+      if (errorMessage.toLowerCase().contains("not found") ||
+          statusCode == 404 ||
+          statusCode == 401) {
+        LogService().info('Account not found. Prompting for Name...');
+        emit(
+          state.copyWith(
+            status: AuthStatus.registrationNameRequired,
+            isLoading: false,
+            otpCode: event.otp,
+          ),
+        );
+        return;
+      }
+
+      emit(state.copyWith(isLoading: false, error: errorMessage));
     } catch (e, stack) {
       LogService().error('Login/OTP failed', e, stack);
+      emit(
+        state.copyWith(
+          isLoading: false,
+          error: 'An unexpected error occurred. Please try again.',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onRegistrationNameSubmitted(
+    AuthRegistrationNameSubmitted event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, error: null));
+
+    try {
+      if (state.phoneNumber == null || state.otpCode == null) {
+        throw Exception("Missing phone number or OTP code");
+      }
+
+      LogService().info('Attempting registration...');
+      await _authRepository.register(
+        RegisterRequest(
+          fullName: event.fullName,
+          phoneNumber: state.phoneNumber!,
+          otp: state.otpCode!,
+        ),
+      );
+
+      LogService().info('✅ Registration successful');
+      emit(state.copyWith(status: AuthStatus.authenticated, isLoading: false));
+    } on DioException catch (e) {
+      LogService().error('Registration failed (Dio)', e, StackTrace.current);
+      String errorMessage = "Registration failed";
+      if (e.error is ApiException) {
+        errorMessage = (e.error as ApiException).message;
+      } else {
+        errorMessage = e.message ?? "Unknown error";
+      }
+      emit(state.copyWith(isLoading: false, error: errorMessage));
+    } catch (e, stack) {
+      LogService().error('Registration failed unexpectedly', e, stack);
       emit(
         state.copyWith(
           isLoading: false,

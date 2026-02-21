@@ -20,8 +20,9 @@ class ApiConstants {
   static String get mediaBaseUrl => 'http://$_localhost:9000/lugta-media';
 
   // --- Auth Endpoints ---
-  static const String register = '/auth/register';
-  static const String login = '/auth/login';
+  static const String sendOtp = '/auth/otp/send';
+  static const String register = '/auth/otp/register';
+  static const String login = '/auth/otp/login';
 
   // --- Media Endpoints ---
   static const String mediaUpload = '/media';

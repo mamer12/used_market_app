@@ -5,14 +5,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/locale/locale_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/auth_guard.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../auction/data/models/auction_models.dart';
 import '../../../auction/presentation/pages/auction_live_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../shop/data/models/shop_models.dart';
+import '../bloc/home_cubit.dart';
 
 /// Discovery Home — Mustamal marketplace feed.
 class HomePage extends StatefulWidget {
@@ -27,10 +31,12 @@ class _HomePageState extends State<HomePage> {
   final _bannerController = PageController();
   Timer? _bannerTimer;
   int _currentBanner = 0;
+  late final HomeCubit _cubit;
 
   @override
   void initState() {
     super.initState();
+    _cubit = getIt<HomeCubit>()..loadFeed();
     // Auto-scroll banner every 4 seconds
     _bannerTimer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!mounted) return;
@@ -47,6 +53,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _bannerTimer?.cancel();
     _bannerController.dispose();
+    _cubit.close();
     super.dispose();
   }
 
@@ -57,63 +64,67 @@ class _HomePageState extends State<HomePage> {
     'https://lh3.googleusercontent.com/aida-public/AB6AXuBUd0_dgNYpiCh0dVXkrPJYWw5rI_srEdS2YAMXFw8TSyT-tfuExR6HeQ4WCyet1XdjGBa8b0GKuCCaos-ZiqAMy6K6jCfExFX9lKV4LQrWiLHNKFRfdwcBue8Ivd4ZtW-EuPYqnuiKi_FVrix3xHzo-Smebfd3Jc-RFT_EiTlVw8IaIN1yThQnM1NMyEpYSPzjhjZxKdUhgaKgWaJ6AgyisLyX61TeIInS1r1rlirYmkPjVgSFweJDi-6KCn9enrPmIcpYJ-25LogN',
   ];
 
-  // ── Live item image URLs ────────────────────────────
-  static const _liveImageUrls = [
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuBTApGmGtzlhCDLYhXzQUKbyhjRQZrtFsHrWMuHvUbOxvYnVPD48rZTXuIxAJIjGTrLufJWz81Z-0TCJVYzaF2FLzGefH0SjQ7BvyExuGUtyr-XkYpy1YC2262vF97NMS19XxZMkSgb7J9_z7qSddjQVxRnsJ15trv8k9QQIqPt3Gw-G5WsclAuZW5H7lYVfEVNbEpLUW57fDu8ONFuES1TSZGkbfrD8NvMqvGltySY9-SwbP5EWR9oFXARFC9mWqpD2_2ywWmlnSmx',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuDTTcxWy2kj4cIhoc9T3S7RceAFd-BMhGgxum_aZbk_hnJE-kDSNSu755vULpSe2TAAlkZaZRoWXyYvO3-v24I6xSANkMV8OfKrwmUGgIApUazRXTht4IvW0ZBYNyyIFUBNLF1M5irBWUOpOfmtEnX_z8oc5lkSQw8p8JRtYVR4F26YXwvews9P0jFOC4wEIAIMcLPxy4faDZSL6E0e_GZAguskyC42Qg_ha-wLE8vRleqURtcI6-qsijoh5S5qkz2W4DoLJ_TrJAcZ',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuCwQi04Vi0eck0sIhEovqfy10YqwgDI2DMoHdbMvi8cYbkdDnfTHkMIf8Bdaj04YyVf-GAVTMgJ2sq2KhP58zmDP3E5jDt_C69EWFbPO6shaSbejjDel40juWAKi2n6bXW_HyM_N1X4s4TQnq5za0o2q3-MBnVuZO7c7r83lbBLHg-pBp7Xudl3dj6ctXkZkENK2wERsjV1juTOWQ3SsYOuWLfkeTBVZTy34B6No8uBAUEMOAV3Cb_5b_MWWzNIVV7-b8-NKkOFC8Lo',
-  ];
-
-  static const _livePrices = ['450,000', '12,000', '1,250,000'];
-  static const _liveTimers = ['02:14:59', '00:45:12', '04:10:00'];
-
-  // ── Listing image URLs ──────────────────────────────
-  static const _listingImageUrls = [
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAC9fGt5RV2Lcawg2B3YtYWpBdf2AKCHngFfSlk72fPD70Iim-re8zvdHHsaOg6JnGH1Hs9vRyMNDrU-cHlC3m51N51guDkB9SEk38yyrLW7mPaOmQbhXtB9wRB2xm_8vWci3MPuRWspRlE3nTb7vrbApJOxUZQvAHMUkPINyykkQe6mIlJHA0JuTfOzr6hByMtxPc5z-9W3WfB9UeBlIEjItfUKg3V445XYweht4aEmBGyAH_PNiU4bBkZwalxadI4lJswTkLurZJt',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuCYoSNxnmsCSOw7687WkBI7IlBj18cmnT9hNFNlOXdbVAyke8wfwvTeZG5m7Eci_EaIeGSzbvHzkgx-7NTWPOJSCgdtwRMpU3yvMHgV-7Se8a4Izy_ACOkRyMMVuboDI-UKaSBTcHz_J04yVKJy5ZFuoXMGcIHN-El5ouqTvhSLrkzXEE6I02OT61v3wWpFJ3yjTSfujOW_iLM9ulIlA2fDetn3_rkwX80RdyznS1nRqwxJ7_jv6yPj7k11tz6IhNfPgz9ugq5ZReYf',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuA2KfVdJyvRnXl2GUTxxwxXJ0zTFXDVBn2fNZbhXsXbPxM3xpsscxMALcakIN6knd2hdts2OBUNW6nl8j32jI43cIR-6sDxttjaZZHhXZfEqjle2eTICMbOAbSgeiZBbmOyl19wY2uD3aYPiCxGrgdba2rkqmAoWiRwyolWZZSA-it9ea03XbI4wyRJ8rd7v_yvayD4eqtoyhXCsXxNfx8WTguxy081vx9e4_C_nA6tiyIspB6vjKsN4jF2as7T6zgkL8BA5AkJgalV',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuD0XhR6_T6LHO2_DHqRnl2ezM25-oCcdcmUULgTOrDGlsLITFI75lgGeXbH2983Vf1tOL9ieYx1hOUOyS6bFBUiztr82S7fX7xweN6UnEN_2uG5UJnlZGEZieY-TCtQrB0qR4d4BHvcOnDpyZMYtlP3SkK2dFCAmVDq7Cz07vpEySa9JmsVvKKGTO60nZ6vZbRiS_E6vkg8Yl_E5l0Ish3KCWz6aVZ4jJvR3xr0iSvhEHE8hUP03vqkoeTf2_QD5uEMrzdBIl-ovoGb',
-  ];
-
-  static const _listingPrices = [
-    '85,000 IQD',
-    '1,100 \$',
-    '120,000 IQD',
-    '50,000 IQD',
-  ];
+  // ── Removed mock data parameters ────────────────────
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.surface,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // ── Header ─────────────────────────────────
-            SliverToBoxAdapter(child: _buildHeader()),
+    return BlocProvider.value(
+      value: _cubit,
+      child: Scaffold(
+        backgroundColor: AppTheme.surface,
+        body: SafeArea(
+          child: BlocBuilder<HomeCubit, HomeState>(
+            builder: (context, state) {
+              if (state.isLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppTheme.primary),
+                );
+              }
 
-            // ── Search Bar ─────────────────────────────
-            SliverToBoxAdapter(child: _buildSearchBar()),
+              return CustomScrollView(
+                slivers: [
+                  // ── Header ─────────────────────────────────
+                  SliverToBoxAdapter(child: _buildHeader()),
 
-            // ── Hero Banner ────────────────────────────
-            SliverToBoxAdapter(child: _buildHeroBanner()),
+                  // ── Search Bar ─────────────────────────────
+                  SliverToBoxAdapter(child: _buildSearchBar()),
 
-            // ── Categories ─────────────────────────────
-            SliverToBoxAdapter(child: _buildCategories()),
+                  // ── Hero Banner ────────────────────────────
+                  SliverToBoxAdapter(child: _buildHeroBanner()),
 
-            // ── Live Now ───────────────────────────────
-            SliverToBoxAdapter(child: _buildLiveNowSection()),
+                  // ── Categories ─────────────────────────────
+                  SliverToBoxAdapter(child: _buildCategories()),
 
-            // ── Freshly Listed ─────────────────────────
-            SliverToBoxAdapter(child: _buildFreshlyListedHeader()),
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              sliver: _buildListingsGrid(),
-            ),
+                  // ── Live Now ───────────────────────────────
+                  if (state.liveAuctions.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: _buildLiveNowSection(state.liveAuctions),
+                    ),
 
-            // Bottom spacing
-            SliverToBoxAdapter(child: SizedBox(height: 32.h)),
-          ],
+                  // ── Freshly Listed ─────────────────────────
+                  if (state.featuredProducts.isNotEmpty) ...[
+                    SliverToBoxAdapter(child: _buildFreshlyListedHeader()),
+                    SliverPadding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      sliver: _buildListingsGrid(state.featuredProducts),
+                    ),
+                  ] else ...[
+                    // Temporary fallback to mock data if API is empty
+                    SliverToBoxAdapter(child: _buildFreshlyListedHeader()),
+                    SliverPadding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      sliver: _buildListingsGrid(
+                        [],
+                      ), // will render local mock for now
+                    ),
+                  ],
+
+                  // Bottom spacing
+                  SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -600,32 +611,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ── Live Now Section ────────────────────────────────────
-  Widget _buildLiveNowSection() {
+  Widget _buildLiveNowSection(List<AuctionModel> auctions) {
     final l10n = AppLocalizations.of(context);
-
-    final liveItems = [
-      _LiveItem(
-        title: l10n.liveItemTitle1,
-        price: _livePrices[0],
-        currency: l10n.currency,
-        timer: _liveTimers[0],
-        imageUrl: _liveImageUrls[0],
-      ),
-      _LiveItem(
-        title: l10n.liveItemTitle2,
-        price: _livePrices[1],
-        currency: '\$',
-        timer: _liveTimers[1],
-        imageUrl: _liveImageUrls[1],
-      ),
-      _LiveItem(
-        title: l10n.liveItemTitle3,
-        price: _livePrices[2],
-        currency: l10n.currency,
-        timer: _liveTimers[2],
-        imageUrl: _liveImageUrls[2],
-      ),
-    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -701,17 +688,17 @@ class _HomePageState extends State<HomePage> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 20.w),
-            itemCount: liveItems.length,
+            itemCount: auctions.length,
             separatorBuilder: (_, _) => SizedBox(width: 14.w),
             itemBuilder: (context, index) =>
-                _buildLiveCard(liveItems[index], l10n),
+                _buildLiveCard(auctions[index], l10n),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildLiveCard(_LiveItem item, AppLocalizations l10n) {
+  Widget _buildLiveCard(AuctionModel item, AppLocalizations l10n) {
     const darkCard = Color(0xFF1A1A1A);
 
     return AuthGuard(
@@ -719,10 +706,13 @@ class _HomePageState extends State<HomePage> {
         Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (_) => AuctionLivePage(
+              auctionId: item.id ?? '',
               title: item.title,
-              currentPrice: item.price,
-              currency: item.currency,
-              imageUrl: item.imageUrl,
+              currentPrice: (item.currentPrice ?? 0).toStringAsFixed(0),
+              currency: l10n.currency, // Assuming local currency for now
+              imageUrl: item.images.isNotEmpty
+                  ? item.images.first
+                  : 'https://placehold.co/400x400/png',
             ),
           ),
         );
@@ -745,7 +735,9 @@ class _HomePageState extends State<HomePage> {
                 fit: StackFit.expand,
                 children: [
                   Image.network(
-                    item.imageUrl,
+                    item.images.isNotEmpty
+                        ? item.images.first
+                        : 'https://placehold.co/600x400',
                     fit: BoxFit.cover,
                     opacity: const AlwaysStoppedAnimation(0.85),
                     errorBuilder: (_, _, _) => Container(
@@ -842,7 +834,13 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: Text(
-                          item.timer,
+                          // Simple mock logic for timer display
+                          (item.endTime
+                                      ?.difference(DateTime.now())
+                                      .isNegative ??
+                                  true)
+                              ? 'Ended'
+                              : 'Live',
                           style: GoogleFonts.inter(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w700,
@@ -877,7 +875,7 @@ class _HomePageState extends State<HomePage> {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: item.price,
+                                    text: '${(item.currentPrice ?? 0).toInt()}',
                                     style: GoogleFonts.cairo(
                                       fontSize: 18.sp,
                                       fontWeight: FontWeight.w700,
@@ -885,7 +883,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: ' ${item.currency}',
+                                    text: ' ${l10n.currency}',
                                     style: GoogleFonts.cairo(
                                       fontSize: 12.sp,
                                       fontWeight: FontWeight.w500,
@@ -971,39 +969,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ── Listings Grid ───────────────────────────────────────
-  Widget _buildListingsGrid() {
-    final l10n = AppLocalizations.of(context);
-
-    final listings = [
-      _ListingItem(
-        title: l10n.listingTitle1,
-        price: _listingPrices[0],
-        location: l10n.listingLocation1,
-        timeAgo: l10n.timeAgo1,
-        imageUrl: _listingImageUrls[0],
-      ),
-      _ListingItem(
-        title: l10n.listingTitle2,
-        price: _listingPrices[1],
-        location: l10n.listingLocation2,
-        timeAgo: l10n.timeAgo2,
-        imageUrl: _listingImageUrls[1],
-      ),
-      _ListingItem(
-        title: l10n.listingTitle3,
-        price: _listingPrices[2],
-        location: l10n.listingLocation3,
-        timeAgo: l10n.timeAgo4,
-        imageUrl: _listingImageUrls[2],
-      ),
-      _ListingItem(
-        title: l10n.listingTitle4,
-        price: _listingPrices[3],
-        location: l10n.listingLocation4,
-        timeAgo: l10n.timeAgo5,
-        imageUrl: _listingImageUrls[3],
-      ),
-    ];
+  Widget _buildListingsGrid(List<ProductModel> products) {
+    if (products.isEmpty) {
+      return SliverToBoxAdapter(
+        child: SizedBox(
+          height: 200.h,
+          child: const Center(
+            child: Text(
+              'No products found.',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+        ),
+      );
+    }
 
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1013,13 +992,13 @@ class _HomePageState extends State<HomePage> {
         childAspectRatio: 0.65,
       ),
       delegate: SliverChildBuilderDelegate(
-        (context, index) => _buildListingCard(listings[index]),
-        childCount: listings.length,
+        (context, index) => _buildListingCard(products[index]),
+        childCount: products.length,
       ),
     );
   }
 
-  Widget _buildListingCard(_ListingItem item) {
+  Widget _buildListingCard(ProductModel item) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.background,
@@ -1043,7 +1022,9 @@ class _HomePageState extends State<HomePage> {
               fit: StackFit.expand,
               children: [
                 Image.network(
-                  item.imageUrl,
+                  item.images.isNotEmpty
+                      ? item.images.first
+                      : 'https://placehold.co/400x600/png',
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) => Container(
                     color: AppTheme.surface,
@@ -1084,7 +1065,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    item.title,
+                    item.name,
                     style: GoogleFonts.cairo(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
@@ -1103,7 +1084,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(width: 3.w),
                       Expanded(
                         child: Text(
-                          item.location,
+                          'Baghdad', // Replace with real location when available
                           style: GoogleFonts.cairo(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w400,
@@ -1120,7 +1101,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: Text(
-                          item.price,
+                          '${item.price.toInt()} IQD', // Simple mock currency
                           style: GoogleFonts.cairo(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w700,
@@ -1131,7 +1112,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       Text(
-                        item.timeAgo,
+                        'New',
                         style: GoogleFonts.cairo(
                           fontSize: 10.sp,
                           fontWeight: FontWeight.w400,
@@ -1222,38 +1203,6 @@ class _CategoryItem {
   final bool isHighlighted;
 
   const _CategoryItem(this.icon, this.label, {this.isHighlighted = false});
-}
-
-class _LiveItem {
-  final String title;
-  final String price;
-  final String currency;
-  final String timer;
-  final String imageUrl;
-
-  const _LiveItem({
-    required this.title,
-    required this.price,
-    required this.currency,
-    required this.timer,
-    required this.imageUrl,
-  });
-}
-
-class _ListingItem {
-  final String title;
-  final String price;
-  final String location;
-  final String timeAgo;
-  final String imageUrl;
-
-  const _ListingItem({
-    required this.title,
-    required this.price,
-    required this.location,
-    required this.timeAgo,
-    required this.imageUrl,
-  });
 }
 
 class _BannerSlide {

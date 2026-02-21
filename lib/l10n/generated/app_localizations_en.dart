@@ -281,7 +281,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authVerifyTitle => 'Verify it\'s you';
 
   @override
-  String get authCodeSentTo => 'We\'ve sent a 4-digit code to';
+  String get authCodeSentTo => 'We\'ve sent a 6-digit code to';
 
   @override
   String get authEdit => 'Edit';

@@ -109,7 +109,7 @@
   "authUseEmail": "استخدم البريد الإلكتروني",
   "authNeedHelp": "تحتاج مساعدة؟",
   "authVerifyTitle": "تحقق من هويتك",
-  "authCodeSentTo": "أرسلنا رمزاً من 4 أرقام إلى",
+  "authCodeSentTo": "أرسلنا رمزاً من 6 أرقام إلى",
   "authEdit": "تعديل",
   "authVerifyCode": "تحقق ومتابعة  ←",
   "authResendCode": "إعادة إرسال الرمز خلال",

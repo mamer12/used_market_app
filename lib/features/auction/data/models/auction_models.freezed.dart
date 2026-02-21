@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AuctionModel {
 
- String get id; String get title; String get description;@JsonKey(name: 'current_price') double get currentPrice;@JsonKey(name: 'end_time') DateTime get endTime; List<String> get images;
+ String? get id; String get title; String get description;@JsonKey(name: 'current_price') double? get currentPrice;@JsonKey(name: 'end_time') DateTime? get endTime; List<String> get images;
 /// Create a copy of AuctionModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $AuctionModelCopyWith<$Res>  {
   factory $AuctionModelCopyWith(AuctionModel value, $Res Function(AuctionModel) _then) = _$AuctionModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, String description,@JsonKey(name: 'current_price') double currentPrice,@JsonKey(name: 'end_time') DateTime endTime, List<String> images
+ String? id, String title, String description,@JsonKey(name: 'current_price') double? currentPrice,@JsonKey(name: 'end_time') DateTime? endTime, List<String> images
 });
 
 
@@ -65,14 +65,14 @@ class _$AuctionModelCopyWithImpl<$Res>
 
 /// Create a copy of AuctionModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = null,Object? currentPrice = null,Object? endTime = null,Object? images = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? description = null,Object? currentPrice = freezed,Object? endTime = freezed,Object? images = null,}) {
   return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String,currentPrice: null == currentPrice ? _self.currentPrice : currentPrice // ignore: cast_nullable_to_non_nullable
-as double,endTime: null == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable
-as DateTime,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
+as String,currentPrice: freezed == currentPrice ? _self.currentPrice : currentPrice // ignore: cast_nullable_to_non_nullable
+as double?,endTime: freezed == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
 }
@@ -158,7 +158,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String description, @JsonKey(name: 'current_price')  double currentPrice, @JsonKey(name: 'end_time')  DateTime endTime,  List<String> images)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String title,  String description, @JsonKey(name: 'current_price')  double? currentPrice, @JsonKey(name: 'end_time')  DateTime? endTime,  List<String> images)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuctionModel() when $default != null:
 return $default(_that.id,_that.title,_that.description,_that.currentPrice,_that.endTime,_that.images);case _:
@@ -179,7 +179,7 @@ return $default(_that.id,_that.title,_that.description,_that.currentPrice,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String description, @JsonKey(name: 'current_price')  double currentPrice, @JsonKey(name: 'end_time')  DateTime endTime,  List<String> images)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String title,  String description, @JsonKey(name: 'current_price')  double? currentPrice, @JsonKey(name: 'end_time')  DateTime? endTime,  List<String> images)  $default,) {final _that = this;
 switch (_that) {
 case _AuctionModel():
 return $default(_that.id,_that.title,_that.description,_that.currentPrice,_that.endTime,_that.images);case _:
@@ -199,7 +199,7 @@ return $default(_that.id,_that.title,_that.description,_that.currentPrice,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String description, @JsonKey(name: 'current_price')  double currentPrice, @JsonKey(name: 'end_time')  DateTime endTime,  List<String> images)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String title,  String description, @JsonKey(name: 'current_price')  double? currentPrice, @JsonKey(name: 'end_time')  DateTime? endTime,  List<String> images)?  $default,) {final _that = this;
 switch (_that) {
 case _AuctionModel() when $default != null:
 return $default(_that.id,_that.title,_that.description,_that.currentPrice,_that.endTime,_that.images);case _:
@@ -214,14 +214,14 @@ return $default(_that.id,_that.title,_that.description,_that.currentPrice,_that.
 @JsonSerializable()
 
 class _AuctionModel implements AuctionModel {
-  const _AuctionModel({required this.id, required this.title, required this.description, @JsonKey(name: 'current_price') required this.currentPrice, @JsonKey(name: 'end_time') required this.endTime, final  List<String> images = const []}): _images = images;
+  const _AuctionModel({this.id, this.title = '', this.description = '', @JsonKey(name: 'current_price') this.currentPrice, @JsonKey(name: 'end_time') this.endTime, final  List<String> images = const []}): _images = images;
   factory _AuctionModel.fromJson(Map<String, dynamic> json) => _$AuctionModelFromJson(json);
 
-@override final  String id;
-@override final  String title;
-@override final  String description;
-@override@JsonKey(name: 'current_price') final  double currentPrice;
-@override@JsonKey(name: 'end_time') final  DateTime endTime;
+@override final  String? id;
+@override@JsonKey() final  String title;
+@override@JsonKey() final  String description;
+@override@JsonKey(name: 'current_price') final  double? currentPrice;
+@override@JsonKey(name: 'end_time') final  DateTime? endTime;
  final  List<String> _images;
 @override@JsonKey() List<String> get images {
   if (_images is EqualUnmodifiableListView) return _images;
@@ -263,7 +263,7 @@ abstract mixin class _$AuctionModelCopyWith<$Res> implements $AuctionModelCopyWi
   factory _$AuctionModelCopyWith(_AuctionModel value, $Res Function(_AuctionModel) _then) = __$AuctionModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, String description,@JsonKey(name: 'current_price') double currentPrice,@JsonKey(name: 'end_time') DateTime endTime, List<String> images
+ String? id, String title, String description,@JsonKey(name: 'current_price') double? currentPrice,@JsonKey(name: 'end_time') DateTime? endTime, List<String> images
 });
 
 
@@ -280,14 +280,14 @@ class __$AuctionModelCopyWithImpl<$Res>
 
 /// Create a copy of AuctionModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = null,Object? currentPrice = null,Object? endTime = null,Object? images = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? description = null,Object? currentPrice = freezed,Object? endTime = freezed,Object? images = null,}) {
   return _then(_AuctionModel(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String,currentPrice: null == currentPrice ? _self.currentPrice : currentPrice // ignore: cast_nullable_to_non_nullable
-as double,endTime: null == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable
-as DateTime,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
+as String,currentPrice: freezed == currentPrice ? _self.currentPrice : currentPrice // ignore: cast_nullable_to_non_nullable
+as double?,endTime: freezed == endTime ? _self.endTime : endTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
 }

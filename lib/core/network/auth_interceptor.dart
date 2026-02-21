@@ -28,7 +28,13 @@ class AuthInterceptor extends Interceptor {
       final dataMap = response.data as Map<String, dynamic>;
       // If the backend returns our standard success wrapper, peel it off
       if (dataMap.containsKey('success') && dataMap['success'] == true) {
-        response.data = dataMap['data'];
+        // Only re-assign data if the 'data' key actually exists
+        if (dataMap.containsKey('data')) {
+          response.data = dataMap['data'];
+        } else {
+          // Success but no data payload
+          response.data = null;
+        }
       }
     }
     super.onResponse(response, handler);

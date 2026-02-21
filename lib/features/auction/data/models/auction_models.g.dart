@@ -8,11 +8,13 @@ part of 'auction_models.dart';
 
 _AuctionModel _$AuctionModelFromJson(Map<String, dynamic> json) =>
     _AuctionModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      currentPrice: (json['current_price'] as num).toDouble(),
-      endTime: DateTime.parse(json['end_time'] as String),
+      id: json['id'] as String?,
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      currentPrice: (json['current_price'] as num?)?.toDouble(),
+      endTime: json['end_time'] == null
+          ? null
+          : DateTime.parse(json['end_time'] as String),
       images:
           (json['images'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -26,7 +28,7 @@ Map<String, dynamic> _$AuctionModelToJson(_AuctionModel instance) =>
       'title': instance.title,
       'description': instance.description,
       'current_price': instance.currentPrice,
-      'end_time': instance.endTime.toIso8601String(),
+      'end_time': instance.endTime?.toIso8601String(),
       'images': instance.images,
     };
 

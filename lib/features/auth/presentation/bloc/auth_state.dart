@@ -12,6 +12,9 @@ class AuthState extends Equatable {
   /// Display name / nickname (progressive: collected after first action).
   final String? displayName;
 
+  /// Retained OTP code needed for subsequent registration if login fails.
+  final String? otpCode;
+
   /// Error message if something went wrong.
   final String? error;
 
@@ -25,6 +28,7 @@ class AuthState extends Equatable {
     this.status = AuthStatus.initial,
     this.phoneNumber,
     this.displayName,
+    this.otpCode,
     this.error,
     this.isLoading = false,
     this.hasOnboarded = false,
@@ -34,6 +38,7 @@ class AuthState extends Equatable {
     AuthStatus? status,
     String? phoneNumber,
     String? displayName,
+    String? otpCode,
     String? error,
     bool? isLoading,
     bool? hasOnboarded,
@@ -44,6 +49,7 @@ class AuthState extends Equatable {
       status: status ?? this.status,
       phoneNumber: clearPhoneNumber ? null : (phoneNumber ?? this.phoneNumber),
       displayName: clearDisplayName ? null : (displayName ?? this.displayName),
+      otpCode: otpCode ?? this.otpCode,
       hasOnboarded: hasOnboarded ?? this.hasOnboarded,
       error: error,
       isLoading: isLoading ?? this.isLoading,
@@ -60,6 +66,7 @@ class AuthState extends Equatable {
     status,
     phoneNumber,
     displayName,
+    otpCode,
     error,
     isLoading,
     hasOnboarded,

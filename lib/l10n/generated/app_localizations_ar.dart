@@ -279,7 +279,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authVerifyTitle => 'تحقق من هويتك';
 
   @override
-  String get authCodeSentTo => 'أرسلنا رمزاً من 4 أرقام إلى';
+  String get authCodeSentTo => 'أرسلنا رمزاً من 6 أرقام إلى';
 
   @override
   String get authEdit => 'تعديل';

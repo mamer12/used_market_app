@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -52,13 +51,14 @@ class _AuthSheetContent extends StatefulWidget {
 class _AuthSheetContentState extends State<_AuthSheetContent> {
   final _phoneController = TextEditingController();
   final _phoneFocus = FocusNode();
+  final _nameController = TextEditingController();
 
-  // 4 individual OTP controllers
+  // 6 individual OTP controllers
   final List<TextEditingController> _otpControllers = List.generate(
-    4,
+    6,
     (_) => TextEditingController(),
   );
-  final List<FocusNode> _otpFocusNodes = List.generate(4, (_) => FocusNode());
+  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
 
   StreamSubscription<AuthState>? _sub;
 
@@ -122,6 +122,7 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
     _resendTimer?.cancel();
     _phoneController.dispose();
     _phoneFocus.dispose();
+    _nameController.dispose();
     for (final c in _otpControllers) {
       c.dispose();
     }
@@ -162,7 +163,9 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
                 SizedBox(height: 24.h),
 
                 // ── Content based on auth state ─────────
-                if (state.status == AuthStatus.otpSent)
+                if (state.status == AuthStatus.registrationNameRequired)
+                  _buildNameView(state)
+                else if (state.status == AuthStatus.otpSent)
                   _buildOtpView(state)
                 else
                   _buildPhoneView(state),
@@ -476,17 +479,17 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
         ),
         SizedBox(height: 28.h),
 
-        // ── 4 OTP Input Boxes ─────────────────────
+        // ── 6 OTP Input Boxes ─────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(4, (index) {
+          children: List.generate(6, (index) {
             final hasValue = _otpControllers[index].text.isNotEmpty;
             final hasFocus = _otpFocusNodes[index].hasFocus;
 
             return Container(
-              width: 60.w,
-              height: 60.w,
-              margin: EdgeInsets.symmetric(horizontal: 6.w),
+              width: 40.w,
+              height: 52.w,
+              margin: EdgeInsets.symmetric(horizontal: 4.w),
               decoration: BoxDecoration(
                 color: AppTheme.background,
                 borderRadius: BorderRadius.circular(12.r),
@@ -510,16 +513,16 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
                   fontWeight: FontWeight.w700,
                   color: AppTheme.textPrimary,
                 ),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
                   counterText: '',
+                  contentPadding: EdgeInsets.zero,
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                 ),
                 onChanged: (value) {
                   setState(() {}); // refresh border styling
-                  if (value.isNotEmpty && index < 3) {
+                  if (value.isNotEmpty && index < 5) {
                     // Auto-advance to next box
                     _otpFocusNodes[index + 1].requestFocus();
                   } else if (value.isEmpty && index > 0) {
@@ -527,8 +530,8 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
                     _otpFocusNodes[index - 1].requestFocus();
                   }
 
-                  // Auto-submit when all 4 digits entered
-                  if (_fullOtp.length == 4) {
+                  // Auto-submit when all 6 digits entered
+                  if (_fullOtp.length == 6) {
                     context.read<AuthBloc>().add(AuthOtpSubmitted(_fullOtp));
                   }
                 },
@@ -557,7 +560,7 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
           isLoading: state.isLoading,
           onPressed: () {
             final otp = _fullOtp;
-            if (otp.length == 4) {
+            if (otp.length == 6) {
               context.read<AuthBloc>().add(AuthOtpSubmitted(otp));
             }
           },
@@ -617,6 +620,136 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
                 ),
               ),
           ],
+        ),
+      ],
+    );
+  }
+
+  // ── Name Input View ──────────────────────────────────────
+  Widget _buildNameView(AuthState state) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // ── User Icon ─────────────────────────────
+        Container(
+          width: 56.w,
+          height: 56.w,
+          decoration: const BoxDecoration(
+            color: Color(0xFFE8EDF2),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.person_outline_rounded,
+            size: 28.sp,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        SizedBox(height: 20.h),
+
+        // Title
+        Text(
+          "Complete Your Profile",
+          style: GoogleFonts.cairo(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 8.h),
+
+        // Subtitle
+        Text(
+          "Please enter your full name to finish registration.",
+          style: GoogleFonts.cairo(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.textSecondary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 24.h),
+
+        // ── Name Input ─────────
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: AppTheme.textPrimary.withValues(alpha: 0.2),
+            ),
+          ),
+          child: TextFormField(
+            controller: _nameController,
+            keyboardType: TextInputType.name,
+            style: GoogleFonts.cairo(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+            decoration: InputDecoration(
+              hintText: 'e.g. Ali Mohammed',
+              hintStyle: GoogleFonts.cairo(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.inactive,
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 14.h,
+              ),
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+            ),
+          ),
+        ),
+
+        // Error message
+        if (state.error != null) ...[
+          SizedBox(height: 8.h),
+          Text(
+            state.error!,
+            style: GoogleFonts.cairo(
+              fontSize: 12.sp,
+              color: AppTheme.liveBadge,
+            ),
+          ),
+        ],
+
+        SizedBox(height: 20.h),
+
+        // Submit Button
+        PrimaryButton(
+          label: "Complete Registration",
+          isLoading: state.isLoading,
+          onPressed: () {
+            final name = _nameController.text.trim();
+            if (name.isNotEmpty) {
+              context.read<AuthBloc>().add(AuthRegistrationNameSubmitted(name));
+            }
+          },
+        ),
+        SizedBox(height: 16.h),
+
+        // Cancel/Back
+        TextButton(
+          onPressed: () {
+            context.read<AuthBloc>().add(const AuthOtpCancelled());
+          },
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            "Cancel Log In",
+            style: GoogleFonts.cairo(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.secondary,
+            ),
+          ),
         ),
       ],
     );

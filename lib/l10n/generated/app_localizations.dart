@@ -635,7 +635,7 @@ abstract class AppLocalizations {
   /// OTP subtitle prefix
   ///
   /// In en, this message translates to:
-  /// **'We\'ve sent a 4-digit code to'**
+  /// **'We\'ve sent a 6-digit code to'**
   String get authCodeSentTo;
 
   /// Edit phone number link in OTP view

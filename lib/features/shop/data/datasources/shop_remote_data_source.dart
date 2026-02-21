@@ -54,8 +54,9 @@ class ShopRemoteDataSourceImpl implements ShopRemoteDataSource {
       '${ApiConstants.shops}/$slug/products',
       queryParameters: {'page': page, 'limit': limit},
     );
-    final data = response.data as List;
-    return data
+    final data = response.data as Map<String, dynamic>;
+    final itemsList = data['items'] as List<dynamic>;
+    return itemsList
         .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }

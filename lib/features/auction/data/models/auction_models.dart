@@ -6,11 +6,11 @@ part 'auction_models.g.dart';
 @freezed
 abstract class AuctionModel with _$AuctionModel {
   const factory AuctionModel({
-    required String id,
-    required String title,
-    required String description,
-    @JsonKey(name: 'current_price') required double currentPrice,
-    @JsonKey(name: 'end_time') required DateTime endTime,
+    String? id,
+    @Default('') String title,
+    @Default('') String description,
+    @JsonKey(name: 'current_price') double? currentPrice,
+    @JsonKey(name: 'end_time') DateTime? endTime,
     @Default([]) List<String> images,
     // Add other fields as necessary
   }) = _AuctionModel;

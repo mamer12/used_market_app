@@ -36,6 +36,15 @@ class AuthOtpSubmitted extends AuthEvent {
   List<Object?> get props => [otp];
 }
 
+/// User submitted their name to finalize registration.
+class AuthRegistrationNameSubmitted extends AuthEvent {
+  final String fullName;
+  const AuthRegistrationNameSubmitted(this.fullName);
+
+  @override
+  List<Object?> get props => [fullName];
+}
+
 /// User tapped "Sign in with Google".
 class AuthGoogleSignInRequested extends AuthEvent {
   const AuthGoogleSignInRequested();
