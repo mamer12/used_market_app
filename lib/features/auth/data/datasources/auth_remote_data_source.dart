@@ -9,6 +9,7 @@ abstract class AuthRemoteDataSource {
   Future<void> sendOtp(SendOtpRequest request);
   Future<AuthResponse> register(RegisterRequest request);
   Future<AuthResponse> login(LoginRequest request);
+  Future<UserModel> getMe();
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -40,5 +41,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
 
     return AuthResponse.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<UserModel> getMe() async {
+    final response = await _dio.get(ApiConstants.usersMe);
+    return UserModel.fromJson(response.data as Map<String, dynamic>);
   }
 }

@@ -37,6 +37,11 @@ class AuctionRepositoryImpl implements AuctionRepository {
   }
 
   @override
+  Future<BidModel> placeBid(String auctionId, PlaceBidRequest request) {
+    return _remoteDataSource.placeBid(auctionId, request);
+  }
+
+  @override
   Future<void> connectToAuction(String auctionId) {
     return _webSocketService.connect(auctionId);
   }

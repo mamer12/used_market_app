@@ -29,9 +29,13 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart'
     as _i153;
 import '../../features/auth/domain/repositories/auth_repository.dart' as _i787;
 import '../../features/auth/presentation/bloc/auth_bloc.dart' as _i797;
+import '../../features/cart/data/datasources/cart_remote_data_source.dart'
+    as _i607;
 import '../../features/home/presentation/bloc/home_cubit.dart' as _i816;
 import '../../features/media/data/datasources/media_remote_data_source.dart'
     as _i1028;
+import '../../features/notifications/presentation/pages/notifications_page.dart'
+    as _i499;
 import '../../features/shop/data/datasources/order_remote_data_source.dart'
     as _i239;
 import '../../features/shop/data/datasources/shop_remote_data_source.dart'
@@ -39,6 +43,7 @@ import '../../features/shop/data/datasources/shop_remote_data_source.dart'
 import '../../features/shop/data/repositories/shop_repository_impl.dart'
     as _i704;
 import '../../features/shop/domain/repositories/shop_repository.dart' as _i106;
+import '../../features/shop/presentation/bloc/shops_cubit.dart' as _i162;
 import '../network/auth_interceptor.dart' as _i908;
 import '../storage/token_storage.dart' as _i973;
 import 'register_module.dart' as _i291;
@@ -70,6 +75,12 @@ _i174.GetIt init(
   gh.lazySingleton<_i1028.MediaRemoteDataSource>(
     () => _i1028.MediaRemoteDataSourceImpl(gh<_i361.Dio>()),
   );
+  gh.factory<_i499.OrdersCubit>(
+    () => _i499.OrdersCubit(gh<_i239.OrderRemoteDataSource>()),
+  );
+  gh.lazySingleton<_i607.CartRemoteDataSource>(
+    () => _i607.CartRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
   gh.lazySingleton<_i787.AuthRepository>(
     () => _i153.AuthRepositoryImpl(
       gh<_i107.AuthRemoteDataSource>(),
@@ -88,6 +99,12 @@ _i174.GetIt init(
   );
   gh.lazySingleton<_i17.AuctionRemoteDataSource>(
     () => _i17.AuctionRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
+  gh.factory<_i162.ShopsCubit>(
+    () => _i162.ShopsCubit(gh<_i106.ShopRepository>()),
+  );
+  gh.factory<_i162.ShopProductsCubit>(
+    () => _i162.ShopProductsCubit(gh<_i106.ShopRepository>()),
   );
   gh.lazySingleton<_i256.AuctionRepository>(
     () => _i350.AuctionRepositoryImpl(

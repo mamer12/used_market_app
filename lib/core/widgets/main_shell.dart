@@ -1,0 +1,503 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import '../../features/auth/presentation/pages/profile_page.dart';
+import '../../features/cart/data/datasources/cart_remote_data_source.dart';
+import '../../features/cart/presentation/bloc/cart_cubit.dart';
+import '../di/injection.dart';
+import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/notifications/presentation/pages/notifications_page.dart';
+import '../theme/app_theme.dart';
+
+/// Main scaffold wrapping all root-level pages behind an "Apple Glass"
+/// floating bottom navigation bar.
+///
+/// Nav bar layout (5 slots):
+///   Home  |  Cart  |  [CENTER FAB]  |  Notifications  |  Me
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
+
+  @override
+  State<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
+  int _currentIndex = 0;
+  late final CartCubit _cartCubit;
+
+  // Page order in IndexedStack (4 real pages — center FAB is an action)
+  static const _pages = [
+    HomePage(),          // 0 → nav pos 0 (Home)
+    CartPage(),          // 1 → nav pos 1 (Cart)
+    NotificationsPage(), // 2 → nav pos 3 (Notifications)
+    ProfilePage(),       // 3 → nav pos 4 (Me)
+  ];
+
+  /// Converts nav bar position (0-4) to page index (0-3).
+  /// Position 2 is the center FAB (no page).
+  int? _navToPage(int navPos) {
+    if (navPos == 2) return null; // center button = action
+    if (navPos < 2) return navPos;
+    return navPos - 1; // 3→2, 4→3
+  }
+
+  late final AnimationController _fabAnim;
+  late final Animation<double> _fabScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _cartCubit = CartCubit(
+      getIt.isRegistered<CartRemoteDataSource>()
+          ? getIt<CartRemoteDataSource>()
+          : null,
+    );
+    _fabAnim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+    _fabScale = Tween<double>(begin: 1.0, end: 0.86).animate(
+      CurvedAnimation(parent: _fabAnim, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _cartCubit.close();
+    _fabAnim.dispose();
+    super.dispose();
+  }
+
+  void _onNavTap(int navPos) {
+    final targetPage = _navToPage(navPos);
+    if (targetPage == null) {
+      HapticFeedback.mediumImpact();
+      _fabAnim.forward().then((_) => _fabAnim.reverse());
+      _showPostSheet();
+      return;
+    }
+    if (_currentIndex == targetPage) return;
+    HapticFeedback.selectionClick();
+    setState(() => _currentIndex = targetPage);
+  }
+
+  void _showPostSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => const _PostActionSheet(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<CartCubit>.value(
+      value: _cartCubit,
+      child: BlocBuilder<CartCubit, CartState>(
+        builder: (ctx, cartState) => Scaffold(
+          extendBody: true,
+          backgroundColor: AppTheme.surface,
+          body: IndexedStack(
+            index: _currentIndex,
+            children: _pages,
+          ),
+          bottomNavigationBar: _buildGlassNavBar(ctx, cartState),
+        ),
+      ),
+    );
+  }
+
+  // ── Apple Glass Navigation Bar ───────────────────────────────────────────
+  Widget _buildGlassNavBar(BuildContext ctx, CartState cartState) {
+    final safeBottom = MediaQuery.of(ctx).padding.bottom;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, (safeBottom + 12).h),
+      child: SizedBox(
+        height: 62.h,
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            // ── Frosted glass pill ───────────────────────
+            ClipRRect(
+              borderRadius: BorderRadius.circular(31.r),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+                child: Container(
+                  height: 62.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.84),
+                    borderRadius: BorderRadius.circular(31.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.65),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.10),
+                        blurRadius: 28,
+                        offset: const Offset(0, 8),
+                      ),
+                      BoxShadow(
+                        color: AppTheme.primary.withValues(alpha: 0.07),
+                        blurRadius: 14,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _NavItem(
+                        activeIcon: Icons.home_rounded,
+                        inactiveIcon: Icons.home_outlined,
+                        label: 'Home',
+                        isActive: _currentIndex == 0,
+                        onTap: () => _onNavTap(0),
+                      ),
+                      _NavItem(
+                        activeIcon: Icons.shopping_bag_rounded,
+                        inactiveIcon: Icons.shopping_bag_outlined,
+                        label: 'Cart',
+                        isActive: _currentIndex == 1,
+                        badgeCount: cartState.cartCount,
+                        onTap: () => _onNavTap(1),
+                      ),
+                      // Gap for center FAB
+                      SizedBox(width: 54.w),
+                      _NavItem(
+                        activeIcon: Icons.notifications_rounded,
+                        inactiveIcon: Icons.notifications_outlined,
+                        label: 'Activity',
+                        isActive: _currentIndex == 2,
+                        onTap: () => _onNavTap(3),
+                      ),
+                      _NavItem(
+                        activeIcon: Icons.person_rounded,
+                        inactiveIcon: Icons.person_outlined,
+                        label: 'Me',
+                        isActive: _currentIndex == 3,
+                        onTap: () => _onNavTap(4),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Center FAB ───────────────────────────────
+            Positioned(
+              top: -20.h,
+              child: _buildCenterFab(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterFab() {
+    return GestureDetector(
+      onTapDown: (_) => _fabAnim.forward(),
+      onTapUp: (_) {
+        _fabAnim.reverse();
+        HapticFeedback.mediumImpact();
+        _showPostSheet();
+      },
+      onTapCancel: () => _fabAnim.reverse(),
+      child: ScaleTransition(
+        scale: _fabScale,
+        child: Container(
+          width: 56.w,
+          height: 56.w,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [AppTheme.primary, AppTheme.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primary.withValues(alpha: 0.50),
+                blurRadius: 18,
+                spreadRadius: 1,
+                offset: const Offset(0, 5),
+              ),
+              // white ring for glass feel
+              BoxShadow(
+                color: Colors.white.withValues(alpha: 0.65),
+                blurRadius: 0,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.add_rounded,
+            size: 28.sp,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Nav Item Widget ───────────────────────────────────────────────────────
+class _NavItem extends StatelessWidget {
+  final IconData activeIcon;
+  final IconData inactiveIcon;
+  final String label;
+  final bool isActive;
+  final int badgeCount;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.activeIcon,
+    required this.inactiveIcon,
+    required this.label,
+    required this.isActive,
+    this.badgeCount = 0,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 54.w,
+        height: 62.h,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon with optional badge
+            SizedBox(
+              width: 28.w,
+              height: 28.w,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    transitionBuilder: (child, anim) =>
+                        ScaleTransition(scale: anim, child: child),
+                    child: Icon(
+                      isActive ? activeIcon : inactiveIcon,
+                      key: ValueKey(isActive),
+                      size: 23.sp,
+                      color:
+                          isActive ? AppTheme.textPrimary : AppTheme.inactive,
+                    ),
+                  ),
+                  if (badgeCount > 0)
+                    Positioned(
+                      top: -3.h,
+                      right: -4.w,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4.w,
+                          vertical: 1.h,
+                        ),
+                        constraints: BoxConstraints(minWidth: 16.w),
+                        decoration: BoxDecoration(
+                          color: AppTheme.liveBadge,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(color: Colors.white, width: 1.2),
+                        ),
+                        child: Text(
+                          badgeCount > 99 ? '99+' : '$badgeCount',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.cairo(
+                            fontSize: 8.5.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            SizedBox(height: 2.h),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: GoogleFonts.cairo(
+                fontSize: 9.5.sp,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                color: isActive ? AppTheme.textPrimary : AppTheme.inactive,
+              ),
+              child: Text(label),
+            ),
+            SizedBox(height: 3.h),
+            // Active dot
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutBack,
+              width: isActive ? 14.w : 0,
+              height: 3.h,
+              decoration: BoxDecoration(
+                color: AppTheme.primary,
+                borderRadius: BorderRadius.circular(1.5.r),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Post Action Sheet ─────────────────────────────────────────────────────
+class _PostActionSheet extends StatelessWidget {
+  const _PostActionSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final safeBottom = MediaQuery.of(context).padding.bottom;
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.background,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
+      ),
+      padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, (safeBottom + 24).h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Drag handle
+          Container(
+            width: 40.w,
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: AppTheme.inactive.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2.r),
+            ),
+          ),
+          SizedBox(height: 20.h),
+          Text(
+            'What do you want to sell?',
+            style: GoogleFonts.cairo(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'Choose how you want to list your item',
+            style: GoogleFonts.cairo(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          SizedBox(height: 24.h),
+          _PostOption(
+            icon: Icons.gavel,
+            title: 'Start an Auction',
+            subtitle: 'Let buyers bid — highest price wins',
+            accentColor: AppTheme.liveBadge,
+            onTap: () => Navigator.pop(context),
+          ),
+          SizedBox(height: 12.h),
+          _PostOption(
+            icon: Icons.storefront_outlined,
+            title: 'List in My Shop',
+            subtitle: 'Fixed-price listing in your store',
+            accentColor: AppTheme.primary,
+            onTap: () => Navigator.pop(context),
+          ),
+          SizedBox(height: 12.h),
+          _PostOption(
+            icon: Icons.add_business_outlined,
+            title: 'Create a Shop',
+            subtitle: 'Open your own storefront on Mustamal',
+            accentColor: const Color(0xFF00BCD4),
+            onTap: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PostOption extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color accentColor;
+  final VoidCallback onTap;
+
+  const _PostOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.accentColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: accentColor.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: accentColor.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48.w,
+              height: 48.w,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Icon(icon, size: 24.sp, color: accentColor),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.cairo(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 14.sp,
+              color: AppTheme.inactive,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

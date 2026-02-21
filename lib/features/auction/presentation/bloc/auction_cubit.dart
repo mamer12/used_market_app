@@ -90,9 +90,46 @@ class AuctionCubit extends Cubit<AuctionState> {
     }
   }
 
-  void placeBid(double amount) {
-    if (state.auction == null) return;
-    _repository.placeRealTimeBid(amount);
+  /// Places a bid via:
+  ///   1. REST API (POST /auctions/{id}/bids) — authoritative, returns the
+  ///      confirmed `BidModel` with server-assigned id.
+  ///   2. WebSocket — broadcasts the bid to all connected viewers in real-time.
+  ///
+  /// If the REST call fails (e.g. bid too low) an error state is emitted.
+  void placeBid(int amount) {
+    if (state.auction == null || state.auction!.id == null) return;
+
+    // Optimistically add to UI immediately
+    final optimisticBid = BidModel(
+      id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}',
+      bidderId: 'me',
+      amount: amount,
+      createdAt: DateTime.now(),
+    );
+    emit(state.copyWith(bids: [...state.bids, optimisticBid]));
+
+    // REST — primary confirmation
+    _repository
+        .placeBid(state.auction!.id!, PlaceBidRequest(amount: amount))
+        .then((confirmedBid) {
+      // Replace optimistic entry with confirmed one
+      final updated = state.bids
+          .where((b) => b.id != optimisticBid.id)
+          .toList()
+        ..add(confirmedBid);
+      emit(state.copyWith(bids: updated));
+    }).catchError((Object e) {
+      // Roll back optimistic bid and surface the error
+      final rolled = state.bids.where((b) => b.id != optimisticBid.id).toList();
+      LogService().error('Failed to place bid', e);
+      emit(state.copyWith(
+        bids: rolled,
+        error: e.toString(),
+      ));
+    });
+
+    // WS — real-time propagation to other viewers
+    _repository.placeRealTimeBid(amount.toDouble());
   }
 
   @override

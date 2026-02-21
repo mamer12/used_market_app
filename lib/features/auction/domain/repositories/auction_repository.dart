@@ -10,6 +10,9 @@ abstract class AuctionRepository {
   });
   Future<AuctionModel> createAuction(CreateAuctionRequest request);
 
+  /// Place a bid via REST (POST /auctions/{id}/bids).
+  Future<BidModel> placeBid(String auctionId, PlaceBidRequest request);
+
   // WebSocket Methods
   Future<void> connectToAuction(String auctionId);
   void disconnectFromAuction();

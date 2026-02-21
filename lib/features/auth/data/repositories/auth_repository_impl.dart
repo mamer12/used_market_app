@@ -65,9 +65,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserModel?> getUser() async {
-    // Return the locally stored user model or fetch it using `/auth/me` if it exists on the backend.
-    // For now, since login/register return the user, we would have saved it.
-    // Returning null as a placeholder, would require local storage implementation for User.
-    return null;
+    try {
+      return await _remoteDataSource.getMe();
+    } catch (_) {
+      return null;
+    }
   }
 }

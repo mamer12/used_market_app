@@ -7,17 +7,26 @@ import '../../../auction/domain/repositories/auction_repository.dart';
 import '../../../shop/data/models/shop_models.dart';
 import '../../../shop/domain/repositories/shop_repository.dart';
 
+// ── Shop catalog entry (shop + its products) ──────────────────────────────
+class ShopCatalogEntry {
+  final ShopModel shop;
+  final List<ProductModel> products;
+  const ShopCatalogEntry({required this.shop, required this.products});
+}
+
 // ── State ────────────────────────────────────────────────────────────────
 class HomeState {
   final bool isLoading;
   final List<AuctionModel> liveAuctions;
   final List<ProductModel> featuredProducts;
+  final List<ShopCatalogEntry> shopCatalogs;
   final String? error;
 
   const HomeState({
     this.isLoading = false,
     this.liveAuctions = const [],
     this.featuredProducts = const [],
+    this.shopCatalogs = const [],
     this.error,
   });
 
@@ -25,12 +34,14 @@ class HomeState {
     bool? isLoading,
     List<AuctionModel>? liveAuctions,
     List<ProductModel>? featuredProducts,
+    List<ShopCatalogEntry>? shopCatalogs,
     String? error,
   }) {
     return HomeState(
       isLoading: isLoading ?? this.isLoading,
       liveAuctions: liveAuctions ?? this.liveAuctions,
       featuredProducts: featuredProducts ?? this.featuredProducts,
+      shopCatalogs: shopCatalogs ?? this.shopCatalogs,
       error: error ?? this.error,
     );
   }
@@ -49,23 +60,38 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(isLoading: true, error: null));
 
     try {
-      final results = await Future.wait([
+      // 1. Fetch live auctions and the shops list in parallel
+      final topLevel = await Future.wait([
         _auctionRepository.getLiveAuctions(limit: 5),
-        // Providing a default generic slug to fetch the shop's catalog.
-        // In a real scenario, this might be a dedicated feed API endpoint.
-        _shopRepository
-            .browseShopCatalog('electro-iq-922197', limit: 5)
-            .catchError((_) => <ProductModel>[]),
+        _shopRepository.listShops(limit: 6),
       ]);
 
-      final auctions = results[0] as List<AuctionModel>;
-      final products = results[1] as List<ProductModel>;
+      final auctions = topLevel[0] as List<AuctionModel>;
+      final shops = topLevel[1] as List<ShopModel>;
+
+      // 2. For each shop fetch its catalog concurrently (failures are swallowed)
+      final catalogResults = await Future.wait(
+        shops.map(
+          (s) => _shopRepository
+              .browseShopCatalog(s.slug, limit: 8)
+              .catchError((_) => (s, <ProductModel>[])),
+        ),
+      );
+
+      final catalogs = catalogResults
+          .map((r) => ShopCatalogEntry(shop: r.$1, products: r.$2))
+          .where((e) => e.products.isNotEmpty)
+          .toList();
+
+      final allProducts =
+          catalogs.expand((e) => e.products).take(10).toList();
 
       emit(
         state.copyWith(
           isLoading: false,
           liveAuctions: auctions,
-          featuredProducts: products,
+          featuredProducts: allProducts,
+          shopCatalogs: catalogs,
         ),
       );
     } catch (e, st) {

@@ -34,7 +34,20 @@ class ApiConstants {
   // --- Shop Endpoints ---
   static const String shops = '/shops'; // POST
 
+  // --- Cart Endpoints ---
+  static const String cart = '/cart'; // GET (list), POST (add), DELETE (clear)
+
+  // --- Saved Items / Wishlist ---
+  static const String savedItems = '/saved-items'; // GET, POST, DELETE
+
   // --- Order Endpoints ---
   static const String ordersShop = '/orders/shop'; // POST (buy)
   static const String ordersMe = '/orders/me'; // GET (my orders)
+
+  // --- User Endpoints ---
+  static const String usersMe = '/users/me'; // GET (current user)
+
+  // --- Auth (password-based) ---
+  static const String authRegisterPassword = '/auth/register';
+  static const String authLoginPassword = '/auth/login';
 }

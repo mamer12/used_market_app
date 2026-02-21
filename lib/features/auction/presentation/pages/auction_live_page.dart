@@ -95,12 +95,12 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     if (_cubit.state.auction == null) return;
 
     final currentHigh = _cubit.state.bids.isNotEmpty
-        ? _cubit.state.bids.last.amount.toInt()
-        : (_cubit.state.auction?.currentPrice ?? 0).toInt();
+        ? _cubit.state.bids.last.amount
+        : (_cubit.state.auction?.currentPrice ?? 0);
 
     final amount = currentHigh + increment;
 
-    _cubit.placeBid(amount.toDouble());
+    _cubit.placeBid(amount);
 
     setState(() {
       _secondsLeft = 45; // Simulated timer reset
@@ -474,7 +474,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                               ),
                               TextSpan(
                                 text:
-                                    '${_formatNumber(bid.amount.toInt())} ${widget.currency}',
+                                    '${_formatNumber(bid.amount)} ${widget.currency}',
                                 style: GoogleFonts.inter(
                                   fontSize: isLatest ? 14.sp : 12.sp,
                                   fontWeight: FontWeight.w800,
@@ -541,8 +541,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                             children: [
                               Text(
                                 _formatNumber(
-                                  (_cubit.state.auction?.currentPrice ?? 0)
-                                      .toInt(),
+                                  (_cubit.state.auction?.currentPrice ?? 0),
                                 ),
                                 style: GoogleFonts.inter(
                                   fontSize: 34.sp,
@@ -686,10 +685,8 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                             child: Builder(
                               builder: (context) {
                                 final currentHigh = _cubit.state.bids.isNotEmpty
-                                    ? _cubit.state.bids.last.amount.toInt()
-                                    : (_cubit.state.auction?.currentPrice
-                                              ?.toInt() ??
-                                          0);
+                                    ? _cubit.state.bids.last.amount
+                                    : (_cubit.state.auction?.currentPrice ?? 0);
                                 final nextHigh = currentHigh + 10000;
                                 return Text(
                                   _formatNumber(nextHigh),

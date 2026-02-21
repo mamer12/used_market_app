@@ -5,12 +5,14 @@ import '../../../../core/network/api_constants.dart';
 import '../models/shop_models.dart';
 
 abstract class ShopRemoteDataSource {
+  Future<List<ShopModel>> listShops({int page = 1, int limit = 20});
   Future<ShopModel> createShop(CreateShopRequest request);
   Future<ProductModel> addProductToShop(
     String shopId,
     AddProductRequest request,
   );
-  Future<List<ProductModel>> browseShopCatalog(
+  /// Returns (shop, products) tuple from CatalogResponse.
+  Future<(ShopModel, List<ProductModel>)> browseShopCatalog(
     String slug, {
     int page = 1,
     int limit = 20,
@@ -22,6 +24,22 @@ class ShopRemoteDataSourceImpl implements ShopRemoteDataSource {
   final Dio _dio;
 
   ShopRemoteDataSourceImpl(this._dio);
+
+  @override
+  Future<List<ShopModel>> listShops({
+    int page = 1,
+    int limit = 20,
+  }) async {
+    // GET /shops → interceptor strips {success, data} → List<dynamic>
+    final response = await _dio.get(
+      ApiConstants.shops,
+      queryParameters: {'page': page, 'limit': limit},
+    );
+    final list = response.data as List<dynamic>;
+    return list
+        .map((e) => ShopModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 
   @override
   Future<ShopModel> createShop(CreateShopRequest request) async {
@@ -45,19 +63,22 @@ class ShopRemoteDataSourceImpl implements ShopRemoteDataSource {
   }
 
   @override
-  Future<List<ProductModel>> browseShopCatalog(
+  Future<(ShopModel, List<ProductModel>)> browseShopCatalog(
     String slug, {
     int page = 1,
     int limit = 20,
   }) async {
+    // GET /shops/{slug}/products → CatalogResponse → {shop: {...}, products: [...]}
     final response = await _dio.get(
       '${ApiConstants.shops}/$slug/products',
       queryParameters: {'page': page, 'limit': limit},
     );
     final data = response.data as Map<String, dynamic>;
-    final itemsList = data['items'] as List<dynamic>;
-    return itemsList
+    final shop = ShopModel.fromJson(data['shop'] as Map<String, dynamic>);
+    final productsList = (data['products'] as List<dynamic>? ?? []);
+    final products = productsList
         .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
         .toList();
+    return (shop, products);
   }
 }

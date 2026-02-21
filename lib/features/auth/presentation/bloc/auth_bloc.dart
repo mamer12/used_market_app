@@ -58,9 +58,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       final results = await Future.wait([
-        _authRepository.isLoggedIn(),
-        hasOnboarded(),
-      ]).timeout(const Duration(seconds: 2));
+        _authRepository.isLoggedIn().then((val) {
+          LogService().info('🔑 isLoggedIn check: $val');
+          return val;
+        }),
+        hasOnboarded().then((val) {
+          LogService().info('🔑 hasOnboarded check: $val');
+          return val;
+        }),
+      ]).timeout(const Duration(seconds: 5));
 
       final isLoggedIn = results[0];
       final onboarded = results[1];

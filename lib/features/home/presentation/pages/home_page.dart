@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/locale/locale_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/auth_guard.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auction/data/models/auction_models.dart';
 import '../../../auction/presentation/pages/auction_live_page.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../shop/data/models/shop_models.dart';
+import '../../../shop/presentation/pages/shop_products_page.dart';
+import '../../../shop/presentation/pages/shops_page.dart';
+import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../bloc/home_cubit.dart';
 
 /// Discovery Home — Mustamal marketplace feed.
@@ -101,21 +101,19 @@ class _HomePageState extends State<HomePage> {
                       child: _buildLiveNowSection(state.liveAuctions),
                     ),
 
-                  // ── Freshly Listed ─────────────────────────
-                  if (state.featuredProducts.isNotEmpty) ...[
+                  // ── Shops with products ───────────────────
+                  if (state.shopCatalogs.isNotEmpty) ...[
+                    SliverToBoxAdapter(child: _buildShopsHeader(state.shopCatalogs.length)),
+                    ...state.shopCatalogs.map(
+                      (entry) => SliverToBoxAdapter(
+                        child: _buildShopSection(entry),
+                      ),
+                    ),
+                  ] else if (state.featuredProducts.isNotEmpty) ...[
                     SliverToBoxAdapter(child: _buildFreshlyListedHeader()),
                     SliverPadding(
                       padding: EdgeInsets.symmetric(horizontal: 20.w),
                       sliver: _buildListingsGrid(state.featuredProducts),
-                    ),
-                  ] else ...[
-                    // Temporary fallback to mock data if API is empty
-                    SliverToBoxAdapter(child: _buildFreshlyListedHeader()),
-                    SliverPadding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      sliver: _buildListingsGrid(
-                        [],
-                      ), // will render local mock for now
                     ),
                   ],
 
@@ -130,7 +128,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ── Header (Greeting + Language + Notification) ─────────
+  // ── Header (Greeting only) ─────────────────────────────
   Widget _buildHeader() {
     final l10n = AppLocalizations.of(context);
 
@@ -168,119 +166,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-          ),
-          SizedBox(width: 8.w),
-          // Action icons
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Language toggle
-              GestureDetector(
-                onTap: () {
-                  context.read<LocaleCubit>().toggleLocale();
-                },
-                child: Container(
-                  width: 44.w,
-                  height: 44.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.background,
-                    border: Border.all(
-                      color: AppTheme.inactive.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      l10n.switchLanguage,
-                      style: GoogleFonts.cairo(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              // Notification Bell
-              AuthGuard(
-                onAuthenticated: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening Notifications...')),
-                  );
-                },
-                child: Container(
-                  width: 44.w,
-                  height: 44.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.background,
-                    border: Border.all(
-                      color: AppTheme.inactive.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(
-                        Icons.notifications_outlined,
-                        size: 26.sp,
-                        color: AppTheme.textPrimary,
-                      ),
-                      Positioned(
-                        right: 10.w,
-                        top: 10.h,
-                        child: Container(
-                          width: 9.w,
-                          height: 9.w,
-                          decoration: BoxDecoration(
-                            color: AppTheme.liveBadge,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppTheme.background,
-                              width: 1.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              // Logout — only visible when authenticated
-              BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  if (!state.isAuthenticated) {
-                    return const SizedBox.shrink();
-                  }
-                  return GestureDetector(
-                    onTap: () {
-                      context.read<AuthBloc>().add(const AuthLogoutRequested());
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Logged out')),
-                      );
-                    },
-                    child: Container(
-                      width: 44.w,
-                      height: 44.w,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppTheme.background,
-                        border: Border.all(
-                          color: AppTheme.inactive.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.logout_rounded,
-                        size: 22.sp,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
           ),
         ],
       ),
@@ -708,7 +593,7 @@ class _HomePageState extends State<HomePage> {
             builder: (_) => AuctionLivePage(
               auctionId: item.id ?? '',
               title: item.title,
-              currentPrice: (item.currentPrice ?? 0).toStringAsFixed(0),
+              currentPrice: '${item.currentPrice ?? 0}',
               currency: l10n.currency, // Assuming local currency for now
               imageUrl: item.images.isNotEmpty
                   ? item.images.first
@@ -875,7 +760,7 @@ class _HomePageState extends State<HomePage> {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: '${(item.currentPrice ?? 0).toInt()}',
+                                    text: '${item.currentPrice ?? 0}',
                                     style: GoogleFonts.cairo(
                                       fontSize: 18.sp,
                                       fontWeight: FontWeight.w700,
@@ -920,6 +805,291 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  // ── Shops Header ────────────────────────────────────────
+  Widget _buildShopsHeader(int count) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 4.h),
+      child: Row(
+        children: [
+          Container(
+            width: 4.w,
+            height: 22.h,
+            decoration: BoxDecoration(
+              color: AppTheme.primary,
+              borderRadius: BorderRadius.circular(2.r),
+            ),
+          ),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Text(
+              'Shops',
+              style: GoogleFonts.cairo(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const ShopsPage()),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  'See All',
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primary,
+                  ),
+                ),
+                SizedBox(width: 4.w),
+                Icon(Icons.arrow_forward_ios, size: 12.sp, color: AppTheme.primary),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Single Shop Section ──────────────────────────────────
+  Widget _buildShopSection(ShopCatalogEntry entry) {
+    final shop = entry.shop;
+    final products = entry.products;
+    // Deterministic accent colour from shop id
+    final accentColors = [
+      AppTheme.primary, AppTheme.secondary, const Color(0xFF00BCD4),
+      const Color(0xFF7C4DFF), const Color(0xFF00C853), const Color(0xFFFF6D00),
+    ];
+    final accent = accentColors[shop.id.hashCode.abs() % accentColors.length];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Shop header row ────────────────────────────
+        Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 10.h),
+          child: Row(
+            children: [
+              // Avatar
+              Container(
+                width: 40.w,
+                height: 40.w,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: accent.withValues(alpha: 0.3)),
+                ),
+                child: Center(
+                  child: Text(
+                    shop.name.isNotEmpty
+                        ? shop.name[0].toUpperCase()
+                        : 'S',
+                    style: GoogleFonts.cairo(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: accent,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      shop.name,
+                      style: GoogleFonts.cairo(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (shop.description != null && shop.description!.isNotEmpty)
+                      Text(
+                        shop.description!,
+                        style: GoogleFonts.cairo(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w400,
+                          color: AppTheme.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 8.w),
+              GestureDetector(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => ShopProductsPage(
+                      shopSlug: shop.slug,
+                      shopName: shop.name,
+                    ),
+                  ),
+                ),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Text(
+                    'Visit',
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // ── Horizontal product scroll ───────────────────
+        SizedBox(
+          height: 200.h,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            itemCount: products.length,
+            separatorBuilder: (_, __) => SizedBox(width: 12.w),
+            itemBuilder: (context, index) =>
+                _buildShopProductCard(products[index], accent),
+          ),
+        ),
+
+        SizedBox(height: 6.h),
+        // ── Thin divider ──────────────────────────────
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+            color: AppTheme.inactive.withValues(alpha: 0.12),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShopProductCard(ProductModel item, Color accent) {
+    return Container(
+      width: 148.w,
+      decoration: BoxDecoration(
+        color: AppTheme.background,
+        borderRadius: BorderRadius.circular(14.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image with heart button overlay
+          SizedBox(
+            height: 110.h,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                item.images.isNotEmpty
+                    ? Image.network(
+                        item.images.first,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            _productImagePlaceholder(accent),
+                      )
+                    : _productImagePlaceholder(accent),
+                // Heart
+                Positioned(
+                  top: 6.h,
+                  right: 6.w,
+                  child: _HomeHeartButton(
+                    product: item,
+                    size: 28.w,
+                    iconSize: 14.sp,
+                    bgColor: Colors.white.withValues(alpha: 0.88),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Info
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    item.name,
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${item.price.toInt()} IQD',
+                          style: GoogleFonts.cairo(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (item.inStock <= 0)
+                        Text(
+                          'Out',
+                          style: GoogleFonts.cairo(
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red,
+                          ),
+                        )
+                      else
+                        _HomeAddToCartButton(product: item, accent: accent),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _productImagePlaceholder(Color accent) {
+    return Container(
+      color: accent.withValues(alpha: 0.08),
+      child: Icon(Icons.image_outlined, color: accent.withValues(alpha: 0.4), size: 32.sp),
     );
   }
 
@@ -1038,19 +1208,7 @@ class _HomePageState extends State<HomePage> {
                 Positioned(
                   top: 8.h,
                   left: 8.w,
-                  child: Container(
-                    width: 32.w,
-                    height: 32.w,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.favorite_border,
-                      size: 16.sp,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
+                  child: _HomeHeartButton(product: item),
                 ),
               ],
             ),
@@ -1127,6 +1285,108 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ── Heart (Save) Button ───────────────────────────────────
+class _HomeHeartButton extends StatelessWidget {
+  final ProductModel product;
+  final double? size;
+  final double? iconSize;
+  final Color? bgColor;
+
+  const _HomeHeartButton({
+    required this.product,
+    this.size,
+    this.iconSize,
+    this.bgColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<CartCubit, CartState, bool>(
+      selector: (s) => s.savedItems.any((s) => s.product.id == product.id),
+      builder: (ctx, isSaved) {
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            ctx.read<CartCubit>().toggleSaved(product);
+          },
+          child: Container(
+            width: size ?? 32.w,
+            height: size ?? 32.w,
+            decoration: BoxDecoration(
+              color: bgColor ?? Colors.white.withValues(alpha: 0.88),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, anim) =>
+                  ScaleTransition(scale: anim, child: child),
+              child: Icon(
+                isSaved ? Icons.favorite : Icons.favorite_border,
+                key: ValueKey(isSaved),
+                size: iconSize ?? 16.sp,
+                color: isSaved ? AppTheme.liveBadge : AppTheme.textSecondary,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ── Add to Cart Button ────────────────────────────────────
+class _HomeAddToCartButton extends StatelessWidget {
+  final ProductModel product;
+  final Color accent;
+
+  const _HomeAddToCartButton({
+    required this.product,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<CartCubit, CartState, bool>(
+      selector: (s) => s.cartItems.any((i) => i.product.id == product.id),
+      builder: (ctx, inCart) {
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            ctx.read<CartCubit>().addToCart(product);
+            ScaffoldMessenger.of(ctx).showSnackBar(
+              SnackBar(
+                content: Text('Added to cart', style: GoogleFonts.cairo()),
+                duration: const Duration(seconds: 1),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 26.w,
+            height: 26.w,
+            decoration: BoxDecoration(
+              color: inCart ? AppTheme.textPrimary : accent,
+              borderRadius: BorderRadius.circular(7.r),
+            ),
+            child: Icon(
+              inCart ? Icons.check : Icons.add,
+              size: 14.sp,
+              color: inCart ? AppTheme.primary : AppTheme.textPrimary,
+            ),
+          ),
+        );
+      },
     );
   }
 }

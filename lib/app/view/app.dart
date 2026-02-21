@@ -9,7 +9,7 @@ import '../../features/auth/domain/entities/auth_status.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
-import '../../features/home/presentation/pages/home_page.dart';
+import '../../core/widgets/main_shell.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -65,14 +65,14 @@ class _AppEntry extends StatelessWidget {
         }
 
         if (state.isAuthenticated) {
-          return const HomePage(key: ValueKey('home'));
+          return const MainShell(key: ValueKey('main'));
         }
 
         if (!state.hasOnboarded) {
           return const OnboardingPage(key: ValueKey('onboarding'));
         }
 
-        return const HomePage(key: ValueKey('home_guest'));
+        return const MainShell(key: ValueKey('main'));
       },
     );
   }

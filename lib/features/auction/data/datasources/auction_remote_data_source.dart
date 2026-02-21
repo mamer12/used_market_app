@@ -13,6 +13,7 @@ abstract class AuctionRemoteDataSource {
     int limit = 20,
   });
   Future<AuctionModel> createAuction(CreateAuctionRequest request);
+  Future<BidModel> placeBid(String auctionId, PlaceBidRequest request);
 }
 
 @LazySingleton(as: AuctionRemoteDataSource)
@@ -29,14 +30,14 @@ class AuctionRemoteDataSourceImpl implements AuctionRemoteDataSource {
     );
     final data = response.data as List;
     return data
-        .map((e) => AuctionModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => auctionFromApiResponse(e as Map<String, dynamic>))
         .toList();
   }
 
   @override
   Future<AuctionModel> getAuctionDetails(String id) async {
     final response = await _dio.get('${ApiConstants.auctions}/$id');
-    return AuctionModel.fromJson(response.data as Map<String, dynamic>);
+    return auctionFromApiResponse(response.data as Map<String, dynamic>);
   }
 
   @override
@@ -61,6 +62,15 @@ class AuctionRemoteDataSourceImpl implements AuctionRemoteDataSource {
       ApiConstants.auctions,
       data: request.toJson(),
     );
-    return AuctionModel.fromJson(response.data as Map<String, dynamic>);
+    return auctionFromApiResponse(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<BidModel> placeBid(String auctionId, PlaceBidRequest request) async {
+    final response = await _dio.post(
+      '${ApiConstants.auctions}/$auctionId/bids',
+      data: request.toJson(),
+    );
+    return BidModel.fromJson(response.data as Map<String, dynamic>);
   }
 }

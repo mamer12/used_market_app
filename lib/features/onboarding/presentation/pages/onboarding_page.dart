@@ -8,7 +8,7 @@ import '../../../../core/widgets/primary_button.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
-import '../../../home/presentation/pages/home_page.dart';
+import '../../../../core/widgets/main_shell.dart';
 
 /// Onboarding — 3-slide PageView with "Industrial Pop" aesthetics.
 ///
@@ -46,7 +46,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _startBrowsing() {
     context.read<AuthBloc>().add(const AuthGuestModeEntered());
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => const HomePage()),
+      MaterialPageRoute<void>(builder: (_) => const MainShell()),
     );
   }
 
