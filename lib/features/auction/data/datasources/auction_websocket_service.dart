@@ -15,6 +15,8 @@ abstract class AuctionWebSocketService {
   void disconnect();
   void placeBid(double amount);
   Stream<BidModel> get bidStream;
+  Stream<BidPlacedEvent> get bidPlacedStream;
+  Stream<AuctionEndedEvent> get auctionEndedStream;
   Stream<String> get errorStream;
 }
 
@@ -25,6 +27,8 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
 
   WebSocketChannel? _channel;
   final _bidController = StreamController<BidModel>.broadcast();
+  final _bidPlacedController = StreamController<BidPlacedEvent>.broadcast();
+  final _auctionEndedController = StreamController<AuctionEndedEvent>.broadcast();
   final _errorController = StreamController<String>.broadcast();
 
   AuctionWebSocketServiceImpl(this._tokenStorage);
@@ -33,7 +37,22 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
   Stream<BidModel> get bidStream => _bidController.stream;
 
   @override
+  Stream<BidPlacedEvent> get bidPlacedStream => _bidPlacedController.stream;
+
+  @override
+  Stream<AuctionEndedEvent> get auctionEndedStream => _auctionEndedController.stream;
+
+  @override
   Stream<String> get errorStream => _errorController.stream;
+
+  /// Parses a money value that the API sends as a numeric string (e.g. "90000").
+  static int _parseMoney(Object? v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is double) return v.toInt();
+    if (v is String) return int.tryParse(v) ?? 0;
+    return 0;
+  }
 
   @override
   Future<void> connect(String auctionId) async {
@@ -51,16 +70,29 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
         _log.debug('WS Message: $message');
         try {
           final data = jsonDecode(message as String) as Map<String, dynamic>;
-          final event = data['event'];
-          final payload = data['payload'] as Map<String, dynamic>;
+          final type = data['type'] as String?;
 
-          if (event == 'new_bid') {
-            final bid = BidModel.fromJson(payload);
-            _bidController.add(bid);
-          } else if (event == 'error') {
-            final errorMsg =
-                payload['message'] as String? ?? 'Unknown WS Error';
-            _errorController.add(errorMsg);
+          switch (type) {
+            case 'bid_placed':
+              final bid = BidModel.fromJson(data['bid'] as Map<String, dynamic>);
+              final currentPrice = _parseMoney(data['current_price']);
+              _bidController.add(bid);
+              _bidPlacedController.add(BidPlacedEvent(bid: bid, currentPrice: currentPrice));
+
+            case 'auction_ended':
+              final event = AuctionEndedEvent(
+                auctionId: data['auction_id'] as String? ?? '',
+                winnerId: data['winner_id'] as String?,
+                finalPrice: _parseMoney(data['final_price']),
+              );
+              _auctionEndedController.add(event);
+
+            case 'error':
+              final msg = data['message'] as String? ?? 'Unknown WS Error';
+              _errorController.add(msg);
+
+            default:
+              _log.debug('Unhandled WS type: $type');
           }
         } catch (e, st) {
           _log.error('Failed to parse WS message', e, st);

@@ -60,6 +60,7 @@ class ApiConstants {
   // --- Order Endpoints ---
   static const String ordersShop = '/orders/shop'; // POST (buy)
   static const String ordersMe = '/orders/me'; // GET (my orders)
+  static const String ordersStatus = '/orders'; // PATCH /:id/status
 
   // --- User Endpoints ---
   static const String usersMe = '/users/me'; // GET (current user)
@@ -67,4 +68,7 @@ class ApiConstants {
   // --- Auth (password-based) ---
   static const String authRegisterPassword = '/auth/register';
   static const String authLoginPassword = '/auth/login';
+
+  // --- Search ---
+  static const String search = '/search'; // GET ?q=
 }

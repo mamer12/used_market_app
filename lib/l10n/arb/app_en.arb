@@ -289,5 +289,236 @@
   "@authChangeNumber": { "description": "Go back to phone input" },
 
   "switchLanguage": "العربية",
-  "@switchLanguage": { "description": "Language toggle label — shows the OTHER language name" }
+  "@switchLanguage": { "description": "Language toggle label — shows the OTHER language name" },
+
+  "navHome": "Home",
+  "@navHome": { "description": "Bottom nav: Home slot" },
+
+  "navMessages": "Messages",
+  "@navMessages": { "description": "Bottom nav: Messages slot" },
+
+  "navActivity": "My Activity",
+  "@navActivity": { "description": "Bottom nav: Activity/deals slot" },
+
+  "navProfile": "Profile",
+  "@navProfile": { "description": "Bottom nav: Profile slot" },
+
+  "postSheetTitle": "What do you want to add?",
+  "@postSheetTitle": { "description": "FAB post action sheet main title" },
+
+  "postSheetSub": "Choose the type of listing",
+  "@postSheetSub": { "description": "FAB post action sheet subtitle" },
+
+  "postAuction": "Start an Auction",
+  "@postAuction": { "description": "Post option: auction" },
+
+  "postAuctionSub": "Let buyers bid — highest price wins",
+  "@postAuctionSub": { "description": "Post option: auction subtitle" },
+
+  "postSell": "Sell an Item",
+  "@postSell": { "description": "Post option: sell" },
+
+  "postSellSub": "Fixed price listing in the used market",
+  "@postSellSub": { "description": "Post option: sell subtitle" },
+
+  "postService": "Offer a Service",
+  "@postService": { "description": "Post option: service" },
+
+  "postServiceSub": "Plumbing, electrical, cleaning, any trade",
+  "@postServiceSub": { "description": "Post option: service subtitle" },
+
+  "postJob": "Post a Job",
+  "@postJob": { "description": "Post option: job" },
+
+  "postJobSub": "Find workers and employees",
+  "@postJobSub": { "description": "Post option: job subtitle" },
+
+  "activityTitle": "My Activity",
+  "@activityTitle": { "description": "Activity page title" },
+
+  "activityOrders": "Orders",
+  "@activityOrders": { "description": "Activity tab: orders" },
+
+  "activitySaved": "Saved",
+  "@activitySaved": { "description": "Activity tab: saved items" },
+
+  "activityBids": "My Bids",
+  "@activityBids": { "description": "Activity tab: bids" },
+
+  "activityBookings": "Bookings",
+  "@activityBookings": { "description": "Activity tab: bookings" },
+
+  "activitySummary": "{orders} orders · {saved} saved",
+  "@activitySummary": {
+    "description": "Activity page header summary line",
+    "placeholders": {
+      "orders": { "type": "int" },
+      "saved": { "type": "int" }
+    }
+  },
+
+  "cartClear": "Clear All",
+  "@cartClear": { "description": "Clear cart button" },
+
+  "cartEmpty": "Your cart is empty",
+  "@cartEmpty": { "description": "Empty orders state title" },
+
+  "cartEmptySub": "Browse shops and add items you want to buy",
+  "@cartEmptySub": { "description": "Empty orders state subtitle" },
+
+  "savedEmpty": "Nothing saved yet",
+  "@savedEmpty": { "description": "Empty saved state title" },
+
+  "savedEmptySub": "Tap the heart on any product to save it here",
+  "@savedEmptySub": { "description": "Empty saved state subtitle" },
+
+  "checkoutBtn": "Checkout",
+  "@checkoutBtn": { "description": "Checkout button" },
+
+  "checkoutComingSoon": "Checkout coming soon!",
+  "@checkoutComingSoon": { "description": "Coming soon snackbar message for checkout" },
+
+  "perItem": "each",
+  "@perItem": { "description": "Price per single item qualifier" },
+
+  "totalLabel": "Total",
+  "@totalLabel": { "description": "Order total label" },
+
+  "addedToCart": "Added to cart",
+  "@addedToCart": { "description": "Snackbar after adding to cart" },
+
+  "bidsTrackTitle": "Track Your Bids",
+  "@bidsTrackTitle": { "description": "Bids tab info banner title" },
+
+  "bidsTrackSub": "See auctions you participated in and their status",
+  "@bidsTrackSub": { "description": "Bids tab info banner subtitle" },
+
+  "bidsEmpty": "No active bids yet",
+  "@bidsEmpty": { "description": "Empty bids state title" },
+
+  "bidsEmptySub": "Tap an auction and start bidding — see it here",
+  "@bidsEmptySub": { "description": "Empty bids state subtitle" },
+
+  "browseBids": "Browse Auctions",
+  "@browseBids": { "description": "CTA to go browse auctions from bids tab" },
+
+  "bookingsEmpty": "No bookings yet",
+  "@bookingsEmpty": { "description": "Empty bookings state title" },
+
+  "bookingsEmptySub": "Book a service and find it here",
+  "@bookingsEmptySub": { "description": "Empty bookings state subtitle" },
+
+  "homeWhatLooking": "What are you looking for?",
+  "@homeWhatLooking": { "description": "Super-app mode strip label" },
+
+  "modeAuctions": "Auctions",
+  "@modeAuctions": { "description": "Mode tile: Auctions" },
+
+  "modeAuctionTag": "Bid & win",
+  "@modeAuctionTag": { "description": "Mode tile: Auctions tagline" },
+
+  "modeLocalShops": "Local Shops",
+  "@modeLocalShops": { "description": "Mode tile: local shops" },
+
+  "modeLocalTag": "Near you",
+  "@modeLocalTag": { "description": "Mode tile: local shops tagline" },
+
+  "modeOfficialStores": "Official Stores",
+  "@modeOfficialStores": { "description": "Mode tile: official/brand stores" },
+
+  "modeOfficialTag": "Verified brands",
+  "@modeOfficialTag": { "description": "Mode tile: official stores tagline" },
+
+  "modeUsed": "Used Market",
+  "@modeUsed": { "description": "Mode tile: used market" },
+
+  "modeUsedTag": "Pre-loved",
+  "@modeUsedTag": { "description": "Mode tile: used market tagline" },
+
+  "shopsSection": "Shops",
+  "@shopsSection": { "description": "Shops section heading" },
+
+  "shopsTrustedSub": "Trusted sellers · Secure payment",
+  "@shopsTrustedSub": { "description": "Shops section subtitle with trust badge" },
+
+  "usedMarketTitle": "Used & Renewed",
+  "@usedMarketTitle": { "description": "Used market section heading" },
+
+  "usedMarketSub": "Buy and sell with trust and ease",
+  "@usedMarketSub": { "description": "Used market section subtitle" },
+
+  "visitShop": "Visit",
+  "@visitShop": { "description": "Visit shop button" },
+
+  "defaultCity": "Baghdad",
+  "@defaultCity": { "description": "Fallback city name for listings without location" },
+
+  "auctionWatching": "{count} watching",
+  "@auctionWatching": {
+    "description": "Watching count on auction card",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "auctionBidding": "{count} bids",
+  "@auctionBidding": {
+    "description": "Bid count on auction card",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "auctionEndedLabel": "Ended",
+  "@auctionEndedLabel": { "description": "Auction ended state label" },
+
+  "condExcellent": "Excellent",
+  "@condExcellent": { "description": "Item condition: excellent" },
+
+  "condVeryGood": "Very Good",
+  "@condVeryGood": { "description": "Item condition: very good" },
+
+  "condGood": "Good",
+  "@condGood": { "description": "Item condition: good" },
+
+  "condFair": "Fair",
+  "@condFair": { "description": "Item condition: fair" },
+
+  "messagesTitle": "Messages",
+  "@messagesTitle": { "description": "Messages page title" },
+
+  "messagesEmpty": "No messages yet",
+  "@messagesEmpty": { "description": "Empty messages state title" },
+
+  "messagesEmptySub": "Contact sellers and buyers directly",
+  "@messagesEmptySub": { "description": "Empty messages state subtitle" },
+
+  "searchHint": "Search for anything...",
+  "@searchHint": { "description": "Search bar placeholder" },
+
+  "searchTabAll": "All",
+  "@searchTabAll": { "description": "Search tab: all results" },
+
+  "searchTabAuctions": "Auctions",
+  "@searchTabAuctions": { "description": "Search tab: new auctions" },
+
+  "searchTabUsed": "Used",
+  "@searchTabUsed": { "description": "Search tab: used items" },
+
+  "searchTabShops": "Shops",
+  "@searchTabShops": { "description": "Search tab: shop products" },
+
+  "searchEmpty": "Start searching",
+  "@searchEmpty": { "description": "Search idle state title" },
+
+  "searchEmptySub": "Try something like iPhone or TV",
+  "@searchEmptySub": { "description": "Search idle state subtitle" },
+
+  "searchNoResults": "No results",
+  "@searchNoResults": { "description": "No results title" },
+
+  "searchNoResultsSub": "Nothing found for \"{query}\"",
+  "@searchNoResultsSub": { "description": "No results subtitle", "placeholders": { "query": { "type": "String" } } },
+
+  "searchResultCount": "{count} results",
+  "@searchResultCount": { "description": "Number of search results", "placeholders": { "count": { "type": "int" } } },
+
+  "searchMinChars": "Type at least 2 characters",
+  "@searchMinChars": { "description": "Minimum characters required for search" }
 }

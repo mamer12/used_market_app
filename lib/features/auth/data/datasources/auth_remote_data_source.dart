@@ -10,6 +10,8 @@ abstract class AuthRemoteDataSource {
   Future<AuthResponse> register(RegisterRequest request);
   Future<AuthResponse> login(LoginRequest request);
   Future<UserModel> getMe();
+  Future<AuthResponse> registerWithPassword(PasswordRegisterRequest request);
+  Future<AuthResponse> loginWithPassword(PasswordLoginRequest request);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -47,5 +49,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> getMe() async {
     final response = await _dio.get(ApiConstants.usersMe);
     return UserModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<AuthResponse> registerWithPassword(PasswordRegisterRequest request) async {
+    final response = await _dio.post(
+      ApiConstants.authRegisterPassword,
+      data: request.toJson(),
+    );
+    return AuthResponse.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<AuthResponse> loginWithPassword(PasswordLoginRequest request) async {
+    final response = await _dio.post(
+      ApiConstants.authLoginPassword,
+      data: request.toJson(),
+    );
+    return AuthResponse.fromJson(response.data as Map<String, dynamic>);
   }
 }

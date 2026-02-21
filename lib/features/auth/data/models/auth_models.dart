@@ -42,7 +42,10 @@ abstract class UserModel with _$UserModel {
     String? id,
     @JsonKey(name: 'full_name') String? fullName,
     @JsonKey(name: 'phone_number') String? phoneNumber,
-    // Add other fields as needed based on the actual backend response
+    @Default('user') String role,
+    @JsonKey(name: 'is_verified') @Default(false) bool isVerified,
+    @JsonKey(name: 'created_at') String? createdAt,
+    @JsonKey(name: 'updated_at') String? updatedAt,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -56,4 +59,29 @@ abstract class AuthResponse with _$AuthResponse {
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) =>
       _$AuthResponseFromJson(json);
+}
+
+// ── Password-based auth ────────────────────────────────────────────────────────────
+
+@freezed
+abstract class PasswordRegisterRequest with _$PasswordRegisterRequest {
+  const factory PasswordRegisterRequest({
+    @JsonKey(name: 'full_name') required String fullName,
+    @JsonKey(name: 'phone_number') required String phoneNumber,
+    required String password,
+  }) = _PasswordRegisterRequest;
+
+  factory PasswordRegisterRequest.fromJson(Map<String, dynamic> json) =>
+      _$PasswordRegisterRequestFromJson(json);
+}
+
+@freezed
+abstract class PasswordLoginRequest with _$PasswordLoginRequest {
+  const factory PasswordLoginRequest({
+    @JsonKey(name: 'phone_number') required String phoneNumber,
+    required String password,
+  }) = _PasswordLoginRequest;
+
+  factory PasswordLoginRequest.fromJson(Map<String, dynamic> json) =>
+      _$PasswordLoginRequestFromJson(json);
 }

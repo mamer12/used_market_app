@@ -11,7 +11,13 @@ _ShopModel _$ShopModelFromJson(Map<String, dynamic> json) => _ShopModel(
   name: json['name'] as String,
   slug: json['slug'] as String,
   description: json['description'] as String?,
+  category: json['category'] as String?,
   ownerId: json['owner_id'] as String?,
+  contactNumber: json['contact_number'] as String?,
+  locationCity: json['location_city'] as String?,
+  locationDistrict: json['location_district'] as String?,
+  locationAddress: json['location_address'] as String?,
+  imageUrl: json['image_url'] as String?,
   createdAt: json['created_at'] as String?,
   updatedAt: json['updated_at'] as String?,
 );
@@ -22,7 +28,13 @@ Map<String, dynamic> _$ShopModelToJson(_ShopModel instance) =>
       'name': instance.name,
       'slug': instance.slug,
       'description': instance.description,
+      'category': instance.category,
       'owner_id': instance.ownerId,
+      'contact_number': instance.contactNumber,
+      'location_city': instance.locationCity,
+      'location_district': instance.locationDistrict,
+      'location_address': instance.locationAddress,
+      'image_url': instance.imageUrl,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
     };
@@ -32,6 +44,12 @@ _CreateShopRequest _$CreateShopRequestFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       slug: json['slug'] as String,
       description: json['description'] as String?,
+      category: json['category'] as String?,
+      contactNumber: json['contact_number'] as String?,
+      locationCity: json['location_city'] as String?,
+      locationDistrict: json['location_district'] as String?,
+      locationAddress: json['location_address'] as String?,
+      imageUrl: json['image_url'] as String?,
     );
 
 Map<String, dynamic> _$CreateShopRequestToJson(_CreateShopRequest instance) =>
@@ -39,6 +57,12 @@ Map<String, dynamic> _$CreateShopRequestToJson(_CreateShopRequest instance) =>
       'name': instance.name,
       'slug': instance.slug,
       'description': instance.description,
+      'category': instance.category,
+      'contact_number': instance.contactNumber,
+      'location_city': instance.locationCity,
+      'location_district': instance.locationDistrict,
+      'location_address': instance.locationAddress,
+      'image_url': instance.imageUrl,
     };
 
 _ProductModel _$ProductModelFromJson(Map<String, dynamic> json) =>

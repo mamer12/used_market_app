@@ -36,6 +36,8 @@ import '../../features/media/data/datasources/media_remote_data_source.dart'
     as _i1028;
 import '../../features/notifications/presentation/pages/notifications_page.dart'
     as _i499;
+import '../../features/search/data/datasources/search_remote_data_source.dart'
+    as _i280;
 import '../../features/shop/data/datasources/order_remote_data_source.dart'
     as _i239;
 import '../../features/shop/data/datasources/shop_remote_data_source.dart'
@@ -68,6 +70,9 @@ _i174.GetIt init(
   );
   gh.lazySingleton<_i239.OrderRemoteDataSource>(
     () => _i239.OrderRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
+  gh.lazySingleton<_i280.SearchRemoteDataSource>(
+    () => _i280.SearchRemoteDataSourceImpl(gh<_i361.Dio>()),
   );
   gh.lazySingleton<_i107.AuthRemoteDataSource>(
     () => _i107.AuthRemoteDataSourceImpl(gh<_i361.Dio>()),

@@ -42,6 +42,10 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
   id: json['id'] as String?,
   fullName: json['full_name'] as String?,
   phoneNumber: json['phone_number'] as String?,
+  role: json['role'] as String? ?? 'user',
+  isVerified: json['is_verified'] as bool? ?? false,
+  createdAt: json['created_at'] as String?,
+  updatedAt: json['updated_at'] as String?,
 );
 
 Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
@@ -49,6 +53,10 @@ Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
       'id': instance.id,
       'full_name': instance.fullName,
       'phone_number': instance.phoneNumber,
+      'role': instance.role,
+      'is_verified': instance.isVerified,
+      'created_at': instance.createdAt,
+      'updated_at': instance.updatedAt,
     };
 
 _AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) =>
@@ -59,3 +67,33 @@ _AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$AuthResponseToJson(_AuthResponse instance) =>
     <String, dynamic>{'token': instance.token, 'user': instance.user};
+
+_PasswordRegisterRequest _$PasswordRegisterRequestFromJson(
+  Map<String, dynamic> json,
+) => _PasswordRegisterRequest(
+  fullName: json['full_name'] as String,
+  phoneNumber: json['phone_number'] as String,
+  password: json['password'] as String,
+);
+
+Map<String, dynamic> _$PasswordRegisterRequestToJson(
+  _PasswordRegisterRequest instance,
+) => <String, dynamic>{
+  'full_name': instance.fullName,
+  'phone_number': instance.phoneNumber,
+  'password': instance.password,
+};
+
+_PasswordLoginRequest _$PasswordLoginRequestFromJson(
+  Map<String, dynamic> json,
+) => _PasswordLoginRequest(
+  phoneNumber: json['phone_number'] as String,
+  password: json['password'] as String,
+);
+
+Map<String, dynamic> _$PasswordLoginRequestToJson(
+  _PasswordLoginRequest instance,
+) => <String, dynamic>{
+  'phone_number': instance.phoneNumber,
+  'password': instance.password,
+};

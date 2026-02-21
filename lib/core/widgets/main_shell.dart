@@ -12,8 +12,9 @@ import '../../features/cart/presentation/bloc/cart_cubit.dart';
 import '../di/injection.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/notifications/presentation/pages/notifications_page.dart';
+import '../../features/messages/presentation/pages/messages_page.dart';
 import '../theme/app_theme.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Main scaffold wrapping all root-level pages behind an "Apple Glass"
 /// floating bottom navigation bar.
@@ -34,9 +35,9 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   // Page order in IndexedStack (4 real pages — center FAB is an action)
   static const _pages = [
     HomePage(),          // 0 → nav pos 0 (Home)
-    CartPage(),          // 1 → nav pos 1 (Cart)
-    NotificationsPage(), // 2 → nav pos 3 (Notifications)
-    ProfilePage(),       // 3 → nav pos 4 (Me)
+    MessagesPage(),      // 1 → nav pos 1 (Messages)
+    CartPage(),          // 2 → nav pos 3 (Activity/deals)
+    ProfilePage(),       // 3 → nav pos 4 (Profile)
   ];
 
   /// Converts nav bar position (0-4) to page index (0-3).
@@ -117,6 +118,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   // ── Apple Glass Navigation Bar ───────────────────────────────────────────
   Widget _buildGlassNavBar(BuildContext ctx, CartState cartState) {
     final safeBottom = MediaQuery.of(ctx).padding.bottom;
+    final l10n = AppLocalizations.of(ctx);
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 0, 20, safeBottom + 12),
       child: SizedBox(
@@ -158,31 +160,31 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                       _NavItem(
                         activeIcon: Icons.home_rounded,
                         inactiveIcon: Icons.home_outlined,
-                        label: 'Home',
+                        label: l10n.navHome,
                         isActive: _currentIndex == 0,
                         onTap: () => _onNavTap(0),
                       ),
                       _NavItem(
-                        activeIcon: Icons.shopping_bag_rounded,
-                        inactiveIcon: Icons.shopping_bag_outlined,
-                        label: 'Cart',
+                        activeIcon: Icons.chat_bubble_rounded,
+                        inactiveIcon: Icons.chat_bubble_outline_rounded,
+                        label: l10n.navMessages,
                         isActive: _currentIndex == 1,
-                        badgeCount: cartState.cartCount,
                         onTap: () => _onNavTap(1),
                       ),
                       // Gap for center FAB
                       const SizedBox(width: 54),
                       _NavItem(
-                        activeIcon: Icons.notifications_rounded,
-                        inactiveIcon: Icons.notifications_outlined,
-                        label: 'Activity',
+                        activeIcon: Icons.receipt_long_rounded,
+                        inactiveIcon: Icons.receipt_long_outlined,
+                        label: l10n.navActivity,
                         isActive: _currentIndex == 2,
+                        badgeCount: cartState.cartCount,
                         onTap: () => _onNavTap(3),
                       ),
                       _NavItem(
                         activeIcon: Icons.person_rounded,
                         inactiveIcon: Icons.person_outlined,
-                        label: 'Me',
+                        label: l10n.navProfile,
                         isActive: _currentIndex == 3,
                         onTap: () => _onNavTap(4),
                       ),
@@ -356,6 +358,7 @@ class _PostActionSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeBottom = MediaQuery.of(context).padding.bottom;
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.background,
@@ -376,7 +379,7 @@ class _PostActionSheet extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           Text(
-            'What do you want to sell?',
+            l10n.postSheetTitle,
             style: GoogleFonts.cairo(
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
@@ -385,7 +388,7 @@ class _PostActionSheet extends StatelessWidget {
           ),
           SizedBox(height: 4.h),
           Text(
-            'Choose how you want to list your item',
+            l10n.postSheetSub,
             style: GoogleFonts.cairo(
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
@@ -395,25 +398,33 @@ class _PostActionSheet extends StatelessWidget {
           SizedBox(height: 24.h),
           _PostOption(
             icon: Icons.gavel,
-            title: 'Start an Auction',
-            subtitle: 'Let buyers bid — highest price wins',
+            title: l10n.postAuction,
+            subtitle: l10n.postAuctionSub,
             accentColor: AppTheme.liveBadge,
             onTap: () => Navigator.pop(context),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 10.h),
           _PostOption(
-            icon: Icons.storefront_outlined,
-            title: 'List in My Shop',
-            subtitle: 'Fixed-price listing in your store',
+            icon: Icons.sell_outlined,
+            title: l10n.postSell,
+            subtitle: l10n.postSellSub,
             accentColor: AppTheme.primary,
             onTap: () => Navigator.pop(context),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 10.h),
           _PostOption(
-            icon: Icons.add_business_outlined,
-            title: 'Create a Shop',
-            subtitle: 'Open your own storefront on Mustamal',
+            icon: Icons.build_outlined,
+            title: l10n.postService,
+            subtitle: l10n.postServiceSub,
             accentColor: const Color(0xFF00BCD4),
+            onTap: () => Navigator.pop(context),
+          ),
+          SizedBox(height: 10.h),
+          _PostOption(
+            icon: Icons.work_outline_rounded,
+            title: l10n.postJob,
+            subtitle: l10n.postJobSub,
+            accentColor: const Color(0xFF7C4DFF),
             onTap: () => Navigator.pop(context),
           ),
         ],

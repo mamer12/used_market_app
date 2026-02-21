@@ -38,7 +38,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     UpdateOrderStatusRequest request,
   ) async {
     final response = await _dio.patch(
-      '${ApiConstants.ordersShop.split("/shop").first}/$orderId/status',
+      '${ApiConstants.ordersStatus}/$orderId/status',
       data: request.toJson(),
     );
     return OrderModel.fromJson(response.data as Map<String, dynamic>);

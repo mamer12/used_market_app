@@ -63,6 +63,9 @@ abstract class AuctionModel with _$AuctionModel {
     @JsonKey(name: 'start_time') DateTime? startTime,
     @JsonKey(name: 'end_time') DateTime? endTime,
     @JsonKey(name: 'winner_id') String? winnerId,
+
+    // Live stream — empty string means no stream active
+    @JsonKey(name: 'stream_url') @Default('') String streamUrl,
   }) = _AuctionModel;
 
   /// Custom fromJson that flattens the nested `item` object so that
@@ -88,6 +91,8 @@ abstract class CreateAuctionRequest with _$CreateAuctionRequest {
     @JsonKey(name: 'start_price') required int startPrice,
     @JsonKey(name: 'min_bid_increment') required int minBidIncrement,
     @JsonKey(name: 'duration_hours') required int durationHours,
+    @Default([]) List<String> images,
+    @JsonKey(name: 'stream_url') String? streamUrl,
   }) = _CreateAuctionRequest;
 
   factory CreateAuctionRequest.fromJson(Map<String, dynamic> json) =>
@@ -137,4 +142,28 @@ AuctionModel auctionFromApiResponse(Map<String, dynamic> json) {
     if (item.containsKey('category')) 'category': item['category'],
     if (item.containsKey('condition')) 'condition': item['condition'],
   });
+}
+
+// ── WebSocket Events (plain classes — no code gen needed) ────────────────────
+
+/// Emitted by [AuctionWebSocketService] when `type == "auction_ended"`.
+class AuctionEndedEvent {
+  final String auctionId;
+  final String? winnerId;
+  final int finalPrice;
+
+  const AuctionEndedEvent({
+    required this.auctionId,
+    this.winnerId,
+    required this.finalPrice,
+  });
+}
+
+/// Wraps a [BidModel] together with the updated [currentPrice] from a
+/// `type == "bid_placed"` WebSocket event.
+class BidPlacedEvent {
+  final BidModel bid;
+  final int currentPrice;
+
+  const BidPlacedEvent({required this.bid, required this.currentPrice});
 }

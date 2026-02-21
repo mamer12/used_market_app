@@ -28,7 +28,13 @@ abstract class ShopModel with _$ShopModel {
     required String name,
     required String slug,
     String? description,
+    String? category,
     @JsonKey(name: 'owner_id') String? ownerId,
+    @JsonKey(name: 'contact_number') String? contactNumber,
+    @JsonKey(name: 'location_city') String? locationCity,
+    @JsonKey(name: 'location_district') String? locationDistrict,
+    @JsonKey(name: 'location_address') String? locationAddress,
+    @JsonKey(name: 'image_url') String? imageUrl,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
   }) = _ShopModel;
@@ -43,6 +49,12 @@ abstract class CreateShopRequest with _$CreateShopRequest {
     required String name,
     required String slug,
     String? description,
+    String? category,
+    @JsonKey(name: 'contact_number') String? contactNumber,
+    @JsonKey(name: 'location_city') String? locationCity,
+    @JsonKey(name: 'location_district') String? locationDistrict,
+    @JsonKey(name: 'location_address') String? locationAddress,
+    @JsonKey(name: 'image_url') String? imageUrl,
   }) = _CreateShopRequest;
 
   factory CreateShopRequest.fromJson(Map<String, dynamic> json) =>

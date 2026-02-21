@@ -51,6 +51,7 @@ _AuctionModel _$AuctionModelFromJson(
       ? null
       : DateTime.parse(json['end_time'] as String),
   winnerId: json['winner_id'] as String?,
+  streamUrl: json['stream_url'] as String? ?? '',
 );
 
 Map<String, dynamic> _$AuctionModelToJson(_AuctionModel instance) =>
@@ -78,6 +79,7 @@ Map<String, dynamic> _$AuctionModelToJson(_AuctionModel instance) =>
       'start_time': instance.startTime?.toIso8601String(),
       'end_time': instance.endTime?.toIso8601String(),
       'winner_id': instance.winnerId,
+      'stream_url': instance.streamUrl,
     };
 
 Json? _$JsonConverterToJson<Json, Value>(
@@ -95,6 +97,10 @@ _CreateAuctionRequest _$CreateAuctionRequestFromJson(
   startPrice: (json['start_price'] as num).toInt(),
   minBidIncrement: (json['min_bid_increment'] as num).toInt(),
   durationHours: (json['duration_hours'] as num).toInt(),
+  images:
+      (json['images'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  streamUrl: json['stream_url'] as String?,
 );
 
 Map<String, dynamic> _$CreateAuctionRequestToJson(
@@ -107,6 +113,8 @@ Map<String, dynamic> _$CreateAuctionRequestToJson(
   'start_price': instance.startPrice,
   'min_bid_increment': instance.minBidIncrement,
   'duration_hours': instance.durationHours,
+  'images': instance.images,
+  'stream_url': instance.streamUrl,
 };
 
 _PlaceBidRequest _$PlaceBidRequestFromJson(Map<String, dynamic> json) =>

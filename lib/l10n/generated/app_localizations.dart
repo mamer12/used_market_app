@@ -667,6 +667,444 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'العربية'**
   String get switchLanguage;
+
+  /// Bottom nav: Home slot
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// Bottom nav: Messages slot
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get navMessages;
+
+  /// Bottom nav: Activity/deals slot
+  ///
+  /// In en, this message translates to:
+  /// **'My Activity'**
+  String get navActivity;
+
+  /// Bottom nav: Profile slot
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// FAB post action sheet main title
+  ///
+  /// In en, this message translates to:
+  /// **'What do you want to add?'**
+  String get postSheetTitle;
+
+  /// FAB post action sheet subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the type of listing'**
+  String get postSheetSub;
+
+  /// Post option: auction
+  ///
+  /// In en, this message translates to:
+  /// **'Start an Auction'**
+  String get postAuction;
+
+  /// Post option: auction subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Let buyers bid — highest price wins'**
+  String get postAuctionSub;
+
+  /// Post option: sell
+  ///
+  /// In en, this message translates to:
+  /// **'Sell an Item'**
+  String get postSell;
+
+  /// Post option: sell subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed price listing in the used market'**
+  String get postSellSub;
+
+  /// Post option: service
+  ///
+  /// In en, this message translates to:
+  /// **'Offer a Service'**
+  String get postService;
+
+  /// Post option: service subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Plumbing, electrical, cleaning, any trade'**
+  String get postServiceSub;
+
+  /// Post option: job
+  ///
+  /// In en, this message translates to:
+  /// **'Post a Job'**
+  String get postJob;
+
+  /// Post option: job subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Find workers and employees'**
+  String get postJobSub;
+
+  /// Activity page title
+  ///
+  /// In en, this message translates to:
+  /// **'My Activity'**
+  String get activityTitle;
+
+  /// Activity tab: orders
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get activityOrders;
+
+  /// Activity tab: saved items
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get activitySaved;
+
+  /// Activity tab: bids
+  ///
+  /// In en, this message translates to:
+  /// **'My Bids'**
+  String get activityBids;
+
+  /// Activity tab: bookings
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get activityBookings;
+
+  /// Activity page header summary line
+  ///
+  /// In en, this message translates to:
+  /// **'{orders} orders · {saved} saved'**
+  String activitySummary(int orders, int saved);
+
+  /// Clear cart button
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get cartClear;
+
+  /// Empty orders state title
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartEmpty;
+
+  /// Empty orders state subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Browse shops and add items you want to buy'**
+  String get cartEmptySub;
+
+  /// Empty saved state title
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing saved yet'**
+  String get savedEmpty;
+
+  /// Empty saved state subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the heart on any product to save it here'**
+  String get savedEmptySub;
+
+  /// Checkout button
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get checkoutBtn;
+
+  /// Coming soon snackbar message for checkout
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout coming soon!'**
+  String get checkoutComingSoon;
+
+  /// Price per single item qualifier
+  ///
+  /// In en, this message translates to:
+  /// **'each'**
+  String get perItem;
+
+  /// Order total label
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get totalLabel;
+
+  /// Snackbar after adding to cart
+  ///
+  /// In en, this message translates to:
+  /// **'Added to cart'**
+  String get addedToCart;
+
+  /// Bids tab info banner title
+  ///
+  /// In en, this message translates to:
+  /// **'Track Your Bids'**
+  String get bidsTrackTitle;
+
+  /// Bids tab info banner subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'See auctions you participated in and their status'**
+  String get bidsTrackSub;
+
+  /// Empty bids state title
+  ///
+  /// In en, this message translates to:
+  /// **'No active bids yet'**
+  String get bidsEmpty;
+
+  /// Empty bids state subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an auction and start bidding — see it here'**
+  String get bidsEmptySub;
+
+  /// CTA to go browse auctions from bids tab
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Auctions'**
+  String get browseBids;
+
+  /// Empty bookings state title
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings yet'**
+  String get bookingsEmpty;
+
+  /// Empty bookings state subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Book a service and find it here'**
+  String get bookingsEmptySub;
+
+  /// Super-app mode strip label
+  ///
+  /// In en, this message translates to:
+  /// **'What are you looking for?'**
+  String get homeWhatLooking;
+
+  /// Mode tile: Auctions
+  ///
+  /// In en, this message translates to:
+  /// **'Auctions'**
+  String get modeAuctions;
+
+  /// Mode tile: Auctions tagline
+  ///
+  /// In en, this message translates to:
+  /// **'Bid & win'**
+  String get modeAuctionTag;
+
+  /// Mode tile: local shops
+  ///
+  /// In en, this message translates to:
+  /// **'Local Shops'**
+  String get modeLocalShops;
+
+  /// Mode tile: local shops tagline
+  ///
+  /// In en, this message translates to:
+  /// **'Near you'**
+  String get modeLocalTag;
+
+  /// Mode tile: official/brand stores
+  ///
+  /// In en, this message translates to:
+  /// **'Official Stores'**
+  String get modeOfficialStores;
+
+  /// Mode tile: official stores tagline
+  ///
+  /// In en, this message translates to:
+  /// **'Verified brands'**
+  String get modeOfficialTag;
+
+  /// Mode tile: used market
+  ///
+  /// In en, this message translates to:
+  /// **'Used Market'**
+  String get modeUsed;
+
+  /// Mode tile: used market tagline
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-loved'**
+  String get modeUsedTag;
+
+  /// Shops section heading
+  ///
+  /// In en, this message translates to:
+  /// **'Shops'**
+  String get shopsSection;
+
+  /// Shops section subtitle with trust badge
+  ///
+  /// In en, this message translates to:
+  /// **'Trusted sellers · Secure payment'**
+  String get shopsTrustedSub;
+
+  /// Used market section heading
+  ///
+  /// In en, this message translates to:
+  /// **'Used & Renewed'**
+  String get usedMarketTitle;
+
+  /// Used market section subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Buy and sell with trust and ease'**
+  String get usedMarketSub;
+
+  /// Visit shop button
+  ///
+  /// In en, this message translates to:
+  /// **'Visit'**
+  String get visitShop;
+
+  /// Fallback city name for listings without location
+  ///
+  /// In en, this message translates to:
+  /// **'Baghdad'**
+  String get defaultCity;
+
+  /// Watching count on auction card
+  ///
+  /// In en, this message translates to:
+  /// **'{count} watching'**
+  String auctionWatching(int count);
+
+  /// Bid count on auction card
+  ///
+  /// In en, this message translates to:
+  /// **'{count} bids'**
+  String auctionBidding(int count);
+
+  /// Auction ended state label
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get auctionEndedLabel;
+
+  /// Item condition: excellent
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent'**
+  String get condExcellent;
+
+  /// Item condition: very good
+  ///
+  /// In en, this message translates to:
+  /// **'Very Good'**
+  String get condVeryGood;
+
+  /// Item condition: good
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get condGood;
+
+  /// Item condition: fair
+  ///
+  /// In en, this message translates to:
+  /// **'Fair'**
+  String get condFair;
+
+  /// Messages page title
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messagesTitle;
+
+  /// Empty messages state title
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get messagesEmpty;
+
+  /// Empty messages state subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Contact sellers and buyers directly'**
+  String get messagesEmptySub;
+
+  /// Search bar placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Search for anything...'**
+  String get searchHint;
+
+  /// Search tab: all results
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get searchTabAll;
+
+  /// Search tab: new auctions
+  ///
+  /// In en, this message translates to:
+  /// **'Auctions'**
+  String get searchTabAuctions;
+
+  /// Search tab: used items
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get searchTabUsed;
+
+  /// Search tab: shop products
+  ///
+  /// In en, this message translates to:
+  /// **'Shops'**
+  String get searchTabShops;
+
+  /// Search idle state title
+  ///
+  /// In en, this message translates to:
+  /// **'Start searching'**
+  String get searchEmpty;
+
+  /// Search idle state subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Try something like iPhone or TV'**
+  String get searchEmptySub;
+
+  /// No results title
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get searchNoResults;
+
+  /// No results subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found for \"{query}\"'**
+  String searchNoResultsSub(String query);
+
+  /// Number of search results
+  ///
+  /// In en, this message translates to:
+  /// **'{count} results'**
+  String searchResultCount(int count);
+
+  /// Minimum characters required for search
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 2 characters'**
+  String get searchMinChars;
 }
 
 class _AppLocalizationsDelegate

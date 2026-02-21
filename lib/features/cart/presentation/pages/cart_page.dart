@@ -3,11 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/auth_guard.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../shop/data/models/shop_models.dart';
 import '../bloc/cart_cubit.dart';
+
+// IQD formatter
+String _iqd(num v) => '${NumberFormat("#,###", "en_US").format(v.toInt())} د.ع';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -23,7 +28,7 @@ class _CartPageState extends State<CartPage>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 2, vsync: this);
+    _tabs = TabController(length: 3, vsync: this);
     _tabs.addListener(() => setState(() {}));
   }
 
@@ -51,6 +56,7 @@ class _CartPageState extends State<CartPage>
                     children: [
                       _CartTab(items: state.cartItems, total: state.cartTotal),
                       _SavedTab(items: state.savedProducts),
+                      const _BidsTab(),
                     ],
                   ),
                 ),
@@ -64,6 +70,7 @@ class _CartPageState extends State<CartPage>
 
   // ── Header ────────────────────────────────────────────────────────────────
   Widget _buildHeader(CartState state) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
       child: Row(
@@ -73,7 +80,7 @@ class _CartPageState extends State<CartPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'My Bag',
+                  l10n.activityTitle,
                   style: GoogleFonts.cairo(
                     fontSize: 26.sp,
                     fontWeight: FontWeight.w700,
@@ -81,8 +88,7 @@ class _CartPageState extends State<CartPage>
                   ),
                 ),
                 Text(
-                  '${state.cartCount} item${state.cartCount == 1 ? '' : 's'} in cart'
-                  ' · ${state.savedCount} saved',
+                  l10n.activitySummary(state.cartCount, state.savedCount),
                   style: GoogleFonts.cairo(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w500,
@@ -106,7 +112,7 @@ class _CartPageState extends State<CartPage>
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Text(
-                  'Clear',
+                  l10n.cartClear,
                   style: GoogleFonts.cairo(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
@@ -122,6 +128,7 @@ class _CartPageState extends State<CartPage>
 
   // ── Pill Tab Bar ──────────────────────────────────────────────────────────
   Widget _buildPillTabs(CartState state) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 12.h),
       child: Container(
@@ -140,7 +147,7 @@ class _CartPageState extends State<CartPage>
         child: Row(
           children: [
             _PillTab(
-              label: 'Cart',
+              label: l10n.activityOrders,
               count: state.cartCount,
               isActive: _tabs.index == 0,
               onTap: () {
@@ -149,12 +156,23 @@ class _CartPageState extends State<CartPage>
               },
             ),
             _PillTab(
-              label: 'Saved',
+              label: l10n.activitySaved,
               count: state.savedCount,
               isActive: _tabs.index == 1,
               onTap: () {
                 HapticFeedback.selectionClick();
                 _tabs.animateTo(1);
+              },
+            ),
+            _PillTab(
+              label: l10n.activityBids,
+              count: 0,
+              activeColor: const Color(0xFF1A1A1A),
+              activeLabelColor: AppTheme.primary,
+              isActive: _tabs.index == 2,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                _tabs.animateTo(2);
               },
             ),
           ],
@@ -170,12 +188,16 @@ class _PillTab extends StatelessWidget {
   final int count;
   final bool isActive;
   final VoidCallback onTap;
+  final Color? activeColor;
+  final Color? activeLabelColor;
 
   const _PillTab({
     required this.label,
     required this.count,
     required this.isActive,
     required this.onTap,
+    this.activeColor,
+    this.activeLabelColor,
   });
 
   @override
@@ -187,7 +209,7 @@ class _PillTab extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           margin: EdgeInsets.all(4.w),
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.primary : Colors.transparent,
+            color: isActive ? (activeColor ?? AppTheme.primary) : Colors.transparent,
             borderRadius: BorderRadius.circular(9.r),
           ),
           child: Row(
@@ -196,10 +218,10 @@ class _PillTab extends StatelessWidget {
               Text(
                 label,
                 style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
                   color: isActive
-                      ? AppTheme.textPrimary
+                      ? (activeLabelColor ?? AppTheme.textPrimary)
                       : AppTheme.textSecondary,
                 ),
               ),
@@ -212,7 +234,8 @@ class _PillTab extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? AppTheme.textPrimary.withValues(alpha: 0.12)
+                        ? (activeLabelColor?.withValues(alpha: 0.18) ??
+                            AppTheme.textPrimary.withValues(alpha: 0.12))
                         : AppTheme.inactive.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
@@ -222,7 +245,7 @@ class _PillTab extends StatelessWidget {
                       fontSize: 11.sp,
                       fontWeight: FontWeight.w700,
                       color: isActive
-                          ? AppTheme.textPrimary
+                          ? (activeLabelColor ?? AppTheme.textPrimary)
                           : AppTheme.textSecondary,
                     ),
                   ),
@@ -344,7 +367,7 @@ class _CartItemCard extends StatelessWidget {
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      '${(item.product.price * item.quantity).toInt()} IQD',
+                      _iqd(item.product.price * item.quantity),
                       style: GoogleFonts.cairo(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
@@ -353,7 +376,7 @@ class _CartItemCard extends StatelessWidget {
                     ),
                     if (item.quantity > 1)
                       Text(
-                        '${item.product.price.toInt()} IQD each',
+                        '${_iqd(item.product.price)} للقطعة',
                         style: GoogleFonts.cairo(
                           fontSize: 11.sp,
                           color: AppTheme.textSecondary,
@@ -495,7 +518,7 @@ class _CheckoutBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total',
+                AppLocalizations.of(context).totalLabel,
                 style: GoogleFonts.cairo(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w500,
@@ -503,7 +526,7 @@ class _CheckoutBar extends StatelessWidget {
                 ),
               ),
               Text(
-                '${total.toInt()} IQD',
+                _iqd(total),
                 style: GoogleFonts.cairo(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
@@ -518,7 +541,7 @@ class _CheckoutBar extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    'Checkout coming soon!',
+                    AppLocalizations.of(context).checkoutComingSoon,
                     style: GoogleFonts.cairo(),
                   ),
                   behavior: SnackBarBehavior.floating,
@@ -538,13 +561,13 @@ class _CheckoutBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.shopping_bag_outlined,
+                        Icons.lock_outline_rounded,
                         size: 20.sp,
                         color: AppTheme.primary,
                       ),
                       SizedBox(width: 8.w),
                       Text(
-                        'Checkout',
+                        AppLocalizations.of(context).checkoutBtn,
                         style: GoogleFonts.cairo(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
@@ -693,7 +716,7 @@ class _SavedProductCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          '${product.price.toInt()} IQD',
+                          _iqd(product.price),
                           style: GoogleFonts.cairo(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w700,
@@ -710,7 +733,7 @@ class _SavedProductCard extends StatelessWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Added to cart',
+                                AppLocalizations.of(context).addedToCart,
                                 style: GoogleFonts.cairo(),
                               ),
                               duration: const Duration(seconds: 1),
@@ -752,10 +775,11 @@ class _EmptyCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return _EmptyState(
       icon: Icons.shopping_bag_outlined,
-      title: 'Your cart is empty',
-      subtitle: 'Browse shops and add items\nyou want to buy',
+      title: l10n.cartEmpty,
+      subtitle: l10n.cartEmptySub,
       iconColor: AppTheme.primary,
     );
   }
@@ -766,10 +790,11 @@ class _EmptySaved extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return _EmptyState(
       icon: Icons.favorite_border,
-      title: 'Nothing saved yet',
-      subtitle: 'Tap the heart on any product\nto save it here',
+      title: l10n.savedEmpty,
+      subtitle: l10n.savedEmptySub,
       iconColor: AppTheme.liveBadge,
     );
   }
@@ -820,6 +845,114 @@ class _EmptyState extends StatelessWidget {
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
               color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BIDS TAB
+// ═══════════════════════════════════════════════════════════════
+class _BidsTab extends StatelessWidget {
+  const _BidsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    // Placeholder until AuctionCubit exposes active user bids
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 100.h),
+      child: Column(
+        children: [
+          // Info banner
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1A1A1A),
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44.w,
+                  height: 44.w,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(Icons.gavel_rounded, size: 22.sp, color: AppTheme.primary),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).bidsTrackTitle,
+                        style: GoogleFonts.cairo(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        AppLocalizations.of(context).bidsTrackSub,
+                        style: GoogleFonts.cairo(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 40.h),
+          Icon(Icons.inbox_rounded, size: 56.sp, color: AppTheme.inactive),
+          SizedBox(height: 16.h),
+          Text(
+            AppLocalizations.of(context).bidsEmpty,
+            style: GoogleFonts.cairo(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            AppLocalizations.of(context).bidsEmptySub,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cairo(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          SizedBox(height: 28.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
+            decoration: BoxDecoration(
+              color: AppTheme.primary,
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.gavel_rounded, size: 18.sp, color: AppTheme.textPrimary),
+                SizedBox(width: 8.w),
+                Text(
+                  AppLocalizations.of(context).browseBids,
+                  style: GoogleFonts.cairo(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

@@ -34,7 +34,7 @@ class App extends StatelessWidget {
           child: BlocBuilder<LocaleCubit, Locale>(
             builder: (context, locale) {
               return MaterialApp(
-                title: 'Mustamal',
+                title: 'لكطة',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.lightTheme,
 

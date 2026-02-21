@@ -66,10 +66,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginPhoneInvalid => 'رقم هاتف غير صالح';
 
   @override
-  String get homeGreetingSub => 'مرحباً بعودتك';
+  String get homeGreetingSub => 'هلا بيك';
 
   @override
-  String get homeGreeting => 'صباح الخير، أحمد';
+  String get homeGreeting => 'هلا بيك';
 
   @override
   String get homeSearch => 'ابحث عن سيارات، عقارات، أو خدمات...';
@@ -295,4 +295,233 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get switchLanguage => 'English';
+
+  @override
+  String get navHome => 'الرئيسية';
+
+  @override
+  String get navMessages => 'الرسائل';
+
+  @override
+  String get navActivity => 'نشاطاتي';
+
+  @override
+  String get navProfile => 'حسابي';
+
+  @override
+  String get postSheetTitle => 'وش تريد تبيع أو تضيف؟';
+
+  @override
+  String get postSheetSub => 'اختار نوع الإضافة';
+
+  @override
+  String get postAuction => 'ابدأ مزاد';
+
+  @override
+  String get postAuctionSub => 'خلّي الناس يزايدون — الأعلى يفوز';
+
+  @override
+  String get postSell => 'بيع قطعة';
+
+  @override
+  String get postSellSub => 'سعر ثابت في سوق المستعمل';
+
+  @override
+  String get postService => 'اعرض خدمة';
+
+  @override
+  String get postServiceSub => 'سبّاكة، كهرباء، تنظيف، أي خدمة';
+
+  @override
+  String get postJob => 'انشر وظيفة';
+
+  @override
+  String get postJobSub => 'ابحث عن موظفين أو عمال';
+
+  @override
+  String get activityTitle => 'نشاطاتي';
+
+  @override
+  String get activityOrders => 'طلباتي';
+
+  @override
+  String get activitySaved => 'المحفوظة';
+
+  @override
+  String get activityBids => 'مزايداتي';
+
+  @override
+  String get activityBookings => 'حجوزاتي';
+
+  @override
+  String activitySummary(int orders, int saved) {
+    return '$orders طلب · $saved محفوظ';
+  }
+
+  @override
+  String get cartClear => 'مسح الكل';
+
+  @override
+  String get cartEmpty => 'سلتك فارغة';
+
+  @override
+  String get cartEmptySub => 'تصفح المتاجر وأضف منتجات تريد شراءها';
+
+  @override
+  String get savedEmpty => 'لا يوجد محفوظات بعد';
+
+  @override
+  String get savedEmptySub => 'اضغط على القلب على أي منتج لحفظه هنا';
+
+  @override
+  String get checkoutBtn => 'إتمام الطلب';
+
+  @override
+  String get checkoutComingSoon => 'الدفع قيد التطوير!';
+
+  @override
+  String get perItem => 'للقطعة';
+
+  @override
+  String get totalLabel => 'المجموع';
+
+  @override
+  String get addedToCart => 'أُضيف إلى السلة';
+
+  @override
+  String get bidsTrackTitle => 'تتبّع مزايداتك';
+
+  @override
+  String get bidsTrackSub => 'شوف المزادات اللي شاركت فيها وحالتها';
+
+  @override
+  String get bidsEmpty => 'ما زايدت بعد';
+
+  @override
+  String get bidsEmptySub => 'اضغط المزاد وابدأ المزايدة — تشوفها هنا';
+
+  @override
+  String get browseBids => 'تصفح المزادات';
+
+  @override
+  String get bookingsEmpty => 'ما عندك حجوزات';
+
+  @override
+  String get bookingsEmptySub => 'احجز خدمة وتشوفها هنا';
+
+  @override
+  String get homeWhatLooking => 'وش تدور عليه؟';
+
+  @override
+  String get modeAuctions => 'مزادات';
+
+  @override
+  String get modeAuctionTag => 'زايد واربح';
+
+  @override
+  String get modeLocalShops => 'محلات';
+
+  @override
+  String get modeLocalTag => 'من حيّك';
+
+  @override
+  String get modeOfficialStores => 'رسمية';
+
+  @override
+  String get modeOfficialTag => 'ماركات موثقة';
+
+  @override
+  String get modeUsed => 'مستعمل';
+
+  @override
+  String get modeUsedTag => 'مستخدم بعناية';
+
+  @override
+  String get shopsSection => 'المتاجر';
+
+  @override
+  String get shopsTrustedSub => 'بائعون موثوقون · دفع آمن';
+
+  @override
+  String get usedMarketTitle => 'مستعمل ومُجدَّد';
+
+  @override
+  String get usedMarketSub => 'اشتري وبع بثقة وسهولة';
+
+  @override
+  String get visitShop => 'زيارة';
+
+  @override
+  String get defaultCity => 'بغداد';
+
+  @override
+  String auctionWatching(int count) {
+    return '$count يشاهد';
+  }
+
+  @override
+  String auctionBidding(int count) {
+    return '$count مزايدة';
+  }
+
+  @override
+  String get auctionEndedLabel => 'انتهى';
+
+  @override
+  String get condExcellent => 'ممتاز';
+
+  @override
+  String get condVeryGood => 'جيد جداً';
+
+  @override
+  String get condGood => 'جيد';
+
+  @override
+  String get condFair => 'مقبول';
+
+  @override
+  String get messagesTitle => 'الرسائل';
+
+  @override
+  String get messagesEmpty => 'ما عندك رسائل بعد';
+
+  @override
+  String get messagesEmptySub => 'تواصل مع البائعين والمشترين مباشرة';
+
+  @override
+  String get searchHint => 'ابحث عن أي شي...';
+
+  @override
+  String get searchTabAll => 'الكل';
+
+  @override
+  String get searchTabAuctions => 'مزادات';
+
+  @override
+  String get searchTabUsed => 'مستعمل';
+
+  @override
+  String get searchTabShops => 'متاجر';
+
+  @override
+  String get searchEmpty => 'ابدأ البحث';
+
+  @override
+  String get searchEmptySub => 'جرّب كلمة مثل ايفون أو تلفزيون';
+
+  @override
+  String get searchNoResults => 'ما في نتائج';
+
+  @override
+  String searchNoResultsSub(String query) {
+    return 'ما لقينا شي لـ \"$query\"';
+  }
+
+  @override
+  String searchResultCount(int count) {
+    return '$count نتيجة';
+  }
+
+  @override
+  String get searchMinChars => 'اكتب حرفين على الأقل';
 }

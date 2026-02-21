@@ -1,14 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../shop/data/models/shop_models.dart';
-import '../../../shop/presentation/bloc/shops_cubit.dart';
-import '../../../shop/presentation/pages/shop_products_page.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+import '../../data/datasources/search_remote_data_source.dart';
+import '../../data/models/search_models.dart';
 
-/// Search page — finds shops by name/slug and their products.
+/// Federated search page — queries GET /search?q= and shows three result
+/// buckets (new auctions, used auctions, shop products) across tabs.
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -16,108 +20,131 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends State<SearchPage>
+    with SingleTickerProviderStateMixin {
   final _queryController = TextEditingController();
-  late final ShopsCubit _shopsCubit;
+  final _ds = getIt<SearchRemoteDataSource>();
+  final _fmt = NumberFormat('#,###');
+
+  late TabController _tabController;
+  Timer? _debounce;
 
   String _query = '';
-  List<ShopModel> _filteredShops = [];
+  bool _loading = false;
+  String? _error;
+  SearchResponse? _result;
+
+  static const _minChars = 2;
+  static const _debounceMs = 400;
 
   @override
   void initState() {
     super.initState();
-    _shopsCubit = getIt<ShopsCubit>()..loadShops();
+    _tabController = TabController(length: 4, vsync: this);
     _queryController.addListener(_onQueryChanged);
   }
 
   @override
   void dispose() {
     _queryController.dispose();
-    _shopsCubit.close();
+    _tabController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
   void _onQueryChanged() {
-    final q = _queryController.text.trim().toLowerCase();
-    setState(() {
-      _query = q;
-      _filteredShops = q.isEmpty
-          ? _shopsCubit.state.shops
-          : _shopsCubit.state.shops.where((s) {
-              return s.name.toLowerCase().contains(q) ||
-                  s.slug.toLowerCase().contains(q) ||
-                  (s.description?.toLowerCase().contains(q) ?? false);
-            }).toList();
-    });
+    final q = _queryController.text.trim();
+    if (q == _query) return;
+    setState(() => _query = q);
+
+    _debounce?.cancel();
+    if (q.length < _minChars) {
+      setState(() {
+        _result = null;
+        _error = null;
+        _loading = false;
+      });
+      return;
+    }
+
+    _debounce = Timer(
+      const Duration(milliseconds: _debounceMs),
+      () => _search(q),
+    );
   }
 
-  void _syncShops() {
-    final q = _query;
-    _filteredShops = q.isEmpty
-        ? _shopsCubit.state.shops
-        : _shopsCubit.state.shops.where((s) {
-            return s.name.toLowerCase().contains(q) ||
-                s.slug.toLowerCase().contains(q) ||
-                (s.description?.toLowerCase().contains(q) ?? false);
-          }).toList();
+  Future<void> _search(String q) async {
+    if (!mounted) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final res = await _ds.search(q);
+      if (!mounted) return;
+      setState(() {
+        _result = res;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
   }
+
+  String _iqd(int fils) => '${_fmt.format(fils)} د.ع';
 
   @override
   Widget build(BuildContext context) {
-    // Sync filtered list on every build (after cubit emits)
-    _syncShops();
+    final l10n = AppLocalizations.of(context);
+
+    final allItems = _result == null
+        ? <_SearchItem>[]
+        : [
+            ..._result!.auctions.map(_SearchItem.fromAuction),
+            ..._result!.used.map(_SearchItem.fromUsed),
+            ..._result!.shops.map(_SearchItem.fromShop),
+          ];
 
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: AppTheme.background,
       body: SafeArea(
-        bottom: false,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
-            _buildSearchBar(),
-            Expanded(child: _buildResults()),
+            _buildSearchBar(l10n),
+            if (_result != null && !_loading) _buildTabBar(l10n),
+            Expanded(
+              child: _loading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primary,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : _error != null
+                      ? _buildError(_error!)
+                      : _result == null
+                          ? _buildIdle(l10n)
+                          : _result!.totalCount == 0
+                              ? _buildNoResults(l10n)
+                              : _buildResults(l10n, allItems),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 4.h),
-      child: Row(
-        children: [
-          Container(
-            width: 6.w,
-            height: 28.h,
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(3.r),
-            ),
-          ),
-          SizedBox(width: 10.w),
-          Text(
-            'Search',
-            style: GoogleFonts.cairo(
-              fontSize: 26.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(AppLocalizations l10n) {
     return Padding(
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
-      child: Container(
-        height: 52.h,
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppTheme.background,
-          borderRadius: BorderRadius.circular(16.r),
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(14.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -126,260 +153,385 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ],
         ),
-        child: Row(
-          children: [
-            SizedBox(width: 16.w),
-            Icon(Icons.search, size: 24.sp, color: AppTheme.inactive),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: TextField(
-                controller: _queryController,
-                autofocus: false,
-                style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.textPrimary,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Search shops & products…',
-                  hintStyle: GoogleFonts.cairo(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.inactive,
-                  ),
-                  border: InputBorder.none,
-                  isDense: true,
-                ),
-              ),
+        child: TextField(
+          controller: _queryController,
+          autofocus: true,
+          style: GoogleFonts.cairo(
+            fontSize: 15.sp,
+            color: AppTheme.textPrimary,
+          ),
+          decoration: InputDecoration(
+            hintText: l10n.searchHint,
+            hintStyle: GoogleFonts.cairo(
+              fontSize: 14.sp,
+              color: AppTheme.textSecondary,
             ),
-            if (_query.isNotEmpty)
-              GestureDetector(
-                onTap: () {
-                  _queryController.clear();
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w),
-                  child: Icon(
-                    Icons.close,
-                    size: 20.sp,
-                    color: AppTheme.inactive,
-                  ),
-                ),
-              ),
-          ],
+            prefixIcon: Icon(
+              Icons.search_rounded,
+              color: AppTheme.textSecondary,
+              size: 22.sp,
+            ),
+            suffixIcon: _query.isNotEmpty
+                ? IconButton(
+                    icon: Icon(
+                      Icons.close_rounded,
+                      size: 20.sp,
+                      color: AppTheme.textSecondary,
+                    ),
+                    onPressed: () {
+                      _queryController.clear();
+                      setState(() {
+                        _query = '';
+                        _result = null;
+                        _error = null;
+                      });
+                    },
+                  )
+                : null,
+            border: InputBorder.none,
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildResults() {
-    if (_shopsCubit.state.isLoading && _shopsCubit.state.shops.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppTheme.primary),
+  Widget _buildTabBar(AppLocalizations l10n) {
+    final aCount = _result?.auctions.length ?? 0;
+    final uCount = _result?.used.length ?? 0;
+    final sCount = _result?.shops.length ?? 0;
+    final total = aCount + uCount + sCount;
+
+    String tab(String label, int count) =>
+        count > 0 ? '$label ($count)' : label;
+
+    return TabBar(
+      controller: _tabController,
+      isScrollable: true,
+      tabAlignment: TabAlignment.start,
+      labelColor: AppTheme.primary,
+      unselectedLabelColor: AppTheme.textSecondary,
+      indicatorColor: AppTheme.primary,
+      labelStyle: GoogleFonts.cairo(
+        fontSize: 13.sp,
+        fontWeight: FontWeight.w700,
+      ),
+      unselectedLabelStyle: GoogleFonts.cairo(
+        fontSize: 13.sp,
+        fontWeight: FontWeight.w500,
+      ),
+      tabs: [
+        Tab(text: tab(l10n.searchTabAll, total)),
+        Tab(text: tab(l10n.searchTabAuctions, aCount)),
+        Tab(text: tab(l10n.searchTabUsed, uCount)),
+        Tab(text: tab(l10n.searchTabShops, sCount)),
+      ],
+    );
+  }
+
+  Widget _buildIdle(AppLocalizations l10n) {
+    return _CenteredState(
+      icon: Icons.search_rounded,
+      iconColor: AppTheme.inactive,
+      title: l10n.searchEmpty,
+      subtitle:
+          _query.length == 1 ? l10n.searchMinChars : l10n.searchEmptySub,
+    );
+  }
+
+  Widget _buildNoResults(AppLocalizations l10n) {
+    return _CenteredState(
+      icon: Icons.inbox_rounded,
+      iconColor: AppTheme.inactive,
+      title: l10n.searchNoResults,
+      subtitle: l10n.searchNoResultsSub(_query),
+    );
+  }
+
+  Widget _buildError(String msg) {
+    return _CenteredState(
+      icon: Icons.wifi_off_rounded,
+      iconColor: AppTheme.liveBadge,
+      title: 'خطأ في الاتصال',
+      subtitle: msg,
+    );
+  }
+
+  Widget _buildResults(AppLocalizations l10n, List<_SearchItem> all) {
+    final auctions = _result!.auctions.map(_SearchItem.fromAuction).toList();
+    final used = _result!.used.map(_SearchItem.fromUsed).toList();
+    final shops = _result!.shops.map(_SearchItem.fromShop).toList();
+
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _ItemList(items: all, iqd: _iqd),
+        _ItemList(items: auctions, iqd: _iqd),
+        _ItemList(items: used, iqd: _iqd),
+        _ItemList(items: shops, iqd: _iqd),
+      ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Unified search item
+// ═══════════════════════════════════════════════════════════════
+
+enum _SearchItemKind { auction, used, shop }
+
+class _SearchItem {
+  final _SearchItemKind kind;
+  final String title;
+  final String? subtitle;
+  final int price;
+  final List<String> images;
+  final DateTime? endTime;
+
+  const _SearchItem({
+    required this.kind,
+    required this.title,
+    this.subtitle,
+    required this.price,
+    required this.images,
+    this.endTime,
+  });
+
+  static _SearchItem fromAuction(SearchAuctionResult r) => _SearchItem(
+        kind: _SearchItemKind.auction,
+        title: r.title,
+        subtitle: r.category,
+        price: r.currentPrice,
+        images: r.images,
+        endTime: r.endTime,
+      );
+
+  static _SearchItem fromUsed(SearchAuctionResult r) => _SearchItem(
+        kind: _SearchItemKind.used,
+        title: r.title,
+        subtitle: r.category,
+        price: r.currentPrice,
+        images: r.images,
+        endTime: r.endTime,
+      );
+
+  static _SearchItem fromShop(SearchShopProductResult r) => _SearchItem(
+        kind: _SearchItemKind.shop,
+        title: r.name,
+        subtitle: r.category,
+        price: r.price,
+        images: r.images,
+      );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Scrollable list of result cards
+// ═══════════════════════════════════════════════════════════════
+
+class _ItemList extends StatelessWidget {
+  final List<_SearchItem> items;
+  final String Function(int) iqd;
+
+  const _ItemList({required this.items, required this.iqd});
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return Center(
+        child: Icon(
+          Icons.inbox_rounded,
+          size: 48.sp,
+          color: AppTheme.inactive,
+        ),
       );
     }
 
-    if (_query.isEmpty) {
-      return _buildBrowseCategories();
-    }
-
-    if (_filteredShops.isEmpty) {
-      return _buildNoResults();
-    }
-
     return ListView.separated(
-      padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 100.h),
-      itemCount: _filteredShops.length,
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 100.h),
+      itemCount: items.length,
       separatorBuilder: (_, __) => SizedBox(height: 10.h),
-      itemBuilder: (context, i) => _buildShopTile(_filteredShops[i]),
+      itemBuilder: (_, i) => _SearchCard(item: items[i], iqd: iqd),
     );
   }
+}
 
-  Widget _buildBrowseCategories() {
-    final categories = [
-      _Category('Electronics', Icons.devices, AppTheme.primary),
-      _Category('Cars', Icons.directions_car, AppTheme.secondary),
-      _Category('Furniture', Icons.chair_outlined, const Color(0xFF8BC34A)),
-      _Category('Fashion', Icons.style_outlined, const Color(0xFFE91E63)),
-      _Category('Services', Icons.handyman_outlined, const Color(0xFF00BCD4)),
-      _Category('Books', Icons.menu_book_outlined, const Color(0xFF9C27B0)),
-    ];
+// ═══════════════════════════════════════════════════════════════
+// Single result card
+// ═══════════════════════════════════════════════════════════════
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 100.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Browse Categories',
-            style: GoogleFonts.cairo(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 10.h,
-                crossAxisSpacing: 10.w,
-                childAspectRatio: 1,
-              ),
-              itemCount: categories.length,
-              itemBuilder: (context, i) => _buildCategoryTile(categories[i]),
-            ),
+class _SearchCard extends StatelessWidget {
+  final _SearchItem item;
+  final String Function(int) iqd;
+
+  const _SearchCard({required this.item, required this.iqd});
+
+  @override
+  Widget build(BuildContext context) {
+    final thumb = item.images.isNotEmpty ? item.images.first : null;
+
+    final (badgeLabel, badgeColor) = switch (item.kind) {
+      _SearchItemKind.auction => ('مزاد جديد', AppTheme.liveBadge),
+      _SearchItemKind.used => ('مستعمل', AppTheme.secondary),
+      _SearchItemKind.shop => ('متجر', AppTheme.primary),
+    };
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(14.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCategoryTile(_Category cat) {
-    return GestureDetector(
-      onTap: () {
-        _queryController.text = cat.label;
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: cat.color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(
-            color: cat.color.withValues(alpha: 0.25),
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(cat.icon, size: 28.sp, color: cat.color),
-            SizedBox(height: 6.h),
-            Text(
-              cat.label,
-              style: GoogleFonts.cairo(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShopTile(ShopModel shop) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => ShopProductsPage(
-              shopSlug: shop.slug,
-              shopName: shop.name,
+      child: Row(
+        children: [
+          // Thumbnail
+          ClipRRect(
+            borderRadius:
+                BorderRadius.horizontal(right: Radius.circular(14.r)),
+            child: SizedBox(
+              width: 90.w,
+              height: 90.w,
+              child: thumb != null
+                  ? Image.network(
+                      thumb,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => _imgPlaceholder(),
+                    )
+                  : _imgPlaceholder(),
             ),
           ),
-        );
-      },
-      child: Container(
-        height: 72.h,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        decoration: BoxDecoration(
-          color: AppTheme.background,
-          borderRadius: BorderRadius.circular(14.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44.w,
-              height: 44.w,
-              decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  shop.name.isNotEmpty ? shop.name[0].toUpperCase() : 'S',
-                  style: GoogleFonts.cairo(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.primary,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
+          SizedBox(width: 12.w),
+          // Info
+          Expanded(
+            child: Padding(
+              padding:
+                  EdgeInsets.symmetric(vertical: 12.h).copyWith(left: 12.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: badgeColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 3.h,
+                      ),
+                      child: Text(
+                        badgeLabel,
+                        style: GoogleFonts.cairo(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w700,
+                          color: badgeColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
                   Text(
-                    shop.name,
+                    item.title,
                     style: GoogleFonts.cairo(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textPrimary,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (item.subtitle != null) ...[
+                    SizedBox(height: 2.h),
+                    Text(
+                      item.subtitle!,
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: 8.h),
                   Text(
-                    '@${shop.slug}',
+                    iqd(item.price),
                     style: GoogleFonts.cairo(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textSecondary,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                 ],
               ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 14.sp,
-              color: AppTheme.inactive,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNoResults() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.search_off, size: 48.sp, color: AppTheme.inactive),
-          SizedBox(height: 12.h),
-          Text(
-            'No results for "$_query"',
-            style: GoogleFonts.cairo(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textSecondary,
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _imgPlaceholder() => Container(
+        color: AppTheme.surface,
+        child: Icon(
+          Icons.image_outlined,
+          color: AppTheme.inactive,
+          size: 28,
+        ),
+      );
 }
 
-class _Category {
-  final String label;
+// ═══════════════════════════════════════════════════════════════
+// Reusable centered-state widget
+// ═══════════════════════════════════════════════════════════════
+
+class _CenteredState extends StatelessWidget {
   final IconData icon;
-  final Color color;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
 
-  const _Category(this.label, this.icon, this.color);
+  const _CenteredState({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 56.sp, color: iconColor),
+            SizedBox(height: 16.h),
+            Text(
+              title,
+              style: GoogleFonts.cairo(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: 13.sp,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
+

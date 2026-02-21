@@ -297,4 +297,234 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get switchLanguage => 'العربية';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMessages => 'Messages';
+
+  @override
+  String get navActivity => 'My Activity';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get postSheetTitle => 'What do you want to add?';
+
+  @override
+  String get postSheetSub => 'Choose the type of listing';
+
+  @override
+  String get postAuction => 'Start an Auction';
+
+  @override
+  String get postAuctionSub => 'Let buyers bid — highest price wins';
+
+  @override
+  String get postSell => 'Sell an Item';
+
+  @override
+  String get postSellSub => 'Fixed price listing in the used market';
+
+  @override
+  String get postService => 'Offer a Service';
+
+  @override
+  String get postServiceSub => 'Plumbing, electrical, cleaning, any trade';
+
+  @override
+  String get postJob => 'Post a Job';
+
+  @override
+  String get postJobSub => 'Find workers and employees';
+
+  @override
+  String get activityTitle => 'My Activity';
+
+  @override
+  String get activityOrders => 'Orders';
+
+  @override
+  String get activitySaved => 'Saved';
+
+  @override
+  String get activityBids => 'My Bids';
+
+  @override
+  String get activityBookings => 'Bookings';
+
+  @override
+  String activitySummary(int orders, int saved) {
+    return '$orders orders · $saved saved';
+  }
+
+  @override
+  String get cartClear => 'Clear All';
+
+  @override
+  String get cartEmpty => 'Your cart is empty';
+
+  @override
+  String get cartEmptySub => 'Browse shops and add items you want to buy';
+
+  @override
+  String get savedEmpty => 'Nothing saved yet';
+
+  @override
+  String get savedEmptySub => 'Tap the heart on any product to save it here';
+
+  @override
+  String get checkoutBtn => 'Checkout';
+
+  @override
+  String get checkoutComingSoon => 'Checkout coming soon!';
+
+  @override
+  String get perItem => 'each';
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String get addedToCart => 'Added to cart';
+
+  @override
+  String get bidsTrackTitle => 'Track Your Bids';
+
+  @override
+  String get bidsTrackSub =>
+      'See auctions you participated in and their status';
+
+  @override
+  String get bidsEmpty => 'No active bids yet';
+
+  @override
+  String get bidsEmptySub => 'Tap an auction and start bidding — see it here';
+
+  @override
+  String get browseBids => 'Browse Auctions';
+
+  @override
+  String get bookingsEmpty => 'No bookings yet';
+
+  @override
+  String get bookingsEmptySub => 'Book a service and find it here';
+
+  @override
+  String get homeWhatLooking => 'What are you looking for?';
+
+  @override
+  String get modeAuctions => 'Auctions';
+
+  @override
+  String get modeAuctionTag => 'Bid & win';
+
+  @override
+  String get modeLocalShops => 'Local Shops';
+
+  @override
+  String get modeLocalTag => 'Near you';
+
+  @override
+  String get modeOfficialStores => 'Official Stores';
+
+  @override
+  String get modeOfficialTag => 'Verified brands';
+
+  @override
+  String get modeUsed => 'Used Market';
+
+  @override
+  String get modeUsedTag => 'Pre-loved';
+
+  @override
+  String get shopsSection => 'Shops';
+
+  @override
+  String get shopsTrustedSub => 'Trusted sellers · Secure payment';
+
+  @override
+  String get usedMarketTitle => 'Used & Renewed';
+
+  @override
+  String get usedMarketSub => 'Buy and sell with trust and ease';
+
+  @override
+  String get visitShop => 'Visit';
+
+  @override
+  String get defaultCity => 'Baghdad';
+
+  @override
+  String auctionWatching(int count) {
+    return '$count watching';
+  }
+
+  @override
+  String auctionBidding(int count) {
+    return '$count bids';
+  }
+
+  @override
+  String get auctionEndedLabel => 'Ended';
+
+  @override
+  String get condExcellent => 'Excellent';
+
+  @override
+  String get condVeryGood => 'Very Good';
+
+  @override
+  String get condGood => 'Good';
+
+  @override
+  String get condFair => 'Fair';
+
+  @override
+  String get messagesTitle => 'Messages';
+
+  @override
+  String get messagesEmpty => 'No messages yet';
+
+  @override
+  String get messagesEmptySub => 'Contact sellers and buyers directly';
+
+  @override
+  String get searchHint => 'Search for anything...';
+
+  @override
+  String get searchTabAll => 'All';
+
+  @override
+  String get searchTabAuctions => 'Auctions';
+
+  @override
+  String get searchTabUsed => 'Used';
+
+  @override
+  String get searchTabShops => 'Shops';
+
+  @override
+  String get searchEmpty => 'Start searching';
+
+  @override
+  String get searchEmptySub => 'Try something like iPhone or TV';
+
+  @override
+  String get searchNoResults => 'No results';
+
+  @override
+  String searchNoResultsSub(String query) {
+    return 'Nothing found for \"$query\"';
+  }
+
+  @override
+  String searchResultCount(int count) {
+    return '$count results';
+  }
+
+  @override
+  String get searchMinChars => 'Type at least 2 characters';
 }

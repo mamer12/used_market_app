@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// Emits a new [Locale] whenever the user toggles the language.
 class LocaleCubit extends Cubit<Locale> {
-  LocaleCubit() : super(const Locale('en'));
+  LocaleCubit() : super(const Locale('ar'));
 
   /// Toggle between English and Arabic.
   void toggleLocale() {
