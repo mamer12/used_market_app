@@ -18,6 +18,7 @@ import '../../../shop/data/models/shop_models.dart';
 import '../../../shop/presentation/pages/shop_products_page.dart';
 import '../../../shop/presentation/pages/shops_page.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
+import '../../../search/presentation/pages/search_page.dart';
 import '../bloc/home_cubit.dart';
 
 /// Discovery Home — Mustamal marketplace feed.
@@ -218,43 +219,48 @@ class _HomePageState extends State<HomePage> {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 8.h),
-      child: Container(
-        height: 52.h,
-        decoration: BoxDecoration(
-          color: AppTheme.background,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => const SearchPage()),
         ),
-        child: Row(
-          children: [
-            SizedBox(width: 16.w),
-            Icon(Icons.search, size: 24.sp, color: AppTheme.inactive),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Text(
-                l10n.homeSearch,
-                style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.inactive,
+        child: Container(
+          height: 52.h,
+          decoration: BoxDecoration(
+            color: AppTheme.background,
+            borderRadius: BorderRadius.circular(16.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              SizedBox(width: 16.w),
+              Icon(Icons.search, size: 24.sp, color: AppTheme.inactive),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Text(
+                  l10n.homeSearch,
+                  style: GoogleFonts.cairo(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.inactive,
+                  ),
                 ),
               ),
-            ),
-            Container(
-              width: 1,
-              height: 24.h,
-              color: AppTheme.inactive.withValues(alpha: 0.3),
-            ),
-            SizedBox(width: 8.w),
-            Icon(Icons.tune, size: 22.sp, color: AppTheme.textSecondary),
-            SizedBox(width: 14.w),
-          ],
+              Container(
+                width: 1,
+                height: 24.h,
+                color: AppTheme.inactive.withValues(alpha: 0.3),
+              ),
+              SizedBox(width: 8.w),
+              Icon(Icons.tune, size: 22.sp, color: AppTheme.textSecondary),
+              SizedBox(width: 14.w),
+            ],
+          ),
         ),
       ),
     );
