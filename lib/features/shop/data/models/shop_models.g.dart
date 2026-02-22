@@ -18,6 +18,14 @@ _ShopModel _$ShopModelFromJson(Map<String, dynamic> json) => _ShopModel(
   locationDistrict: json['location_district'] as String?,
   locationAddress: json['location_address'] as String?,
   imageUrl: json['image_url'] as String?,
+  shopType: json['shop_type'] as String?,
+  verificationStatus: json['verification_status'] as String?,
+  latitude: (json['latitude'] as num?)?.toDouble(),
+  longitude: (json['longitude'] as num?)?.toDouble(),
+  instagramUrl: json['instagram_url'] as String?,
+  openingHours: json['opening_hours'],
+  idCardUrl: json['id_card_url'] as String?,
+  storefrontUrl: json['storefront_url'] as String?,
   createdAt: json['created_at'] as String?,
   updatedAt: json['updated_at'] as String?,
 );
@@ -35,6 +43,14 @@ Map<String, dynamic> _$ShopModelToJson(_ShopModel instance) =>
       'location_district': instance.locationDistrict,
       'location_address': instance.locationAddress,
       'image_url': instance.imageUrl,
+      'shop_type': instance.shopType,
+      'verification_status': instance.verificationStatus,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      'instagram_url': instance.instagramUrl,
+      'opening_hours': instance.openingHours,
+      'id_card_url': instance.idCardUrl,
+      'storefront_url': instance.storefrontUrl,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
     };
@@ -50,6 +66,13 @@ _CreateShopRequest _$CreateShopRequestFromJson(Map<String, dynamic> json) =>
       locationDistrict: json['location_district'] as String?,
       locationAddress: json['location_address'] as String?,
       imageUrl: json['image_url'] as String?,
+      shopType: json['shop_type'] as String,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      instagramUrl: json['instagram_url'] as String?,
+      openingHours: json['opening_hours'],
+      idCardUrl: json['id_card_url'] as String?,
+      storefrontUrl: json['storefront_url'] as String?,
     );
 
 Map<String, dynamic> _$CreateShopRequestToJson(_CreateShopRequest instance) =>
@@ -63,6 +86,13 @@ Map<String, dynamic> _$CreateShopRequestToJson(_CreateShopRequest instance) =>
       'location_district': instance.locationDistrict,
       'location_address': instance.locationAddress,
       'image_url': instance.imageUrl,
+      'shop_type': instance.shopType,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      'instagram_url': instance.instagramUrl,
+      'opening_hours': instance.openingHours,
+      'id_card_url': instance.idCardUrl,
+      'storefront_url': instance.storefrontUrl,
     };
 
 _ProductModel _$ProductModelFromJson(Map<String, dynamic> json) =>

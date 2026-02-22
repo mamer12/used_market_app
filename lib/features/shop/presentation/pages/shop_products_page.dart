@@ -29,8 +29,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
   @override
   void initState() {
     super.initState();
-    _cubit = getIt<ShopProductsCubit>()
-      ..loadCatalog(widget.shopSlug);
+    _cubit = getIt<ShopProductsCubit>()..loadCatalog(widget.shopSlug);
     _scrollController.addListener(_onScroll);
   }
 
@@ -63,17 +62,13 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
                 if (state.isLoading && state.products.isEmpty) {
                   return const SliverFillRemaining(
                     child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppTheme.primary,
-                      ),
+                      child: CircularProgressIndicator(color: AppTheme.primary),
                     ),
                   );
                 }
 
                 if (state.error != null && state.products.isEmpty) {
-                  return SliverFillRemaining(
-                    child: _buildError(state.error!),
-                  );
+                  return SliverFillRemaining(child: _buildError(state.error!));
                 }
 
                 if (state.products.isEmpty) {
@@ -116,9 +111,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
               ),
             ),
           ),
-          flexibleSpace: FlexibleSpaceBar(
-            background: _buildShopBanner(shop),
-          ),
+          flexibleSpace: FlexibleSpaceBar(background: _buildShopBanner(shop)),
         );
       },
     );
@@ -213,6 +206,17 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
               ],
             ),
           ),
+
+          if (shop != null) ...[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: shop.shopType == 'physical'
+                  ? _buildPhysicalInfo(shop)
+                  : _buildDigitalInfo(shop),
+            ),
+            SizedBox(height: 16.h),
+          ],
+
           // Bottom border
           Container(
             height: 1,
@@ -220,6 +224,91 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPhysicalInfo(ShopModel shop) {
+    return Row(
+      children: [
+        Icon(Icons.location_on_rounded, size: 16.sp, color: AppTheme.primary),
+        SizedBox(width: 4.w),
+        Text(
+          '${shop.locationDistrict ?? ''}, ${shop.locationCity ?? ''}',
+          style: GoogleFonts.cairo(
+            fontSize: 12.sp,
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Icon(
+          Icons.access_time_rounded,
+          size: 16.sp,
+          color: AppTheme.textSecondary,
+        ),
+        SizedBox(width: 4.w),
+        Text(
+          'Open Daily', // Simplified, parse openingHours JSON in real app
+          style: GoogleFonts.cairo(
+            fontSize: 12.sp,
+            color: AppTheme.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDigitalInfo(ShopModel shop) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(6.r),
+            border: Border.all(
+              color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.local_shipping_rounded,
+                size: 14.sp,
+                color: const Color(0xFF4CAF50),
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                'Fast Delivery',
+                style: GoogleFonts.cairo(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4CAF50),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: 12.w),
+        if (shop.instagramUrl != null)
+          GestureDetector(
+            onTap: () {}, // Launch URL
+            child: Row(
+              children: [
+                Icon(Icons.link_rounded, size: 16.sp, color: AppTheme.primary),
+                SizedBox(width: 4.w),
+                Text(
+                  'Instagram',
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -234,21 +323,17 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
           crossAxisSpacing: 14.w,
           childAspectRatio: 0.65,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            if (index == state.products.length) {
-              return const Padding(
-                padding: EdgeInsets.all(20),
-                child: Center(
-                  child: CircularProgressIndicator(color: AppTheme.primary),
-                ),
-              );
-            }
-            return _buildProductCard(state.products[index]);
-          },
-          childCount:
-              state.products.length + (state.isLoading ? 1 : 0),
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          if (index == state.products.length) {
+            return const Padding(
+              padding: EdgeInsets.all(20),
+              child: Center(
+                child: CircularProgressIndicator(color: AppTheme.primary),
+              ),
+            );
+          }
+          return _buildProductCard(state.products[index]);
+        }, childCount: state.products.length + (state.isLoading ? 1 : 0)),
       ),
     );
   }
@@ -287,8 +372,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
                       ? Image.network(
                           product.images.first,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              _placeholderImage(),
+                          errorBuilder: (_, _, _) => _placeholderImage(),
                         )
                       : _placeholderImage(),
                   // Favourite
@@ -423,7 +507,11 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
     return Container(
       color: AppTheme.surface,
       child: Center(
-        child: Icon(Icons.image_outlined, size: 36.sp, color: AppTheme.inactive),
+        child: Icon(
+          Icons.image_outlined,
+          size: 36.sp,
+          color: AppTheme.inactive,
+        ),
       ),
     );
   }
@@ -476,7 +564,13 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
         children: [
           Icon(Icons.error_outline, size: 48.sp, color: AppTheme.error),
           SizedBox(height: 12.h),
-          Text(message, style: GoogleFonts.cairo(fontSize: 14.sp, color: AppTheme.textSecondary)),
+          Text(
+            message,
+            style: GoogleFonts.cairo(
+              fontSize: 14.sp,
+              color: AppTheme.textSecondary,
+            ),
+          ),
           SizedBox(height: 16.h),
           GestureDetector(
             onTap: () => _cubit.loadCatalog(widget.shopSlug, refresh: true),
@@ -488,7 +582,11 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
               ),
               child: Text(
                 'Retry',
-                style: GoogleFonts.cairo(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+                style: GoogleFonts.cairo(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ),
           ),

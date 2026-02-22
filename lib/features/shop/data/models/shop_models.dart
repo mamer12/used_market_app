@@ -35,6 +35,14 @@ abstract class ShopModel with _$ShopModel {
     @JsonKey(name: 'location_district') String? locationDistrict,
     @JsonKey(name: 'location_address') String? locationAddress,
     @JsonKey(name: 'image_url') String? imageUrl,
+    @JsonKey(name: 'shop_type') String? shopType, // 'physical' or 'digital'
+    @JsonKey(name: 'verification_status') String? verificationStatus,
+    double? latitude,
+    double? longitude,
+    @JsonKey(name: 'instagram_url') String? instagramUrl,
+    @JsonKey(name: 'opening_hours') dynamic openingHours,
+    @JsonKey(name: 'id_card_url') String? idCardUrl,
+    @JsonKey(name: 'storefront_url') String? storefrontUrl,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
   }) = _ShopModel;
@@ -55,6 +63,13 @@ abstract class CreateShopRequest with _$CreateShopRequest {
     @JsonKey(name: 'location_district') String? locationDistrict,
     @JsonKey(name: 'location_address') String? locationAddress,
     @JsonKey(name: 'image_url') String? imageUrl,
+    @JsonKey(name: 'shop_type') required String shopType,
+    double? latitude,
+    double? longitude,
+    @JsonKey(name: 'instagram_url') String? instagramUrl,
+    @JsonKey(name: 'opening_hours') dynamic openingHours,
+    @JsonKey(name: 'id_card_url') String? idCardUrl,
+    @JsonKey(name: 'storefront_url') String? storefrontUrl,
   }) = _CreateShopRequest;
 
   factory CreateShopRequest.fromJson(Map<String, dynamic> json) =>

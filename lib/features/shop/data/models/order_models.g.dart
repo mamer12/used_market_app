@@ -35,6 +35,7 @@ _OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => _OrderModel(
   shippingAddress: ShippingAddress.fromJson(
     json['shipping_address'] as Map<String, dynamic>,
   ),
+  fulfillmentType: json['fulfillment_type'] as String,
 );
 
 Map<String, dynamic> _$OrderModelToJson(_OrderModel instance) =>
@@ -47,6 +48,7 @@ Map<String, dynamic> _$OrderModelToJson(_OrderModel instance) =>
       'total_price': instance.totalPrice,
       'status': _$OrderStatusEnumMap[instance.status]!,
       'shipping_address': instance.shippingAddress,
+      'fulfillment_type': instance.fulfillmentType,
     };
 
 const _$OrderStatusEnumMap = {
@@ -64,6 +66,7 @@ _BuyProductRequest _$BuyProductRequestFromJson(Map<String, dynamic> json) =>
       shippingAddress: ShippingAddress.fromJson(
         json['shipping_address'] as Map<String, dynamic>,
       ),
+      fulfillmentType: json['fulfillment_type'] as String,
     );
 
 Map<String, dynamic> _$BuyProductRequestToJson(_BuyProductRequest instance) =>
@@ -71,6 +74,7 @@ Map<String, dynamic> _$BuyProductRequestToJson(_BuyProductRequest instance) =>
       'product_id': instance.productId,
       'quantity': instance.quantity,
       'shipping_address': instance.shippingAddress,
+      'fulfillment_type': instance.fulfillmentType,
     };
 
 _UpdateOrderStatusRequest _$UpdateOrderStatusRequestFromJson(

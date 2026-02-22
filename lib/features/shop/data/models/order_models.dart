@@ -41,6 +41,7 @@ abstract class OrderModel with _$OrderModel {
     @JsonKey(name: 'total_price') required double totalPrice,
     required OrderStatus status,
     @JsonKey(name: 'shipping_address') required ShippingAddress shippingAddress,
+    @JsonKey(name: 'fulfillment_type') required String fulfillmentType,
   }) = _OrderModel;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) =>
@@ -53,6 +54,7 @@ abstract class BuyProductRequest with _$BuyProductRequest {
     @JsonKey(name: 'product_id') required String productId,
     required int quantity,
     @JsonKey(name: 'shipping_address') required ShippingAddress shippingAddress,
+    @JsonKey(name: 'fulfillment_type') required String fulfillmentType,
   }) = _BuyProductRequest;
 
   factory BuyProductRequest.fromJson(Map<String, dynamic> json) =>

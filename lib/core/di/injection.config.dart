@@ -42,9 +42,14 @@ import '../../features/shop/data/datasources/order_remote_data_source.dart'
     as _i239;
 import '../../features/shop/data/datasources/shop_remote_data_source.dart'
     as _i462;
+import '../../features/shop/data/repositories/order_repository_impl.dart'
+    as _i1001;
 import '../../features/shop/data/repositories/shop_repository_impl.dart'
     as _i704;
+import '../../features/shop/domain/repositories/order_repository.dart' as _i958;
 import '../../features/shop/domain/repositories/shop_repository.dart' as _i106;
+import '../../features/shop/presentation/bloc/create_shop_cubit.dart' as _i910;
+import '../../features/shop/presentation/bloc/order_cubit.dart' as _i771;
 import '../../features/shop/presentation/bloc/shops_cubit.dart' as _i162;
 import '../network/auth_interceptor.dart' as _i908;
 import '../storage/token_storage.dart' as _i973;
@@ -92,6 +97,9 @@ _i174.GetIt init(
       gh<_i973.TokenStorage>(),
     ),
   );
+  gh.lazySingleton<_i958.OrderRepository>(
+    () => _i1001.OrderRepositoryImpl(gh<_i239.OrderRemoteDataSource>()),
+  );
   gh.factoryParam<_i797.AuthBloc, _i558.FlutterSecureStorage?, dynamic>(
     (storage, _) =>
         _i797.AuthBloc(gh<_i787.AuthRepository>(), storage: storage),
@@ -104,6 +112,12 @@ _i174.GetIt init(
   );
   gh.lazySingleton<_i17.AuctionRemoteDataSource>(
     () => _i17.AuctionRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
+  gh.factory<_i771.OrderCubit>(
+    () => _i771.OrderCubit(gh<_i958.OrderRepository>()),
+  );
+  gh.factory<_i910.CreateShopCubit>(
+    () => _i910.CreateShopCubit(gh<_i106.ShopRepository>()),
   );
   gh.factory<_i162.ShopsCubit>(
     () => _i162.ShopsCubit(gh<_i106.ShopRepository>()),
