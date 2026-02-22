@@ -9,6 +9,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/auth_guard.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../shop/data/models/shop_models.dart';
+import '../../../shop/presentation/pages/checkout_page.dart';
 import '../bloc/cart_cubit.dart';
 
 // IQD formatter
@@ -105,8 +106,7 @@ class _CartPageState extends State<CartPage>
                 context.read<CartCubit>().clearCart();
               },
               child: Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color: AppTheme.error.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10.r),
@@ -209,7 +209,9 @@ class _PillTab extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           margin: EdgeInsets.all(4.w),
           decoration: BoxDecoration(
-            color: isActive ? (activeColor ?? AppTheme.primary) : Colors.transparent,
+            color: isActive
+                ? (activeColor ?? AppTheme.primary)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(9.r),
           ),
           child: Row(
@@ -235,7 +237,7 @@ class _PillTab extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isActive
                         ? (activeLabelColor?.withValues(alpha: 0.18) ??
-                            AppTheme.textPrimary.withValues(alpha: 0.12))
+                              AppTheme.textPrimary.withValues(alpha: 0.12))
                         : AppTheme.inactive.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
@@ -278,12 +280,11 @@ class _CartTab extends StatelessWidget {
           child: ListView.separated(
             padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 16.h),
             itemCount: items.length,
-            separatorBuilder: (_, __) => SizedBox(height: 12.h),
-            itemBuilder: (context, index) =>
-                _CartItemCard(item: items[index]),
+            separatorBuilder: (_, _) => SizedBox(height: 12.h),
+            itemBuilder: (context, index) => _CartItemCard(item: items[index]),
           ),
         ),
-        _CheckoutBar(total: total),
+        _CheckoutBar(total: total, items: items),
       ],
     );
   }
@@ -341,7 +342,7 @@ class _CartItemCard extends StatelessWidget {
                     ? Image.network(
                         item.product.images.first,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
+                        errorBuilder: (_, _, _) =>
                             _imagePlaceholder(AppTheme.surface),
                       )
                     : _imagePlaceholder(AppTheme.surface),
@@ -393,17 +394,11 @@ class _CartItemCard extends StatelessWidget {
                 quantity: item.quantity,
                 onDecrease: () {
                   HapticFeedback.selectionClick();
-                  cubit.updateQuantity(
-                    item.product.id,
-                    item.quantity - 1,
-                  );
+                  cubit.updateQuantity(item.product.id, item.quantity - 1);
                 },
                 onIncrease: () {
                   HapticFeedback.selectionClick();
-                  cubit.updateQuantity(
-                    item.product.id,
-                    item.quantity + 1,
-                  );
+                  cubit.updateQuantity(item.product.id, item.quantity + 1);
                 },
               ),
             ),
@@ -431,9 +426,7 @@ class _QuantityStepper extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(
-          color: AppTheme.inactive.withValues(alpha: 0.25),
-        ),
+        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.25)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -488,8 +481,9 @@ class _StepBtn extends StatelessWidget {
 // Checkout sticky bar
 class _CheckoutBar extends StatelessWidget {
   final double total;
+  final List<CartItem> items;
 
-  const _CheckoutBar({required this.total});
+  const _CheckoutBar({required this.total, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -538,13 +532,11 @@ class _CheckoutBar extends StatelessWidget {
           SizedBox(height: 12.h),
           AuthGuard(
             onAuthenticated: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.of(context).checkoutComingSoon,
-                    style: GoogleFonts.cairo(),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => CheckoutPage(
+                    products: items.map((e) => e.product).toList(),
                   ),
-                  behavior: SnackBarBehavior.floating,
                 ),
               );
             },
@@ -601,12 +593,7 @@ class _SavedTab extends StatelessWidget {
     final safeBottom = MediaQuery.of(context).padding.bottom;
 
     return GridView.builder(
-      padding: EdgeInsets.fromLTRB(
-        20.w,
-        4.h,
-        20.w,
-        (safeBottom + 96).h,
-      ),
+      padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, (safeBottom + 96).h),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 14.h,
@@ -614,8 +601,7 @@ class _SavedTab extends StatelessWidget {
         childAspectRatio: 0.72,
       ),
       itemCount: items.length,
-      itemBuilder: (context, index) =>
-          _SavedProductCard(product: items[index]),
+      itemBuilder: (context, index) => _SavedProductCard(product: items[index]),
     );
   }
 }
@@ -655,7 +641,7 @@ class _SavedProductCard extends StatelessWidget {
                     ? Image.network(
                         product.images.first,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
+                        errorBuilder: (_, _, _) =>
                             _imagePlaceholder(AppTheme.surface),
                       )
                     : _imagePlaceholder(AppTheme.surface),
@@ -882,7 +868,11 @@ class _BidsTab extends StatelessWidget {
                     color: AppTheme.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12.r),
                   ),
-                  child: Icon(Icons.gavel_rounded, size: 22.sp, color: AppTheme.primary),
+                  child: Icon(
+                    Icons.gavel_rounded,
+                    size: 22.sp,
+                    color: AppTheme.primary,
+                  ),
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
@@ -942,7 +932,11 @@ class _BidsTab extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.gavel_rounded, size: 18.sp, color: AppTheme.textPrimary),
+                Icon(
+                  Icons.gavel_rounded,
+                  size: 18.sp,
+                  color: AppTheme.textPrimary,
+                ),
                 SizedBox(width: 8.w),
                 Text(
                   AppLocalizations.of(context).browseBids,
@@ -964,10 +958,6 @@ class _BidsTab extends StatelessWidget {
 Widget _imagePlaceholder(Color bg) {
   return Container(
     color: bg,
-    child: Icon(
-      Icons.image_outlined,
-      color: AppTheme.inactive,
-      size: 28,
-    ),
+    child: const Icon(Icons.image_outlined, color: AppTheme.inactive, size: 28),
   );
 }

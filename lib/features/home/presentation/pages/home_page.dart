@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -13,12 +13,13 @@ import '../../../../core/widgets/auth_guard.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auction/data/models/auction_models.dart';
 import '../../../auction/presentation/pages/auction_live_page.dart';
+import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../notifications/presentation/pages/notifications_page.dart';
+import '../../../search/presentation/pages/search_page.dart';
 import '../../../shop/data/models/shop_models.dart';
+import '../../../shop/presentation/pages/product_detail_page.dart';
 import '../../../shop/presentation/pages/shop_products_page.dart';
 import '../../../shop/presentation/pages/shops_page.dart';
-import '../../../cart/presentation/bloc/cart_cubit.dart';
-import '../../../search/presentation/pages/search_page.dart';
 import '../bloc/home_cubit.dart';
 
 /// Discovery Home — Mustamal marketplace feed.
@@ -106,11 +107,12 @@ class _HomePageState extends State<HomePage> {
 
                   // ── Shops with products ───────────────────
                   if (state.shopCatalogs.isNotEmpty) ...[
-                    SliverToBoxAdapter(child: _buildShopsHeader(state.shopCatalogs.length)),
+                    SliverToBoxAdapter(
+                      child: _buildShopsHeader(state.shopCatalogs.length),
+                    ),
                     ...state.shopCatalogs.map(
-                      (entry) => SliverToBoxAdapter(
-                        child: _buildShopSection(entry),
-                      ),
+                      (entry) =>
+                          SliverToBoxAdapter(child: _buildShopSection(entry)),
                     ),
                   ],
 
@@ -157,7 +159,11 @@ class _HomePageState extends State<HomePage> {
               color: AppTheme.primary,
               borderRadius: BorderRadius.circular(10.r),
             ),
-            child: Icon(Icons.storefront_rounded, size: 20.sp, color: AppTheme.textPrimary),
+            child: Icon(
+              Icons.storefront_rounded,
+              size: 20.sp,
+              color: AppTheme.textPrimary,
+            ),
           ),
           SizedBox(width: 10.w),
           // Brand name + greeting
@@ -205,7 +211,11 @@ class _HomePageState extends State<HomePage> {
                   color: AppTheme.inactive.withValues(alpha: 0.25),
                 ),
               ),
-              child: Icon(Icons.notifications_none_rounded, size: 20.sp, color: AppTheme.textPrimary),
+              child: Icon(
+                Icons.notifications_none_rounded,
+                size: 20.sp,
+                color: AppTheme.textPrimary,
+              ),
             ),
           ),
         ],
@@ -220,9 +230,9 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 8.h),
       child: GestureDetector(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => const SearchPage()),
-        ),
+        onTap: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute<void>(builder: (_) => const SearchPage())),
         child: Container(
           height: 52.h,
           decoration: BoxDecoration(
@@ -508,7 +518,7 @@ class _HomePageState extends State<HomePage> {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             itemCount: modes.length,
-            separatorBuilder: (_, __) => SizedBox(width: 10.w),
+            separatorBuilder: (_, _) => SizedBox(width: 10.w),
             itemBuilder: (context, index) {
               final mode = modes[index];
               return GestureDetector(
@@ -516,19 +526,27 @@ class _HomePageState extends State<HomePage> {
                   if (index == 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Browse Auctions', style: GoogleFonts.cairo()),
+                        content: Text(
+                          'Browse Auctions',
+                          style: GoogleFonts.cairo(),
+                        ),
                         duration: const Duration(seconds: 1),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
                   } else if (index == 1 || index == 2) {
                     Navigator.of(context).push(
-                      MaterialPageRoute<void>(builder: (_) => const ShopsPage()),
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ShopsPage(),
+                      ),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Browse Used Market', style: GoogleFonts.cairo()),
+                        content: Text(
+                          'Browse Used Market',
+                          style: GoogleFonts.cairo(),
+                        ),
                         duration: const Duration(seconds: 1),
                         behavior: SnackBarBehavior.floating,
                       ),
@@ -556,7 +574,11 @@ class _HomePageState extends State<HomePage> {
                           color: mode.iconColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
-                        child: Icon(mode.icon, size: 18.sp, color: mode.iconColor),
+                        child: Icon(
+                          mode.icon,
+                          size: 18.sp,
+                          color: mode.iconColor,
+                        ),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -590,7 +612,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   Widget _buildLiveNowSection(List<AuctionModel> auctions) {
     final l10n = AppLocalizations.of(context);
     return Column(
@@ -611,8 +632,22 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l10n.homeLiveNow, style: GoogleFonts.cairo(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.white)),
-                    Text(l10n.homeLiveSubtitle, style: GoogleFonts.cairo(fontSize: 11.sp, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.55))),
+                    Text(
+                      l10n.homeLiveNow,
+                      style: GoogleFonts.cairo(
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      l10n.homeLiveSubtitle,
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.55),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -621,16 +656,36 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   color: AppTheme.liveBadge.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(color: AppTheme.liveBadge.withValues(alpha: 0.4)),
+                  border: Border.all(
+                    color: AppTheme.liveBadge.withValues(alpha: 0.4),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('${auctions.length}', style: GoogleFonts.cairo(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppTheme.liveBadge)),
+                    Text(
+                      '${auctions.length}',
+                      style: GoogleFonts.cairo(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.liveBadge,
+                      ),
+                    ),
                     SizedBox(width: 4.w),
-                    Text(l10n.homeSeeAll, style: GoogleFonts.cairo(fontSize: 11.sp, fontWeight: FontWeight.w600, color: AppTheme.liveBadge)),
+                    Text(
+                      l10n.homeSeeAll,
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.liveBadge,
+                      ),
+                    ),
                     SizedBox(width: 2.w),
-                    Icon(Icons.arrow_forward_ios, size: 10.sp, color: AppTheme.liveBadge),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 10.sp,
+                      color: AppTheme.liveBadge,
+                    ),
                   ],
                 ),
               ),
@@ -644,8 +699,9 @@ class _HomePageState extends State<HomePage> {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: auctions.length,
-            separatorBuilder: (_, __) => SizedBox(width: 14.w),
-            itemBuilder: (context, index) => _buildLiveCard(auctions[index], l10n),
+            separatorBuilder: (_, _) => SizedBox(width: 14.w),
+            itemBuilder: (context, index) =>
+                _buildLiveCard(auctions[index], l10n),
           ),
         ),
       ],
@@ -782,18 +838,38 @@ class _HomePageState extends State<HomePage> {
                   // Social proof — watchers + bids
                   Row(
                     children: [
-                      Icon(Icons.visibility_outlined, size: 11.sp, color: Colors.white54),
+                      Icon(
+                        Icons.visibility_outlined,
+                        size: 11.sp,
+                        color: Colors.white54,
+                      ),
                       SizedBox(width: 3.w),
                       Text(
-                        l10n.auctionWatching(((item.id?.hashCode ?? 0).abs() % 80) + 10),
-                        style: GoogleFonts.cairo(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.white54),
+                        l10n.auctionWatching(
+                          ((item.id?.hashCode ?? 0).abs() % 80) + 10,
+                        ),
+                        style: GoogleFonts.cairo(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white54,
+                        ),
                       ),
                       SizedBox(width: 14.w),
-                      Icon(Icons.local_fire_department_rounded, size: 11.sp, color: AppTheme.secondary),
+                      Icon(
+                        Icons.local_fire_department_rounded,
+                        size: 11.sp,
+                        color: AppTheme.secondary,
+                      ),
                       SizedBox(width: 3.w),
                       Text(
-                        l10n.auctionBidding(((item.id?.hashCode ?? 0).abs() % 20) + 2),
-                        style: GoogleFonts.cairo(fontSize: 10.sp, fontWeight: FontWeight.w500, color: Colors.white54),
+                        l10n.auctionBidding(
+                          ((item.id?.hashCode ?? 0).abs() % 20) + 2,
+                        ),
+                        style: GoogleFonts.cairo(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white54,
+                        ),
                       ),
                     ],
                   ),
@@ -868,41 +944,82 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         children: [
           Container(
-            width: 36.w, height: 36.w,
+            width: 36.w,
+            height: 36.w,
             decoration: BoxDecoration(
               color: const Color(0xFFF0FFF4),
               borderRadius: BorderRadius.circular(10.r),
-              border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.25)),
+              border: Border.all(
+                color: const Color(0xFF2E7D32).withValues(alpha: 0.25),
+              ),
             ),
-            child: Icon(Icons.storefront_rounded, size: 18.sp, color: const Color(0xFF2E7D32)),
+            child: Icon(
+              Icons.storefront_rounded,
+              size: 18.sp,
+              color: const Color(0xFF2E7D32),
+            ),
           ),
           SizedBox(width: 10.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.shopsSection, style: GoogleFonts.cairo(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                Text(
+                  l10n.shopsSection,
+                  style: GoogleFonts.cairo(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
                 Row(
                   children: [
-                    Icon(Icons.verified_user_rounded, size: 11.sp, color: const Color(0xFF2E7D32)),
+                    Icon(
+                      Icons.verified_user_rounded,
+                      size: 11.sp,
+                      color: const Color(0xFF2E7D32),
+                    ),
                     SizedBox(width: 4.w),
-                    Text(l10n.shopsTrustedSub, style: GoogleFonts.cairo(fontSize: 11.sp, fontWeight: FontWeight.w500, color: AppTheme.textSecondary)),
+                    Text(
+                      l10n.shopsTrustedSub,
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
           GestureDetector(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ShopsPage())),
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute<void>(builder: (_) => const ShopsPage())),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-              decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(8.r)),
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(8.r),
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(l10n.homeSeeAll, style: GoogleFonts.cairo(fontSize: 12.sp, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                  Text(
+                    l10n.homeSeeAll,
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
                   SizedBox(width: 3.w),
-                  Icon(Icons.arrow_forward_ios, size: 11.sp, color: AppTheme.textPrimary),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 11.sp,
+                    color: AppTheme.textPrimary,
+                  ),
                 ],
               ),
             ),
@@ -919,8 +1036,12 @@ class _HomePageState extends State<HomePage> {
     final products = entry.products;
     // Deterministic accent colour from shop id
     final accentColors = [
-      AppTheme.primary, AppTheme.secondary, const Color(0xFF00BCD4),
-      const Color(0xFF7C4DFF), const Color(0xFF00C853), const Color(0xFFFF6D00),
+      AppTheme.primary,
+      AppTheme.secondary,
+      const Color(0xFF00BCD4),
+      const Color(0xFF7C4DFF),
+      const Color(0xFF00C853),
+      const Color(0xFFFF6D00),
     ];
     final accent = accentColors[shop.id.hashCode.abs() % accentColors.length];
 
@@ -943,9 +1064,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: Center(
                   child: Text(
-                    shop.name.isNotEmpty
-                        ? shop.name[0].toUpperCase()
-                        : 'S',
+                    shop.name.isNotEmpty ? shop.name[0].toUpperCase() : 'S',
                     style: GoogleFonts.cairo(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
@@ -974,10 +1093,15 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         SizedBox(width: 4.w),
-                        Icon(Icons.verified_rounded, size: 15.sp, color: const Color(0xFF1565C0)),
+                        Icon(
+                          Icons.verified_rounded,
+                          size: 15.sp,
+                          color: const Color(0xFF1565C0),
+                        ),
                       ],
                     ),
-                    if (shop.description != null && shop.description!.isNotEmpty)
+                    if (shop.description != null &&
+                        shop.description!.isNotEmpty)
                       Text(
                         shop.description!,
                         style: GoogleFonts.cairo(
@@ -1002,7 +1126,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8.r),
@@ -1028,7 +1155,7 @@ class _HomePageState extends State<HomePage> {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             itemCount: products.length,
-            separatorBuilder: (_, __) => SizedBox(width: 12.w),
+            separatorBuilder: (_, _) => SizedBox(width: 12.w),
             itemBuilder: (context, index) =>
                 _buildShopProductCard(products[index], accent),
           ),
@@ -1049,103 +1176,110 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildShopProductCard(ProductModel item, Color accent) {
-    return Container(
-      width: 148.w,
-      decoration: BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.circular(14.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image with heart button overlay
-          SizedBox(
-            height: 110.h,
-            width: double.infinity,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                item.images.isNotEmpty
-                    ? Image.network(
-                        item.images.first,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            _productImagePlaceholder(accent),
-                      )
-                    : _productImagePlaceholder(accent),
-                // Heart
-                Positioned(
-                  top: 6.h,
-                  right: 6.w,
-                  child: _HomeHeartButton(
-                    product: item,
-                    size: 28.w,
-                    iconSize: 14.sp,
-                    bgColor: Colors.white.withValues(alpha: 0.88),
-                  ),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => ProductDetailPage(product: item)),
+        );
+      },
+      child: Container(
+        width: 148.w,
+        decoration: BoxDecoration(
+          color: AppTheme.background,
+          borderRadius: BorderRadius.circular(14.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
-          // Info
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image with heart button overlay
+            SizedBox(
+              height: 110.h,
+              width: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Text(
-                    item.name,
-                    style: GoogleFonts.cairo(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _formatIQD(item.price),
-                          style: GoogleFonts.cairo(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (item.inStock <= 0)
-                        Text(
-                          'Out',
-                          style: GoogleFonts.cairo(
-                            fontSize: 9.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.red,
-                          ),
+                  item.images.isNotEmpty
+                      ? Image.network(
+                          item.images.first,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) =>
+                              _productImagePlaceholder(accent),
                         )
-                      else
-                        _HomeAddToCartButton(product: item, accent: accent),
-                    ],
+                      : _productImagePlaceholder(accent),
+                  // Heart
+                  Positioned(
+                    top: 6.h,
+                    right: 6.w,
+                    child: _HomeHeartButton(
+                      product: item,
+                      size: 28.w,
+                      iconSize: 14.sp,
+                      bgColor: Colors.white.withValues(alpha: 0.88),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            // Info
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      item.name,
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _formatIQD(item.price),
+                            style: GoogleFonts.cairo(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (item.inStock <= 0)
+                          Text(
+                            'Out',
+                            style: GoogleFonts.cairo(
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.red,
+                            ),
+                          )
+                        else
+                          _HomeAddToCartButton(product: item, accent: accent),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1153,7 +1287,11 @@ class _HomePageState extends State<HomePage> {
   Widget _productImagePlaceholder(Color accent) {
     return Container(
       color: accent.withValues(alpha: 0.08),
-      child: Icon(Icons.image_outlined, color: accent.withValues(alpha: 0.4), size: 32.sp),
+      child: Icon(
+        Icons.image_outlined,
+        color: accent.withValues(alpha: 0.4),
+        size: 32.sp,
+      ),
     );
   }
 
@@ -1171,20 +1309,39 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         children: [
           Container(
-            width: 40.w, height: 40.w,
+            width: 40.w,
+            height: 40.w,
             decoration: BoxDecoration(
               color: AppTheme.secondary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10.r),
             ),
-            child: Icon(Icons.autorenew_rounded, size: 22.sp, color: AppTheme.secondary),
+            child: Icon(
+              Icons.autorenew_rounded,
+              size: 22.sp,
+              color: AppTheme.secondary,
+            ),
           ),
           SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.usedMarketTitle, style: GoogleFonts.cairo(fontSize: 16.sp, fontWeight: FontWeight.w700, color: const Color(0xFFE65100))),
-                Text(l10n.usedMarketSub, style: GoogleFonts.cairo(fontSize: 11.sp, fontWeight: FontWeight.w500, color: const Color(0xFFE65100).withValues(alpha: 0.65))),
+                Text(
+                  l10n.usedMarketTitle,
+                  style: GoogleFonts.cairo(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFE65100),
+                  ),
+                ),
+                Text(
+                  l10n.usedMarketSub,
+                  style: GoogleFonts.cairo(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFE65100).withValues(alpha: 0.65),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1225,140 +1382,154 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildListingCard(ProductModel item) {
     final l10n = AppLocalizations.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.circular(14.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          Expanded(
-            flex: 5,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.network(
-                  item.images.isNotEmpty
-                      ? item.images.first
-                      : 'https://placehold.co/400x600/png',
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    color: AppTheme.surface,
-                    child: Icon(
-                      Icons.image,
-                      color: AppTheme.inactive,
-                      size: 32.sp,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8.h,
-                  left: 8.w,
-                  child: _HomeHeartButton(product: item),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => ProductDetailPage(product: item)),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.background,
+          borderRadius: BorderRadius.circular(14.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
-          // Info
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: EdgeInsets.all(10.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            Expanded(
+              flex: 5,
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Text(
-                    item.name,
-                    style: GoogleFonts.cairo(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
+                  Image.network(
+                    item.images.isNotEmpty
+                        ? item.images.first
+                        : 'https://placehold.co/400x600/png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      color: AppTheme.surface,
+                      child: Icon(
+                        Icons.image,
+                        color: AppTheme.inactive,
+                        size: 32.sp,
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        size: 10.sp,
-                        color: AppTheme.textSecondary,
-                      ),
-                      SizedBox(width: 3.w),
-                      Expanded(
-                        child: Text(
-                          l10n.defaultCity,
-                          style: GoogleFonts.cairo(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w400,
-                            color: AppTheme.textSecondary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _formatIQD(item.price),
-                          style: GoogleFonts.cairo(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Builder(
-                        builder: (context) {
-                          final l10n = AppLocalizations.of(context);
-                          final condList = [
-                            l10n.condExcellent,
-                            l10n.condVeryGood,
-                            l10n.condGood,
-                            l10n.condFair,
-                          ];
-                          final cond = condList[item.id.hashCode.abs() % condList.length];
-                          return Container(
-                            padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-                            decoration: BoxDecoration(
-                              color: AppTheme.secondary.withValues(alpha: 0.10),
-                              borderRadius: BorderRadius.circular(4.r),
-                            ),
-                            child: Text(
-                              cond,
-                              style: GoogleFonts.cairo(
-                                fontSize: 9.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.secondary,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    child: _HomeHeartButton(product: item),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            // Info
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: EdgeInsets.all(10.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      item.name,
+                      style: GoogleFonts.cairo(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 10.sp,
+                          color: AppTheme.textSecondary,
+                        ),
+                        SizedBox(width: 3.w),
+                        Expanded(
+                          child: Text(
+                            l10n.defaultCity,
+                            style: GoogleFonts.cairo(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w400,
+                              color: AppTheme.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _formatIQD(item.price),
+                            style: GoogleFonts.cairo(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Builder(
+                          builder: (context) {
+                            final l10n = AppLocalizations.of(context);
+                            final condList = [
+                              l10n.condExcellent,
+                              l10n.condVeryGood,
+                              l10n.condGood,
+                              l10n.condFair,
+                            ];
+                            final cond =
+                                condList[item.id.hashCode.abs() %
+                                    condList.length];
+                            return Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                                vertical: 2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.secondary.withValues(
+                                  alpha: 0.10,
+                                ),
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Text(
+                                cond,
+                                style: GoogleFonts.cairo(
+                                  fontSize: 9.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.secondary,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1424,10 +1595,7 @@ class _HomeAddToCartButton extends StatelessWidget {
   final ProductModel product;
   final Color accent;
 
-  const _HomeAddToCartButton({
-    required this.product,
-    required this.accent,
-  });
+  const _HomeAddToCartButton({required this.product, required this.accent});
 
   @override
   Widget build(BuildContext context) {
@@ -1550,7 +1718,6 @@ class _AppModeInfo {
     required this.textColor,
   });
 }
-
 
 // ── Auction Countdown Timer ───────────────────────────────
 class _AuctionCountdownTimer extends StatefulWidget {

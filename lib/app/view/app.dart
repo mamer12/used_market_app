@@ -5,11 +5,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/di/injection.dart';
 import '../../core/locale/locale_cubit.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/main_shell.dart';
 import '../../features/auth/domain/entities/auth_status.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
-import '../../core/widgets/main_shell.dart';
+import '../../features/cart/data/datasources/cart_remote_data_source.dart';
+import '../../features/cart/presentation/bloc/cart_cubit.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -28,6 +30,13 @@ class App extends StatelessWidget {
           providers: [
             BlocProvider(
               create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
+            ),
+            BlocProvider(
+              create: (_) => CartCubit(
+                getIt.isRegistered<CartRemoteDataSource>()
+                    ? getIt<CartRemoteDataSource>()
+                    : null,
+              ),
             ),
             BlocProvider(create: (_) => LocaleCubit()),
           ],

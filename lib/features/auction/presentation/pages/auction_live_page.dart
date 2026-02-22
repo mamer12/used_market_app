@@ -8,7 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../l10n/generated/app_localizations.dart';
 import '../bloc/auction_cubit.dart';
 
 /// Immersive full-screen auction page.
@@ -40,12 +39,10 @@ class _AuctionLivePageState extends State<AuctionLivePage>
   late final AuctionCubit _cubit;
   // Timer countdown
   Timer? _countdownTimer;
-  int _secondsLeft = 0;
+  int _secondsLeft = 45;
 
   // Animation for new bids
   late final AnimationController _bidBounceCtrl;
-
-  int _fireCount = 12;
 
   @override
   void initState() {
@@ -65,8 +62,6 @@ class _AuctionLivePageState extends State<AuctionLivePage>
       });
     });
   }
-
-  // Bids are now loaded from AuctionCubit. We don't need mock bids in didChangeDependencies.
 
   @override
   void dispose() {
@@ -93,18 +88,15 @@ class _AuctionLivePageState extends State<AuctionLivePage>
 
   void _placeBid(int increment) {
     if (_cubit.state.auction == null) return;
-
     final currentHigh = _cubit.state.bids.isNotEmpty
         ? _cubit.state.bids.last.amount
         : (_cubit.state.auction?.currentPrice ?? 0);
-
     final amount = currentHigh + increment;
 
     _cubit.placeBid(amount);
 
     setState(() {
       _secondsLeft = 45; // Simulated timer reset
-      _fireCount++;
     });
 
     _bidBounceCtrl.forward(from: 0);
@@ -126,12 +118,12 @@ class _AuctionLivePageState extends State<AuctionLivePage>
           }
 
           return Scaffold(
+            backgroundColor: Colors.black,
             body: Stack(
               children: [
                 _buildBackground(),
                 _buildTopBar(),
-                _buildBottomContent(),
-                _buildReactionButtons(),
+                _buildMainContent(),
               ],
             ),
           );
@@ -142,7 +134,11 @@ class _AuctionLivePageState extends State<AuctionLivePage>
 
   // ── Background ──────────────────────────────────────────
   Widget _buildBackground() {
-    return Positioned.fill(
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      height: MediaQuery.of(context).size.height * 0.45,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -151,18 +147,18 @@ class _AuctionLivePageState extends State<AuctionLivePage>
             fit: BoxFit.cover,
             errorBuilder: (_, _, _) => Container(color: Colors.black),
           ),
-          // Top gradient
+          // Gradient Overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.4),
+                  Colors.black.withValues(alpha: 0.7),
                   Colors.transparent,
-                  Colors.black.withValues(alpha: 0.9),
+                  Colors.black,
                 ],
-                stops: const [0.0, 0.3, 1.0],
+                stops: const [0.0, 0.4, 1.0],
               ),
             ),
           ),
@@ -171,545 +167,64 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     );
   }
 
-  // ── Top Bar ─────────────────────────────────────────────
+  // ── Top Navigation ──────────────────────────────────────
   Widget _buildTopBar() {
-    final l10n = AppLocalizations.of(context);
-
     return Positioned(
       top: 0,
       left: 0,
       right: 0,
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              // LIVE badge + viewers + seller
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // LIVE + viewers
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 6.h,
+              // Live Badge
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: Colors.red[600]?.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red[900]!.withValues(alpha: 0.2),
+                      blurRadius: 10,
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8.w,
+                      height: 8.w,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 8.w,
-                          height: 8.w,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppTheme.liveBadge,
-                          ),
-                        ),
-                        SizedBox(width: 6.w),
-                        Text(
-                          'LIVE',
-                          style: GoogleFonts.inter(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        SizedBox(width: 10.w),
-                        Container(
-                          width: 1,
-                          height: 12.h,
-                          color: Colors.white.withValues(alpha: 0.2),
-                        ),
-                        SizedBox(width: 10.w),
-                        Icon(
-                          Icons.visibility,
-                          size: 14.sp,
-                          color: Colors.white.withValues(alpha: 0.8),
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          '453',
-                          style: GoogleFonts.inter(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                    SizedBox(width: 6.w),
+                    Text(
+                      'LIVE',
+                      style: GoogleFonts.inter(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: 1.5,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10.h),
-                  // Seller info
-                  Row(
-                    children: [
-                      Container(
-                        width: 32.w,
-                        height: 32.w,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
-                          ),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Image.network(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuAl9poLKpmWbz4IuZu8tmVuWJ8EumtDyMQTO2Lz2YbnDUsgu2_x8oAPiMujoWP1cTqD-NNivOrSpxW26rG7681cuY--8_jQBCtYwe3rCGqnfbM5WUNzW8oADklvzuGdZ1AL_I0fHTeoc6tVFo9IGAd00gxNFMtdCckzMA93IB__i8pNECtblVSEttWenIDRutWASXKK7TKZsATBdFl5CSxT3NeN44nKssLUtQs0Tk_K7aALuVx3KpIX18JMHh35s2dcT3QKzwHRMBJF',
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              const Icon(Icons.person, color: Colors.white),
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.auctionSellerName,
-                            style: GoogleFonts.cairo(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            '@RoyalBaghdadAuto',
-                            style: GoogleFonts.inter(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white.withValues(alpha: 0.8),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              // Close + Share buttons
-              Column(
-                children: [
-                  _buildCircleButton(Icons.close, () {
-                    Navigator.of(context).pop();
-                  }),
-                  SizedBox(height: 8.h),
-                  _buildCircleButton(Icons.ios_share, () {}),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCircleButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40.w,
-        height: 40.w,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.black.withValues(alpha: 0.4),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        child: ClipOval(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Icon(icon, size: 20.sp, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Bottom Content ──────────────────────────────────────
-  Widget _buildBottomContent() {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.transparent,
-              Colors.black.withValues(alpha: 0.6),
-              Colors.black,
-            ],
-            stops: const [0.0, 0.3, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Bid ticker
-                _buildBidTicker(),
-                SizedBox(height: 12.h),
-
-                // Glassmorphism dock
-                _buildActionDock(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Bid Ticker ──────────────────────────────────────────
-  Widget _buildBidTicker() {
-    return SizedBox(
-      height: 120.h,
-      child: ShaderMask(
-        shaderCallback: (bounds) => const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.transparent, Colors.black],
-          stops: [0.0, 0.5],
-        ).createShader(bounds),
-        blendMode: BlendMode.dstIn,
-        child: ListView.builder(
-          reverse: false,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _cubit.state.bids.length,
-          itemBuilder: (context, index) {
-            final bid = _cubit.state.bids[index];
-            final bidsList = _cubit.state.bids;
-            final isLatest = index == bidsList.length - 1;
-            final opacity = isLatest
-                ? 1.0
-                : (index == bidsList.length - 2 ? 0.7 : 0.4);
-            final scale = isLatest
-                ? 1.0
-                : (index == bidsList.length - 2 ? 0.95 : 0.9);
-
-            // Mock identity matching since we don't have AuthBloc user ID here yet
-            final isYou = bid.bidderId == 'my_user_id';
-            final bidderName =
-                'User ${bid.bidderId.length > 4 ? bid.bidderId.substring(0, 4) : bid.bidderId}';
-
-            return Transform.scale(
-              scale: scale,
-              alignment: AlignmentDirectional.centerStart,
-              child: Opacity(
-                opacity: opacity,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 8.h),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: isLatest ? 32.w : 24.w,
-                        height: isLatest ? 32.w : 24.w,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isYou ? AppTheme.primary : Colors.grey[700],
-                          border: isLatest
-                              ? Border.all(
-                                  color: AppTheme.primary.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  width: 2,
-                                )
-                              : null,
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Icon(
-                          Icons.person,
-                          size: isLatest ? 16.sp : 14.sp,
-                          color: isYou ? Colors.black : Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      // Bid bubble
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.w,
-                          vertical: 8.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isLatest
-                              ? AppTheme.primary.withValues(alpha: 0.2)
-                              : Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(12.r),
-                            topRight: Radius.circular(12.r),
-                            bottomLeft: Radius.circular(12.r),
-                            bottomRight: Radius.circular(2.r),
-                          ),
-                          border: isLatest
-                              ? Border.all(
-                                  color: AppTheme.primary.withValues(
-                                    alpha: 0.4,
-                                  ),
-                                )
-                              : null,
-                        ),
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '$bidderName: ',
-                                style: GoogleFonts.cairo(
-                                  fontSize: isLatest ? 13.sp : 11.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              TextSpan(
-                                text:
-                                    '${_formatNumber(bid.amount)} ${widget.currency}',
-                                style: GoogleFonts.inter(
-                                  fontSize: isLatest ? 14.sp : 12.sp,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppTheme.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  // ── Glassmorphism Dock ──────────────────────────────────
-  Widget _buildActionDock() {
-    final l10n = AppLocalizations.of(context);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28.r),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: EdgeInsets.all(20.w),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.75),
-            borderRadius: BorderRadius.circular(28.r),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-          ),
-          child: Column(
-            children: [
-              // ── Current Price + Timer ────────────────
+              // Back and Share Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.auctionCurrentPrice,
-                          style: GoogleFonts.cairo(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white.withValues(alpha: 0.6),
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        SizedBox(height: 4.h),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: AlignmentDirectional.centerStart,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                _formatNumber(
-                                  (_cubit.state.auction?.currentPrice ?? 0),
-                                ),
-                                style: GoogleFonts.inter(
-                                  fontSize: 34.sp,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.primary,
-                                  letterSpacing: -2,
-                                ),
-                              ),
-                              SizedBox(width: 6.w),
-                              Text(
-                                widget.currency,
-                                style: GoogleFonts.cairo(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  // Timer
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 6.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.05),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 6.w,
-                          height: 6.w,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppTheme.liveBadge,
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          _formattedTime,
-                          style: GoogleFonts.inter(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white.withValues(alpha: 0.9),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildNavButton(Icons.ios_share, () {}),
+                  _buildNavButton(Icons.arrow_forward, () {
+                    Navigator.of(context).pop();
+                  }),
                 ],
-              ),
-              SizedBox(height: 20.h),
-
-              // ── Quick Bid Buttons ────────────────────
-              Row(
-                children: [
-                  _buildQuickBid('+10k', 10000),
-                  SizedBox(width: 10.w),
-                  _buildQuickBid('+25k', 25000),
-                  SizedBox(width: 10.w),
-                  _buildQuickBid('+50k', 50000),
-                ],
-              ),
-              SizedBox(height: 14.h),
-
-              // ── Primary Bid Button ──────────────────
-              GestureDetector(
-                onTap: () => _placeBid(10000),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 14.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.textPrimary,
-                    borderRadius: BorderRadius.circular(14.r),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.1),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.auctionBidNowLabel,
-                              style: GoogleFonts.cairo(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                            Text(
-                              l10n.auctionPlaceYourBid,
-                              style: GoogleFonts.cairo(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 6.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Builder(
-                              builder: (context) {
-                                final currentHigh = _cubit.state.bids.isNotEmpty
-                                    ? _cubit.state.bids.last.amount
-                                    : (_cubit.state.auction?.currentPrice ?? 0);
-                                final nextHigh = currentHigh + 10000;
-                                return Text(
-                                  _formatNumber(nextHigh),
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppTheme.primary,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Icon(
-                            Icons.arrow_forward,
-                            size: 20.sp,
-                            color: AppTheme.primary,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),
@@ -718,124 +233,476 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     );
   }
 
-  Widget _buildQuickBid(String label, int increment) {
-    final l10n = AppLocalizations.of(context);
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _placeBid(increment),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 10.h),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-          ),
-          child: Column(
-            children: [
-              Text(
-                l10n.auctionIncrease,
-                style: GoogleFonts.cairo(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withValues(alpha: 0.6),
-                ),
-              ),
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Reaction Buttons ────────────────────────────────────
-  Widget _buildReactionButtons() {
-    return Positioned(
-      right: 16.w,
-      bottom: 340.h,
-      child: Column(
-        children: [
-          _buildReactionFab(Icons.favorite_border, Colors.white, null, () {}),
-          SizedBox(height: 14.h),
-          _buildReactionFab(
-            Icons.chat_bubble_outline,
-            Colors.white,
-            null,
-            () {},
-          ),
-          SizedBox(height: 14.h),
-          _buildReactionFab(
-            Icons.local_fire_department,
-            AppTheme.primary,
-            _fireCount,
-            () {
-              setState(() => _fireCount++);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReactionFab(
-    IconData icon,
-    Color color,
-    int? badge,
-    VoidCallback onTap,
-  ) {
+  Widget _buildNavButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          ClipOval(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                width: 48.w,
-                height: 48.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withValues(alpha: 0.75),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.1),
+      child: ClipOval(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            width: 44.w,
+            height: 44.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black.withValues(alpha: 0.2),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            ),
+            child: Icon(icon, color: Colors.white, size: 22.sp),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Main Content ────────────────────────────────────────
+  Widget _buildMainContent() {
+    return Positioned(
+      top: MediaQuery.of(context).size.height * 0.45 - 60.h,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        child: Column(
+          children: [
+            _buildPriceTimer(),
+            SizedBox(height: 16.h),
+            _buildTrustIndicators(),
+            SizedBox(height: 16.h),
+            Expanded(child: _buildLiveFeed()),
+            _buildBottomControls(),
+            SizedBox(height: MediaQuery.of(context).padding.bottom + 16.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Price and Timer ─────────────────────────────────────
+  Widget _buildPriceTimer() {
+    final currentHigh = _cubit.state.bids.isNotEmpty
+        ? _cubit.state.bids.last.amount
+        : (_cubit.state.auction?.currentPrice ?? 0);
+
+    return Column(
+      children: [
+        // Timer
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20.r),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.timer_outlined,
+                    color: Colors.red[500],
+                    size: 20.sp,
                   ),
-                ),
-                child: Icon(icon, size: 24.sp, color: color),
+                  SizedBox(width: 8.w),
+                  Text(
+                    _formattedTime,
+                    style: GoogleFonts.inter(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.red[500],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          if (badge != null)
-            Positioned(
-              top: -4,
-              right: -4,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
-                decoration: BoxDecoration(
-                  color: AppTheme.liveBadge,
-                  borderRadius: BorderRadius.circular(10.r),
-                  border: Border.all(color: Colors.black, width: 1.5),
-                ),
-                child: Text(
-                  '$badge',
+        ),
+        SizedBox(height: 12.h),
+        // Price
+        Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  _formatNumber(currentHigh),
                   style: GoogleFonts.inter(
-                    fontSize: 9.sp,
+                    fontSize: 40.sp,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: -1,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  widget.currency,
+                  style: GoogleFonts.cairo(
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
+              ],
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              'السعر الحالي',
+              style: GoogleFonts.cairo(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.6),
               ),
             ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ── Trust Indicators ────────────────────────────────────
+  Widget _buildTrustIndicators() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildTrustChip(Icons.verified_user, 'بائع موثوق'),
+        SizedBox(width: 12.w),
+        _buildTrustChip(Icons.security, 'دفع آمن عبر زين كاش'),
+      ],
+    );
+  }
+
+  Widget _buildTrustChip(IconData icon, String text) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: AppTheme.primary, size: 16.sp),
+          SizedBox(width: 6.w),
+          Text(
+            text,
+            style: GoogleFonts.cairo(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  // ── Live Feed ───────────────────────────────────────────
+  Widget _buildLiveFeed() {
+    return ShaderMask(
+      shaderCallback: (bounds) => const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.black, // Top fade
+          Colors.transparent, // Middle transparent
+          Colors.black, // Bottom fade
+        ],
+        stops: [0.0, 0.2, 1.0],
+      ).createShader(bounds),
+      blendMode: BlendMode.dstOut,
+      child: ListView.builder(
+        reverse: true,
+        physics: const ClampingScrollPhysics(),
+        itemCount: _cubit.state.bids.length > 5 ? 5 : _cubit.state.bids.length,
+        itemBuilder: (context, idx) {
+          // idx is 0 for newest bid
+          final realIdx = _cubit.state.bids.length - 1 - idx;
+          final bid = _cubit.state.bids[realIdx];
+          final isLatest = idx == 0;
+          final scale = isLatest ? 1.0 : (idx == 1 ? 0.95 : 0.9);
+          final opacity = isLatest ? 1.0 : (idx == 1 ? 0.7 : 0.4);
+
+          final bidderName =
+              'User ...${bid.bidderId.length >= 4 ? bid.bidderId.substring(bid.bidderId.length - 4) : bid.bidderId}';
+
+          return Transform.scale(
+            scale: scale,
+            alignment: AlignmentDirectional.bottomCenter,
+            child: Opacity(
+              opacity: opacity,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: Container(
+                  padding: EdgeInsets.all(8.r),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(
+                      alpha: isLatest ? 0.1 : 0.05,
+                    ),
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.05),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 38.w,
+                        height: 38.w,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey[800],
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 20.sp,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              bidderName,
+                              style: GoogleFonts.cairo(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              isLatest ? 'منذ لحظات' : 'منذ $idx دقيقة',
+                              style: GoogleFonts.cairo(
+                                fontSize: 10.sp,
+                                color: Colors.white.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '+ ${_formatNumber(bid.amount)}',
+                        style: GoogleFonts.inter(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w800,
+                          color: isLatest
+                              ? AppTheme.primary
+                              : AppTheme.primary.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ── Bottom Controls ─────────────────────────────────────
+  Widget _buildBottomControls() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Quick Bid
+        Row(
+          children: [
+            _buildQuickBidBtn('+ 5k', 5000),
+            SizedBox(width: 8.w),
+            _buildQuickBidBtn('+ 10k', 10000),
+            SizedBox(width: 8.w),
+            _buildQuickBidBtn('+ 25k', 25000),
+          ],
+        ),
+        SizedBox(height: 16.h),
+        // 3D Bid block
+        _AnimatedBidButton(
+          onBid: () => _placeBid(10000), // Default bid bump
+        ),
+        SizedBox(height: 12.h),
+        RichText(
+          text: TextSpan(
+            style: GoogleFonts.cairo(
+              fontSize: 11.sp,
+              color: Colors.white.withValues(alpha: 0.5),
+            ),
+            children: [
+              const TextSpan(text: 'بمزايدتك، أنت توافق على '),
+              TextSpan(
+                text: 'الشروط والأحكام',
+                style: GoogleFonts.cairo(decoration: TextDecoration.underline),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickBidBtn(String label, int amount) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _placeBid(amount),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 14.h),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(30.r),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── 3D Bid Button ───────────────────────────────────
+class _AnimatedBidButton extends StatefulWidget {
+  final VoidCallback onBid;
+
+  const _AnimatedBidButton({required this.onBid});
+
+  @override
+  State<_AnimatedBidButton> createState() => _AnimatedBidButtonState();
+}
+
+class _AnimatedBidButtonState extends State<_AnimatedBidButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animCtrl;
+  late Animation<double> _scaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _animCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) => _animCtrl.forward();
+
+  void _onTapUp(TapUpDetails details) {
+    _animCtrl.reverse();
+    widget.onBid();
+  }
+
+  void _onTapCancel() => _animCtrl.reverse();
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _scaleAnim,
+      builder: (context, child) {
+        // Adjust the shadow offset relative to scale to create a "pressing down" effect
+        final isPressed = _animCtrl.value > 0;
+        final yOffset = isPressed ? 2.0 : 6.0;
+        final innerAlpha = isPressed ? 0.0 : 0.3;
+
+        return Transform.scale(
+          scale: _scaleAnim.value,
+          child: GestureDetector(
+            onTapDown: _onTapDown,
+            onTapUp: _onTapUp,
+            onTapCancel: _onTapCancel,
+            child: Container(
+              height: 56.h,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppTheme.primary,
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primary.withValues(alpha: 0.5),
+                    offset: Offset(0, yOffset),
+                    blurRadius: isPressed ? 2 : 10,
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    offset: const Offset(0, -1),
+                    blurRadius: 2,
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Inner depth/highlight
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16.r),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white.withValues(alpha: innerAlpha),
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.1),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.gavel_rounded,
+                          color: Colors.black,
+                          size: 24.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'مزايدة الآن',
+                          style: GoogleFonts.cairo(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

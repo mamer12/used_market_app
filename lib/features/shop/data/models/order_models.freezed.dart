@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ShippingAddress {
 
- String get city; String get street;
+ String get city; String get district; String get street; String get building; String get phone;
 /// Create a copy of ShippingAddress
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ShippingAddressCopyWith<ShippingAddress> get copyWith => _$ShippingAddressCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ShippingAddress&&(identical(other.city, city) || other.city == city)&&(identical(other.street, street) || other.street == street));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ShippingAddress&&(identical(other.city, city) || other.city == city)&&(identical(other.district, district) || other.district == district)&&(identical(other.street, street) || other.street == street)&&(identical(other.building, building) || other.building == building)&&(identical(other.phone, phone) || other.phone == phone));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,city,street);
+int get hashCode => Object.hash(runtimeType,city,district,street,building,phone);
 
 @override
 String toString() {
-  return 'ShippingAddress(city: $city, street: $street)';
+  return 'ShippingAddress(city: $city, district: $district, street: $street, building: $building, phone: $phone)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ShippingAddressCopyWith<$Res>  {
   factory $ShippingAddressCopyWith(ShippingAddress value, $Res Function(ShippingAddress) _then) = _$ShippingAddressCopyWithImpl;
 @useResult
 $Res call({
- String city, String street
+ String city, String district, String street, String building, String phone
 });
 
 
@@ -65,10 +65,13 @@ class _$ShippingAddressCopyWithImpl<$Res>
 
 /// Create a copy of ShippingAddress
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? city = null,Object? street = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? city = null,Object? district = null,Object? street = null,Object? building = null,Object? phone = null,}) {
   return _then(_self.copyWith(
 city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,district: null == district ? _self.district : district // ignore: cast_nullable_to_non_nullable
 as String,street: null == street ? _self.street : street // ignore: cast_nullable_to_non_nullable
+as String,building: null == building ? _self.building : building // ignore: cast_nullable_to_non_nullable
+as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -154,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String city,  String street)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String city,  String district,  String street,  String building,  String phone)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ShippingAddress() when $default != null:
-return $default(_that.city,_that.street);case _:
+return $default(_that.city,_that.district,_that.street,_that.building,_that.phone);case _:
   return orElse();
 
 }
@@ -175,10 +178,10 @@ return $default(_that.city,_that.street);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String city,  String street)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String city,  String district,  String street,  String building,  String phone)  $default,) {final _that = this;
 switch (_that) {
 case _ShippingAddress():
-return $default(_that.city,_that.street);case _:
+return $default(_that.city,_that.district,_that.street,_that.building,_that.phone);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +198,10 @@ return $default(_that.city,_that.street);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String city,  String street)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String city,  String district,  String street,  String building,  String phone)?  $default,) {final _that = this;
 switch (_that) {
 case _ShippingAddress() when $default != null:
-return $default(_that.city,_that.street);case _:
+return $default(_that.city,_that.district,_that.street,_that.building,_that.phone);case _:
   return null;
 
 }
@@ -210,11 +213,14 @@ return $default(_that.city,_that.street);case _:
 @JsonSerializable()
 
 class _ShippingAddress implements ShippingAddress {
-  const _ShippingAddress({required this.city, required this.street});
+  const _ShippingAddress({required this.city, required this.district, required this.street, required this.building, required this.phone});
   factory _ShippingAddress.fromJson(Map<String, dynamic> json) => _$ShippingAddressFromJson(json);
 
 @override final  String city;
+@override final  String district;
 @override final  String street;
+@override final  String building;
+@override final  String phone;
 
 /// Create a copy of ShippingAddress
 /// with the given fields replaced by the non-null parameter values.
@@ -229,16 +235,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ShippingAddress&&(identical(other.city, city) || other.city == city)&&(identical(other.street, street) || other.street == street));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ShippingAddress&&(identical(other.city, city) || other.city == city)&&(identical(other.district, district) || other.district == district)&&(identical(other.street, street) || other.street == street)&&(identical(other.building, building) || other.building == building)&&(identical(other.phone, phone) || other.phone == phone));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,city,street);
+int get hashCode => Object.hash(runtimeType,city,district,street,building,phone);
 
 @override
 String toString() {
-  return 'ShippingAddress(city: $city, street: $street)';
+  return 'ShippingAddress(city: $city, district: $district, street: $street, building: $building, phone: $phone)';
 }
 
 
@@ -249,7 +255,7 @@ abstract mixin class _$ShippingAddressCopyWith<$Res> implements $ShippingAddress
   factory _$ShippingAddressCopyWith(_ShippingAddress value, $Res Function(_ShippingAddress) _then) = __$ShippingAddressCopyWithImpl;
 @override @useResult
 $Res call({
- String city, String street
+ String city, String district, String street, String building, String phone
 });
 
 
@@ -266,10 +272,13 @@ class __$ShippingAddressCopyWithImpl<$Res>
 
 /// Create a copy of ShippingAddress
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? city = null,Object? street = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? city = null,Object? district = null,Object? street = null,Object? building = null,Object? phone = null,}) {
   return _then(_ShippingAddress(
 city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,district: null == district ? _self.district : district // ignore: cast_nullable_to_non_nullable
 as String,street: null == street ? _self.street : street // ignore: cast_nullable_to_non_nullable
+as String,building: null == building ? _self.building : building // ignore: cast_nullable_to_non_nullable
+as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

@@ -6,15 +6,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../features/auction/presentation/pages/create_auction_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
-import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/presentation/bloc/cart_cubit.dart';
-import '../di/injection.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
-import '../theme/app_theme.dart';
+import '../../features/shop/presentation/pages/add_product_page.dart';
+import '../../features/shop/presentation/pages/create_shop_page.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../theme/app_theme.dart';
 
 /// Main scaffold wrapping all root-level pages behind an "Apple Glass"
 /// floating bottom navigation bar.
@@ -30,14 +31,13 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   int _currentIndex = 0;
-  late final CartCubit _cartCubit;
 
   // Page order in IndexedStack (4 real pages — center FAB is an action)
   static const _pages = [
-    HomePage(),          // 0 → nav pos 0 (Home)
-    MessagesPage(),      // 1 → nav pos 1 (Messages)
-    CartPage(),          // 2 → nav pos 3 (Activity/deals)
-    ProfilePage(),       // 3 → nav pos 4 (Profile)
+    HomePage(), // 0 → nav pos 0 (Home)
+    MessagesPage(), // 1 → nav pos 1 (Messages)
+    CartPage(), // 2 → nav pos 3 (Activity/deals)
+    ProfilePage(), // 3 → nav pos 4 (Profile)
   ];
 
   /// Converts nav bar position (0-4) to page index (0-3).
@@ -54,23 +54,18 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _cartCubit = CartCubit(
-      getIt.isRegistered<CartRemoteDataSource>()
-          ? getIt<CartRemoteDataSource>()
-          : null,
-    );
     _fabAnim = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
-    _fabScale = Tween<double>(begin: 1.0, end: 0.86).animate(
-      CurvedAnimation(parent: _fabAnim, curve: Curves.easeOut),
-    );
+    _fabScale = Tween<double>(
+      begin: 1.0,
+      end: 0.86,
+    ).animate(CurvedAnimation(parent: _fabAnim, curve: Curves.easeOut));
   }
 
   @override
   void dispose() {
-    _cartCubit.close();
     _fabAnim.dispose();
     super.dispose();
   }
@@ -99,18 +94,12 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<CartCubit>.value(
-      value: _cartCubit,
-      child: BlocBuilder<CartCubit, CartState>(
-        builder: (ctx, cartState) => Scaffold(
-          extendBody: true,
-          backgroundColor: AppTheme.surface,
-          body: IndexedStack(
-            index: _currentIndex,
-            children: _pages,
-          ),
-          bottomNavigationBar: _buildGlassNavBar(ctx, cartState),
-        ),
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (ctx, cartState) => Scaffold(
+        extendBody: true,
+        backgroundColor: AppTheme.surface,
+        body: IndexedStack(index: _currentIndex, children: _pages),
+        bottomNavigationBar: _buildGlassNavBar(ctx, cartState),
       ),
     );
   }
@@ -195,10 +184,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
             ),
 
             // ── Center FAB ───────────────────────────────
-            Positioned(
-              top: -20,
-              child: _buildCenterFab(),
-            ),
+            Positioned(top: -20, child: _buildCenterFab()),
           ],
         ),
       ),
@@ -401,23 +387,38 @@ class _PostActionSheet extends StatelessWidget {
             title: l10n.postAuction,
             subtitle: l10n.postAuctionSub,
             accentColor: AppTheme.liveBadge,
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CreateAuctionPage()),
+              );
+            },
           ),
           SizedBox(height: 10.h),
           _PostOption(
-            icon: Icons.sell_outlined,
-            title: l10n.postSell,
-            subtitle: l10n.postSellSub,
+            icon: Icons.storefront_outlined,
+            title: 'Create a Shop',
+            subtitle: 'Start your own e-commerce business',
             accentColor: AppTheme.primary,
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const CreateShopPage()));
+            },
           ),
           SizedBox(height: 10.h),
           _PostOption(
-            icon: Icons.build_outlined,
-            title: l10n.postService,
-            subtitle: l10n.postServiceSub,
+            icon: Icons.add_shopping_cart_outlined,
+            title: 'Add Shop Product',
+            subtitle: 'List a new item in your existing shop',
             accentColor: const Color(0xFF00BCD4),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const AddProductPage()));
+            },
           ),
           SizedBox(height: 10.h),
           _PostOption(

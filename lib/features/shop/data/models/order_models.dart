@@ -20,7 +20,10 @@ enum OrderStatus {
 abstract class ShippingAddress with _$ShippingAddress {
   const factory ShippingAddress({
     required String city,
+    required String district,
     required String street,
+    required String building,
+    required String phone,
   }) = _ShippingAddress;
 
   factory ShippingAddress.fromJson(Map<String, dynamic> json) =>

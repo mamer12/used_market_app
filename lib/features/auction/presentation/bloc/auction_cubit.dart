@@ -68,10 +68,13 @@ class AuctionCubit extends Cubit<AuctionState> {
       await _repository.connectToAuction(auctionId);
 
       // 3. Listen to live events
-      _bidSubscription = _repository.liveBidStream.listen((newBid) {
+      _bidSubscription = _repository.liveBidStream.listen((event) {
         // Insert at end (or beginning, depending on UI sorting)
-        final updatedBids = List<BidModel>.from(state.bids)..add(newBid);
-        emit(state.copyWith(bids: updatedBids));
+        final updatedBids = List<BidModel>.from(state.bids)..add(event.bid);
+        final updatedAuction = state.auction?.copyWith(
+          currentPrice: event.currentPrice,
+        );
+        emit(state.copyWith(bids: updatedBids, auction: updatedAuction));
       });
 
       _errorSubscription = _repository.auctionErrorStream.listen((errorMsg) {
@@ -112,21 +115,20 @@ class AuctionCubit extends Cubit<AuctionState> {
     _repository
         .placeBid(state.auction!.id!, PlaceBidRequest(amount: amount))
         .then((confirmedBid) {
-      // Replace optimistic entry with confirmed one
-      final updated = state.bids
-          .where((b) => b.id != optimisticBid.id)
-          .toList()
-        ..add(confirmedBid);
-      emit(state.copyWith(bids: updated));
-    }).catchError((Object e) {
-      // Roll back optimistic bid and surface the error
-      final rolled = state.bids.where((b) => b.id != optimisticBid.id).toList();
-      LogService().error('Failed to place bid', e);
-      emit(state.copyWith(
-        bids: rolled,
-        error: e.toString(),
-      ));
-    });
+          // Replace optimistic entry with confirmed one
+          final updated =
+              state.bids.where((b) => b.id != optimisticBid.id).toList()
+                ..add(confirmedBid);
+          emit(state.copyWith(bids: updated));
+        })
+        .catchError((Object e) {
+          // Roll back optimistic bid and surface the error
+          final rolled = state.bids
+              .where((b) => b.id != optimisticBid.id)
+              .toList();
+          LogService().error('Failed to place bid', e);
+          emit(state.copyWith(bids: rolled, error: e.toString()));
+        });
 
     // WS — real-time propagation to other viewers
     _repository.placeRealTimeBid(amount.toDouble());

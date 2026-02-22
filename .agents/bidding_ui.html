@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lugta - Live Bidding</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Tajawal:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0bda62",
+              "primary-dark": "#09af4e",
+              "background-light": "#f5f8f7",
+              "background-dark": "#102218",
+              "surface-dark": "#1a3324",
+            },
+            fontFamily: {
+              "display": ["Plus Jakarta Sans", "sans-serif"],
+              "arabic": ["Tajawal", "sans-serif"],
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+            keyframes: {
+                pulseRed: {
+                    '0%, 100%': { color: '#ef4444', textShadow: '0 0 10px rgba(239, 68, 68, 0.5)' },
+                    '50%': { color: '#f87171', textShadow: '0 0 20px rgba(239, 68, 68, 0.8)' },
+                }
+            },
+            animation: {
+                'pulse-red': 'pulseRed 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        /* Custom scrollbar hiding */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-arabic min-h-screen overflow-x-hidden selection:bg-primary selection:text-black">
+<div class="relative flex flex-col w-full min-h-screen max-w-md mx-auto shadow-2xl overflow-hidden bg-background-light dark:bg-background-dark">
+<!-- Header & Hero Image Section -->
+<div class="relative w-full h-[45vh] shrink-0">
+<!-- Background Image -->
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="Luxury white SUV parked in a modern setting" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC2P5Z1hcMScRXB4Y3V6ryb_QWLVisb1diamaWjp6gqN9qMWO8bLcNH2ObVtJ1VIV7-X7IP2fKqDvO8Xfnxd6ep-0xkShf_C-GFBfJ6rjXueCgL05MwK5Mg1VlHiQhqn3xydEFJzfVd53Bss1h_zgautsxKQ3FhajoXdSoAzsVwWLtzzHARf6QcQ2Shv5m901WjD5UsWK_lMMfm9zHTS65prUl-lXKvXMlH-3f_xUgdcZuhPazCsVQXdqleJT3hrG7rsp8aIJJFtZs');">
+</div>
+<!-- Gradient Overlay (Scrim) -->
+<div class="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-background-dark"></div>
+<!-- Top Navigation -->
+<div class="absolute top-0 left-0 right-0 p-4 pt-6 flex justify-between items-center z-20">
+<!-- Share Button (Left due to RTL) -->
+<button class="flex items-center justify-center w-12 h-12 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/10 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">share</span>
+</button>
+<!-- Back Button (Right due to RTL) -->
+<button class="flex items-center justify-center w-12 h-12 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/10 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<!-- Live Badge -->
+<div class="absolute top-6 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-red-600/90 backdrop-blur-sm flex items-center gap-1.5 shadow-lg shadow-red-900/20 z-20">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+</span>
+<span class="text-white text-xs font-bold tracking-wide uppercase font-display">LIVE</span>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="relative z-10 -mt-20 flex flex-col grow px-5 pb-6 gap-5">
+<!-- Price & Timer Card -->
+<div class="flex flex-col items-center gap-2">
+<!-- Countdown -->
+<div class="flex items-center gap-2 bg-surface-dark border border-white/5 px-4 py-2 rounded-full shadow-lg backdrop-blur-xl">
+<span class="material-symbols-outlined text-red-500 animate-pulse-red" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span class="font-display text-2xl font-bold text-red-500 animate-pulse-red tabular-nums">00:45</span>
+</div>
+<!-- Price -->
+<div class="text-center mt-2">
+<h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-sm leading-tight">
+<span class="font-display">1.5</span> مليون دينار
+                    </h1>
+<p class="text-slate-400 text-sm mt-1 font-medium">السعر الحالي</p>
+</div>
+</div>
+<!-- Trust Indicators -->
+<div class="flex flex-wrap items-center justify-center gap-3">
+<div class="flex items-center gap-2 bg-surface-dark/80 px-3 py-1.5 rounded-lg border border-primary/20">
+<span class="material-symbols-outlined text-primary text-[20px]">verified_user</span>
+<span class="text-xs font-medium text-slate-200">بائع موثوق</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-dark/80 px-3 py-1.5 rounded-lg border border-primary/20">
+<span class="material-symbols-outlined text-primary text-[20px]">security</span>
+<span class="text-xs font-medium text-slate-200">دفع آمن عبر زين كاش</span>
+</div>
+</div>
+<!-- Live Feed (Social Proof) -->
+<div class="relative w-full h-32 overflow-hidden mask-gradient-y">
+<!-- Gradient Mask for fade out effect top/bottom -->
+<div class="absolute inset-0 pointer-events-none z-10 bg-gradient-to-b from-background-dark via-transparent to-background-dark"></div>
+<div class="flex flex-col gap-3 absolute bottom-0 w-full pb-2 transition-all duration-500">
+<!-- Bid Item 3 (Newest) -->
+<div class="flex items-center justify-between p-2 rounded-xl bg-surface-dark/60 border border-white/5 backdrop-blur-sm animate-[fadeInUp_0.3s_ease-out]">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-cover bg-center border border-white/10" data-alt="User avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBlAubDS3AZ6mkv00kBDfB7zAvyqwKH8w_CfxsN2oAHrmnEh4BUIDmNACJAel1oXKtbfgFcrmkaeVWsMl7qfDCvop9U3wjpFWqsDzwOcyxjcUPBdidTGOBFtC5Ebwtdccw0wqGvVlZbxFwQmxsAiqNz2Ha4A7lrQ_xEpRGgy6d-61QGm4Zs_o7c49-WgSu6F1v_Mu-N2wVqiN9yWitfo7vzWopzKy7OoTHzbpmye-lDGBvG3Pm2eUMDA3kVDldzxZ59N5JfVWWhQSQ');"></div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-white">أحمد زايد</span>
+<span class="text-[10px] text-slate-400">منذ لحظات</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary font-bold font-display text-sm">
+<span>+</span>
+<span>25,000</span>
+</div>
+</div>
+<!-- Bid Item 2 -->
+<div class="flex items-center justify-between p-2 rounded-xl bg-surface-dark/40 border border-white/5 opacity-70 scale-95 origin-bottom">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-cover bg-center border border-white/10" data-alt="User avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDa6Iv3PludKsLnd2SQWU7sfP47Mv7fDJLComoLcAxHh2EiKseR49BNXR0oe-yFLSyfSArn7QEbQgwvSWr8f-7Z8D6RiEydTeKUCqmyPq8-VcEro8zTuM8Gvmit7Il9Ffpvlqk7mMeqOPFkiTxMBZo4jF-gIqRCKxzDTuwtsbG-c5Tdpcg8zpe4A9YCUWXeXhbfF0D_HhZWhETWELWTZjcKccE14imLNSeJca6se1COTXjavyRnTZuQDlNPMvxJiYsncfn7sKKPHN4');"></div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-white">سارة محمد</span>
+<span class="text-[10px] text-slate-400">منذ 5 ثواني</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary/80 font-bold font-display text-sm">
+<span>+</span>
+<span>10,000</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto flex flex-col gap-4">
+<!-- Quick Bid Chips -->
+<div class="flex justify-center gap-3 w-full">
+<button class="flex-1 py-3 px-2 rounded-full bg-surface-dark border border-white/10 hover:border-primary/50 hover:bg-surface-dark/80 active:bg-primary active:text-black active:border-primary transition-all group">
+<span class="block text-center text-sm font-bold text-white group-active:text-black font-display">+ 5k</span>
+</button>
+<button class="flex-1 py-3 px-2 rounded-full bg-surface-dark border border-white/10 hover:border-primary/50 hover:bg-surface-dark/80 active:bg-primary active:text-black active:border-primary transition-all group">
+<span class="block text-center text-sm font-bold text-white group-active:text-black font-display">+ 10k</span>
+</button>
+<button class="flex-1 py-3 px-2 rounded-full bg-surface-dark border border-white/10 hover:border-primary/50 hover:bg-surface-dark/80 active:bg-primary active:text-black active:border-primary transition-all group">
+<span class="block text-center text-sm font-bold text-white group-active:text-black font-display">+ 25k</span>
+</button>
+</div>
+<!-- Swipe to Bid Slider -->
+<div class="relative w-full h-16 bg-surface-dark rounded-full overflow-hidden border border-primary/30 shadow-[0_0_20px_rgba(11,218,98,0.15)] group cursor-pointer select-none">
+<!-- Background Text -->
+<div class="absolute inset-0 flex items-center justify-center z-0">
+<div class="flex items-center gap-2 opacity-50 animate-pulse">
+<span class="material-symbols-outlined text-white text-lg rotate-180">chevron_right</span>
+<span class="material-symbols-outlined text-white text-lg rotate-180 -mr-2">chevron_right</span>
+<span class="text-white font-bold text-lg mr-2">اسحب للمزايدة</span>
+</div>
+</div>
+<!-- Progress Bar (Background Fill) -->
+<div class="absolute top-0 right-0 bottom-0 w-0 bg-primary/20 transition-all duration-100 ease-linear" id="slider-fill"></div>
+<!-- Draggable Handle -->
+<div class="absolute top-1 right-1 bottom-1 w-20 bg-primary rounded-full shadow-lg shadow-primary/40 flex items-center justify-center z-10 transform translate-x-0 transition-transform active:scale-95">
+<span class="material-symbols-outlined text-black text-3xl font-bold">gavel</span>
+</div>
+</div>
+<p class="text-center text-xs text-slate-500 mt-1">
+                    بمزايدتك، أنت توافق على <a class="underline hover:text-primary transition-colors" href="#">الشروط والأحكام</a>
+</p>
+</div>
+</div>
+</div>
+</body></html>

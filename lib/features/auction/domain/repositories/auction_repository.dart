@@ -17,6 +17,6 @@ abstract class AuctionRepository {
   Future<void> connectToAuction(String auctionId);
   void disconnectFromAuction();
   void placeRealTimeBid(double amount);
-  Stream<BidModel> get liveBidStream;
+  Stream<BidPlacedEvent> get liveBidStream;
   Stream<String> get auctionErrorStream;
 }

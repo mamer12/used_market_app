@@ -6,9 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/locale/locale_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/auth_guard.dart';
+import '../../../auction/presentation/pages/active_bids_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../shop/presentation/pages/order_history_page.dart';
 
 /// Me tab — user profile from local auth state + /users/me endpoint.
 class ProfilePage extends StatelessWidget {
@@ -43,9 +45,13 @@ class ProfilePage extends StatelessWidget {
         SliverToBoxAdapter(child: _buildHeader()),
         SliverToBoxAdapter(child: _buildAvatar(initials, displayName, phone)),
         SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-        SliverToBoxAdapter(child: _buildSection(context, 'Account', _accountItems(context))),
+        SliverToBoxAdapter(
+          child: _buildSection(context, 'Account', _accountItems(context)),
+        ),
         SliverToBoxAdapter(child: SizedBox(height: 12.h)),
-        SliverToBoxAdapter(child: _buildSection(context, 'Support', _supportItems(context))),
+        SliverToBoxAdapter(
+          child: _buildSection(context, 'Support', _supportItems(context)),
+        ),
         SliverToBoxAdapter(child: SizedBox(height: 12.h)),
         SliverToBoxAdapter(child: _buildLogoutButton(context)),
         SliverToBoxAdapter(child: SizedBox(height: 100.h)),
@@ -146,7 +152,10 @@ class ProfilePage extends StatelessWidget {
                     ),
                   SizedBox(height: 6.h),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 2.h,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF4CAF50).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(4.r),
@@ -169,7 +178,11 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, List<_MenuItem> items) {
+  Widget _buildSection(
+    BuildContext context,
+    String title,
+    List<_MenuItem> items,
+  ) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 0),
       child: Column(
@@ -239,7 +252,11 @@ class ProfilePage extends StatelessWidget {
                 color: item.iconBg ?? AppTheme.surface,
                 borderRadius: BorderRadius.circular(10.r),
               ),
-              child: Icon(item.icon, size: 18.sp, color: item.iconColor ?? AppTheme.textSecondary),
+              child: Icon(
+                item.icon,
+                size: 18.sp,
+                color: item.iconColor ?? AppTheme.textSecondary,
+              ),
             ),
             SizedBox(width: 12.w),
             Expanded(
@@ -254,7 +271,11 @@ class ProfilePage extends StatelessWidget {
             ),
             if (item.trailing != null) item.trailing!,
             if (item.onTap != null && item.trailing == null)
-              Icon(Icons.arrow_forward_ios, size: 14.sp, color: AppTheme.inactive),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 14.sp,
+                color: AppTheme.inactive,
+              ),
           ],
         ),
       ),
@@ -273,9 +294,7 @@ class ProfilePage extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppTheme.error.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(
-              color: AppTheme.error.withValues(alpha: 0.2),
-            ),
+            border: Border.all(color: AppTheme.error.withValues(alpha: 0.2)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -306,15 +325,24 @@ class ProfilePage extends StatelessWidget {
         label: 'Edit Profile',
         onTap: (_) {},
       ),
-      _MenuItem(
-        icon: Icons.store_outlined,
-        label: 'My Shop',
-        onTap: (_) {},
-      ),
+      _MenuItem(icon: Icons.store_outlined, label: 'My Shop', onTap: (_) {}),
       _MenuItem(
         icon: Icons.receipt_long_outlined,
         label: 'Order History',
-        onTap: (_) {},
+        onTap: (_) {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const OrderHistoryPage()));
+        },
+      ),
+      _MenuItem(
+        icon: Icons.gavel_outlined,
+        label: 'Active Bids',
+        onTap: (_) {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const ActiveBidsPage()));
+        },
       ),
       _MenuItem(
         icon: Icons.favorite_outline,
@@ -346,11 +374,7 @@ class ProfilePage extends StatelessWidget {
 
   List<_MenuItem> _supportItems(BuildContext context) {
     return [
-      _MenuItem(
-        icon: Icons.help_outline,
-        label: 'Help Center',
-        onTap: (_) {},
-      ),
+      _MenuItem(icon: Icons.help_outline, label: 'Help Center', onTap: (_) {}),
       _MenuItem(
         icon: Icons.privacy_tip_outlined,
         label: 'Privacy Policy',
@@ -362,10 +386,7 @@ class ProfilePage extends StatelessWidget {
         onTap: null,
         trailing: Text(
           'v1.0.0',
-          style: GoogleFonts.cairo(
-            fontSize: 12.sp,
-            color: AppTheme.inactive,
-          ),
+          style: GoogleFonts.cairo(fontSize: 12.sp, color: AppTheme.inactive),
         ),
       ),
     ];

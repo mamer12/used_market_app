@@ -9,11 +9,20 @@ part of 'order_models.dart';
 _ShippingAddress _$ShippingAddressFromJson(Map<String, dynamic> json) =>
     _ShippingAddress(
       city: json['city'] as String,
+      district: json['district'] as String,
       street: json['street'] as String,
+      building: json['building'] as String,
+      phone: json['phone'] as String,
     );
 
 Map<String, dynamic> _$ShippingAddressToJson(_ShippingAddress instance) =>
-    <String, dynamic>{'city': instance.city, 'street': instance.street};
+    <String, dynamic>{
+      'city': instance.city,
+      'district': instance.district,
+      'street': instance.street,
+      'building': instance.building,
+      'phone': instance.phone,
+    };
 
 _OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => _OrderModel(
   id: json['id'] as String,
