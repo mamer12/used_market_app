@@ -44,6 +44,9 @@ abstract class UserModel with _$UserModel {
     @JsonKey(name: 'phone_number') String? phoneNumber,
     @Default('user') String role,
     @JsonKey(name: 'is_verified') @Default(false) bool isVerified,
+    @JsonKey(name: 'strikes_count') @Default(0) int strikesCount,
+    @JsonKey(name: 'is_banned') @Default(false) bool isBanned,
+    @JsonKey(name: 'wallet_balance') @Default('0') String walletBalance,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
   }) = _UserModel;

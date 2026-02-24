@@ -813,7 +813,7 @@ as String,
 /// @nodoc
 mixin _$UserModel {
 
- String? get id;@JsonKey(name: 'full_name') String? get fullName;@JsonKey(name: 'phone_number') String? get phoneNumber; String get role;@JsonKey(name: 'is_verified') bool get isVerified;@JsonKey(name: 'created_at') String? get createdAt;@JsonKey(name: 'updated_at') String? get updatedAt;
+ String? get id;@JsonKey(name: 'full_name') String? get fullName;@JsonKey(name: 'phone_number') String? get phoneNumber; String get role;@JsonKey(name: 'is_verified') bool get isVerified;@JsonKey(name: 'strikes_count') int get strikesCount;@JsonKey(name: 'is_banned') bool get isBanned;@JsonKey(name: 'wallet_balance') String get walletBalance;@JsonKey(name: 'created_at') String? get createdAt;@JsonKey(name: 'updated_at') String? get updatedAt;
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -826,16 +826,16 @@ $UserModelCopyWith<UserModel> get copyWith => _$UserModelCopyWithImpl<UserModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.role, role) || other.role == role)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.role, role) || other.role == role)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.strikesCount, strikesCount) || other.strikesCount == strikesCount)&&(identical(other.isBanned, isBanned) || other.isBanned == isBanned)&&(identical(other.walletBalance, walletBalance) || other.walletBalance == walletBalance)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,phoneNumber,role,isVerified,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,fullName,phoneNumber,role,isVerified,strikesCount,isBanned,walletBalance,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, fullName: $fullName, phoneNumber: $phoneNumber, role: $role, isVerified: $isVerified, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'UserModel(id: $id, fullName: $fullName, phoneNumber: $phoneNumber, role: $role, isVerified: $isVerified, strikesCount: $strikesCount, isBanned: $isBanned, walletBalance: $walletBalance, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -846,7 +846,7 @@ abstract mixin class $UserModelCopyWith<$Res>  {
   factory $UserModelCopyWith(UserModel value, $Res Function(UserModel) _then) = _$UserModelCopyWithImpl;
 @useResult
 $Res call({
- String? id,@JsonKey(name: 'full_name') String? fullName,@JsonKey(name: 'phone_number') String? phoneNumber, String role,@JsonKey(name: 'is_verified') bool isVerified,@JsonKey(name: 'created_at') String? createdAt,@JsonKey(name: 'updated_at') String? updatedAt
+ String? id,@JsonKey(name: 'full_name') String? fullName,@JsonKey(name: 'phone_number') String? phoneNumber, String role,@JsonKey(name: 'is_verified') bool isVerified,@JsonKey(name: 'strikes_count') int strikesCount,@JsonKey(name: 'is_banned') bool isBanned,@JsonKey(name: 'wallet_balance') String walletBalance,@JsonKey(name: 'created_at') String? createdAt,@JsonKey(name: 'updated_at') String? updatedAt
 });
 
 
@@ -863,14 +863,17 @@ class _$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? fullName = freezed,Object? phoneNumber = freezed,Object? role = null,Object? isVerified = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? fullName = freezed,Object? phoneNumber = freezed,Object? role = null,Object? isVerified = null,Object? strikesCount = null,Object? isBanned = null,Object? walletBalance = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,fullName: freezed == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String,isVerified: null == isVerified ? _self.isVerified : isVerified // ignore: cast_nullable_to_non_nullable
-as bool,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as bool,strikesCount: null == strikesCount ? _self.strikesCount : strikesCount // ignore: cast_nullable_to_non_nullable
+as int,isBanned: null == isBanned ? _self.isBanned : isBanned // ignore: cast_nullable_to_non_nullable
+as bool,walletBalance: null == walletBalance ? _self.walletBalance : walletBalance // ignore: cast_nullable_to_non_nullable
+as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -957,10 +960,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id, @JsonKey(name: 'full_name')  String? fullName, @JsonKey(name: 'phone_number')  String? phoneNumber,  String role, @JsonKey(name: 'is_verified')  bool isVerified, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id, @JsonKey(name: 'full_name')  String? fullName, @JsonKey(name: 'phone_number')  String? phoneNumber,  String role, @JsonKey(name: 'is_verified')  bool isVerified, @JsonKey(name: 'strikes_count')  int strikesCount, @JsonKey(name: 'is_banned')  bool isBanned, @JsonKey(name: 'wallet_balance')  String walletBalance, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVerified,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVerified,_that.strikesCount,_that.isBanned,_that.walletBalance,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -978,10 +981,10 @@ return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVer
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id, @JsonKey(name: 'full_name')  String? fullName, @JsonKey(name: 'phone_number')  String? phoneNumber,  String role, @JsonKey(name: 'is_verified')  bool isVerified, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id, @JsonKey(name: 'full_name')  String? fullName, @JsonKey(name: 'phone_number')  String? phoneNumber,  String role, @JsonKey(name: 'is_verified')  bool isVerified, @JsonKey(name: 'strikes_count')  int strikesCount, @JsonKey(name: 'is_banned')  bool isBanned, @JsonKey(name: 'wallet_balance')  String walletBalance, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _UserModel():
-return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVerified,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVerified,_that.strikesCount,_that.isBanned,_that.walletBalance,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -998,10 +1001,10 @@ return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVer
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id, @JsonKey(name: 'full_name')  String? fullName, @JsonKey(name: 'phone_number')  String? phoneNumber,  String role, @JsonKey(name: 'is_verified')  bool isVerified, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id, @JsonKey(name: 'full_name')  String? fullName, @JsonKey(name: 'phone_number')  String? phoneNumber,  String role, @JsonKey(name: 'is_verified')  bool isVerified, @JsonKey(name: 'strikes_count')  int strikesCount, @JsonKey(name: 'is_banned')  bool isBanned, @JsonKey(name: 'wallet_balance')  String walletBalance, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVerified,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVerified,_that.strikesCount,_that.isBanned,_that.walletBalance,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -1013,7 +1016,7 @@ return $default(_that.id,_that.fullName,_that.phoneNumber,_that.role,_that.isVer
 @JsonSerializable()
 
 class _UserModel implements UserModel {
-  const _UserModel({this.id, @JsonKey(name: 'full_name') this.fullName, @JsonKey(name: 'phone_number') this.phoneNumber, this.role = 'user', @JsonKey(name: 'is_verified') this.isVerified = false, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
+  const _UserModel({this.id, @JsonKey(name: 'full_name') this.fullName, @JsonKey(name: 'phone_number') this.phoneNumber, this.role = 'user', @JsonKey(name: 'is_verified') this.isVerified = false, @JsonKey(name: 'strikes_count') this.strikesCount = 0, @JsonKey(name: 'is_banned') this.isBanned = false, @JsonKey(name: 'wallet_balance') this.walletBalance = '0', @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
   factory _UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
 @override final  String? id;
@@ -1021,6 +1024,9 @@ class _UserModel implements UserModel {
 @override@JsonKey(name: 'phone_number') final  String? phoneNumber;
 @override@JsonKey() final  String role;
 @override@JsonKey(name: 'is_verified') final  bool isVerified;
+@override@JsonKey(name: 'strikes_count') final  int strikesCount;
+@override@JsonKey(name: 'is_banned') final  bool isBanned;
+@override@JsonKey(name: 'wallet_balance') final  String walletBalance;
 @override@JsonKey(name: 'created_at') final  String? createdAt;
 @override@JsonKey(name: 'updated_at') final  String? updatedAt;
 
@@ -1037,16 +1043,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.role, role) || other.role == role)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.role, role) || other.role == role)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.strikesCount, strikesCount) || other.strikesCount == strikesCount)&&(identical(other.isBanned, isBanned) || other.isBanned == isBanned)&&(identical(other.walletBalance, walletBalance) || other.walletBalance == walletBalance)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,phoneNumber,role,isVerified,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,fullName,phoneNumber,role,isVerified,strikesCount,isBanned,walletBalance,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, fullName: $fullName, phoneNumber: $phoneNumber, role: $role, isVerified: $isVerified, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'UserModel(id: $id, fullName: $fullName, phoneNumber: $phoneNumber, role: $role, isVerified: $isVerified, strikesCount: $strikesCount, isBanned: $isBanned, walletBalance: $walletBalance, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -1057,7 +1063,7 @@ abstract mixin class _$UserModelCopyWith<$Res> implements $UserModelCopyWith<$Re
   factory _$UserModelCopyWith(_UserModel value, $Res Function(_UserModel) _then) = __$UserModelCopyWithImpl;
 @override @useResult
 $Res call({
- String? id,@JsonKey(name: 'full_name') String? fullName,@JsonKey(name: 'phone_number') String? phoneNumber, String role,@JsonKey(name: 'is_verified') bool isVerified,@JsonKey(name: 'created_at') String? createdAt,@JsonKey(name: 'updated_at') String? updatedAt
+ String? id,@JsonKey(name: 'full_name') String? fullName,@JsonKey(name: 'phone_number') String? phoneNumber, String role,@JsonKey(name: 'is_verified') bool isVerified,@JsonKey(name: 'strikes_count') int strikesCount,@JsonKey(name: 'is_banned') bool isBanned,@JsonKey(name: 'wallet_balance') String walletBalance,@JsonKey(name: 'created_at') String? createdAt,@JsonKey(name: 'updated_at') String? updatedAt
 });
 
 
@@ -1074,14 +1080,17 @@ class __$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? fullName = freezed,Object? phoneNumber = freezed,Object? role = null,Object? isVerified = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? fullName = freezed,Object? phoneNumber = freezed,Object? role = null,Object? isVerified = null,Object? strikesCount = null,Object? isBanned = null,Object? walletBalance = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_UserModel(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,fullName: freezed == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String,isVerified: null == isVerified ? _self.isVerified : isVerified // ignore: cast_nullable_to_non_nullable
-as bool,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as bool,strikesCount: null == strikesCount ? _self.strikesCount : strikesCount // ignore: cast_nullable_to_non_nullable
+as int,isBanned: null == isBanned ? _self.isBanned : isBanned // ignore: cast_nullable_to_non_nullable
+as bool,walletBalance: null == walletBalance ? _self.walletBalance : walletBalance // ignore: cast_nullable_to_non_nullable
+as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

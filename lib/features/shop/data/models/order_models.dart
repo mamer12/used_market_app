@@ -14,6 +14,10 @@ enum OrderStatus {
   delivered,
   @JsonValue('FUNDS_RELEASED')
   fundsReleased,
+  @JsonValue('PENDING_COD_FULFILLMENT')
+  pendingCODFulfillment,
+  @JsonValue('DELIVERED_AND_CASH_COLLECTED')
+  deliveredAndCashCollected,
 }
 
 @freezed

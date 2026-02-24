@@ -524,4 +524,194 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchMinChars => 'اكتب حرفين على الأقل';
+
+  @override
+  String get activityPageTitle => 'نشاطاتي';
+
+  @override
+  String get activityTabPurchases => 'مشترياتي';
+
+  @override
+  String get activityTabSales => 'مبيعاتي';
+
+  @override
+  String get ordersEmpty => 'ما عندك طلبات بعد';
+
+  @override
+  String get ordersEmptySub => 'مشترياتك ومبيعاتك راح تظهر هنا';
+
+  @override
+  String get retryBtn => 'إعادة المحاولة';
+
+  @override
+  String get signInToViewActivity => 'سجّل دخولك لعرض نشاطاتك';
+
+  @override
+  String get signInActivitySub =>
+      'تتبّع مشترياتك ومبيعاتك ومزايداتك في مكان واحد.';
+
+  @override
+  String get signInBtn => 'تسجيل الدخول';
+
+  @override
+  String orderNumber(String id) {
+    return 'طلب #$id';
+  }
+
+  @override
+  String orderQtyPrice(int qty, String price) {
+    return 'الكمية $qty  •  $price د.ع';
+  }
+
+  @override
+  String get statusPendingPayment => 'بانتظار الدفع';
+
+  @override
+  String get statusPaidEscrow => 'مدفوع — في الضمان';
+
+  @override
+  String get statusShipped => 'تم الشحن';
+
+  @override
+  String get statusDelivered => 'تم التسليم';
+
+  @override
+  String get statusCompleted => 'مكتمل';
+
+  @override
+  String get profileTitle => 'حسابي';
+
+  @override
+  String get profileVerified => '● موثّق';
+
+  @override
+  String get profileSectionAccount => 'الحساب';
+
+  @override
+  String get profileSectionSupport => 'الدعم';
+
+  @override
+  String get profileEditProfile => 'تعديل الملف';
+
+  @override
+  String get profileMyShop => 'متجري';
+
+  @override
+  String get profileOrderHistory => 'سجل الطلبات';
+
+  @override
+  String get profileActiveBids => 'مزايداتي النشطة';
+
+  @override
+  String get profileSavedItems => 'المحفوظات';
+
+  @override
+  String get profileLanguage => 'اللغة';
+
+  @override
+  String get profileHelpCenter => 'مركز المساعدة';
+
+  @override
+  String get profilePrivacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get profileAppVersion => 'إصدار التطبيق';
+
+  @override
+  String get profileLogOut => 'تسجيل الخروج';
+
+  @override
+  String get profileGuestTitle => 'سجّل دخولك في مستعمل';
+
+  @override
+  String get profileGuestSub =>
+      'تصفّح ملفك الشخصي وتتبّع طلباتك وأدر إعلاناتك.';
+
+  @override
+  String get homeOutOfStock => 'نفذ';
+
+  @override
+  String get homeNoProducts => 'ما في منتجات.';
+
+  @override
+  String get homeBrowseAuctions => 'تصفح المزادات';
+
+  @override
+  String get homeBrowseUsed => 'تصفح سوق المستعمل';
+
+  @override
+  String get postCreateShop => 'أنشئ متجراً';
+
+  @override
+  String get postCreateShopSub => 'ابدأ تجارتك الإلكترونية الخاصة';
+
+  @override
+  String get postAddProduct => 'أضف منتج للمتجر';
+
+  @override
+  String get postAddProductSub => 'أضف سلعة جديدة لمتجرك الحالي';
+
+  @override
+  String get auctionCreateTitle => 'إنشاء مزاد';
+
+  @override
+  String get auctionHostTitle => 'أقم مزاداً';
+
+  @override
+  String get auctionHostSub => 'خلّ المزايدين يحددون قيمة منتجك بشكل مباشر.';
+
+  @override
+  String get auctionFieldTitle => 'عنوان المزاد';
+
+  @override
+  String get auctionFieldDescription => 'الوصف';
+
+  @override
+  String get auctionFieldStartPrice => 'سعر البداية';
+
+  @override
+  String get auctionFieldReservePrice => 'السعر الاحتياطي';
+
+  @override
+  String get auctionFieldRequired => 'مطلوب';
+
+  @override
+  String get auctionDuration => 'المدة';
+
+  @override
+  String get auctionStarts => 'يبدأ';
+
+  @override
+  String get auctionEnds => 'ينتهي';
+
+  @override
+  String get auctionSelectTime => 'اختر الوقت';
+
+  @override
+  String get auctionSelectTimesError => 'الرجاء تحديد وقت البداية والنهاية';
+
+  @override
+  String get auctionCreatedSuccess => 'تم إنشاء المزاد بنجاح!';
+
+  @override
+  String get auctionLaunchBtn => 'إطلاق المزاد';
+
+  @override
+  String get statusPendingCODFulfillment => 'بانتظار التسليم النقدي';
+
+  @override
+  String get statusDeliveredAndCashCollected => 'تم التسليم ✓';
+
+  @override
+  String get bannedUserWarning =>
+      'حسابك محظور بسبب 3 مخالفات عدم دفع مزادات. تواصل مع الدعم.';
+
+  @override
+  String strikesWarning(int strikes) {
+    return 'لديك $strikes/3 مخالفات عدم دفع. إذا وصلت إلى 3 سيتم حظر حسابك.';
+  }
+
+  @override
+  String get insufficientWalletError =>
+      'رصيدك لا يكفي لتغطية عمولة التوصيل النقدي. يرجى شحن محفظتك أولاً.';
 }

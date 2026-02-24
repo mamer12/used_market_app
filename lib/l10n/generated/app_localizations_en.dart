@@ -527,4 +527,196 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchMinChars => 'Type at least 2 characters';
+
+  @override
+  String get activityPageTitle => 'Activity';
+
+  @override
+  String get activityTabPurchases => 'Purchases';
+
+  @override
+  String get activityTabSales => 'Sales';
+
+  @override
+  String get ordersEmpty => 'No orders yet';
+
+  @override
+  String get ordersEmptySub => 'Your purchases and sales will appear here';
+
+  @override
+  String get retryBtn => 'Retry';
+
+  @override
+  String get signInToViewActivity => 'Sign in to view your activity';
+
+  @override
+  String get signInActivitySub =>
+      'Track your purchases, sales, and bids all in one place.';
+
+  @override
+  String get signInBtn => 'Sign In';
+
+  @override
+  String orderNumber(String id) {
+    return 'Order #$id';
+  }
+
+  @override
+  String orderQtyPrice(int qty, String price) {
+    return 'Qty $qty  •  $price IQD';
+  }
+
+  @override
+  String get statusPendingPayment => 'Pending Payment';
+
+  @override
+  String get statusPaidEscrow => 'Paid — In Escrow';
+
+  @override
+  String get statusShipped => 'Shipped';
+
+  @override
+  String get statusDelivered => 'Delivered';
+
+  @override
+  String get statusCompleted => 'Completed';
+
+  @override
+  String get profileTitle => 'My Profile';
+
+  @override
+  String get profileVerified => '● Verified';
+
+  @override
+  String get profileSectionAccount => 'Account';
+
+  @override
+  String get profileSectionSupport => 'Support';
+
+  @override
+  String get profileEditProfile => 'Edit Profile';
+
+  @override
+  String get profileMyShop => 'My Shop';
+
+  @override
+  String get profileOrderHistory => 'Order History';
+
+  @override
+  String get profileActiveBids => 'Active Bids';
+
+  @override
+  String get profileSavedItems => 'Saved Items';
+
+  @override
+  String get profileLanguage => 'Language';
+
+  @override
+  String get profileHelpCenter => 'Help Center';
+
+  @override
+  String get profilePrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get profileAppVersion => 'App Version';
+
+  @override
+  String get profileLogOut => 'Log Out';
+
+  @override
+  String get profileGuestTitle => 'Sign in to Mustamal';
+
+  @override
+  String get profileGuestSub =>
+      'Access your profile, track orders, and manage your listings.';
+
+  @override
+  String get homeOutOfStock => 'Out';
+
+  @override
+  String get homeNoProducts => 'No products found.';
+
+  @override
+  String get homeBrowseAuctions => 'Browse Auctions';
+
+  @override
+  String get homeBrowseUsed => 'Browse Used Market';
+
+  @override
+  String get postCreateShop => 'Create a Shop';
+
+  @override
+  String get postCreateShopSub => 'Start your own e-commerce business';
+
+  @override
+  String get postAddProduct => 'Add Shop Product';
+
+  @override
+  String get postAddProductSub => 'List a new item in your existing shop';
+
+  @override
+  String get auctionCreateTitle => 'Create Auction';
+
+  @override
+  String get auctionHostTitle => 'Host an Auction';
+
+  @override
+  String get auctionHostSub =>
+      'Let the bidders decide the value of your item in real-time.';
+
+  @override
+  String get auctionFieldTitle => 'Auction Title';
+
+  @override
+  String get auctionFieldDescription => 'Description';
+
+  @override
+  String get auctionFieldStartPrice => 'Start Price';
+
+  @override
+  String get auctionFieldReservePrice => 'Reserve Price';
+
+  @override
+  String get auctionFieldRequired => 'Required';
+
+  @override
+  String get auctionDuration => 'Duration';
+
+  @override
+  String get auctionStarts => 'Starts';
+
+  @override
+  String get auctionEnds => 'Ends';
+
+  @override
+  String get auctionSelectTime => 'Select Time';
+
+  @override
+  String get auctionSelectTimesError => 'Please select start and end times';
+
+  @override
+  String get auctionCreatedSuccess => 'Auction Created Successfully!';
+
+  @override
+  String get auctionLaunchBtn => 'Launch Auction';
+
+  @override
+  String get statusPendingCODFulfillment => 'Pending COD Fulfillment';
+
+  @override
+  String get statusDeliveredAndCashCollected =>
+      'Delivered And Cash Collected ✓';
+
+  @override
+  String get bannedUserWarning =>
+      'Your account is banned due to 3 unpaid auction strikes. Contact support.';
+
+  @override
+  String strikesWarning(int strikes) {
+    return 'You have $strikes/3 unpaid auction strikes. Reaching 3 will result in an account ban.';
+  }
+
+  @override
+  String get insufficientWalletError =>
+      'Your balance is insufficient to cover the COD commission. Please top up your wallet first.';
 }

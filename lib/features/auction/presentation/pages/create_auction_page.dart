@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class CreateAuctionPage extends StatefulWidget {
   const CreateAuctionPage({super.key});
@@ -36,10 +37,11 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_startTime == null || _endTime == null) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please select start and end times',
+            l10n.auctionSelectTimesError,
             style: GoogleFonts.cairo(),
           ),
           backgroundColor: Colors.red,
@@ -56,12 +58,10 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     if (!mounted) return;
     setState(() => _isLoading = false);
 
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Auction Created Successfully!',
-          style: GoogleFonts.cairo(),
-        ),
+        content: Text(l10n.auctionCreatedSuccess, style: GoogleFonts.cairo()),
         backgroundColor: AppTheme.primary,
         behavior: SnackBarBehavior.floating,
       ),
@@ -104,11 +104,12 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         title: Text(
-          'Create Auction',
+          l10n.auctionCreateTitle,
           style: GoogleFonts.cairo(
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
@@ -127,23 +128,25 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeader(),
+                _buildHeader(l10n),
                 SizedBox(height: 32.h),
 
                 _buildTextField(
                   controller: _titleController,
-                  label: 'Auction Title',
+                  label: l10n.auctionFieldTitle,
                   icon: Icons.gavel_rounded,
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                  validator: (v) =>
+                      v!.isEmpty ? l10n.auctionFieldRequired : null,
                 ),
                 SizedBox(height: 16.h),
 
                 _buildTextField(
                   controller: _descController,
-                  label: 'Description',
+                  label: l10n.auctionFieldDescription,
                   icon: Icons.description_outlined,
                   maxLines: 4,
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                  validator: (v) =>
+                      v!.isEmpty ? l10n.auctionFieldRequired : null,
                 ),
                 SizedBox(height: 16.h),
 
@@ -152,17 +155,18 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                     Expanded(
                       child: _buildTextField(
                         controller: _startPriceController,
-                        label: 'Start Price',
+                        label: l10n.auctionFieldStartPrice,
                         icon: Icons.attach_money_rounded,
                         keyboardType: TextInputType.number,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v!.isEmpty ? l10n.auctionFieldRequired : null,
                       ),
                     ),
                     SizedBox(width: 16.w),
                     Expanded(
                       child: _buildTextField(
                         controller: _reservePriceController,
-                        label: 'Reserve Price',
+                        label: l10n.auctionFieldReservePrice,
                         icon: Icons.monetization_on_outlined,
                         keyboardType: TextInputType.number,
                       ),
@@ -173,7 +177,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
 
                 // Date Time Pickers
                 Text(
-                  'Duration',
+                  l10n.auctionDuration,
                   style: GoogleFonts.cairo(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
@@ -185,16 +189,18 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                   children: [
                     Expanded(
                       child: _buildTimeSelector(
-                        title: 'Starts',
+                        title: l10n.auctionStarts,
                         time: _startTime,
+                        placeholder: l10n.auctionSelectTime,
                         onTap: () => _pickDateTime(true),
                       ),
                     ),
                     SizedBox(width: 16.w),
                     Expanded(
                       child: _buildTimeSelector(
-                        title: 'Ends',
+                        title: l10n.auctionEnds,
                         time: _endTime,
+                        placeholder: l10n.auctionSelectTime,
                         onTap: () => _pickDateTime(false),
                       ),
                     ),
@@ -202,7 +208,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                 ),
                 SizedBox(height: 32.h),
 
-                _buildSubmitButton(),
+                _buildSubmitButton(l10n),
               ],
             ),
           ),
@@ -211,7 +217,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
@@ -236,7 +242,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
           ),
           SizedBox(height: 16.h),
           Text(
-            'Host an Auction',
+            l10n.auctionHostTitle,
             style: GoogleFonts.cairo(
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
@@ -245,7 +251,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
           ),
           SizedBox(height: 4.h),
           Text(
-            'Let the bidders decide the value of your item in real-time.',
+            l10n.auctionHostSub,
             textAlign: TextAlign.center,
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
@@ -261,11 +267,12 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
   Widget _buildTimeSelector({
     required String title,
     required DateTime? time,
+    required String placeholder,
     required VoidCallback onTap,
   }) {
     final format = time != null
         ? '${time.day}/${time.month} ${time.hour}:${time.minute.toString().padLeft(2, "0")}'
-        : 'Select Time';
+        : placeholder;
 
     return GestureDetector(
       onTap: onTap,
@@ -361,7 +368,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(AppLocalizations l10n) {
     return GestureDetector(
       onTap: _isLoading ? null : _submit,
       child: AnimatedContainer(
@@ -391,7 +398,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                   ),
                 )
               : Text(
-                  'Launch Auction',
+                  l10n.auctionLaunchBtn,
                   style: GoogleFonts.cairo(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,

@@ -13,12 +13,25 @@ class AuctionState {
   final AuctionModel? auction;
   final List<BidModel> bids;
   final String? error;
+  // Live bidding flow states
+  final bool isOutbid;
+  final bool isWon;
+  final bool isBidPlacing;
+  final int? myLastBid;
+  final int? finalPrice;
+  final String? winnerId;
 
   const AuctionState({
     this.isLoading = false,
     this.auction,
     this.bids = const [],
     this.error,
+    this.isOutbid = false,
+    this.isWon = false,
+    this.isBidPlacing = false,
+    this.myLastBid,
+    this.finalPrice,
+    this.winnerId,
   });
 
   AuctionState copyWith({
@@ -26,12 +39,24 @@ class AuctionState {
     AuctionModel? auction,
     List<BidModel>? bids,
     String? error,
+    bool? isOutbid,
+    bool? isWon,
+    bool? isBidPlacing,
+    int? myLastBid,
+    int? finalPrice,
+    String? winnerId,
   }) {
     return AuctionState(
       isLoading: isLoading ?? this.isLoading,
       auction: auction ?? this.auction,
       bids: bids ?? this.bids,
       error: error ?? this.error,
+      isOutbid: isOutbid ?? this.isOutbid,
+      isWon: isWon ?? this.isWon,
+      isBidPlacing: isBidPlacing ?? this.isBidPlacing,
+      myLastBid: myLastBid ?? this.myLastBid,
+      finalPrice: finalPrice ?? this.finalPrice,
+      winnerId: winnerId ?? this.winnerId,
     );
   }
 }
@@ -51,7 +76,6 @@ class AuctionCubit extends Cubit<AuctionState> {
     emit(state.copyWith(isLoading: true, error: null));
 
     try {
-      // 1. Fetch historical details
       final results = await Future.wait([
         _repository.getAuctionDetails(auctionId),
         _repository.getBidHistory(auctionId, limit: 100),
@@ -64,23 +88,38 @@ class AuctionCubit extends Cubit<AuctionState> {
         state.copyWith(isLoading: false, auction: auction, bids: historyBids),
       );
 
-      // 2. Connect to WS
       await _repository.connectToAuction(auctionId);
 
-      // 3. Listen to live events
       _bidSubscription = _repository.liveBidStream.listen((event) {
-        // Insert at end (or beginning, depending on UI sorting)
         final updatedBids = List<BidModel>.from(state.bids)..add(event.bid);
         final updatedAuction = state.auction?.copyWith(
           currentPrice: event.currentPrice,
         );
-        emit(state.copyWith(bids: updatedBids, auction: updatedAuction));
+
+        // If someone else outbid us (event.bid is not 'me') and we had a bid
+        final bool outbid =
+            state.myLastBid != null &&
+            event.bid.bidderId != 'me' &&
+            event.bid.amount > (state.myLastBid ?? 0);
+
+        emit(
+          state.copyWith(
+            bids: updatedBids,
+            auction: updatedAuction,
+            isOutbid: outbid,
+          ),
+        );
       });
 
-      _errorSubscription = _repository.auctionErrorStream.listen((errorMsg) {
-        LogService().error('Live Auction WS Error: $errorMsg');
-        // We might not want to disrupt the whole UI if a WS error occurs,
-        // maybe just show a snackbar (which listeners can handle if we emit an error state).
+      _errorSubscription = _repository.auctionErrorStream.listen((msg) {
+        LogService().error('Live Auction WS Error: $msg');
+      });
+
+      // Listen for auction ended event
+      _repository.liveBidStream.listen((_) {}).onDone(() {
+        if (state.auction?.status == 'ended') {
+          emit(state.copyWith(isWon: state.auction?.winnerId == 'me'));
+        }
       });
     } catch (e, st) {
       LogService().error('Failed to init Auction Live', e, st);
@@ -93,44 +132,52 @@ class AuctionCubit extends Cubit<AuctionState> {
     }
   }
 
-  /// Places a bid via:
-  ///   1. REST API (POST /auctions/{id}/bids) — authoritative, returns the
-  ///      confirmed `BidModel` with server-assigned id.
-  ///   2. WebSocket — broadcasts the bid to all connected viewers in real-time.
-  ///
-  /// If the REST call fails (e.g. bid too low) an error state is emitted.
+  /// Clears the outbid flag (e.g. when user dismisses the overlay)
+  void clearOutbid() => emit(state.copyWith(isOutbid: false));
+
+  /// Places a bid with optimistic UI + REST confirmation
   void placeBid(int amount) {
     if (state.auction == null || state.auction!.id == null) return;
 
-    // Optimistically add to UI immediately
+    emit(state.copyWith(isBidPlacing: true, error: null));
+
     final optimisticBid = BidModel(
       id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}',
       bidderId: 'me',
       amount: amount,
       createdAt: DateTime.now(),
     );
-    emit(state.copyWith(bids: [...state.bids, optimisticBid]));
 
-    // REST — primary confirmation
+    emit(
+      state.copyWith(
+        bids: [...state.bids, optimisticBid],
+        myLastBid: amount,
+        isOutbid: false,
+      ),
+    );
+
     _repository
         .placeBid(state.auction!.id!, PlaceBidRequest(amount: amount))
         .then((confirmedBid) {
-          // Replace optimistic entry with confirmed one
           final updated =
               state.bids.where((b) => b.id != optimisticBid.id).toList()
                 ..add(confirmedBid);
-          emit(state.copyWith(bids: updated));
+          emit(state.copyWith(bids: updated, isBidPlacing: false));
         })
         .catchError((Object e) {
-          // Roll back optimistic bid and surface the error
           final rolled = state.bids
               .where((b) => b.id != optimisticBid.id)
               .toList();
           LogService().error('Failed to place bid', e);
-          emit(state.copyWith(bids: rolled, error: e.toString()));
+          emit(
+            state.copyWith(
+              bids: rolled,
+              error: e.toString(),
+              isBidPlacing: false,
+            ),
+          );
         });
 
-    // WS — real-time propagation to other viewers
     _repository.placeRealTimeBid(amount.toDouble());
   }
 

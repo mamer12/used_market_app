@@ -520,5 +520,188 @@
   "@searchResultCount": { "description": "Number of search results", "placeholders": { "count": { "type": "int" } } },
 
   "searchMinChars": "Type at least 2 characters",
-  "@searchMinChars": { "description": "Minimum characters required for search" }
+  "@searchMinChars": { "description": "Minimum characters required for search" },
+
+  "activityPageTitle": "Activity",
+  "@activityPageTitle": { "description": "Notifications/Activity page title" },
+
+  "activityTabPurchases": "Purchases",
+  "@activityTabPurchases": { "description": "Activity tab: purchases (buyer)" },
+
+  "activityTabSales": "Sales",
+  "@activityTabSales": { "description": "Activity tab: sales (seller)" },
+
+  "ordersEmpty": "No orders yet",
+  "@ordersEmpty": { "description": "Empty orders state title on activity page" },
+
+  "ordersEmptySub": "Your purchases and sales will appear here",
+  "@ordersEmptySub": { "description": "Empty orders state subtitle on activity page" },
+
+  "retryBtn": "Retry",
+  "@retryBtn": { "description": "Retry button label" },
+
+  "signInToViewActivity": "Sign in to view your activity",
+  "@signInToViewActivity": { "description": "Unauthenticated activity title" },
+
+  "signInActivitySub": "Track your purchases, sales, and bids all in one place.",
+  "@signInActivitySub": { "description": "Unauthenticated activity subtitle" },
+
+  "signInBtn": "Sign In",
+  "@signInBtn": { "description": "Sign In button label" },
+
+  "orderNumber": "Order #{id}",
+  "@orderNumber": { "description": "Order card number label", "placeholders": { "id": { "type": "String" } } },
+
+  "orderQtyPrice": "Qty {qty}  •  {price} IQD",
+  "@orderQtyPrice": { "description": "Order qty and price line", "placeholders": { "qty": { "type": "int" }, "price": { "type": "String" } } },
+
+  "statusPendingPayment": "Pending Payment",
+  "@statusPendingPayment": { "description": "Order status: pending payment" },
+
+  "statusPaidEscrow": "Paid — In Escrow",
+  "@statusPaidEscrow": { "description": "Order status: paid to escrow" },
+
+  "statusShipped": "Shipped",
+  "@statusShipped": { "description": "Order status: shipped" },
+
+  "statusDelivered": "Delivered",
+  "@statusDelivered": { "description": "Order status: delivered" },
+
+  "statusCompleted": "Completed",
+  "@statusCompleted": { "description": "Order status: funds released / completed" },
+
+  "profileTitle": "My Profile",
+  "@profileTitle": { "description": "Profile page header title" },
+
+  "profileVerified": "● Verified",
+  "@profileVerified": { "description": "Verified badge on profile avatar" },
+
+  "profileSectionAccount": "Account",
+  "@profileSectionAccount": { "description": "Profile section label: Account" },
+
+  "profileSectionSupport": "Support",
+  "@profileSectionSupport": { "description": "Profile section label: Support" },
+
+  "profileEditProfile": "Edit Profile",
+  "@profileEditProfile": { "description": "Profile menu item: Edit Profile" },
+
+  "profileMyShop": "My Shop",
+  "@profileMyShop": { "description": "Profile menu item: My Shop" },
+
+  "profileOrderHistory": "Order History",
+  "@profileOrderHistory": { "description": "Profile menu item: Order History" },
+
+  "profileActiveBids": "Active Bids",
+  "@profileActiveBids": { "description": "Profile menu item: Active Bids" },
+
+  "profileSavedItems": "Saved Items",
+  "@profileSavedItems": { "description": "Profile menu item: Saved Items" },
+
+  "profileLanguage": "Language",
+  "@profileLanguage": { "description": "Profile menu item: Language" },
+
+  "profileHelpCenter": "Help Center",
+  "@profileHelpCenter": { "description": "Profile support item: Help Center" },
+
+  "profilePrivacyPolicy": "Privacy Policy",
+  "@profilePrivacyPolicy": { "description": "Profile support item: Privacy Policy" },
+
+  "profileAppVersion": "App Version",
+  "@profileAppVersion": { "description": "Profile support item: App Version" },
+
+  "profileLogOut": "Log Out",
+  "@profileLogOut": { "description": "Logout button" },
+
+  "profileGuestTitle": "Sign in to Mustamal",
+  "@profileGuestTitle": { "description": "Guest mode profile title" },
+
+  "profileGuestSub": "Access your profile, track orders, and manage your listings.",
+  "@profileGuestSub": { "description": "Guest mode profile subtitle" },
+
+  "homeOutOfStock": "Out",
+  "@homeOutOfStock": { "description": "Out of stock label on product card" },
+
+  "homeNoProducts": "No products found.",
+  "@homeNoProducts": { "description": "Empty products state text" },
+
+  "homeBrowseAuctions": "Browse Auctions",
+  "@homeBrowseAuctions": { "description": "Snackbar/mode tile: browse auctions" },
+
+  "homeBrowseUsed": "Browse Used Market",
+  "@homeBrowseUsed": { "description": "Snackbar/mode tile: browse used market" },
+
+  "postCreateShop": "Create a Shop",
+  "@postCreateShop": { "description": "Post action sheet: create shop option" },
+
+  "postCreateShopSub": "Start your own e-commerce business",
+  "@postCreateShopSub": { "description": "Post action sheet: create shop subtitle" },
+
+  "postAddProduct": "Add Shop Product",
+  "@postAddProduct": { "description": "Post action sheet: add product option" },
+
+  "postAddProductSub": "List a new item in your existing shop",
+  "@postAddProductSub": { "description": "Post action sheet: add product subtitle" },
+
+  "auctionCreateTitle": "Create Auction",
+  "@auctionCreateTitle": { "description": "Create auction page AppBar title" },
+
+  "auctionHostTitle": "Host an Auction",
+  "@auctionHostTitle": { "description": "Create auction page header title" },
+
+  "auctionHostSub": "Let the bidders decide the value of your item in real-time.",
+  "@auctionHostSub": { "description": "Create auction page header subtitle" },
+
+  "auctionFieldTitle": "Auction Title",
+  "@auctionFieldTitle": { "description": "Create auction form field: title" },
+
+  "auctionFieldDescription": "Description",
+  "@auctionFieldDescription": { "description": "Create auction form field: description" },
+
+  "auctionFieldStartPrice": "Start Price",
+  "@auctionFieldStartPrice": { "description": "Create auction form field: start price" },
+
+  "auctionFieldReservePrice": "Reserve Price",
+  "@auctionFieldReservePrice": { "description": "Create auction form field: reserve price" },
+
+  "auctionFieldRequired": "Required",
+  "@auctionFieldRequired": { "description": "Validation message for required field" },
+
+  "auctionDuration": "Duration",
+  "@auctionDuration": { "description": "Create auction duration section label" },
+
+  "auctionStarts": "Starts",
+  "@auctionStarts": { "description": "Create auction start time label" },
+
+  "auctionEnds": "Ends",
+  "@auctionEnds": { "description": "Create auction end time label" },
+
+  "auctionSelectTime": "Select Time",
+  "@auctionSelectTime": { "description": "Create auction placeholder when no time selected" },
+
+  "auctionSelectTimesError": "Please select start and end times",
+  "@auctionSelectTimesError": { "description": "Validation error when times not selected" },
+
+  "auctionCreatedSuccess": "Auction Created Successfully!",
+  "@auctionCreatedSuccess": { "description": "Snackbar after creating an auction" },
+
+  "auctionLaunchBtn": "Launch Auction",
+  "@auctionLaunchBtn": { "description": "Create auction submit button" },
+
+  "statusPendingCODFulfillment": "Pending COD Fulfillment",
+  "@statusPendingCODFulfillment": { "description": "Order status: pending COD fulfillment" },
+
+  "statusDeliveredAndCashCollected": "Delivered And Cash Collected ✓",
+  "@statusDeliveredAndCashCollected": { "description": "Order status: delivered and cash collected" },
+
+  "bannedUserWarning": "Your account is banned due to 3 unpaid auction strikes. Contact support.",
+  "@bannedUserWarning": { "description": "Warning message for banned users" },
+
+  "strikesWarning": "You have {strikes}/3 unpaid auction strikes. Reaching 3 will result in an account ban.",
+  "@strikesWarning": { 
+    "description": "Warning message for users with strikes",
+    "placeholders": { "strikes": { "type": "int" } }
+  },
+
+  "insufficientWalletError": "Your balance is insufficient to cover the COD commission. Please top up your wallet first.",
+  "@insufficientWalletError": { "description": "Error message when seller wallet balance is insufficient for COD" }
 }

@@ -57,6 +57,8 @@ const _$OrderStatusEnumMap = {
   OrderStatus.shipped: 'SHIPPED',
   OrderStatus.delivered: 'DELIVERED',
   OrderStatus.fundsReleased: 'FUNDS_RELEASED',
+  OrderStatus.pendingCODFulfillment: 'PENDING_COD_FULFILLMENT',
+  OrderStatus.deliveredAndCashCollected: 'DELIVERED_AND_CASH_COLLECTED',
 };
 
 _BuyProductRequest _$BuyProductRequestFromJson(Map<String, dynamic> json) =>

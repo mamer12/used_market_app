@@ -95,144 +95,204 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
-      builder: (ctx, cartState) => Scaffold(
-        extendBody: true,
-        backgroundColor: AppTheme.surface,
-        body: IndexedStack(index: _currentIndex, children: _pages),
-        bottomNavigationBar: _buildGlassNavBar(ctx, cartState),
-      ),
+      builder: (ctx, cartState) {
+        final safeBottom = MediaQuery.of(ctx).padding.bottom;
+        final l10n = AppLocalizations.of(ctx);
+        return Scaffold(
+          extendBody: true,
+          backgroundColor: Colors.transparent,
+          // We use a transparent bottom nav bar slot so the page extends fully.
+          // The actual glass pill is drawn as a Stack overlay inside the body.
+          bottomNavigationBar: SizedBox(height: safeBottom + 90),
+          body: Stack(
+            children: [
+              // ── Pages ───────────────────────────────────────────────────
+              IndexedStack(index: _currentIndex, children: _pages),
+
+              // ── Apple Liquid Glass floating nav pill ─────────────────
+              Positioned(
+                left: 20,
+                right: 20,
+                bottom: safeBottom + 14,
+                child: _GlassNavPill(
+                  currentIndex: _currentIndex,
+                  cartState: cartState,
+                  l10n: l10n,
+                  fabScale: _fabScale,
+                  onNavTap: _onNavTap,
+                  onFabTapDown: () => _fabAnim.forward(),
+                  onFabTapUp: () {
+                    _fabAnim.reverse();
+                    HapticFeedback.mediumImpact();
+                    _showPostSheet();
+                  },
+                  onFabTapCancel: () => _fabAnim.reverse(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
+}
 
-  // ── Apple Glass Navigation Bar ───────────────────────────────────────────
-  Widget _buildGlassNavBar(BuildContext ctx, CartState cartState) {
-    final safeBottom = MediaQuery.of(ctx).padding.bottom;
-    final l10n = AppLocalizations.of(ctx);
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, safeBottom + 12),
-      child: SizedBox(
-        height: 62,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            // ── Frosted glass pill ───────────────────────
-            ClipRRect(
-              borderRadius: BorderRadius.circular(31),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+// ── Glass Nav Pill ────────────────────────────────────────────────────────
+class _GlassNavPill extends StatelessWidget {
+  final int currentIndex;
+  final CartState cartState;
+  final AppLocalizations l10n;
+  final Animation<double> fabScale;
+  final void Function(int) onNavTap;
+  final VoidCallback onFabTapDown;
+  final VoidCallback onFabTapUp;
+  final VoidCallback onFabTapCancel;
+
+  const _GlassNavPill({
+    required this.currentIndex,
+    required this.cartState,
+    required this.l10n,
+    required this.fabScale,
+    required this.onNavTap,
+    required this.onFabTapDown,
+    required this.onFabTapUp,
+    required this.onFabTapCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const double pillHeight = 70;
+    const double fabSize = 62;
+    const double fabRise = 26;
+
+    return SizedBox(
+      height: pillHeight + fabRise,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
+        children: [
+          // ── Glow shadow drawn OUTSIDE clip ───────────────────────────
+          Container(
+            height: pillHeight,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(pillHeight / 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.22),
+                  blurRadius: 36,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 10),
+                ),
+                BoxShadow(
+                  color: AppTheme.primary.withValues(alpha: 0.14),
+                  blurRadius: 22,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Frosted glass pill ─────────────────────────────────────
+          ClipRRect(
+            borderRadius: BorderRadius.circular(pillHeight / 2),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Container(
+                height: pillHeight,
+                decoration: BoxDecoration(
+                  // White @ 0.90 — visible on BOTH dark and light pages
+                  color: Colors.white.withValues(alpha: 0.90),
+                  borderRadius: BorderRadius.circular(pillHeight / 2),
+                  border: Border.all(
+                    // Subtle dark border — readable on white pages
+                    color: Colors.black.withValues(alpha: 0.08),
+                    width: 1.0,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _NavItem(
+                      activeIcon: Icons.home_rounded,
+                      inactiveIcon: Icons.home_outlined,
+                      label: l10n.navHome,
+                      isActive: currentIndex == 0,
+                      onTap: () => onNavTap(0),
+                    ),
+                    _NavItem(
+                      activeIcon: Icons.chat_bubble_rounded,
+                      inactiveIcon: Icons.chat_bubble_outline_rounded,
+                      label: l10n.navMessages,
+                      isActive: currentIndex == 1,
+                      onTap: () => onNavTap(1),
+                    ),
+                    // Gap for the floating FAB
+                    const SizedBox(width: fabSize + 8),
+                    _NavItem(
+                      activeIcon: Icons.receipt_long_rounded,
+                      inactiveIcon: Icons.receipt_long_outlined,
+                      label: l10n.navActivity,
+                      isActive: currentIndex == 2,
+                      badgeCount: cartState.cartCount,
+                      onTap: () => onNavTap(3),
+                    ),
+                    _NavItem(
+                      activeIcon: Icons.person_rounded,
+                      inactiveIcon: Icons.person_outlined,
+                      label: l10n.navProfile,
+                      isActive: currentIndex == 3,
+                      onTap: () => onNavTap(4),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // ── Center FAB (floats above pill) ─────────────────────────
+          Positioned(
+            bottom: pillHeight / 2 - fabSize / 2 + fabRise / 2,
+            child: GestureDetector(
+              onTapDown: (_) => onFabTapDown(),
+              onTapUp: (_) => onFabTapUp(),
+              onTapCancel: onFabTapCancel,
+              child: ScaleTransition(
+                scale: fabScale,
                 child: Container(
-                  height: 62,
+                  width: fabSize,
+                  height: fabSize,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.84),
-                    borderRadius: BorderRadius.circular(31),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.65),
-                      width: 1.2,
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [AppTheme.primary, AppTheme.secondary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.10),
-                        blurRadius: 28,
-                        offset: const Offset(0, 8),
+                        color: AppTheme.primary.withValues(alpha: 0.55),
+                        blurRadius: 22,
+                        spreadRadius: 2,
+                        offset: const Offset(0, 6),
                       ),
                       BoxShadow(
-                        color: AppTheme.primary.withValues(alpha: 0.07),
-                        blurRadius: 14,
-                        spreadRadius: 1,
+                        color: Colors.white.withValues(alpha: 0.6),
+                        blurRadius: 0,
+                        spreadRadius: 2.5,
                       ),
                     ],
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _NavItem(
-                        activeIcon: Icons.home_rounded,
-                        inactiveIcon: Icons.home_outlined,
-                        label: l10n.navHome,
-                        isActive: _currentIndex == 0,
-                        onTap: () => _onNavTap(0),
-                      ),
-                      _NavItem(
-                        activeIcon: Icons.chat_bubble_rounded,
-                        inactiveIcon: Icons.chat_bubble_outline_rounded,
-                        label: l10n.navMessages,
-                        isActive: _currentIndex == 1,
-                        onTap: () => _onNavTap(1),
-                      ),
-                      // Gap for center FAB
-                      const SizedBox(width: 54),
-                      _NavItem(
-                        activeIcon: Icons.receipt_long_rounded,
-                        inactiveIcon: Icons.receipt_long_outlined,
-                        label: l10n.navActivity,
-                        isActive: _currentIndex == 2,
-                        badgeCount: cartState.cartCount,
-                        onTap: () => _onNavTap(3),
-                      ),
-                      _NavItem(
-                        activeIcon: Icons.person_rounded,
-                        inactiveIcon: Icons.person_outlined,
-                        label: l10n.navProfile,
-                        isActive: _currentIndex == 3,
-                        onTap: () => _onNavTap(4),
-                      ),
-                    ],
+                  child: const Icon(
+                    Icons.add_rounded,
+                    size: 30,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ),
-
-            // ── Center FAB ───────────────────────────────
-            Positioned(top: -20, child: _buildCenterFab()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCenterFab() {
-    return GestureDetector(
-      onTapDown: (_) => _fabAnim.forward(),
-      onTapUp: (_) {
-        _fabAnim.reverse();
-        HapticFeedback.mediumImpact();
-        _showPostSheet();
-      },
-      onTapCancel: () => _fabAnim.reverse(),
-      child: ScaleTransition(
-        scale: _fabScale,
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [AppTheme.primary, AppTheme.secondary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primary.withValues(alpha: 0.50),
-                blurRadius: 18,
-                spreadRadius: 1,
-                offset: const Offset(0, 5),
-              ),
-              // white ring for glass feel
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.65),
-                blurRadius: 0,
-                spreadRadius: 2,
-              ),
-            ],
           ),
-          child: const Icon(
-            Icons.add_rounded,
-            size: 28,
-            color: AppTheme.textPrimary,
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -258,12 +318,15 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const activeColor = AppTheme.primary; // Yellow — pops on white pill
+    const inactiveColor = Color(0xFF9E9E9E); // Medium grey — soft on white
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 60,
-        height: 62,
+        width: 62,
+        height: 72,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -275,10 +338,14 @@ class _NavItem extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Icon(
-                    isActive ? activeIcon : inactiveIcon,
-                    size: 23,
-                    color: isActive ? AppTheme.textPrimary : AppTheme.inactive,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      isActive ? activeIcon : inactiveIcon,
+                      key: ValueKey(isActive),
+                      size: 24,
+                      color: isActive ? activeColor : inactiveColor,
+                    ),
                   ),
                   if (badgeCount > 0)
                     Positioned(
@@ -309,26 +376,27 @@ class _NavItem extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              label,
+            const SizedBox(height: 3),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
               style: GoogleFonts.cairo(
-                fontSize: 9.5,
+                fontSize: 10,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                color: isActive ? AppTheme.textPrimary : AppTheme.inactive,
+                color: isActive ? activeColor : inactiveColor,
               ),
+              child: Text(label),
             ),
-            const SizedBox(height: 2),
-            // Active dot
-            Container(
-              width: isActive ? 14 : 0,
+            const SizedBox(height: 3),
+            // Active indicator dot
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              width: isActive ? 16 : 0,
               height: 3,
-              decoration: isActive
-                  ? BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(1.5),
-                    )
-                  : null,
+              decoration: BoxDecoration(
+                color: AppTheme.primary,
+                borderRadius: BorderRadius.circular(1.5),
+              ),
             ),
           ],
         ),
@@ -397,8 +465,8 @@ class _PostActionSheet extends StatelessWidget {
           SizedBox(height: 10.h),
           _PostOption(
             icon: Icons.storefront_outlined,
-            title: 'Create a Shop',
-            subtitle: 'Start your own e-commerce business',
+            title: l10n.postCreateShop,
+            subtitle: l10n.postCreateShopSub,
             accentColor: AppTheme.primary,
             onTap: () {
               Navigator.pop(context);
@@ -410,8 +478,8 @@ class _PostActionSheet extends StatelessWidget {
           SizedBox(height: 10.h),
           _PostOption(
             icon: Icons.add_shopping_cart_outlined,
-            title: 'Add Shop Product',
-            subtitle: 'List a new item in your existing shop',
+            title: l10n.postAddProduct,
+            subtitle: l10n.postAddProductSub,
             accentColor: const Color(0xFF00BCD4),
             onTap: () {
               Navigator.pop(context);

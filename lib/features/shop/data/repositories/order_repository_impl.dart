@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/errors/exceptions.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../datasources/order_remote_data_source.dart';
 import '../models/order_models.dart';
@@ -34,5 +36,24 @@ class OrderRepositoryImpl implements OrderRepository {
       page: page,
       limit: limit,
     );
+  }
+
+  @override
+  Future<OrderModel> initiateCODCheckout(String orderId) async {
+    try {
+      return await _remoteDataSource.initiateCODCheckout(orderId);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 402) {
+        throw InsufficientWalletException(
+          e.response?.data?['error'] ??
+              'Your balance is insufficient to cover the COD commission. Please top up your wallet first.',
+        );
+      }
+      throw ApiException(
+        e.response?.data?['error'] ?? 'Failed to initiate COD checkout',
+      );
+    } catch (e) {
+      throw ApiException(e.toString());
+    }
   }
 }

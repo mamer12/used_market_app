@@ -1105,6 +1105,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Type at least 2 characters'**
   String get searchMinChars;
+
+  /// Notifications/Activity page title
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activityPageTitle;
+
+  /// Activity tab: purchases (buyer)
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get activityTabPurchases;
+
+  /// Activity tab: sales (seller)
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get activityTabSales;
+
+  /// Empty orders state title on activity page
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get ordersEmpty;
+
+  /// Empty orders state subtitle on activity page
+  ///
+  /// In en, this message translates to:
+  /// **'Your purchases and sales will appear here'**
+  String get ordersEmptySub;
+
+  /// Retry button label
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryBtn;
+
+  /// Unauthenticated activity title
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to view your activity'**
+  String get signInToViewActivity;
+
+  /// Unauthenticated activity subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Track your purchases, sales, and bids all in one place.'**
+  String get signInActivitySub;
+
+  /// Sign In button label
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signInBtn;
+
+  /// Order card number label
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{id}'**
+  String orderNumber(String id);
+
+  /// Order qty and price line
+  ///
+  /// In en, this message translates to:
+  /// **'Qty {qty}  •  {price} IQD'**
+  String orderQtyPrice(int qty, String price);
+
+  /// Order status: pending payment
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Payment'**
+  String get statusPendingPayment;
+
+  /// Order status: paid to escrow
+  ///
+  /// In en, this message translates to:
+  /// **'Paid — In Escrow'**
+  String get statusPaidEscrow;
+
+  /// Order status: shipped
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped'**
+  String get statusShipped;
+
+  /// Order status: delivered
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get statusDelivered;
+
+  /// Order status: funds released / completed
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// Profile page header title
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get profileTitle;
+
+  /// Verified badge on profile avatar
+  ///
+  /// In en, this message translates to:
+  /// **'● Verified'**
+  String get profileVerified;
+
+  /// Profile section label: Account
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get profileSectionAccount;
+
+  /// Profile section label: Support
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get profileSectionSupport;
+
+  /// Profile menu item: Edit Profile
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get profileEditProfile;
+
+  /// Profile menu item: My Shop
+  ///
+  /// In en, this message translates to:
+  /// **'My Shop'**
+  String get profileMyShop;
+
+  /// Profile menu item: Order History
+  ///
+  /// In en, this message translates to:
+  /// **'Order History'**
+  String get profileOrderHistory;
+
+  /// Profile menu item: Active Bids
+  ///
+  /// In en, this message translates to:
+  /// **'Active Bids'**
+  String get profileActiveBids;
+
+  /// Profile menu item: Saved Items
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Items'**
+  String get profileSavedItems;
+
+  /// Profile menu item: Language
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get profileLanguage;
+
+  /// Profile support item: Help Center
+  ///
+  /// In en, this message translates to:
+  /// **'Help Center'**
+  String get profileHelpCenter;
+
+  /// Profile support item: Privacy Policy
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get profilePrivacyPolicy;
+
+  /// Profile support item: App Version
+  ///
+  /// In en, this message translates to:
+  /// **'App Version'**
+  String get profileAppVersion;
+
+  /// Logout button
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get profileLogOut;
+
+  /// Guest mode profile title
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Mustamal'**
+  String get profileGuestTitle;
+
+  /// Guest mode profile subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Access your profile, track orders, and manage your listings.'**
+  String get profileGuestSub;
+
+  /// Out of stock label on product card
+  ///
+  /// In en, this message translates to:
+  /// **'Out'**
+  String get homeOutOfStock;
+
+  /// Empty products state text
+  ///
+  /// In en, this message translates to:
+  /// **'No products found.'**
+  String get homeNoProducts;
+
+  /// Snackbar/mode tile: browse auctions
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Auctions'**
+  String get homeBrowseAuctions;
+
+  /// Snackbar/mode tile: browse used market
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Used Market'**
+  String get homeBrowseUsed;
+
+  /// Post action sheet: create shop option
+  ///
+  /// In en, this message translates to:
+  /// **'Create a Shop'**
+  String get postCreateShop;
+
+  /// Post action sheet: create shop subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Start your own e-commerce business'**
+  String get postCreateShopSub;
+
+  /// Post action sheet: add product option
+  ///
+  /// In en, this message translates to:
+  /// **'Add Shop Product'**
+  String get postAddProduct;
+
+  /// Post action sheet: add product subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'List a new item in your existing shop'**
+  String get postAddProductSub;
+
+  /// Create auction page AppBar title
+  ///
+  /// In en, this message translates to:
+  /// **'Create Auction'**
+  String get auctionCreateTitle;
+
+  /// Create auction page header title
+  ///
+  /// In en, this message translates to:
+  /// **'Host an Auction'**
+  String get auctionHostTitle;
+
+  /// Create auction page header subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Let the bidders decide the value of your item in real-time.'**
+  String get auctionHostSub;
+
+  /// Create auction form field: title
+  ///
+  /// In en, this message translates to:
+  /// **'Auction Title'**
+  String get auctionFieldTitle;
+
+  /// Create auction form field: description
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get auctionFieldDescription;
+
+  /// Create auction form field: start price
+  ///
+  /// In en, this message translates to:
+  /// **'Start Price'**
+  String get auctionFieldStartPrice;
+
+  /// Create auction form field: reserve price
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve Price'**
+  String get auctionFieldReservePrice;
+
+  /// Validation message for required field
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get auctionFieldRequired;
+
+  /// Create auction duration section label
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get auctionDuration;
+
+  /// Create auction start time label
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get auctionStarts;
+
+  /// Create auction end time label
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get auctionEnds;
+
+  /// Create auction placeholder when no time selected
+  ///
+  /// In en, this message translates to:
+  /// **'Select Time'**
+  String get auctionSelectTime;
+
+  /// Validation error when times not selected
+  ///
+  /// In en, this message translates to:
+  /// **'Please select start and end times'**
+  String get auctionSelectTimesError;
+
+  /// Snackbar after creating an auction
+  ///
+  /// In en, this message translates to:
+  /// **'Auction Created Successfully!'**
+  String get auctionCreatedSuccess;
+
+  /// Create auction submit button
+  ///
+  /// In en, this message translates to:
+  /// **'Launch Auction'**
+  String get auctionLaunchBtn;
+
+  /// Order status: pending COD fulfillment
+  ///
+  /// In en, this message translates to:
+  /// **'Pending COD Fulfillment'**
+  String get statusPendingCODFulfillment;
+
+  /// Order status: delivered and cash collected
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered And Cash Collected ✓'**
+  String get statusDeliveredAndCashCollected;
+
+  /// Warning message for banned users
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is banned due to 3 unpaid auction strikes. Contact support.'**
+  String get bannedUserWarning;
+
+  /// Warning message for users with strikes
+  ///
+  /// In en, this message translates to:
+  /// **'You have {strikes}/3 unpaid auction strikes. Reaching 3 will result in an account ban.'**
+  String strikesWarning(int strikes);
+
+  /// Error message when seller wallet balance is insufficient for COD
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance is insufficient to cover the COD commission. Please top up your wallet first.'**
+  String get insufficientWalletError;
 }
 
 class _AppLocalizationsDelegate

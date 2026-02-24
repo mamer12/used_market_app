@@ -12,7 +12,7 @@ class MessagesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -42,7 +42,11 @@ class MessagesPage extends StatelessWidget {
                         color: AppTheme.inactive.withValues(alpha: 0.25),
                       ),
                     ),
-                    child: Icon(Icons.edit_outlined, size: 18.sp, color: AppTheme.textPrimary),
+                    child: Icon(
+                      Icons.edit_outlined,
+                      size: 18.sp,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
                 ],
               ),

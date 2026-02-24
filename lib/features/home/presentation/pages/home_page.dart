@@ -13,6 +13,7 @@ import '../../../../core/widgets/auth_guard.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auction/data/models/auction_models.dart';
 import '../../../auction/presentation/pages/auction_live_page.dart';
+import '../../../auction/presentation/pages/auctions_page.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../notifications/presentation/pages/notifications_page.dart';
 import '../../../search/presentation/pages/search_page.dart';
@@ -75,7 +76,7 @@ class _HomePageState extends State<HomePage> {
     return BlocProvider.value(
       value: _cubit,
       child: Scaffold(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: AppTheme.background,
         body: SafeArea(
           child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
@@ -85,49 +86,55 @@ class _HomePageState extends State<HomePage> {
                 );
               }
 
-              return CustomScrollView(
-                slivers: [
-                  // ── Header ─────────────────────────────────
-                  SliverToBoxAdapter(child: _buildHeader()),
+              return RefreshIndicator(
+                color: AppTheme.primary,
+                backgroundColor: AppTheme.surface,
+                onRefresh: () => _cubit.loadFeed(),
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    // ── Header ─────────────────────────────────
+                    SliverToBoxAdapter(child: _buildHeader()),
 
-                  // ── Search Bar ─────────────────────────────
-                  SliverToBoxAdapter(child: _buildSearchBar()),
+                    // ── Search Bar ─────────────────────────────
+                    SliverToBoxAdapter(child: _buildSearchBar()),
 
-                  // ── Hero Banner ────────────────────────────
-                  SliverToBoxAdapter(child: _buildHeroBanner()),
+                    // ── Hero Banner ────────────────────────────
+                    SliverToBoxAdapter(child: _buildHeroBanner()),
 
-                  // ── Super App Mode Strip ────────────────────
-                  SliverToBoxAdapter(child: _buildSuperAppModes()),
+                    // ── Super App Mode Strip ────────────────────
+                    SliverToBoxAdapter(child: _buildSuperAppModes()),
 
-                  // ── Live Auctions ───────────────────────────
-                  if (state.liveAuctions.isNotEmpty)
-                    SliverToBoxAdapter(
-                      child: _buildLiveNowSection(state.liveAuctions),
-                    ),
+                    // ── Live Auctions ───────────────────────────
+                    if (state.liveAuctions.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: _buildLiveNowSection(state.liveAuctions),
+                      ),
 
-                  // ── Shops with products ───────────────────
-                  if (state.shopCatalogs.isNotEmpty) ...[
-                    SliverToBoxAdapter(
-                      child: _buildShopsHeader(state.shopCatalogs.length),
-                    ),
-                    ...state.shopCatalogs.map(
-                      (entry) =>
-                          SliverToBoxAdapter(child: _buildShopSection(entry)),
-                    ),
+                    // ── Shops with products ───────────────────
+                    if (state.shopCatalogs.isNotEmpty) ...[
+                      SliverToBoxAdapter(
+                        child: _buildShopsHeader(state.shopCatalogs.length),
+                      ),
+                      ...state.shopCatalogs.map(
+                        (entry) =>
+                            SliverToBoxAdapter(child: _buildShopSection(entry)),
+                      ),
+                    ],
+
+                    // ── Used & Pre-loved market ────────────────
+                    if (state.featuredProducts.isNotEmpty) ...[
+                      SliverToBoxAdapter(child: _buildUsedMarketHeader()),
+                      SliverPadding(
+                        padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
+                        sliver: _buildListingsGrid(state.featuredProducts),
+                      ),
+                    ],
+
+                    // Bottom spacing (clear floating nav bar)
+                    SliverToBoxAdapter(child: SizedBox(height: 110.h)),
                   ],
-
-                  // ── Used & Pre-loved market ────────────────
-                  if (state.featuredProducts.isNotEmpty) ...[
-                    SliverToBoxAdapter(child: _buildUsedMarketHeader()),
-                    SliverPadding(
-                      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
-                      sliver: _buildListingsGrid(state.featuredProducts),
-                    ),
-                  ],
-
-                  // Bottom spacing (clear floating nav bar)
-                  SliverToBoxAdapter(child: SizedBox(height: 110.h)),
-                ],
+                ),
               );
             },
           ),
@@ -527,7 +534,7 @@ class _HomePageState extends State<HomePage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          'Browse Auctions',
+                          l10n.homeBrowseAuctions,
                           style: GoogleFonts.cairo(),
                         ),
                         duration: const Duration(seconds: 1),
@@ -544,7 +551,7 @@ class _HomePageState extends State<HomePage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          'Browse Used Market',
+                          l10n.homeBrowseUsed,
                           style: GoogleFonts.cairo(),
                         ),
                         duration: const Duration(seconds: 1),
@@ -617,13 +624,9 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-          padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 14.h),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A1A1A),
-            borderRadius: BorderRadius.circular(14.r),
-          ),
+        // ── Section header ─────────────────────────
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 0),
           child: Row(
             children: [
               ExcludeSemantics(child: _PulsingDot()),
@@ -635,66 +638,61 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       l10n.homeLiveNow,
                       style: GoogleFonts.cairo(
-                        fontSize: 17.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
                       ),
                     ),
                     Text(
                       l10n.homeLiveSubtitle,
                       style: GoogleFonts.cairo(
                         fontSize: 11.sp,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.55),
+                        color: Colors.grey[500],
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: AppTheme.liveBadge.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: AppTheme.liveBadge.withValues(alpha: 0.4),
+              GestureDetector(
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const AuctionsPage())),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
                   ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${auctions.length}',
-                      style: GoogleFonts.cairo(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.liveBadge,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.homeSeeAll,
+                        style: GoogleFonts.cairo(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      l10n.homeSeeAll,
-                      style: GoogleFonts.cairo(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.liveBadge,
+                      SizedBox(width: 3.w),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 11.sp,
+                        color: Colors.black,
                       ),
-                    ),
-                    SizedBox(width: 2.w),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 10.sp,
-                      color: AppTheme.liveBadge,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 14.h),
         SizedBox(
-          height: 280.h,
+          height: 305.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -913,16 +911,32 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(width: 8.w),
                       Container(
-                        width: 40.w,
-                        height: 40.w,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppTheme.primary,
                           borderRadius: BorderRadius.circular(10.r),
                         ),
-                        child: Icon(
-                          Icons.gavel,
-                          size: 22.sp,
-                          color: AppTheme.textPrimary,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.gavel_rounded,
+                              size: 14.sp,
+                              color: Colors.black,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              'زايد',
+                              style: GoogleFonts.cairo(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -1262,12 +1276,14 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         if (item.inStock <= 0)
-                          Text(
-                            'Out',
-                            style: GoogleFonts.cairo(
-                              fontSize: 9.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.red,
+                          Builder(
+                            builder: (ctx) => Text(
+                              AppLocalizations.of(ctx).homeOutOfStock,
+                              style: GoogleFonts.cairo(
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red,
+                              ),
                             ),
                           )
                         else
@@ -1356,10 +1372,12 @@ class _HomePageState extends State<HomePage> {
       return SliverToBoxAdapter(
         child: SizedBox(
           height: 200.h,
-          child: const Center(
-            child: Text(
-              'No products found.',
-              style: TextStyle(color: Colors.white54),
+          child: Center(
+            child: Builder(
+              builder: (context) => Text(
+                AppLocalizations.of(context).homeNoProducts,
+                style: const TextStyle(color: Colors.white54),
+              ),
             ),
           ),
         ),

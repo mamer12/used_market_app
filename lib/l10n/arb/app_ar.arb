@@ -201,5 +201,81 @@
   "@searchNoResultsSub": { "description": "No results subtitle with query placeholder", "placeholders": { "query": { "type": "String" } } },
   "searchResultCount": "{count} نتيجة",
   "@searchResultCount": { "description": "Number of search results", "placeholders": { "count": { "type": "int" } } },
-  "searchMinChars": "اكتب حرفين على الأقل"
+  "searchMinChars": "اكتب حرفين على الأقل",
+
+  "activityPageTitle": "نشاطاتي",
+  "activityTabPurchases": "مشترياتي",
+  "activityTabSales": "مبيعاتي",
+
+  "ordersEmpty": "ما عندك طلبات بعد",
+  "ordersEmptySub": "مشترياتك ومبيعاتك راح تظهر هنا",
+
+  "retryBtn": "إعادة المحاولة",
+
+  "signInToViewActivity": "سجّل دخولك لعرض نشاطاتك",
+  "signInActivitySub": "تتبّع مشترياتك ومبيعاتك ومزايداتك في مكان واحد.",
+
+  "signInBtn": "تسجيل الدخول",
+
+  "orderNumber": "طلب #{id}",
+  "@orderNumber": { "description": "Order card number label", "placeholders": { "id": { "type": "String" } } },
+
+  "orderQtyPrice": "الكمية {qty}  •  {price} د.ع",
+  "@orderQtyPrice": { "description": "Order qty and price line", "placeholders": { "qty": { "type": "int" }, "price": { "type": "String" } } },
+
+  "statusPendingPayment": "بانتظار الدفع",
+  "statusPaidEscrow": "مدفوع — في الضمان",
+  "statusShipped": "تم الشحن",
+  "statusDelivered": "تم التسليم",
+  "statusCompleted": "مكتمل",
+
+  "profileTitle": "حسابي",
+  "profileVerified": "● موثّق",
+  "profileSectionAccount": "الحساب",
+  "profileSectionSupport": "الدعم",
+  "profileEditProfile": "تعديل الملف",
+  "profileMyShop": "متجري",
+  "profileOrderHistory": "سجل الطلبات",
+  "profileActiveBids": "مزايداتي النشطة",
+  "profileSavedItems": "المحفوظات",
+  "profileLanguage": "اللغة",
+  "profileHelpCenter": "مركز المساعدة",
+  "profilePrivacyPolicy": "سياسة الخصوصية",
+  "profileAppVersion": "إصدار التطبيق",
+  "profileLogOut": "تسجيل الخروج",
+  "profileGuestTitle": "سجّل دخولك في مستعمل",
+  "profileGuestSub": "تصفّح ملفك الشخصي وتتبّع طلباتك وأدر إعلاناتك.",
+
+  "homeOutOfStock": "نفذ",
+  "homeNoProducts": "ما في منتجات.",
+  "homeBrowseAuctions": "تصفح المزادات",
+  "homeBrowseUsed": "تصفح سوق المستعمل",
+
+  "postCreateShop": "أنشئ متجراً",
+  "postCreateShopSub": "ابدأ تجارتك الإلكترونية الخاصة",
+  "postAddProduct": "أضف منتج للمتجر",
+  "postAddProductSub": "أضف سلعة جديدة لمتجرك الحالي",
+
+  "auctionCreateTitle": "إنشاء مزاد",
+  "auctionHostTitle": "أقم مزاداً",
+  "auctionHostSub": "خلّ المزايدين يحددون قيمة منتجك بشكل مباشر.",
+  "auctionFieldTitle": "عنوان المزاد",
+  "auctionFieldDescription": "الوصف",
+  "auctionFieldStartPrice": "سعر البداية",
+  "auctionFieldReservePrice": "السعر الاحتياطي",
+  "auctionFieldRequired": "مطلوب",
+  "auctionDuration": "المدة",
+  "auctionStarts": "يبدأ",
+  "auctionEnds": "ينتهي",
+  "auctionSelectTime": "اختر الوقت",
+  "auctionSelectTimesError": "الرجاء تحديد وقت البداية والنهاية",
+  "auctionCreatedSuccess": "تم إنشاء المزاد بنجاح!",
+  "auctionLaunchBtn": "إطلاق المزاد",
+
+  "statusPendingCODFulfillment": "بانتظار التسليم النقدي",
+  "statusDeliveredAndCashCollected": "تم التسليم ✓",
+
+  "bannedUserWarning": "حسابك محظور بسبب 3 مخالفات عدم دفع مزادات. تواصل مع الدعم.",
+  "strikesWarning": "لديك {strikes}/3 مخالفات عدم دفع. إذا وصلت إلى 3 سيتم حظر حسابك.",
+  "insufficientWalletError": "رصيدك لا يكفي لتغطية عمولة التوصيل النقدي. يرجى شحن محفظتك أولاً."
 }

@@ -8,6 +8,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/auth_guard.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../shop/data/datasources/order_remote_data_source.dart';
@@ -48,9 +49,19 @@ class OrdersCubit extends Cubit<OrdersState> {
 
   OrdersCubit(this._dataSource) : super(const OrdersState());
 
-  Future<void> loadOrders({String viewAs = 'buyer', bool refresh = false}) async {
+  Future<void> loadOrders({
+    String viewAs = 'buyer',
+    bool refresh = false,
+  }) async {
     if (state.isLoading && !refresh) return;
-    emit(state.copyWith(isLoading: true, error: null, viewAs: viewAs, orders: refresh ? [] : state.orders));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        error: null,
+        viewAs: viewAs,
+        orders: refresh ? [] : state.orders,
+      ),
+    );
     try {
       final orders = await _dataSource.getMyOrders(viewAs: viewAs);
       emit(state.copyWith(isLoading: false, orders: orders));
@@ -103,7 +114,7 @@ class _NotificationsPageState extends State<NotificationsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         bottom: false,
         child: BlocBuilder<AuthBloc, AuthState>(
@@ -124,7 +135,9 @@ class _NotificationsPageState extends State<NotificationsPage>
                       builder: (context, state) {
                         if (state.isLoading && state.orders.isEmpty) {
                           return const Center(
-                            child: CircularProgressIndicator(color: AppTheme.primary),
+                            child: CircularProgressIndicator(
+                              color: AppTheme.primary,
+                            ),
                           );
                         }
                         if (state.error != null && state.orders.isEmpty) {
@@ -147,6 +160,7 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 4.h),
       child: Row(
@@ -161,7 +175,7 @@ class _NotificationsPageState extends State<NotificationsPage>
           ),
           SizedBox(width: 10.w),
           Text(
-            'Activity',
+            l10n.activityPageTitle,
             style: GoogleFonts.cairo(
               fontSize: 26.sp,
               fontWeight: FontWeight.w700,
@@ -191,6 +205,7 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   Widget _buildTabBar() {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 0),
       child: Container(
@@ -218,9 +233,9 @@ class _NotificationsPageState extends State<NotificationsPage>
             fontSize: 13.sp,
             fontWeight: FontWeight.w500,
           ),
-          tabs: const [
-            Tab(text: 'Purchases'),
-            Tab(text: 'Sales'),
+          tabs: [
+            Tab(text: l10n.activityTabPurchases),
+            Tab(text: l10n.activityTabSales),
           ],
         ),
       ),
@@ -284,13 +299,20 @@ class _NotificationsPageState extends State<NotificationsPage>
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        'Order #${order.id.substring(0, 8).toUpperCase()}',
-                        style: GoogleFonts.cairo(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
-                        ),
+                      child: Builder(
+                        builder: (context) {
+                          final l10n = AppLocalizations.of(context);
+                          return Text(
+                            l10n.orderNumber(
+                              order.id.substring(0, 8).toUpperCase(),
+                            ),
+                            style: GoogleFonts.cairo(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                            ),
+                          );
+                        },
                       ),
                     ),
                     Container(
@@ -314,13 +336,21 @@ class _NotificationsPageState extends State<NotificationsPage>
                   ],
                 ),
                 SizedBox(height: 4.h),
-                Text(
-                  'Qty ${order.quantity}  •  ${order.totalPrice.toInt()} IQD',
-                  style: GoogleFonts.cairo(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.textSecondary,
-                  ),
+                Builder(
+                  builder: (context) {
+                    final l10n = AppLocalizations.of(context);
+                    return Text(
+                      l10n.orderQtyPrice(
+                        order.quantity,
+                        order.totalPrice.toInt().toString(),
+                      ),
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textSecondary,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -331,12 +361,30 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   (String, Color) _statusInfo(OrderStatus status) {
+    final l10n = AppLocalizations.of(context);
     return switch (status) {
-      OrderStatus.pendingPayment => ('Pending Payment', AppTheme.secondary),
-      OrderStatus.paidToEscrow => ('Paid — In Escrow', const Color(0xFF00BCD4)),
-      OrderStatus.shipped => ('Shipped', AppTheme.primary),
-      OrderStatus.delivered => ('Delivered', const Color(0xFF4CAF50)),
-      OrderStatus.fundsReleased => ('Completed', const Color(0xFF4CAF50)),
+      OrderStatus.pendingPayment => (
+        l10n.statusPendingPayment,
+        AppTheme.secondary,
+      ),
+      OrderStatus.paidToEscrow => (
+        l10n.statusPaidEscrow,
+        const Color(0xFF00BCD4),
+      ),
+      OrderStatus.shipped => (l10n.statusShipped, AppTheme.primary),
+      OrderStatus.delivered => (l10n.statusDelivered, const Color(0xFF4CAF50)),
+      OrderStatus.fundsReleased => (
+        l10n.statusCompleted,
+        const Color(0xFF4CAF50),
+      ),
+      OrderStatus.pendingCODFulfillment => (
+        l10n.statusPendingCODFulfillment,
+        AppTheme.secondary,
+      ),
+      OrderStatus.deliveredAndCashCollected => (
+        l10n.statusDeliveredAndCashCollected,
+        const Color(0xFF4CAF50),
+      ),
     };
   }
 
@@ -347,10 +395,13 @@ class _NotificationsPageState extends State<NotificationsPage>
       OrderStatus.shipped => Icons.local_shipping_outlined,
       OrderStatus.delivered => Icons.check_circle_outline,
       OrderStatus.fundsReleased => Icons.verified_outlined,
+      OrderStatus.pendingCODFulfillment => Icons.delivery_dining_outlined,
+      OrderStatus.deliveredAndCashCollected => Icons.done_all_outlined,
     };
   }
 
   Widget _buildEmpty() {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -370,7 +421,7 @@ class _NotificationsPageState extends State<NotificationsPage>
           ),
           SizedBox(height: 16.h),
           Text(
-            'No orders yet',
+            l10n.ordersEmpty,
             style: GoogleFonts.cairo(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
@@ -379,7 +430,7 @@ class _NotificationsPageState extends State<NotificationsPage>
           ),
           SizedBox(height: 6.h),
           Text(
-            'Your purchases and sales will appear here',
+            l10n.ordersEmptySub,
             style: GoogleFonts.cairo(
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
@@ -392,6 +443,7 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   Widget _buildError(String message) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -400,7 +452,10 @@ class _NotificationsPageState extends State<NotificationsPage>
           SizedBox(height: 12.h),
           Text(
             message,
-            style: GoogleFonts.cairo(fontSize: 14.sp, color: AppTheme.textSecondary),
+            style: GoogleFonts.cairo(
+              fontSize: 14.sp,
+              color: AppTheme.textSecondary,
+            ),
           ),
           SizedBox(height: 16.h),
           GestureDetector(
@@ -412,7 +467,7 @@ class _NotificationsPageState extends State<NotificationsPage>
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Text(
-                'Retry',
+                l10n.retryBtn,
                 style: GoogleFonts.cairo(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
@@ -427,6 +482,7 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   Widget _buildUnauthenticated() {
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(40.w, 40.h, 40.w, 120.h),
       child: Column(
@@ -448,7 +504,7 @@ class _NotificationsPageState extends State<NotificationsPage>
           ),
           SizedBox(height: 20.h),
           Text(
-            'Sign in to view your activity',
+            l10n.signInToViewActivity,
             style: GoogleFonts.cairo(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
@@ -458,7 +514,7 @@ class _NotificationsPageState extends State<NotificationsPage>
           ),
           SizedBox(height: 8.h),
           Text(
-            'Track your purchases, sales, and bids all in one place.',
+            l10n.signInActivitySub,
             style: GoogleFonts.cairo(
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
@@ -470,16 +526,13 @@ class _NotificationsPageState extends State<NotificationsPage>
           AuthGuard(
             onAuthenticated: () {},
             child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 32.w,
-                vertical: 14.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: AppTheme.textPrimary,
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Text(
-                'Sign In',
+                l10n.signInBtn,
                 style: GoogleFonts.cairo(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w700,

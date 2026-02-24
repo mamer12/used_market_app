@@ -44,6 +44,9 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
   phoneNumber: json['phone_number'] as String?,
   role: json['role'] as String? ?? 'user',
   isVerified: json['is_verified'] as bool? ?? false,
+  strikesCount: (json['strikes_count'] as num?)?.toInt() ?? 0,
+  isBanned: json['is_banned'] as bool? ?? false,
+  walletBalance: json['wallet_balance'] as String? ?? '0',
   createdAt: json['created_at'] as String?,
   updatedAt: json['updated_at'] as String?,
 );
@@ -55,6 +58,9 @@ Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
       'phone_number': instance.phoneNumber,
       'role': instance.role,
       'is_verified': instance.isVerified,
+      'strikes_count': instance.strikesCount,
+      'is_banned': instance.isBanned,
+      'wallet_balance': instance.walletBalance,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
     };

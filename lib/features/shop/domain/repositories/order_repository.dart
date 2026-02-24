@@ -11,4 +11,5 @@ abstract class OrderRepository {
     int page = 1,
     int limit = 20,
   });
+  Future<OrderModel> initiateCODCheckout(String orderId);
 }

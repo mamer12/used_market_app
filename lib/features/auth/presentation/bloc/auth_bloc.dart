@@ -72,11 +72,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final onboarded = results[1];
 
       if (isLoggedIn) {
-        LogService().info('🔑 Session found — authenticating');
+        LogService().info(
+          '🔑 Session found — authenticating & fetching user...',
+        );
+        final user = await _authRepository.getUser();
         emit(
           state.copyWith(
             status: AuthStatus.authenticated,
             hasOnboarded: onboarded,
+            user: user,
+            displayName: user?.fullName ?? state.displayName,
+            phoneNumber: user?.phoneNumber ?? state.phoneNumber,
           ),
         );
       } else {
@@ -146,8 +152,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         LoginRequest(phoneNumber: state.phoneNumber!, otp: event.otp),
       );
 
-      LogService().info('✅ Login successful');
-      emit(state.copyWith(status: AuthStatus.authenticated, isLoading: false));
+      LogService().info('✅ Login successful, fetching user...');
+      final user = await _authRepository.getUser();
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          isLoading: false,
+          user: user,
+          displayName: user?.fullName ?? state.displayName,
+          phoneNumber: user?.phoneNumber ?? state.phoneNumber,
+        ),
+      );
     } on DioException catch (e) {
       LogService().error('API Login failed', e, StackTrace.current);
 
@@ -209,8 +224,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
 
-      LogService().info('✅ Registration successful');
-      emit(state.copyWith(status: AuthStatus.authenticated, isLoading: false));
+      LogService().info('✅ Registration successful, fetching user...');
+      final user = await _authRepository.getUser();
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          isLoading: false,
+          user: user,
+          displayName: user?.fullName ?? state.displayName,
+          phoneNumber: user?.phoneNumber ?? state.phoneNumber,
+        ),
+      );
     } on DioException catch (e) {
       LogService().error('Registration failed (Dio)', e, StackTrace.current);
       String errorMessage = "Registration failed";
@@ -275,6 +299,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     await _authRepository.logout();
     LogService().info('👋 User logged out → guest mode');
-    emit(const AuthState(status: AuthStatus.guest));
+    emit(const AuthState(status: AuthStatus.guest, user: null));
   }
 }

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../data/models/auth_models.dart';
 import '../../domain/entities/auth_status.dart';
 
 /// Immutable auth state.
@@ -24,6 +25,9 @@ class AuthState extends Equatable {
   /// Whether the user has completed onboarding.
   final bool hasOnboarded;
 
+  /// The fetched user profile data.
+  final UserModel? user;
+
   const AuthState({
     this.status = AuthStatus.initial,
     this.phoneNumber,
@@ -32,6 +36,7 @@ class AuthState extends Equatable {
     this.error,
     this.isLoading = false,
     this.hasOnboarded = false,
+    this.user,
   });
 
   AuthState copyWith({
@@ -42,6 +47,7 @@ class AuthState extends Equatable {
     String? error,
     bool? isLoading,
     bool? hasOnboarded,
+    UserModel? user,
     bool clearPhoneNumber = false,
     bool clearDisplayName = false,
   }) {
@@ -51,6 +57,7 @@ class AuthState extends Equatable {
       displayName: clearDisplayName ? null : (displayName ?? this.displayName),
       otpCode: otpCode ?? this.otpCode,
       hasOnboarded: hasOnboarded ?? this.hasOnboarded,
+      user: user ?? this.user,
       error: error,
       isLoading: isLoading ?? this.isLoading,
     );
@@ -70,5 +77,6 @@ class AuthState extends Equatable {
     error,
     isLoading,
     hasOnboarded,
+    user,
   ];
 }

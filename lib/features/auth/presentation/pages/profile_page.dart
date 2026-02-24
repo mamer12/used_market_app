@@ -6,11 +6,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/locale/locale_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/auth_guard.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auction/presentation/pages/active_bids_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../shop/presentation/pages/order_history_page.dart';
+import '../../data/models/auth_models.dart';
 
 /// Me tab — user profile from local auth state + /users/me endpoint.
 class ProfilePage extends StatelessWidget {
@@ -19,7 +21,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         bottom: false,
         child: BlocBuilder<AuthBloc, AuthState>(
@@ -36,30 +38,46 @@ class ProfilePage extends StatelessWidget {
 
   // ── Authenticated ────────────────────────────────────────
   Widget _buildProfile(BuildContext context, AuthState state) {
+    final l10n = AppLocalizations.of(context);
     final displayName = state.displayName ?? 'User';
     final phone = state.phoneNumber ?? '';
     final initials = _getInitials(displayName);
 
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: _buildHeader()),
-        SliverToBoxAdapter(child: _buildAvatar(initials, displayName, phone)),
+        SliverToBoxAdapter(child: _buildHeader(context)),
+        if (state.user != null)
+          SliverToBoxAdapter(
+            child: _buildStrikesBanner(context, state.user!, l10n),
+          ),
+        SliverToBoxAdapter(
+          child: _buildAvatar(initials, displayName, phone, l10n),
+        ),
         SliverToBoxAdapter(child: SizedBox(height: 24.h)),
         SliverToBoxAdapter(
-          child: _buildSection(context, 'Account', _accountItems(context)),
+          child: _buildSection(
+            context,
+            l10n.profileSectionAccount,
+            _accountItems(context, l10n),
+          ),
         ),
         SliverToBoxAdapter(child: SizedBox(height: 12.h)),
         SliverToBoxAdapter(
-          child: _buildSection(context, 'Support', _supportItems(context)),
+          child: _buildSection(
+            context,
+            l10n.profileSectionSupport,
+            _supportItems(context, l10n),
+          ),
         ),
         SliverToBoxAdapter(child: SizedBox(height: 12.h)),
-        SliverToBoxAdapter(child: _buildLogoutButton(context)),
+        SliverToBoxAdapter(child: _buildLogoutButton(context, l10n)),
         SliverToBoxAdapter(child: SizedBox(height: 100.h)),
       ],
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
       child: Row(
@@ -74,7 +92,7 @@ class ProfilePage extends StatelessWidget {
           ),
           SizedBox(width: 10.w),
           Text(
-            'My Profile',
+            l10n.profileTitle,
             style: GoogleFonts.cairo(
               fontSize: 26.sp,
               fontWeight: FontWeight.w700,
@@ -86,7 +104,74 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar(String initials, String displayName, String phone) {
+  Widget _buildStrikesBanner(
+    BuildContext context,
+    UserModel user,
+    AppLocalizations l10n,
+  ) {
+    if (user.isBanned) {
+      return Container(
+        margin: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: Colors.red.shade900,
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.gavel_rounded, color: Colors.white, size: 20.sp),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Text(
+                l10n.bannedUserWarning,
+                style: GoogleFonts.cairo(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (user.strikesCount > 0) {
+      return Container(
+        margin: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade800,
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20.sp),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Text(
+                l10n.strikesWarning(user.strikesCount),
+                style: GoogleFonts.cairo(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildAvatar(
+    String initials,
+    String displayName,
+    String phone,
+    AppLocalizations l10n,
+  ) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
       child: Container(
@@ -107,8 +192,8 @@ class ProfilePage extends StatelessWidget {
             Container(
               width: 72.w,
               height: 72.w,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
                   colors: [AppTheme.primary, AppTheme.secondary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -161,7 +246,7 @@ class ProfilePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Text(
-                      '● Verified',
+                      l10n.profileVerified,
                       style: GoogleFonts.cairo(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w700,
@@ -282,7 +367,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: GestureDetector(
@@ -302,7 +387,7 @@ class ProfilePage extends StatelessWidget {
               Icon(Icons.logout_rounded, size: 20.sp, color: AppTheme.error),
               SizedBox(width: 8.w),
               Text(
-                'Log Out',
+                l10n.profileLogOut,
                 style: GoogleFonts.cairo(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
@@ -316,19 +401,23 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  List<_MenuItem> _accountItems(BuildContext context) {
+  List<_MenuItem> _accountItems(BuildContext context, AppLocalizations l10n) {
     final currentLocale = context.read<LocaleCubit>().state;
     final isArabic = currentLocale.languageCode == 'ar';
     return [
       _MenuItem(
         icon: Icons.person_outline,
-        label: 'Edit Profile',
+        label: l10n.profileEditProfile,
         onTap: (_) {},
       ),
-      _MenuItem(icon: Icons.store_outlined, label: 'My Shop', onTap: (_) {}),
+      _MenuItem(
+        icon: Icons.store_outlined,
+        label: l10n.profileMyShop,
+        onTap: (_) {},
+      ),
       _MenuItem(
         icon: Icons.receipt_long_outlined,
-        label: 'Order History',
+        label: l10n.profileOrderHistory,
         onTap: (_) {
           Navigator.of(
             context,
@@ -337,7 +426,7 @@ class ProfilePage extends StatelessWidget {
       ),
       _MenuItem(
         icon: Icons.gavel_outlined,
-        label: 'Active Bids',
+        label: l10n.profileActiveBids,
         onTap: (_) {
           Navigator.of(
             context,
@@ -346,12 +435,12 @@ class ProfilePage extends StatelessWidget {
       ),
       _MenuItem(
         icon: Icons.favorite_outline,
-        label: 'Saved Items',
+        label: l10n.profileSavedItems,
         onTap: (_) {},
       ),
       _MenuItem(
         icon: Icons.language_outlined,
-        label: 'Language',
+        label: l10n.profileLanguage,
         onTap: (_) => context.read<LocaleCubit>().toggleLocale(),
         trailing: Container(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
@@ -372,17 +461,21 @@ class ProfilePage extends StatelessWidget {
     ];
   }
 
-  List<_MenuItem> _supportItems(BuildContext context) {
+  List<_MenuItem> _supportItems(BuildContext context, AppLocalizations l10n) {
     return [
-      _MenuItem(icon: Icons.help_outline, label: 'Help Center', onTap: (_) {}),
+      _MenuItem(
+        icon: Icons.help_outline,
+        label: l10n.profileHelpCenter,
+        onTap: (_) {},
+      ),
       _MenuItem(
         icon: Icons.privacy_tip_outlined,
-        label: 'Privacy Policy',
+        label: l10n.profilePrivacyPolicy,
         onTap: (_) {},
       ),
       _MenuItem(
         icon: Icons.info_outline,
-        label: 'App Version',
+        label: l10n.profileAppVersion,
         onTap: null,
         trailing: Text(
           'v1.0.0',
@@ -394,6 +487,7 @@ class ProfilePage extends StatelessWidget {
 
   // ── Guest ────────────────────────────────────────────────
   Widget _buildGuest(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 40.w),
@@ -419,7 +513,7 @@ class ProfilePage extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
             Text(
-              'Sign in to Mustamal',
+              l10n.profileGuestTitle,
               style: GoogleFonts.cairo(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w700,
@@ -429,7 +523,7 @@ class ProfilePage extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              'Access your profile, track orders, and manage your listings.',
+              l10n.profileGuestSub,
               style: GoogleFonts.cairo(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w500,
@@ -449,7 +543,7 @@ class ProfilePage extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'Sign In',
+                    l10n.signInBtn,
                     style: GoogleFonts.cairo(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,

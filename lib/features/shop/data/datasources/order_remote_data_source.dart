@@ -15,6 +15,7 @@ abstract class OrderRemoteDataSource {
     int page = 1,
     int limit = 20,
   });
+  Future<OrderModel> initiateCODCheckout(String orderId);
 }
 
 @LazySingleton(as: OrderRemoteDataSource)
@@ -58,5 +59,21 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     return data
         .map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<OrderModel> initiateCODCheckout(String orderId) async {
+    try {
+      final response = await _dio.post(
+        '${ApiConstants.ordersStatus}/$orderId/cod',
+      );
+      final data = response.data['data'] as Map<String, dynamic>;
+      return OrderModel.fromJson(data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 402) {
+        rethrow; // We will catch this in the repository
+      }
+      rethrow;
+    }
   }
 }
