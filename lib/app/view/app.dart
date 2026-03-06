@@ -4,15 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../core/di/injection.dart';
 import '../../core/locale/locale_cubit.dart';
+import '../../core/router/app_router.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/widgets/main_shell.dart';
-import '../../features/auth/domain/entities/auth_status.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
-import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/presentation/bloc/cart_cubit.dart';
-import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 class App extends StatelessWidget {
@@ -42,7 +39,7 @@ class App extends StatelessWidget {
           ],
           child: BlocBuilder<LocaleCubit, Locale>(
             builder: (context, locale) {
-              return MaterialApp(
+              return MaterialApp.router(
                 title: 'لكطة',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.lightTheme,
@@ -51,52 +48,13 @@ class App extends StatelessWidget {
                 supportedLocales: AppLocalizations.supportedLocales,
                 locale: locale,
 
-                // Entry point
-                home: const _AppEntry(),
+                // go_router integration
+                routerConfig: appRouter,
               );
             },
           ),
         );
       },
-    );
-  }
-}
-
-class _AppEntry extends StatelessWidget {
-  const _AppEntry();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        if (state.status == AuthStatus.initial) {
-          return const _SplashScreen(key: ValueKey('splash'));
-        }
-
-        if (state.isAuthenticated) {
-          return const MainShell(key: ValueKey('main'));
-        }
-
-        if (!state.hasOnboarded) {
-          return const OnboardingPage(key: ValueKey('onboarding'));
-        }
-
-        return const MainShell(key: ValueKey('main'));
-      },
-    );
-  }
-}
-
-class _SplashScreen extends StatelessWidget {
-  const _SplashScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: AppTheme.primary,
-      body: Center(
-        child: CircularProgressIndicator(color: AppTheme.textPrimary),
-      ),
     );
   }
 }

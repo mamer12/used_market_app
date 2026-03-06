@@ -7,8 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../home/presentation/bloc/home_cubit.dart';
 import '../../data/models/auction_models.dart';
+import '../bloc/auctions_cubit.dart';
 import 'auction_live_page.dart';
 
 class AuctionsPage extends StatefulWidget {
@@ -20,23 +20,21 @@ class AuctionsPage extends StatefulWidget {
 
 class _AuctionsPageState extends State<AuctionsPage>
     with SingleTickerProviderStateMixin {
-  late final HomeCubit _homeCubit;
+  late final AuctionsCubit _auctionsCubit;
   late final TabController _tabCtrl;
 
   // Filter state
-  String _sortBy =
-      'ending_soon'; // ending_soon | price_asc | price_desc | newest
-  String _filterStatus = 'live'; // live | upcoming | ended
+  // Filter state
 
   @override
   void initState() {
     super.initState();
-    _homeCubit = getIt<HomeCubit>()..loadFeed();
+    _auctionsCubit = getIt<AuctionsCubit>()..loadAuctions();
     _tabCtrl = TabController(length: 3, vsync: this);
     _tabCtrl.addListener(() {
-      setState(() {
-        _filterStatus = ['live', 'upcoming', 'ended'][_tabCtrl.index];
-      });
+      if (_tabCtrl.indexIsChanging) return;
+      final status = ['live', 'upcoming', 'ended'][_tabCtrl.index];
+      _auctionsCubit.setFilterStatus(status);
     });
   }
 
@@ -49,31 +47,31 @@ class _AuctionsPageState extends State<AuctionsPage>
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: _homeCubit,
+      value: _auctionsCubit,
       child: Scaffold(
         backgroundColor: AppTheme.background,
         body: NestedScrollView(
           headerSliverBuilder: (_, _) => [_buildAppBar()],
-          body: BlocBuilder<HomeCubit, HomeState>(
+          body: BlocBuilder<AuctionsCubit, AuctionsState>(
             builder: (context, state) {
-              if (state.isLoading) {
+              if (state.isLoading && state.auctions.isEmpty) {
                 return const Center(
                   child: CircularProgressIndicator(color: AppTheme.primary),
                 );
               }
-              final auctions = state.liveAuctions;
-              final filtered = _applyFilters(auctions);
+              final auctions = state.auctions;
 
               return Column(
                 children: [
                   _buildStats(auctions),
-                  _buildSortBar(),
+                  _buildSortBar(state),
                   Expanded(
-                    child: filtered.isEmpty
+                    child: auctions.isEmpty
                         ? _buildEmpty()
                         : RefreshIndicator(
                             color: AppTheme.primary,
-                            onRefresh: () async => _homeCubit.loadFeed(),
+                            onRefresh: () async =>
+                                _auctionsCubit.loadAuctions(),
                             child: ListView.separated(
                               padding: EdgeInsets.fromLTRB(
                                 16.w,
@@ -81,11 +79,20 @@ class _AuctionsPageState extends State<AuctionsPage>
                                 16.w,
                                 100.h,
                               ),
-                              itemCount: filtered.length,
+                              itemCount:
+                                  auctions.length + (state.isLoading ? 1 : 0),
                               separatorBuilder: (_, _) =>
                                   SizedBox(height: 14.h),
-                              itemBuilder: (context, i) =>
-                                  _AuctionTile(auction: filtered[i]),
+                              itemBuilder: (context, i) {
+                                if (i == auctions.length) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppTheme.primary,
+                                    ),
+                                  );
+                                }
+                                return _AuctionTile(auction: auctions[i]);
+                              },
                             ),
                           ),
                   ),
@@ -207,7 +214,7 @@ class _AuctionsPageState extends State<AuctionsPage>
     );
   }
 
-  Widget _buildSortBar() {
+  Widget _buildSortBar(AuctionsState state) {
     final options = [
       ('ending_soon', 'ينتهي قريباً'),
       ('price_asc', 'الأقل سعراً'),
@@ -223,9 +230,9 @@ class _AuctionsPageState extends State<AuctionsPage>
         itemCount: options.length,
         separatorBuilder: (_, _) => SizedBox(width: 8.w),
         itemBuilder: (_, i) {
-          final selected = _sortBy == options[i].$1;
+          final selected = state.sortBy == options[i].$1;
           return GestureDetector(
-            onTap: () => setState(() => _sortBy = options[i].$1),
+            onTap: () => _auctionsCubit.setSortBy(options[i].$1),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: EdgeInsets.symmetric(horizontal: 14.w),
@@ -250,35 +257,6 @@ class _AuctionsPageState extends State<AuctionsPage>
         },
       ),
     );
-  }
-
-  List<AuctionModel> _applyFilters(List<AuctionModel> auctions) {
-    final list = auctions.where((a) {
-      if (_filterStatus == 'live') return a.status == 'live';
-      if (_filterStatus == 'upcoming') return a.status == 'upcoming';
-      if (_filterStatus == 'ended') return a.status == 'ended';
-      return true;
-    }).toList();
-
-    switch (_sortBy) {
-      case 'price_asc':
-        list.sort(
-          (a, b) => (a.currentPrice ?? 0).compareTo(b.currentPrice ?? 0),
-        );
-      case 'price_desc':
-        list.sort(
-          (a, b) => (b.currentPrice ?? 0).compareTo(a.currentPrice ?? 0),
-        );
-      case 'newest':
-        list.sort((a, b) => (b.id ?? '').compareTo(a.id ?? ''));
-      default: // ending_soon
-        list.sort(
-          (a, b) => (a.endTime ?? DateTime(9999)).compareTo(
-            b.endTime ?? DateTime(9999),
-          ),
-        );
-    }
-    return list;
   }
 
   Widget _buildEmpty() {

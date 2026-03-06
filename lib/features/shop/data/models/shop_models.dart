@@ -91,6 +91,11 @@ abstract class ProductModel with _$ProductModel {
     String? description,
     String? sku,
     @JsonKey(name: 'is_active') @Default(true) bool isActive,
+    // Super App fields — Balla / Matajir distinction
+    @JsonKey(name: 'is_balla') @Default(false) bool isBalla,
+
+    /// 'piece' | 'kg' | 'bundle'
+    @JsonKey(name: 'sales_unit') @Default('piece') String salesUnit,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
   }) = _ProductModel;

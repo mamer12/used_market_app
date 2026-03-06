@@ -5,7 +5,13 @@ import '../../../../core/network/api_constants.dart';
 import '../models/auction_models.dart';
 
 abstract class AuctionRemoteDataSource {
-  Future<List<AuctionModel>> getAuctions({int page = 1, int limit = 20});
+  Future<List<AuctionModel>> getAuctions({
+    String? category,
+    String? condition,
+    String sortBy = 'ending_soon',
+    int page = 1,
+    int limit = 20,
+  });
   Future<AuctionModel> getAuctionDetails(String id);
   Future<List<BidModel>> getBidHistory(
     String id, {
@@ -23,10 +29,28 @@ class AuctionRemoteDataSourceImpl implements AuctionRemoteDataSource {
   AuctionRemoteDataSourceImpl(this._dio);
 
   @override
-  Future<List<AuctionModel>> getAuctions({int page = 1, int limit = 20}) async {
+  Future<List<AuctionModel>> getAuctions({
+    String? category,
+    String? condition,
+    String sortBy = 'ending_soon',
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      'sort_by': sortBy,
+    };
+    if (category != null && category.isNotEmpty) {
+      queryParams['category'] = category;
+    }
+    if (condition != null && condition.isNotEmpty) {
+      queryParams['condition'] = condition;
+    }
+
     final response = await _dio.get(
       ApiConstants.auctions,
-      queryParameters: {'page': page, 'limit': limit},
+      queryParameters: queryParams,
     );
     final data = response.data as List;
     return data

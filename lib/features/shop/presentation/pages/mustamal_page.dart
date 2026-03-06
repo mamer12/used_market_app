@@ -1,0 +1,341 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+
+import '../../../../core/di/injection.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../home/presentation/bloc/home_cubit.dart';
+
+class MustamalPage extends StatefulWidget {
+  const MustamalPage({super.key});
+
+  @override
+  State<MustamalPage> createState() => _MustamalPageState();
+}
+
+class _MustamalPageState extends State<MustamalPage> {
+  late final HomeCubit _cubit;
+  final String _location = 'بغداد';
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = getIt<HomeCubit>()..loadFeed();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: _cubit, // Provide HomeCubit to fetch mustamal
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFAFAFA), // Off-white clean
+        body: SafeArea(
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                backgroundColor: AppTheme.background,
+                elevation: 0,
+                pinned: true,
+                centerTitle: false,
+                iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'MUSTAMAL MARKET',
+                      style: GoogleFonts.cairo(
+                        color: AppTheme.textPrimary,
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_rounded,
+                          color: AppTheme.secondary,
+                          size: 10.sp,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          _location,
+                          style: GoogleFonts.cairo(
+                            color: AppTheme.secondary,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                actions: [
+                  IconButton(
+                    icon: Container(
+                      padding: EdgeInsets.all(6.w),
+                      decoration: BoxDecoration(
+                        color: AppTheme.secondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Icon(
+                        Icons.add_a_photo_rounded,
+                        color: AppTheme.secondary,
+                        size: 20.sp,
+                      ),
+                    ),
+                    onPressed: () {},
+                  ),
+                  SizedBox(width: 12.w),
+                ],
+              ),
+
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 16.h,
+                  ),
+                  child: Container(
+                    height: 52.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      textAlignVertical: TextAlignVertical.center,
+                      decoration: InputDecoration(
+                        hintText: 'Search for phones, cars, furniture...',
+                        hintStyle: GoogleFonts.cairo(
+                          color: AppTheme.inactive,
+                          fontSize: 14.sp,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search_rounded,
+                          color: AppTheme.secondary,
+                          size: 22.sp,
+                        ),
+                        suffixIcon: Icon(
+                          Icons.tune_rounded,
+                          color: AppTheme.textPrimary,
+                          size: 22.sp,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20.w),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Grid
+              BlocBuilder<HomeCubit, HomeState>(
+                builder: (context, state) {
+                  if (state.isLoading && state.portal.mustamal.isEmpty) {
+                    return const SliverFillRemaining(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppTheme.secondary,
+                        ),
+                      ),
+                    );
+                  }
+
+                  final items = state.portal.mustamal;
+                  if (items.isEmpty) {
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: Text(
+                          'لا يوجد إعلانات مستعمل حالياً',
+                          style: GoogleFonts.cairo(fontSize: 16.sp),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return SliverPadding(
+                    padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 100.h),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 20.h,
+                        crossAxisSpacing: 16.w,
+                        childAspectRatio: 0.65,
+                      ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return _MustamalCard(item: items[index]);
+                      }, childCount: items.length),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MustamalCard extends StatelessWidget {
+  final dynamic item;
+
+  const _MustamalCard({required this.item});
+
+  String formatIQD(num price) {
+    final formatted = NumberFormat('#,###', 'en_US').format(price.toInt());
+    return '$formatted IQD';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title = item.title ?? 'No Title';
+    final price = item.price ?? 0;
+    final images = item.images ?? [];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 5,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (images.isNotEmpty)
+                  Image.network(
+                    images.first,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      color: AppTheme.inactive.withValues(alpha: 0.1),
+                    ),
+                  )
+                else
+                  Container(color: AppTheme.inactive.withValues(alpha: 0.1)),
+                Positioned(
+                  top: 10.h,
+                  left: 10.w,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.secondary,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      'PRE-OWNED',
+                      style: GoogleFonts.inter(
+                        fontSize: 8.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: Padding(
+              padding: EdgeInsets.all(12.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.cairo(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        formatIQD(price),
+                        style: GoogleFonts.cairo(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 36.h,
+                          decoration: BoxDecoration(
+                            color: AppTheme.textPrimary,
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'VIEW DETAILS',
+                            style: GoogleFonts.inter(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Container(
+                        height: 36.h,
+                        width: 36.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF25D366).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        child: Icon(
+                          Icons.chat_bubble_rounded,
+                          color: const Color(0xFF25D366),
+                          size: 18.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

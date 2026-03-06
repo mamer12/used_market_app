@@ -12,7 +12,8 @@ class ApiConstants {
   /// - Release builds → use the [_prodHost] constant.
   ///
   /// Override at any time with --dart-define=DEV_HOST=YOUR_IP.
-  static const String _devHost = '192.168.68.104'; // <-- update if IP changes
+  static const String _devHost =
+      '192.168.68.102'; // <-- localhost for iOS Simulator
   static const String _prodHost = 'api.mustamal.com'; // <-- your prod domain
 
   static String get _host {

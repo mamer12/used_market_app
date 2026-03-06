@@ -50,17 +50,27 @@ class AddToCartRequest {
   final String referenceId;
   final int quantity;
 
+  /// Optional Mini-App scope tag sent as `app_context` in the API payload.
+  ///
+  /// - `'matajir'` — Matajir retail cart item
+  /// - `'balla'`   — Balla bulk cart item
+  /// - `null`      — legacy global cart (no app_context field in JSON)
+  final String? appContext;
+
   const AddToCartRequest({
     required this.itemType,
     required this.referenceId,
     required this.quantity,
+    this.appContext,
   });
 
   Map<String, dynamic> toJson() => {
-        'item_type': itemType,
-        'reference_id': referenceId,
-        'quantity': quantity,
-      };
+    'item_type': itemType,
+    'reference_id': referenceId,
+    'quantity': quantity,
+    // Omit entirely when null — preserves backward compat with legacy backend
+    if (appContext != null) 'app_context': appContext,
+  };
 }
 
 class UpdateCartQuantityRequest {
@@ -114,7 +124,7 @@ class AddSavedItemRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        'item_type': itemType,
-        'reference_id': referenceId,
-      };
+    'item_type': itemType,
+    'reference_id': referenceId,
+  };
 }

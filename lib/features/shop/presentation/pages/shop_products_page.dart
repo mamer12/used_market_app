@@ -100,7 +100,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
             onTap: () => Navigator.of(context).pop(),
             child: Container(
               margin: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.surface,
                 shape: BoxShape.circle,
               ),

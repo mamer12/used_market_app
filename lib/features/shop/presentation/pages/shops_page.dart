@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -130,7 +128,7 @@ class _ShopsPageState extends State<ShopsPage> {
             controller: _scrollController,
             padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 100.h),
             itemCount: state.shops.length + (state.isLoading ? 1 : 0),
-            separatorBuilder: (_, __) => SizedBox(height: 12.h),
+            separatorBuilder: (_, _) => SizedBox(height: 12.h),
             itemBuilder: (context, index) {
               if (index >= state.shops.length) {
                 return const Padding(
@@ -167,10 +165,8 @@ class _ShopsPageState extends State<ShopsPage> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute<void>(
-            builder: (_) => ShopProductsPage(
-              shopSlug: shop.slug,
-              shopName: shop.name,
-            ),
+            builder: (_) =>
+                ShopProductsPage(shopSlug: shop.slug, shopName: shop.name),
           ),
         );
       },
@@ -216,9 +212,7 @@ class _ShopsPageState extends State<ShopsPage> {
                     ),
                     child: Center(
                       child: Text(
-                        shop.name.isNotEmpty
-                            ? shop.name[0].toUpperCase()
-                            : 'S',
+                        shop.name.isNotEmpty ? shop.name[0].toUpperCase() : 'S',
                         style: GoogleFonts.cairo(
                           fontSize: 26.sp,
                           fontWeight: FontWeight.w800,
@@ -289,7 +283,7 @@ class _ShopsPageState extends State<ShopsPage> {
                   Container(
                     width: 36.w,
                     height: 36.w,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppTheme.surface,
                       shape: BoxShape.circle,
                     ),
@@ -317,7 +311,7 @@ class _ShopsPageState extends State<ShopsPage> {
           Container(
             width: 80.w,
             height: 80.w,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppTheme.surface,
               shape: BoxShape.circle,
             ),
@@ -355,11 +349,7 @@ class _ShopsPageState extends State<ShopsPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 48.sp,
-            color: AppTheme.error,
-          ),
+          Icon(Icons.error_outline, size: 48.sp, color: AppTheme.error),
           SizedBox(height: 12.h),
           Text(
             message,

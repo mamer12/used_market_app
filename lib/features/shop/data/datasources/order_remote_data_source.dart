@@ -67,8 +67,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       final response = await _dio.post(
         '${ApiConstants.ordersStatus}/$orderId/cod',
       );
-      final data = response.data['data'] as Map<String, dynamic>;
-      return OrderModel.fromJson(data);
+      return OrderModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       if (e.response?.statusCode == 402) {
         rethrow; // We will catch this in the repository

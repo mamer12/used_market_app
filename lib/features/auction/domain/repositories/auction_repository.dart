@@ -1,7 +1,13 @@
 import '../../data/models/auction_models.dart';
 
 abstract class AuctionRepository {
-  Future<List<AuctionModel>> getLiveAuctions({int page = 1, int limit = 20});
+  Future<List<AuctionModel>> getLiveAuctions({
+    String? category,
+    String? condition,
+    String sortBy = 'ending_soon',
+    int page = 1,
+    int limit = 20,
+  });
   Future<AuctionModel> getAuctionDetails(String id);
   Future<List<BidModel>> getBidHistory(
     String id, {

@@ -282,13 +282,16 @@ class _SummaryRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.cairo(
-            fontSize: 12.sp,
-            color: Colors.white.withValues(alpha: 0.55),
+        Expanded(
+          child: Text(
+            label,
+            style: GoogleFonts.cairo(
+              fontSize: 12.sp,
+              color: Colors.white.withValues(alpha: 0.55),
+            ),
           ),
         ),
+        SizedBox(width: 8.w),
         Text(
           value,
           style: GoogleFonts.inter(

@@ -3,27 +3,54 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+import '../../../cart/presentation/bloc/cart_context.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
+import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
 import '../../data/models/shop_models.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final ProductModel product;
 
-  const ProductDetailPage({super.key, required this.product});
+  /// When true (Mustamal used listing), hide "Add to Cart" and show
+  /// a "تواصل مع البائع" WhatsApp/phone button instead.
+  final bool isUsedListing;
+
+  /// Seller contact phone for the WhatsApp button (international format).
+  final String? sellerPhone;
+
+  const ProductDetailPage({
+    super.key,
+    required this.product,
+    this.isUsedListing = false,
+    this.sellerPhone,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.surface,
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(context),
-          SliverToBoxAdapter(child: _buildProductInfo(context)),
-        ],
+    return BlocListener<CartCubit, CartState>(
+      listenWhen: (prev, curr) =>
+          curr.cartStatus == CartStatus.conflict &&
+          prev.cartStatus != CartStatus.conflict,
+      listener: (context, state) {
+        CartConflictSheet.show(
+          context,
+          context.read<CartCubit>() as ScopedCartCubit,
+        );
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.surface,
+        body: CustomScrollView(
+          slivers: [
+            _buildSliverAppBar(context),
+            SliverToBoxAdapter(child: _buildProductInfo(context)),
+          ],
+        ),
+        bottomNavigationBar: _buildBottomBar(context),
       ),
-      bottomNavigationBar: _buildBottomBar(context),
     );
   }
 
@@ -42,7 +69,7 @@ class ProductDetailPage extends StatelessWidget {
                 ? Image.network(
                     product.images.first,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _placeholderImage(),
+                    errorBuilder: (_, _, _) => _placeholderImage(),
                   )
                 : _placeholderImage(),
             Container(
@@ -60,6 +87,30 @@ class ProductDetailPage extends StatelessWidget {
                 ),
               ),
             ),
+            // Balla pill badge
+            if (product.isBalla)
+              Positioned(
+                top: 60.h,
+                right: 16.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 5.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7C4DFF),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Text(
+                    'بالة — ${_unitLabel(product.salesUnit)}',
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -88,7 +139,6 @@ class ProductDetailPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Basic Info
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -104,12 +154,12 @@ class ProductDetailPage extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 16.w),
-              _buildSaveButton(),
+              if (!isUsedListing) _buildSaveButton(context),
             ],
           ),
           SizedBox(height: 12.h),
           Text(
-            '${product.price.toInt()} د.ع', // Simplified formatting for now
+            _formatPrice(product.price, product.salesUnit, product.isBalla),
             style: GoogleFonts.inter(
               fontSize: 24.sp,
               fontWeight: FontWeight.w800,
@@ -118,36 +168,47 @@ class ProductDetailPage extends StatelessWidget {
           ),
           SizedBox(height: 24.h),
 
-          // Divider
           Container(height: 1, color: Colors.white.withValues(alpha: 0.05)),
           SizedBox(height: 24.h),
 
-          // Status & SKU
-          Row(
+          // Status badges
+          Wrap(
+            spacing: 8.w,
             children: [
-              _buildInfoBadge(
-                icon: Icons.inventory_2_outlined,
-                label: product.inStock > 0
-                    ? '${product.inStock} in stock'
-                    : 'Out of stock',
-                color: product.inStock > 0
-                    ? AppTheme.liveBadge
-                    : AppTheme.inactive,
-              ),
-              SizedBox(width: 12.w),
-              if (product.sku != null)
+              if (!isUsedListing)
                 _buildInfoBadge(
-                  icon: Icons.qr_code_2_rounded,
-                  label: 'SKU: ${product.sku}',
-                  color: AppTheme.textSecondary,
+                  icon: Icons.inventory_2_outlined,
+                  label: product.inStock > 0
+                      ? '${product.inStock} متوفر'
+                      : 'غير متوفر',
+                  color: product.inStock > 0
+                      ? AppTheme.liveBadge
+                      : AppTheme.inactive,
                 ),
+              if (product.isBalla)
+                _buildInfoBadge(
+                  icon: Icons.inventory_2_rounded,
+                  label: 'يُباع بالـ${_unitLabel(product.salesUnit)}',
+                  color: const Color(0xFF7C4DFF),
+                ),
+              if (isUsedListing) ...[
+                _buildInfoBadge(
+                  icon: Icons.autorenew_rounded,
+                  label: 'مستعمل',
+                  color: AppTheme.secondary,
+                ),
+                _buildInfoBadge(
+                  icon: Icons.chat_bubble_outline,
+                  label: 'تواصل للشراء',
+                  color: const Color(0xFF25D366),
+                ),
+              ],
             ],
           ),
           SizedBox(height: 24.h),
 
-          // Description
           Text(
-            'Description',
+            'الوصف',
             style: GoogleFonts.cairo(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
@@ -156,7 +217,7 @@ class ProductDetailPage extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           Text(
-            product.description ?? 'No description provided.',
+            product.description ?? 'لا يوجد وصف.',
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
@@ -189,7 +250,7 @@ class ProductDetailPage extends StatelessWidget {
           SizedBox(width: 6.w),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.cairo(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: color,
@@ -200,7 +261,7 @@ class ProductDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildSaveButton(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
         final isSaved = state.savedItems.any(
@@ -234,6 +295,70 @@ class ProductDetailPage extends StatelessWidget {
   }
 
   Widget _buildBottomBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    // ── Mustamal used listing: WhatsApp/Chat button ──────────────────────
+    if (isUsedListing) {
+      return Container(
+        padding: EdgeInsets.fromLTRB(
+          20.w,
+          16.h,
+          20.w,
+          MediaQuery.of(context).padding.bottom + 16.h,
+        ),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          border: Border(
+            top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+          ),
+        ),
+        child: GestureDetector(
+          onTap: () async {
+            final phone = sellerPhone ?? '';
+            final msg = Uri.encodeComponent(
+              'مرحبا، رأيت إعلانك عن "${product.name}" وأريد الاستفسار.',
+            );
+            final waUrl = Uri.parse('https://wa.me/$phone?text=$msg');
+            if (await canLaunchUrl(waUrl)) {
+              await launchUrl(waUrl, mode: LaunchMode.externalApplication);
+            }
+          },
+          child: Container(
+            height: 56.h,
+            decoration: BoxDecoration(
+              color: const Color(0xFF25D366),
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF25D366).withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.chat_rounded, size: 22.sp, color: Colors.white),
+                  SizedBox(width: 10.w),
+                  Text(
+                    l10n.whatsappChat,
+                    style: GoogleFonts.cairo(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // ── Matajir / Balla: standard Add to Cart ────────────────────────────
     return Container(
       padding: EdgeInsets.fromLTRB(
         20.w,
@@ -256,19 +381,27 @@ class ProductDetailPage extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               if (inCart) {
-                // Ignore or navigate to cart
-                Navigator.pop(context); // just an example
+                Navigator.pop(context);
                 return;
               }
               HapticFeedback.mediumImpact();
               context.read<CartCubit>().addToCart(product);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Added to Cart', style: GoogleFonts.cairo()),
-                  backgroundColor: AppTheme.primary,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+
+              // We only show snackbar if there was no conflict.
+              // Conflict is handled by BlocListener above.
+              if (context.read<CartCubit>().state.cartStatus !=
+                  CartStatus.conflict) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'تمت الإضافة للسلة',
+                      style: GoogleFonts.cairo(),
+                    ),
+                    backgroundColor: AppTheme.primary,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
@@ -302,7 +435,7 @@ class ProductDetailPage extends StatelessWidget {
                     ),
                     SizedBox(width: 8.w),
                     Text(
-                      inCart ? 'Added to Cart' : 'Add to Cart',
+                      inCart ? 'تمت الإضافة' : 'أضف إلى السلة',
                       style: GoogleFonts.cairo(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
@@ -317,5 +450,33 @@ class ProductDetailPage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  /// Formats IQD price with Balla unit context.
+  String _formatPrice(double price, String salesUnit, bool isBalla) {
+    final iqd = price.toInt();
+    if (isBalla) {
+      return '${_formatIqd(iqd)} / ${_unitLabel(salesUnit)}';
+    }
+    return _formatIqd(iqd);
+  }
+
+  String _formatIqd(int iqd) {
+    if (iqd >= 1000000) {
+      final m = iqd / 1000000;
+      final display = m == m.truncateToDouble()
+          ? m.toInt().toString()
+          : m.toStringAsFixed(1);
+      return '$display مليون دينار';
+    }
+    if (iqd >= 1000) {
+      return '${(iqd ~/ 1000)} ألف دينار';
+    }
+    return '$iqd دينار';
+  }
+
+  String _unitLabel(String unit) {
+    const labels = {'piece': 'قطعة', 'kg': 'كيلو', 'bundle': 'بندل'};
+    return labels[unit] ?? unit;
   }
 }

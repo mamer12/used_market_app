@@ -1,4 +1,1 @@
-enum AppFlavor {
-  development,
-  production,
-}
+enum AppFlavor { development, production }

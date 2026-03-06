@@ -55,7 +55,7 @@ class ActiveBidsPage extends StatelessWidget {
           : ListView.separated(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               itemCount: mockBids.length,
-              separatorBuilder: (_, __) => SizedBox(height: 12.h),
+              separatorBuilder: (_, _) => SizedBox(height: 12.h),
               itemBuilder: (context, index) {
                 final bid = mockBids[index];
                 return _BidCard(

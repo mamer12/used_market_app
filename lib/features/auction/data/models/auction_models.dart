@@ -103,9 +103,7 @@ abstract class CreateAuctionRequest with _$CreateAuctionRequest {
 
 @freezed
 abstract class PlaceBidRequest with _$PlaceBidRequest {
-  const factory PlaceBidRequest({
-    required int amount,
-  }) = _PlaceBidRequest;
+  const factory PlaceBidRequest({required int amount}) = _PlaceBidRequest;
 
   factory PlaceBidRequest.fromJson(Map<String, dynamic> json) =>
       _$PlaceBidRequestFromJson(json);

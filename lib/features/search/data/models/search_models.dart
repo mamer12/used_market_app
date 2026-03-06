@@ -57,7 +57,8 @@ class SearchAuctionResult {
       condition: json['condition'] as String?,
       currentPrice: _parseMoney(json['current_price']),
       endTime: rawEnd == null ? null : DateTime.tryParse(rawEnd),
-      images: (json['images'] as List<dynamic>?)
+      images:
+          (json['images'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
@@ -95,7 +96,8 @@ class SearchShopProductResult {
       description: json['description'] as String?,
       category: json['category'] as String?,
       price: _parseMoney(json['price']),
-      images: (json['images'] as List<dynamic>?)
+      images:
+          (json['images'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
@@ -142,9 +144,9 @@ class SearchResponse {
   }
 
   static SearchResponse empty(String query) => SearchResponse(
-        query: query,
-        auctions: const [],
-        used: const [],
-        shops: const [],
-      );
+    query: query,
+    auctions: const [],
+    used: const [],
+    shops: const [],
+  );
 }

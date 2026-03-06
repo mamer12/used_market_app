@@ -69,6 +69,7 @@ _BuyProductRequest _$BuyProductRequestFromJson(Map<String, dynamic> json) =>
         json['shipping_address'] as Map<String, dynamic>,
       ),
       fulfillmentType: json['fulfillment_type'] as String,
+      appContext: json['app_context'] as String?,
     );
 
 Map<String, dynamic> _$BuyProductRequestToJson(_BuyProductRequest instance) =>
@@ -77,6 +78,7 @@ Map<String, dynamic> _$BuyProductRequestToJson(_BuyProductRequest instance) =>
       'quantity': instance.quantity,
       'shipping_address': instance.shippingAddress,
       'fulfillment_type': instance.fulfillmentType,
+      'app_context': instance.appContext,
     };
 
 _UpdateOrderStatusRequest _$UpdateOrderStatusRequestFromJson(

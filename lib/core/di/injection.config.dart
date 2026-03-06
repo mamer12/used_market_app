@@ -23,6 +23,7 @@ import '../../features/auction/data/repositories/auction_repository_impl.dart'
 import '../../features/auction/domain/repositories/auction_repository.dart'
     as _i256;
 import '../../features/auction/presentation/bloc/auction_cubit.dart' as _i94;
+import '../../features/auction/presentation/bloc/auctions_cubit.dart' as _i936;
 import '../../features/auth/data/datasources/auth_remote_data_source.dart'
     as _i107;
 import '../../features/auth/data/repositories/auth_repository_impl.dart'
@@ -31,6 +32,8 @@ import '../../features/auth/domain/repositories/auth_repository.dart' as _i787;
 import '../../features/auth/presentation/bloc/auth_bloc.dart' as _i797;
 import '../../features/cart/data/datasources/cart_remote_data_source.dart'
     as _i607;
+import '../../features/cart/presentation/cubit/balla_cart_cubit.dart' as _i891;
+import '../../features/cart/presentation/cubit/matajir_cart_cubit.dart' as _i52;
 import '../../features/home/presentation/bloc/home_cubit.dart' as _i816;
 import '../../features/media/data/datasources/media_remote_data_source.dart'
     as _i1028;
@@ -97,6 +100,12 @@ _i174.GetIt init(
       gh<_i973.TokenStorage>(),
     ),
   );
+  gh.factory<_i891.BallaCartCubit>(
+    () => _i891.BallaCartCubit(gh<_i607.CartRemoteDataSource>()),
+  );
+  gh.factory<_i52.MatajirCartCubit>(
+    () => _i52.MatajirCartCubit(gh<_i607.CartRemoteDataSource>()),
+  );
   gh.lazySingleton<_i958.OrderRepository>(
     () => _i1001.OrderRepositoryImpl(gh<_i239.OrderRemoteDataSource>()),
   );
@@ -134,10 +143,14 @@ _i174.GetIt init(
   gh.factory<_i94.AuctionCubit>(
     () => _i94.AuctionCubit(gh<_i256.AuctionRepository>()),
   );
+  gh.factory<_i936.AuctionsCubit>(
+    () => _i936.AuctionsCubit(gh<_i256.AuctionRepository>()),
+  );
   gh.factory<_i816.HomeCubit>(
     () => _i816.HomeCubit(
       gh<_i256.AuctionRepository>(),
       gh<_i106.ShopRepository>(),
+      gh<_i361.Dio>(),
     ),
   );
   return getIt;

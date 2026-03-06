@@ -125,12 +125,12 @@ class _SearchPageState extends State<SearchPage>
                       ),
                     )
                   : _error != null
-                      ? _buildError(_error!)
-                      : _result == null
-                          ? _buildIdle(l10n)
-                          : _result!.totalCount == 0
-                              ? _buildNoResults(l10n)
-                              : _buildResults(l10n, allItems),
+                  ? _buildError(_error!)
+                  : _result == null
+                  ? _buildIdle(l10n)
+                  : _result!.totalCount == 0
+                  ? _buildNoResults(l10n)
+                  : _buildResults(l10n, allItems),
             ),
           ],
         ),
@@ -189,8 +189,10 @@ class _SearchPageState extends State<SearchPage>
                   )
                 : null,
             border: InputBorder.none,
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 14.h,
+            ),
           ),
         ),
       ),
@@ -235,8 +237,7 @@ class _SearchPageState extends State<SearchPage>
       icon: Icons.search_rounded,
       iconColor: AppTheme.inactive,
       title: l10n.searchEmpty,
-      subtitle:
-          _query.length == 1 ? l10n.searchMinChars : l10n.searchEmptySub,
+      subtitle: _query.length == 1 ? l10n.searchMinChars : l10n.searchEmptySub,
     );
   }
 
@@ -299,30 +300,30 @@ class _SearchItem {
   });
 
   static _SearchItem fromAuction(SearchAuctionResult r) => _SearchItem(
-        kind: _SearchItemKind.auction,
-        title: r.title,
-        subtitle: r.category,
-        price: r.currentPrice,
-        images: r.images,
-        endTime: r.endTime,
-      );
+    kind: _SearchItemKind.auction,
+    title: r.title,
+    subtitle: r.category,
+    price: r.currentPrice,
+    images: r.images,
+    endTime: r.endTime,
+  );
 
   static _SearchItem fromUsed(SearchAuctionResult r) => _SearchItem(
-        kind: _SearchItemKind.used,
-        title: r.title,
-        subtitle: r.category,
-        price: r.currentPrice,
-        images: r.images,
-        endTime: r.endTime,
-      );
+    kind: _SearchItemKind.used,
+    title: r.title,
+    subtitle: r.category,
+    price: r.currentPrice,
+    images: r.images,
+    endTime: r.endTime,
+  );
 
   static _SearchItem fromShop(SearchShopProductResult r) => _SearchItem(
-        kind: _SearchItemKind.shop,
-        title: r.name,
-        subtitle: r.category,
-        price: r.price,
-        images: r.images,
-      );
+    kind: _SearchItemKind.shop,
+    title: r.name,
+    subtitle: r.category,
+    price: r.price,
+    images: r.images,
+  );
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -339,18 +340,14 @@ class _ItemList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) {
       return Center(
-        child: Icon(
-          Icons.inbox_rounded,
-          size: 48.sp,
-          color: AppTheme.inactive,
-        ),
+        child: Icon(Icons.inbox_rounded, size: 48.sp, color: AppTheme.inactive),
       );
     }
 
     return ListView.separated(
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 100.h),
       itemCount: items.length,
-      separatorBuilder: (_, __) => SizedBox(height: 10.h),
+      separatorBuilder: (_, _) => SizedBox(height: 10.h),
       itemBuilder: (_, i) => _SearchCard(item: items[i], iqd: iqd),
     );
   }
@@ -392,8 +389,7 @@ class _SearchCard extends StatelessWidget {
         children: [
           // Thumbnail
           ClipRRect(
-            borderRadius:
-                BorderRadius.horizontal(right: Radius.circular(14.r)),
+            borderRadius: BorderRadius.horizontal(right: Radius.circular(14.r)),
             child: SizedBox(
               width: 90.w,
               height: 90.w,
@@ -410,8 +406,9 @@ class _SearchCard extends StatelessWidget {
           // Info
           Expanded(
             child: Padding(
-              padding:
-                  EdgeInsets.symmetric(vertical: 12.h).copyWith(left: 12.w),
+              padding: EdgeInsets.symmetric(
+                vertical: 12.h,
+              ).copyWith(left: 12.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -475,13 +472,9 @@ class _SearchCard extends StatelessWidget {
   }
 
   Widget _imgPlaceholder() => Container(
-        color: AppTheme.surface,
-        child: Icon(
-          Icons.image_outlined,
-          color: AppTheme.inactive,
-          size: 28,
-        ),
-      );
+    color: AppTheme.surface,
+    child: const Icon(Icons.image_outlined, color: AppTheme.inactive, size: 28),
+  );
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -534,4 +527,3 @@ class _CenteredState extends StatelessWidget {
     );
   }
 }
-

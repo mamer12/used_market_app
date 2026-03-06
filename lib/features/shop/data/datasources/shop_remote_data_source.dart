@@ -11,6 +11,7 @@ abstract class ShopRemoteDataSource {
     String shopId,
     AddProductRequest request,
   );
+
   /// Returns (shop, products) tuple from CatalogResponse.
   Future<(ShopModel, List<ProductModel>)> browseShopCatalog(
     String slug, {
@@ -26,10 +27,7 @@ class ShopRemoteDataSourceImpl implements ShopRemoteDataSource {
   ShopRemoteDataSourceImpl(this._dio);
 
   @override
-  Future<List<ShopModel>> listShops({
-    int page = 1,
-    int limit = 20,
-  }) async {
+  Future<List<ShopModel>> listShops({int page = 1, int limit = 20}) async {
     // GET /shops → interceptor strips {success, data} → List<dynamic>
     final response = await _dio.get(
       ApiConstants.shops,

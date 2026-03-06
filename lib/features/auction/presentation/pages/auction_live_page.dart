@@ -136,7 +136,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
           controller: _customAmountCtrl,
           keyboardType: TextInputType.number,
           style: GoogleFonts.inter(color: Colors.white, fontSize: 18.sp),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'Enter amount in IQD',
             hintStyle: TextStyle(color: Colors.white38),
             suffixText: 'IQD',
@@ -152,7 +152,10 @@ class _AuctionLivePageState extends State<AuctionLivePage>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -162,7 +165,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                 _handleBidTap(val);
               }
             },
-            child: Text(
+            child: const Text(
               'Bid',
               style: TextStyle(
                 color: AppTheme.primary,
@@ -308,7 +311,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
           Image.network(
             widget.imageUrl,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) =>
+            errorBuilder: (_, _, _) =>
                 Container(color: const Color(0xFF1A1A1A)),
           ),
           Container(
@@ -479,9 +482,12 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _TrustChip(icon: Icons.verified_user_rounded, label: 'بائع موثوق'),
+        const _TrustChip(
+          icon: Icons.verified_user_rounded,
+          label: 'بائع موثوق',
+        ),
         SizedBox(width: 10.w),
-        _TrustChip(icon: Icons.lock_rounded, label: 'دفع آمن ZainCash'),
+        const _TrustChip(icon: Icons.lock_rounded, label: 'دفع آمن ZainCash'),
       ],
     );
   }
@@ -653,9 +659,9 @@ class _AuctionLivePageState extends State<AuctionLivePage>
             ),
             children: [
               const TextSpan(text: 'بمزايدتك، أنت توافق على '),
-              TextSpan(
+              const TextSpan(
                 text: 'الشروط والأحكام',
-                style: const TextStyle(decoration: TextDecoration.underline),
+                style: TextStyle(decoration: TextDecoration.underline),
               ),
             ],
           ),
@@ -813,7 +819,7 @@ class _BigBidButtonState extends State<_BigBidButton>
         scale: _scale,
         child: AnimatedBuilder(
           animation: _ctrl,
-          builder: (_, __) {
+          builder: (_, _) {
             final pressed = _ctrl.value > 0;
             return Container(
               width: double.infinity,
