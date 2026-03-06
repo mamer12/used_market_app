@@ -109,7 +109,7 @@ class _AuctionWonPageState extends State<AuctionWonPage>
                       // Glow rings
                       AnimatedBuilder(
                         animation: _glowAnim,
-                        builder: (_, __) => Container(
+                        builder: (_, _) => Container(
                           width: 140.w * _glowAnim.value,
                           height: 140.w * _glowAnim.value,
                           decoration: BoxDecoration(
@@ -137,12 +137,12 @@ class _AuctionWonPageState extends State<AuctionWonPage>
                           top: 90.h + sin(angle) * r - 4,
                           child: AnimatedBuilder(
                             animation: _glowAnim,
-                            builder: (_, __) => Opacity(
+                            builder: (_, _) => Opacity(
                               opacity: _glowAnim.value,
                               child: Container(
                                 width: 8,
                                 height: 8,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: AppTheme.primary,
                                 ),

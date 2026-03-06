@@ -72,7 +72,52 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeGreeting => 'هلا بيك';
 
   @override
-  String get homeSearch => 'ابحث عن سيارات، عقارات، أو خدمات...';
+  String get homeSearch => 'على شنو تدور اليوم؟';
+
+  @override
+  String get homeMarkets => 'الأسواق';
+
+  @override
+  String get homeSooqAuctions => 'سوق المزادات';
+
+  @override
+  String get homeSooqAuctionsSub => 'عروض مباشرة الآن';
+
+  @override
+  String get homeSooqAuctionsBtn => 'ادخل';
+
+  @override
+  String get homeSooqShops => 'المتاجر الرسمية';
+
+  @override
+  String get homeSooqShopsSub => 'منتجات أصلية ومضمونة';
+
+  @override
+  String get homeSooqShopsBtn => 'تسوق الآن';
+
+  @override
+  String get homeSooqUsed => 'سوق المستعمل';
+
+  @override
+  String get homeSooqUsedSub => 'بيع وشري بين الناس';
+
+  @override
+  String get homeSooqUsedBtn => 'تصفح';
+
+  @override
+  String get homeSooqBalla => 'سوق البالة';
+
+  @override
+  String get homeSooqBallaSub => 'بندلات وبضاعة بالجملة';
+
+  @override
+  String get homeSooqBallaBtn => 'اكتشف';
+
+  @override
+  String get homeTrendingToday => '🔥 الأكثر طلباً اليوم';
+
+  @override
+  String get homeWalletBalance => 'الرصيد';
 
   @override
   String get homeCategories => 'الأقسام';
@@ -87,7 +132,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeSeeAll => 'عرض الكل';
 
   @override
-  String get homeLive => 'LIVE';
+  String get homeLive => 'مباشر';
 
   @override
   String get homeHighestBid => 'أعلى مزايدة';
@@ -714,4 +759,96 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get insufficientWalletError =>
       'رصيدك لا يكفي لتغطية عمولة التوصيل النقدي. يرجى شحن محفظتك أولاً.';
+
+  @override
+  String get postSellUsed => 'بيع شيء مستعمل';
+
+  @override
+  String get postSellUsedSub => 'إعلان مجاني — المشترون يتواصلون عبر الدردشة';
+
+  @override
+  String get postSellBalla => 'بيع بالة / جملة';
+
+  @override
+  String get postSellBallaSub => 'بيع بالقطعة أو الكيلو أو البندل';
+
+  @override
+  String get whatsappChat => 'تواصل مع البائع';
+
+  @override
+  String checkoutUnitFormat(String price, String qty, String unit) {
+    return '$price دينار ($qty $unit)';
+  }
+
+  @override
+  String get homeSectionAuctions => 'مزادات الساعة 🔴';
+
+  @override
+  String get homeSectionMatajir => 'جديد في المتاجر 🏬';
+
+  @override
+  String get homeSectionMustamal => 'صفقات المستعمل 🤝';
+
+  @override
+  String get homeSectionBalla => 'كنوز البالة 📦';
+
+  @override
+  String get shopAll => 'تسوق الكل';
+
+  @override
+  String walletBalance(String amount) {
+    return 'الرصيد: $amount';
+  }
+
+  @override
+  String get omniboxHint => 'على شنو تدور اليوم؟';
+
+  @override
+  String get miniAppMazadTagline => 'مزايدات مباشرة';
+
+  @override
+  String get miniAppMatajirTagline => 'المتاجر الرسمية';
+
+  @override
+  String get miniAppMustamalTagline => 'سوق المستعمل';
+
+  @override
+  String get miniAppBallaTagline => 'سوق الجملة';
+
+  @override
+  String get matajirTitle => 'المتاجر الرسمية 🏬';
+
+  @override
+  String get ballaTitle => 'سوق البالة 📦';
+
+  @override
+  String get miniAppMazad => 'مزاد';
+
+  @override
+  String get miniAppMustamal => 'مستعمل';
+
+  @override
+  String get miniAppMatajir => 'متاجر';
+
+  @override
+  String get miniAppBalla => 'بالة';
+
+  @override
+  String get cartTitleMatajir => 'سلة المتاجر';
+
+  @override
+  String get cartTitleBalla => 'سلة البالة';
+
+  @override
+  String get cartConflictTitle => 'متجر مختلف!';
+
+  @override
+  String get cartConflictMessage =>
+      'عندك منتجات من متجر ثاني في سلتك. اختار: تحتفظ بسلتك الحالية، أو تمسحها وتضيف المنتج الجديد.';
+
+  @override
+  String get cartConflictKeep => 'احتفظ بالسلة الحالية';
+
+  @override
+  String get cartConflictClear => 'امسح وأضف المنتج الجديد';
 }

@@ -27,12 +27,27 @@
 
   "homeGreetingSub": "هلا بيك",
   "homeGreeting": "هلا بيك",
-  "homeSearch": "ابحث عن سيارات، عقارات، أو خدمات...",
+  "homeSearch": "على شنو تدور اليوم؟",
+  "homeMarkets": "الأسواق",
+  "homeSooqAuctions": "سوق المزادات",
+  "homeSooqAuctionsSub": "عروض مباشرة الآن",
+  "homeSooqAuctionsBtn": "ادخل",
+  "homeSooqShops": "المتاجر الرسمية",
+  "homeSooqShopsSub": "منتجات أصلية ومضمونة",
+  "homeSooqShopsBtn": "تسوق الآن",
+  "homeSooqUsed": "سوق المستعمل",
+  "homeSooqUsedSub": "بيع وشري بين الناس",
+  "homeSooqUsedBtn": "تصفح",
+  "homeSooqBalla": "سوق البالة",
+  "homeSooqBallaSub": "بندلات وبضاعة بالجملة",
+  "homeSooqBallaBtn": "اكتشف",
+  "homeTrendingToday": "🔥 الأكثر طلباً اليوم",
+  "homeWalletBalance": "الرصيد",
   "homeCategories": "الأقسام",
   "homeLiveNow": "مباشر الآن",
   "homeLiveSubtitle": "فرص لا تعوض تنتهي قريباً",
   "homeSeeAll": "عرض الكل",
-  "homeLive": "LIVE",
+  "homeLive": "مباشر",
   "homeHighestBid": "أعلى مزايدة",
   "homeFreshlyListed": "مضاف حديثاً",
   "homeVerified": "موثوق ١٠٠٪",
@@ -277,5 +292,50 @@
 
   "bannedUserWarning": "حسابك محظور بسبب 3 مخالفات عدم دفع مزادات. تواصل مع الدعم.",
   "strikesWarning": "لديك {strikes}/3 مخالفات عدم دفع. إذا وصلت إلى 3 سيتم حظر حسابك.",
-  "insufficientWalletError": "رصيدك لا يكفي لتغطية عمولة التوصيل النقدي. يرجى شحن محفظتك أولاً."
+  "insufficientWalletError": "رصيدك لا يكفي لتغطية عمولة التوصيل النقدي. يرجى شحن محفظتك أولاً.",
+
+  "postSellUsed": "بيع شيء مستعمل",
+  "postSellUsedSub": "إعلان مجاني — المشترون يتواصلون عبر الدردشة",
+
+  "postSellBalla": "بيع بالة / جملة",
+  "postSellBallaSub": "بيع بالقطعة أو الكيلو أو البندل",
+
+  "whatsappChat": "تواصل مع البائع",
+
+  "checkoutUnitFormat": "{price} دينار ({qty} {unit})",
+
+  "homeSectionAuctions": "مزادات الساعة 🔴",
+  "homeSectionMatajir": "جديد في المتاجر 🏬",
+  "homeSectionMustamal": "صفقات المستعمل 🤝",
+  "homeSectionBalla": "كنوز البالة 📦",
+
+  "shopAll": "تسوق الكل",
+
+  "walletBalance": "الرصيد: {amount}",
+  "@walletBalance": {
+    "description": "Escrow wallet balance label with amount",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+
+  "omniboxHint": "على شنو تدور اليوم؟",
+  "miniAppMazadTagline": "مزايدات مباشرة",
+  "miniAppMatajirTagline": "المتاجر الرسمية",
+  "miniAppMustamalTagline": "سوق المستعمل",
+  "miniAppBallaTagline": "سوق الجملة",
+
+  "matajirTitle": "المتاجر الرسمية 🏬",
+  "ballaTitle": "سوق البالة 📦",
+
+  "miniAppMazad": "مزاد",
+  "miniAppMustamal": "مستعمل",
+  "miniAppMatajir": "متاجر",
+  "miniAppBalla": "بالة",
+
+  "cartTitleMatajir": "سلة المتاجر",
+  "cartTitleBalla": "سلة البالة",
+
+  "cartConflictTitle": "متجر مختلف!",
+  "cartConflictMessage": "عندك منتجات من متجر ثاني في سلتك. اختار: تحتفظ بسلتك الحالية، أو تمسحها وتضيف المنتج الجديد.",
+  "cartConflictKeep": "احتفظ بالسلة الحالية",
+  "cartConflictClear": "امسح وأضف المنتج الجديد"
 }

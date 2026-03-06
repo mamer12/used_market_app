@@ -64,8 +64,53 @@
   "homeGreeting": "Good morning, Ahmed",
   "@homeGreeting": { "description": "Greeting with name" },
 
-  "homeSearch": "Search for cars, real estate, or services...",
+  "homeSearch": "What are you looking for today?",
   "@homeSearch": { "description": "Search bar placeholder" },
+
+  "homeMarkets": "Markets",
+  "@homeMarkets": { "description": "Editorial section header for the 4 sooqs" },
+
+  "homeSooqAuctions": "Auctions Market",
+  "@homeSooqAuctions": { "description": "Sooq card 1 title" },
+
+  "homeSooqAuctionsSub": "Live deals right now",
+  "@homeSooqAuctionsSub": { "description": "Sooq card 1 subtitle" },
+
+  "homeSooqAuctionsBtn": "Enter",
+  "@homeSooqAuctionsBtn": { "description": "Sooq card 1 CTA" },
+
+  "homeSooqShops": "Official Stores",
+  "@homeSooqShops": { "description": "Sooq card 2 title" },
+
+  "homeSooqShopsSub": "Genuine and guaranteed products",
+  "@homeSooqShopsSub": { "description": "Sooq card 2 subtitle" },
+
+  "homeSooqShopsBtn": "Shop Now",
+  "@homeSooqShopsBtn": { "description": "Sooq card 2 CTA" },
+
+  "homeSooqUsed": "Used Market",
+  "@homeSooqUsed": { "description": "Sooq card 3 title" },
+
+  "homeSooqUsedSub": "Buy & sell between people",
+  "@homeSooqUsedSub": { "description": "Sooq card 3 subtitle" },
+
+  "homeSooqUsedBtn": "Browse",
+  "@homeSooqUsedBtn": { "description": "Sooq card 3 CTA" },
+
+  "homeSooqBalla": "Balla Market",
+  "@homeSooqBalla": { "description": "Sooq card 4 title" },
+
+  "homeSooqBallaSub": "Bundles & bulk goods",
+  "@homeSooqBallaSub": { "description": "Sooq card 4 subtitle" },
+
+  "homeSooqBallaBtn": "Discover",
+  "@homeSooqBallaBtn": { "description": "Sooq card 4 CTA" },
+
+  "homeTrendingToday": "🔥 Trending Today",
+  "@homeTrendingToday": { "description": "Trending section header" },
+
+  "homeWalletBalance": "Balance",
+  "@homeWalletBalance": { "description": "Wallet chip label" },
 
   "homeCategories": "Categories",
   "@homeCategories": { "description": "Categories section title" },
@@ -703,5 +748,102 @@
   },
 
   "insufficientWalletError": "Your balance is insufficient to cover the COD commission. Please top up your wallet first.",
-  "@insufficientWalletError": { "description": "Error message when seller wallet balance is insufficient for COD" }
+  "@insufficientWalletError": { "description": "Error message when seller wallet balance is insufficient for COD" },
+
+  "postSellUsed": "Sell a Used Item",
+  "@postSellUsed": { "description": "FAB sheet: sell used item (Mustamal)" },
+
+  "postSellUsedSub": "List for free — buyers contact via chat",
+  "@postSellUsedSub": { "description": "FAB sheet: sell used item subtitle" },
+
+  "postSellBalla": "Sell Bulk / Thrift",
+  "@postSellBalla": { "description": "FAB sheet: sell balla option" },
+
+  "postSellBallaSub": "Sell by piece, kg, or bundle",
+  "@postSellBallaSub": { "description": "FAB sheet: sell balla subtitle" },
+
+  "whatsappChat": "Contact Seller",
+  "@whatsappChat": { "description": "Button label to open WhatsApp/chat with seller" },
+
+  "checkoutUnitFormat": "{price} IQD ({qty} {unit})",
+  "@checkoutUnitFormat": {
+    "description": "Balla unit price row in checkout",
+    "placeholders": {
+      "price": { "type": "String" },
+      "qty": { "type": "String" },
+      "unit": { "type": "String" }
+    }
+  },
+
+  "homeSectionAuctions": "Live Auctions 🔴",
+  "@homeSectionAuctions": { "description": "Home feed section header: trending auctions" },
+
+  "homeSectionMatajir": "New in Stores 🏬",
+  "@homeSectionMatajir": { "description": "Home feed section header: Matajir retail products" },
+
+  "homeSectionMustamal": "Mustamal Deals 🤝",
+  "@homeSectionMustamal": { "description": "Home feed section header: Mustamal used items" },
+
+  "homeSectionBalla": "Balla Treasures 📦",
+  "@homeSectionBalla": { "description": "Home feed section header: Balla bulk items" },
+
+  "shopAll": "Shop All",
+  "@shopAll": { "description": "See all link on retail sections" },
+
+  "walletBalance": "Balance: {amount}",
+  "@walletBalance": {
+    "description": "Escrow wallet balance label with amount",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+
+  "omniboxHint": "What are you looking for today?",
+  "@omniboxHint": { "description": "Omnibox / global search hint text" },
+
+  "miniAppMazadTagline": "Live Bidding",
+  "@miniAppMazadTagline": { "description": "Tagline for Mazad in home bento grid" },
+
+  "miniAppMatajirTagline": "Official Shops",
+  "@miniAppMatajirTagline": { "description": "Tagline for Matajir in home bento grid" },
+
+  "miniAppMustamalTagline": "Used Market",
+  "@miniAppMustamalTagline": { "description": "Tagline for Mustamal in home bento grid" },
+
+  "miniAppBallaTagline": "Bulk Market",
+  "@miniAppBallaTagline": { "description": "Tagline for Balla in home bento grid" },
+
+  "matajirTitle": "Official Stores 🏬",
+  "@matajirTitle": { "description": "Matajir Mini-App AppBar title" },
+
+  "ballaTitle": "Balla Market 📦",
+  "@ballaTitle": { "description": "Balla Mini-App AppBar title" },
+
+  "miniAppMazad": "Mazad",
+  "@miniAppMazad": { "description": "Bento grid card: Mazad auctions" },
+
+  "miniAppMustamal": "Mustamal",
+  "@miniAppMustamal": { "description": "Bento grid card: Mustamal used market" },
+
+  "miniAppMatajir": "Matajir",
+  "@miniAppMatajir": { "description": "Bento grid card: Matajir official stores" },
+
+  "miniAppBalla": "Balla",
+  "@miniAppBalla": { "description": "Bento grid card: Balla bulk market" },
+
+  "cartTitleMatajir": "Matajir Cart",
+  "@cartTitleMatajir": { "description": "Cart page title when context is Matajir" },
+
+  "cartTitleBalla": "Balla Cart",
+  "@cartTitleBalla": { "description": "Cart page title when context is Balla" },
+
+  "cartConflictTitle": "Different Store!",
+  "@cartConflictTitle": { "description": "Cart conflict bottom sheet title" },
+
+  "cartConflictMessage": "You already have items from a different store in your cart. You can keep your current cart or clear it and add the new item.",
+  "@cartConflictMessage": { "description": "Cart conflict bottom sheet explanation message" },
+
+  "cartConflictKeep": "Keep Current Cart",
+  "@cartConflictKeep": { "description": "Cart conflict: keep existing cart option" },
+
+  "cartConflictClear": "Clear & Add New Item",
+  "@cartConflictClear": { "description": "Cart conflict: clear cart and add new item option" }
 }

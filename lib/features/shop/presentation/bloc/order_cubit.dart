@@ -36,10 +36,16 @@ class OrderCubit extends Cubit<OrderState> {
 
   OrderCubit(this._orderRepository) : super(const OrderState());
 
-  Future<void> buyProduct(BuyProductRequest request) async {
+  Future<void> buyProduct(
+    BuyProductRequest request, {
+    bool isCOD = false,
+  }) async {
     emit(state.copyWith(status: OrderProcessStatus.loading));
     try {
-      await _orderRepository.buyShopProduct(request);
+      final order = await _orderRepository.buyShopProduct(request);
+      if (isCOD) {
+        await _orderRepository.initiateCODCheckout(order.id);
+      }
       emit(state.copyWith(status: OrderProcessStatus.success));
     } catch (e) {
       emit(

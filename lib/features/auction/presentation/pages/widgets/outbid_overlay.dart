@@ -134,11 +134,8 @@ class _OutbidOverlayState extends State<OutbidOverlay>
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(16.r),
-                    border: Border(
-                      left: BorderSide(
-                        color: const Color(0xFFFF3B30),
-                        width: 3,
-                      ),
+                    border: const Border(
+                      left: BorderSide(color: Color(0xFFFF3B30), width: 3),
                     ),
                   ),
                   child: Column(

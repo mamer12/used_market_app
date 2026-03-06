@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -8,7 +9,6 @@ import '../../../../core/widgets/primary_button.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
-import '../../../../core/widgets/main_shell.dart';
 
 /// Onboarding — 3-slide PageView with "Industrial Pop" aesthetics.
 ///
@@ -45,9 +45,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   /// Enter guest mode and go to HomePage.
   void _startBrowsing() {
     context.read<AuthBloc>().add(const AuthGuestModeEntered());
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => const MainShell()),
-    );
+    // In guest mode, immediately route to home root using go_router.
+    context.go('/');
   }
 
   void _onSkip() {

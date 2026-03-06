@@ -227,8 +227,98 @@ abstract class AppLocalizations {
   /// Search bar placeholder
   ///
   /// In en, this message translates to:
-  /// **'Search for cars, real estate, or services...'**
+  /// **'What are you looking for today?'**
   String get homeSearch;
+
+  /// Editorial section header for the 4 sooqs
+  ///
+  /// In en, this message translates to:
+  /// **'Markets'**
+  String get homeMarkets;
+
+  /// Sooq card 1 title
+  ///
+  /// In en, this message translates to:
+  /// **'Auctions Market'**
+  String get homeSooqAuctions;
+
+  /// Sooq card 1 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Live deals right now'**
+  String get homeSooqAuctionsSub;
+
+  /// Sooq card 1 CTA
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get homeSooqAuctionsBtn;
+
+  /// Sooq card 2 title
+  ///
+  /// In en, this message translates to:
+  /// **'Official Stores'**
+  String get homeSooqShops;
+
+  /// Sooq card 2 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Genuine and guaranteed products'**
+  String get homeSooqShopsSub;
+
+  /// Sooq card 2 CTA
+  ///
+  /// In en, this message translates to:
+  /// **'Shop Now'**
+  String get homeSooqShopsBtn;
+
+  /// Sooq card 3 title
+  ///
+  /// In en, this message translates to:
+  /// **'Used Market'**
+  String get homeSooqUsed;
+
+  /// Sooq card 3 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Buy & sell between people'**
+  String get homeSooqUsedSub;
+
+  /// Sooq card 3 CTA
+  ///
+  /// In en, this message translates to:
+  /// **'Browse'**
+  String get homeSooqUsedBtn;
+
+  /// Sooq card 4 title
+  ///
+  /// In en, this message translates to:
+  /// **'Balla Market'**
+  String get homeSooqBalla;
+
+  /// Sooq card 4 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Bundles & bulk goods'**
+  String get homeSooqBallaSub;
+
+  /// Sooq card 4 CTA
+  ///
+  /// In en, this message translates to:
+  /// **'Discover'**
+  String get homeSooqBallaBtn;
+
+  /// Trending section header
+  ///
+  /// In en, this message translates to:
+  /// **'🔥 Trending Today'**
+  String get homeTrendingToday;
+
+  /// Wallet chip label
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get homeWalletBalance;
 
   /// Categories section title
   ///
@@ -1465,6 +1555,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your balance is insufficient to cover the COD commission. Please top up your wallet first.'**
   String get insufficientWalletError;
+
+  /// FAB sheet: sell used item (Mustamal)
+  ///
+  /// In en, this message translates to:
+  /// **'Sell a Used Item'**
+  String get postSellUsed;
+
+  /// FAB sheet: sell used item subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'List for free — buyers contact via chat'**
+  String get postSellUsedSub;
+
+  /// FAB sheet: sell balla option
+  ///
+  /// In en, this message translates to:
+  /// **'Sell Bulk / Thrift'**
+  String get postSellBalla;
+
+  /// FAB sheet: sell balla subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Sell by piece, kg, or bundle'**
+  String get postSellBallaSub;
+
+  /// Button label to open WhatsApp/chat with seller
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Seller'**
+  String get whatsappChat;
+
+  /// Balla unit price row in checkout
+  ///
+  /// In en, this message translates to:
+  /// **'{price} IQD ({qty} {unit})'**
+  String checkoutUnitFormat(String price, String qty, String unit);
+
+  /// Home feed section header: trending auctions
+  ///
+  /// In en, this message translates to:
+  /// **'Live Auctions 🔴'**
+  String get homeSectionAuctions;
+
+  /// Home feed section header: Matajir retail products
+  ///
+  /// In en, this message translates to:
+  /// **'New in Stores 🏬'**
+  String get homeSectionMatajir;
+
+  /// Home feed section header: Mustamal used items
+  ///
+  /// In en, this message translates to:
+  /// **'Mustamal Deals 🤝'**
+  String get homeSectionMustamal;
+
+  /// Home feed section header: Balla bulk items
+  ///
+  /// In en, this message translates to:
+  /// **'Balla Treasures 📦'**
+  String get homeSectionBalla;
+
+  /// See all link on retail sections
+  ///
+  /// In en, this message translates to:
+  /// **'Shop All'**
+  String get shopAll;
+
+  /// Escrow wallet balance label with amount
+  ///
+  /// In en, this message translates to:
+  /// **'Balance: {amount}'**
+  String walletBalance(String amount);
+
+  /// Omnibox / global search hint text
+  ///
+  /// In en, this message translates to:
+  /// **'What are you looking for today?'**
+  String get omniboxHint;
+
+  /// Tagline for Mazad in home bento grid
+  ///
+  /// In en, this message translates to:
+  /// **'Live Bidding'**
+  String get miniAppMazadTagline;
+
+  /// Tagline for Matajir in home bento grid
+  ///
+  /// In en, this message translates to:
+  /// **'Official Shops'**
+  String get miniAppMatajirTagline;
+
+  /// Tagline for Mustamal in home bento grid
+  ///
+  /// In en, this message translates to:
+  /// **'Used Market'**
+  String get miniAppMustamalTagline;
+
+  /// Tagline for Balla in home bento grid
+  ///
+  /// In en, this message translates to:
+  /// **'Bulk Market'**
+  String get miniAppBallaTagline;
+
+  /// Matajir Mini-App AppBar title
+  ///
+  /// In en, this message translates to:
+  /// **'Official Stores 🏬'**
+  String get matajirTitle;
+
+  /// Balla Mini-App AppBar title
+  ///
+  /// In en, this message translates to:
+  /// **'Balla Market 📦'**
+  String get ballaTitle;
+
+  /// Bento grid card: Mazad auctions
+  ///
+  /// In en, this message translates to:
+  /// **'Mazad'**
+  String get miniAppMazad;
+
+  /// Bento grid card: Mustamal used market
+  ///
+  /// In en, this message translates to:
+  /// **'Mustamal'**
+  String get miniAppMustamal;
+
+  /// Bento grid card: Matajir official stores
+  ///
+  /// In en, this message translates to:
+  /// **'Matajir'**
+  String get miniAppMatajir;
+
+  /// Bento grid card: Balla bulk market
+  ///
+  /// In en, this message translates to:
+  /// **'Balla'**
+  String get miniAppBalla;
+
+  /// Cart page title when context is Matajir
+  ///
+  /// In en, this message translates to:
+  /// **'Matajir Cart'**
+  String get cartTitleMatajir;
+
+  /// Cart page title when context is Balla
+  ///
+  /// In en, this message translates to:
+  /// **'Balla Cart'**
+  String get cartTitleBalla;
+
+  /// Cart conflict bottom sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'Different Store!'**
+  String get cartConflictTitle;
+
+  /// Cart conflict bottom sheet explanation message
+  ///
+  /// In en, this message translates to:
+  /// **'You already have items from a different store in your cart. You can keep your current cart or clear it and add the new item.'**
+  String get cartConflictMessage;
+
+  /// Cart conflict: keep existing cart option
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Current Cart'**
+  String get cartConflictKeep;
+
+  /// Cart conflict: clear cart and add new item option
+  ///
+  /// In en, this message translates to:
+  /// **'Clear & Add New Item'**
+  String get cartConflictClear;
 }
 
 class _AppLocalizationsDelegate

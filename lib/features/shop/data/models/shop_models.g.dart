@@ -110,6 +110,8 @@ _ProductModel _$ProductModelFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String?,
       sku: json['sku'] as String?,
       isActive: json['is_active'] as bool? ?? true,
+      isBalla: json['is_balla'] as bool? ?? false,
+      salesUnit: json['sales_unit'] as String? ?? 'piece',
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
     );
@@ -125,6 +127,8 @@ Map<String, dynamic> _$ProductModelToJson(_ProductModel instance) =>
       'description': instance.description,
       'sku': instance.sku,
       'is_active': instance.isActive,
+      'is_balla': instance.isBalla,
+      'sales_unit': instance.salesUnit,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
     };

@@ -13,8 +13,20 @@ class AuctionRepositoryImpl implements AuctionRepository {
   AuctionRepositoryImpl(this._remoteDataSource, this._webSocketService);
 
   @override
-  Future<List<AuctionModel>> getLiveAuctions({int page = 1, int limit = 20}) {
-    return _remoteDataSource.getAuctions(page: page, limit: limit);
+  Future<List<AuctionModel>> getLiveAuctions({
+    String? category,
+    String? condition,
+    String sortBy = 'ending_soon',
+    int page = 1,
+    int limit = 20,
+  }) {
+    return _remoteDataSource.getAuctions(
+      category: category,
+      condition: condition,
+      sortBy: sortBy,
+      page: page,
+      limit: limit,
+    );
   }
 
   @override

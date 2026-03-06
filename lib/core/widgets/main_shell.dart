@@ -4,16 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../features/auction/presentation/pages/create_auction_page.dart';
-import '../../features/auth/presentation/pages/profile_page.dart';
 import '../../features/cart/presentation/bloc/cart_cubit.dart';
-import '../../features/cart/presentation/pages/cart_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/messages/presentation/pages/messages_page.dart';
+import '../../features/home/presentation/pages/add_balla_page.dart';
+import '../../features/home/presentation/pages/create_mustamal_page.dart';
 import '../../features/shop/presentation/pages/add_product_page.dart';
-import '../../features/shop/presentation/pages/create_shop_page.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
 
@@ -23,23 +21,16 @@ import '../theme/app_theme.dart';
 /// Nav bar layout (5 slots):
 ///   Home  |  Cart  |  [CENTER FAB]  |  Notifications  |  Me
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  const MainShell({super.key, required this.navigationShell});
+
+  /// The go_router shell controlling nested navigation.
+  final StatefulNavigationShell navigationShell;
 
   @override
   State<MainShell> createState() => _MainShellState();
 }
 
 class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
-  int _currentIndex = 0;
-
-  // Page order in IndexedStack (4 real pages — center FAB is an action)
-  static const _pages = [
-    HomePage(), // 0 → nav pos 0 (Home)
-    MessagesPage(), // 1 → nav pos 1 (Messages)
-    CartPage(), // 2 → nav pos 3 (Activity/deals)
-    ProfilePage(), // 3 → nav pos 4 (Profile)
-  ];
-
   /// Converts nav bar position (0-4) to page index (0-3).
   /// Position 2 is the center FAB (no page).
   int? _navToPage(int navPos) {
@@ -71,16 +62,21 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   }
 
   void _onNavTap(int navPos) {
-    final targetPage = _navToPage(navPos);
-    if (targetPage == null) {
+    final targetBranch = _navToPage(navPos);
+    if (targetBranch == null) {
       HapticFeedback.mediumImpact();
       _fabAnim.forward().then((_) => _fabAnim.reverse());
       _showPostSheet();
       return;
     }
-    if (_currentIndex == targetPage) return;
+
+    // go_router handles the active branch state
     HapticFeedback.selectionClick();
-    setState(() => _currentIndex = targetPage);
+    widget.navigationShell.goBranch(
+      targetBranch,
+      // Support tapping the active tab to pop to root of that branch
+      initialLocation: targetBranch == widget.navigationShell.currentIndex,
+    );
   }
 
   void _showPostSheet() {
@@ -107,7 +103,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
           body: Stack(
             children: [
               // ── Pages ───────────────────────────────────────────────────
-              IndexedStack(index: _currentIndex, children: _pages),
+              widget.navigationShell,
 
               // ── Apple Liquid Glass floating nav pill ─────────────────
               Positioned(
@@ -115,7 +111,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                 right: 20,
                 bottom: safeBottom + 14,
                 child: _GlassNavPill(
-                  currentIndex: _currentIndex,
+                  currentIndex: widget.navigationShell.currentIndex,
                   cartState: cartState,
                   l10n: l10n,
                   fabScale: _fabScale,
@@ -450,6 +446,8 @@ class _PostActionSheet extends StatelessWidget {
             ),
           ),
           SizedBox(height: 24.h),
+
+          // 1. إطلاق مزاد — Start Auction
           _PostOption(
             icon: Icons.gavel,
             title: l10n.postAuction,
@@ -463,24 +461,28 @@ class _PostActionSheet extends StatelessWidget {
             },
           ),
           SizedBox(height: 10.h),
+
+          // 2. بيع شيء مستعمل — Sell Used Item (Mustamal)
           _PostOption(
-            icon: Icons.storefront_outlined,
-            title: l10n.postCreateShop,
-            subtitle: l10n.postCreateShopSub,
-            accentColor: AppTheme.primary,
+            icon: Icons.autorenew_rounded,
+            title: l10n.postSellUsed,
+            subtitle: l10n.postSellUsedSub,
+            accentColor: AppTheme.secondary,
             onTap: () {
               Navigator.pop(context);
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const CreateShopPage()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CreateMustamalPage()),
+              );
             },
           ),
           SizedBox(height: 10.h),
+
+          // 3. إضافة منتج لمتجري — Add to my Shop
           _PostOption(
             icon: Icons.add_shopping_cart_outlined,
             title: l10n.postAddProduct,
             subtitle: l10n.postAddProductSub,
-            accentColor: const Color(0xFF00BCD4),
+            accentColor: AppTheme.primary,
             onTap: () {
               Navigator.pop(context);
               Navigator.of(
@@ -489,12 +491,19 @@ class _PostActionSheet extends StatelessWidget {
             },
           ),
           SizedBox(height: 10.h),
+
+          // 4. بيع بالة / جملة — Sell Balla/Bulk
           _PostOption(
-            icon: Icons.work_outline_rounded,
-            title: l10n.postJob,
-            subtitle: l10n.postJobSub,
+            icon: Icons.inventory_2_rounded,
+            title: l10n.postSellBalla,
+            subtitle: l10n.postSellBallaSub,
             accentColor: const Color(0xFF7C4DFF),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const AddBallaPage()));
+            },
           ),
         ],
       ),

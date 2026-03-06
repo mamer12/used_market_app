@@ -106,9 +106,7 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   void _initCubit() {
-    if (_cubit == null) {
-      _cubit = getIt<OrdersCubit>()..loadOrders(viewAs: 'buyer');
-    }
+    _cubit ??= getIt<OrdersCubit>()..loadOrders(viewAs: 'buyer');
   }
 
   @override
@@ -252,7 +250,7 @@ class _NotificationsPageState extends State<NotificationsPage>
       child: ListView.separated(
         padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 100.h),
         itemCount: orders.length,
-        separatorBuilder: (_, __) => SizedBox(height: 10.h),
+        separatorBuilder: (_, _) => SizedBox(height: 10.h),
         itemBuilder: (_, i) => _buildOrderCard(orders[i]),
       ),
     );

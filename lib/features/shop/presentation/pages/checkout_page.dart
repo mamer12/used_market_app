@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../cart/presentation/bloc/cart_context.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../data/models/order_models.dart';
 import '../../data/models/shop_models.dart';
@@ -12,8 +15,9 @@ import '../bloc/order_cubit.dart';
 
 class CheckoutPage extends StatefulWidget {
   final List<ProductModel> products;
+  final CartCubit? cartCubit;
 
-  const CheckoutPage({super.key, required this.products});
+  const CheckoutPage({super.key, required this.products, this.cartCubit});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -54,14 +58,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
       phone: _phoneCtrl.text,
     );
 
+    final targetCubit = widget.cartCubit ?? context.read<CartCubit>();
+    final appContext = targetCubit is ScopedCartCubit
+        ? targetCubit.appContext.apiValue
+        : null;
+
     final request = BuyProductRequest(
       productId: widget.products.first.id,
       quantity: 1,
       shippingAddress: shippingAddress,
       fulfillmentType: _fulfillmentType,
+      appContext: appContext,
     );
 
-    context.read<OrderCubit>().buyProduct(request);
+    unawaited(
+      context.read<OrderCubit>().buyProduct(
+        request,
+        isCOD: _selectedPayment == 'COD',
+      ),
+    );
   }
 
   @override
@@ -73,7 +88,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       child: BlocListener<OrderCubit, OrderState>(
         listener: (context, state) {
           if (state.status == OrderProcessStatus.success) {
-            context.read<CartCubit>().clearCart();
+            final targetCubit = widget.cartCubit ?? context.read<CartCubit>();
+            targetCubit.clearCart();
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -273,6 +289,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           Icons.account_balance_rounded,
                           const Color(0xFF1976D2),
                         ),
+                        SizedBox(height: 12.h),
+                        // COD only available for Matajir / Balla — not for auction invoices
+                        _buildPaymentOption(
+                          'COD',
+                          'الدفع عند الاستلام (COD)',
+                          Icons.local_shipping_outlined,
+                          const Color(0xFF388E3C),
+                        ),
                         SizedBox(height: 48.h),
                         _buildSubmitButton(isLoading),
                       ],
@@ -288,6 +312,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildOrderSummary(num total) {
+    final hasBalla = widget.products.any((p) => p.isBalla);
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
@@ -297,8 +322,46 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
       child: Column(
         children: [
+          // Show individual Balla line items with unit format
+          if (hasBalla)
+            ...widget.products
+                .where((p) => p.isBalla)
+                .map(
+                  (p) => Padding(
+                    padding: EdgeInsets.only(bottom: 6.h),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            p.name,
+                            style: GoogleFonts.cairo(
+                              fontSize: 13.sp,
+                              color: AppTheme.textSecondary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          '${p.price.toInt()} دينار (1 ${_unitLabel(p.salesUnit)})',
+                          style: GoogleFonts.inter(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+          if (hasBalla)
+            Container(
+              height: 1,
+              color: Colors.white.withValues(alpha: 0.05),
+              margin: EdgeInsets.only(bottom: 12.h),
+            ),
           Text(
-            'Total Amount',
+            'إجمالي الطلب',
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
@@ -307,13 +370,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
           SizedBox(height: 4.h),
           Text(
-            '${total.toInt() + (_fulfillmentType == 'delivery' ? 5000 : 0)} IQD',
+            '${total.toInt() + (_fulfillmentType == 'delivery' ? 5000 : 0)} دينار',
             style: GoogleFonts.inter(
               fontSize: 28.sp,
               fontWeight: FontWeight.w800,
               color: AppTheme.primary,
             ),
           ),
+          if (_selectedPayment == 'COD')
+            Padding(
+              padding: EdgeInsets.only(top: 8.h),
+              child: Text(
+                'الدفع عند الاستلام — ادفع للسائق',
+                style: GoogleFonts.cairo(
+                  fontSize: 12.sp,
+                  color: const Color(0xFF388E3C),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -506,5 +580,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       ),
     );
+  }
+
+  String _unitLabel(String unit) {
+    const labels = {'piece': 'قطعة', 'kg': 'كيلو', 'bundle': 'بندل'};
+    return labels[unit] ?? unit;
   }
 }

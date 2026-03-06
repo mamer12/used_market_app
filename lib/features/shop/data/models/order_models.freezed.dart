@@ -595,7 +595,7 @@ $ShippingAddressCopyWith<$Res> get shippingAddress {
 /// @nodoc
 mixin _$BuyProductRequest {
 
-@JsonKey(name: 'product_id') String get productId; int get quantity;@JsonKey(name: 'shipping_address') ShippingAddress get shippingAddress;@JsonKey(name: 'fulfillment_type') String get fulfillmentType;
+@JsonKey(name: 'product_id') String get productId; int get quantity;@JsonKey(name: 'shipping_address') ShippingAddress get shippingAddress;@JsonKey(name: 'fulfillment_type') String get fulfillmentType;@JsonKey(name: 'app_context') String? get appContext;
 /// Create a copy of BuyProductRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -608,16 +608,16 @@ $BuyProductRequestCopyWith<BuyProductRequest> get copyWith => _$BuyProductReques
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyProductRequest&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyProductRequest&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType)&&(identical(other.appContext, appContext) || other.appContext == appContext));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productId,quantity,shippingAddress,fulfillmentType);
+int get hashCode => Object.hash(runtimeType,productId,quantity,shippingAddress,fulfillmentType,appContext);
 
 @override
 String toString() {
-  return 'BuyProductRequest(productId: $productId, quantity: $quantity, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType)';
+  return 'BuyProductRequest(productId: $productId, quantity: $quantity, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType, appContext: $appContext)';
 }
 
 
@@ -628,7 +628,7 @@ abstract mixin class $BuyProductRequestCopyWith<$Res>  {
   factory $BuyProductRequestCopyWith(BuyProductRequest value, $Res Function(BuyProductRequest) _then) = _$BuyProductRequestCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'product_id') String productId, int quantity,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType
+@JsonKey(name: 'product_id') String productId, int quantity,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType,@JsonKey(name: 'app_context') String? appContext
 });
 
 
@@ -645,13 +645,14 @@ class _$BuyProductRequestCopyWithImpl<$Res>
 
 /// Create a copy of BuyProductRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? productId = null,Object? quantity = null,Object? shippingAddress = null,Object? fulfillmentType = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? productId = null,Object? quantity = null,Object? shippingAddress = null,Object? fulfillmentType = null,Object? appContext = freezed,}) {
   return _then(_self.copyWith(
 productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,shippingAddress: null == shippingAddress ? _self.shippingAddress : shippingAddress // ignore: cast_nullable_to_non_nullable
 as ShippingAddress,fulfillmentType: null == fulfillmentType ? _self.fulfillmentType : fulfillmentType // ignore: cast_nullable_to_non_nullable
-as String,
+as String,appContext: freezed == appContext ? _self.appContext : appContext // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of BuyProductRequest
@@ -745,10 +746,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BuyProductRequest() when $default != null:
-return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType);case _:
+return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext);case _:
   return orElse();
 
 }
@@ -766,10 +767,10 @@ return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext)  $default,) {final _that = this;
 switch (_that) {
 case _BuyProductRequest():
-return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType);case _:
+return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -786,10 +787,10 @@ return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext)?  $default,) {final _that = this;
 switch (_that) {
 case _BuyProductRequest() when $default != null:
-return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType);case _:
+return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext);case _:
   return null;
 
 }
@@ -801,13 +802,14 @@ return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfi
 @JsonSerializable()
 
 class _BuyProductRequest implements BuyProductRequest {
-  const _BuyProductRequest({@JsonKey(name: 'product_id') required this.productId, required this.quantity, @JsonKey(name: 'shipping_address') required this.shippingAddress, @JsonKey(name: 'fulfillment_type') required this.fulfillmentType});
+  const _BuyProductRequest({@JsonKey(name: 'product_id') required this.productId, required this.quantity, @JsonKey(name: 'shipping_address') required this.shippingAddress, @JsonKey(name: 'fulfillment_type') required this.fulfillmentType, @JsonKey(name: 'app_context') this.appContext});
   factory _BuyProductRequest.fromJson(Map<String, dynamic> json) => _$BuyProductRequestFromJson(json);
 
 @override@JsonKey(name: 'product_id') final  String productId;
 @override final  int quantity;
 @override@JsonKey(name: 'shipping_address') final  ShippingAddress shippingAddress;
 @override@JsonKey(name: 'fulfillment_type') final  String fulfillmentType;
+@override@JsonKey(name: 'app_context') final  String? appContext;
 
 /// Create a copy of BuyProductRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -822,16 +824,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyProductRequest&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyProductRequest&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType)&&(identical(other.appContext, appContext) || other.appContext == appContext));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productId,quantity,shippingAddress,fulfillmentType);
+int get hashCode => Object.hash(runtimeType,productId,quantity,shippingAddress,fulfillmentType,appContext);
 
 @override
 String toString() {
-  return 'BuyProductRequest(productId: $productId, quantity: $quantity, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType)';
+  return 'BuyProductRequest(productId: $productId, quantity: $quantity, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType, appContext: $appContext)';
 }
 
 
@@ -842,7 +844,7 @@ abstract mixin class _$BuyProductRequestCopyWith<$Res> implements $BuyProductReq
   factory _$BuyProductRequestCopyWith(_BuyProductRequest value, $Res Function(_BuyProductRequest) _then) = __$BuyProductRequestCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'product_id') String productId, int quantity,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType
+@JsonKey(name: 'product_id') String productId, int quantity,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType,@JsonKey(name: 'app_context') String? appContext
 });
 
 
@@ -859,13 +861,14 @@ class __$BuyProductRequestCopyWithImpl<$Res>
 
 /// Create a copy of BuyProductRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? productId = null,Object? quantity = null,Object? shippingAddress = null,Object? fulfillmentType = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? productId = null,Object? quantity = null,Object? shippingAddress = null,Object? fulfillmentType = null,Object? appContext = freezed,}) {
   return _then(_BuyProductRequest(
 productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,shippingAddress: null == shippingAddress ? _self.shippingAddress : shippingAddress // ignore: cast_nullable_to_non_nullable
 as ShippingAddress,fulfillmentType: null == fulfillmentType ? _self.fulfillmentType : fulfillmentType // ignore: cast_nullable_to_non_nullable
-as String,
+as String,appContext: freezed == appContext ? _self.appContext : appContext // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

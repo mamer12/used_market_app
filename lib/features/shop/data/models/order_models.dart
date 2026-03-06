@@ -59,6 +59,7 @@ abstract class BuyProductRequest with _$BuyProductRequest {
     required int quantity,
     @JsonKey(name: 'shipping_address') required ShippingAddress shippingAddress,
     @JsonKey(name: 'fulfillment_type') required String fulfillmentType,
+    @JsonKey(name: 'app_context') String? appContext,
   }) = _BuyProductRequest;
 
   factory BuyProductRequest.fromJson(Map<String, dynamic> json) =>

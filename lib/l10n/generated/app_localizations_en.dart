@@ -73,7 +73,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeGreeting => 'Good morning, Ahmed';
 
   @override
-  String get homeSearch => 'Search for cars, real estate, or services...';
+  String get homeSearch => 'What are you looking for today?';
+
+  @override
+  String get homeMarkets => 'Markets';
+
+  @override
+  String get homeSooqAuctions => 'Auctions Market';
+
+  @override
+  String get homeSooqAuctionsSub => 'Live deals right now';
+
+  @override
+  String get homeSooqAuctionsBtn => 'Enter';
+
+  @override
+  String get homeSooqShops => 'Official Stores';
+
+  @override
+  String get homeSooqShopsSub => 'Genuine and guaranteed products';
+
+  @override
+  String get homeSooqShopsBtn => 'Shop Now';
+
+  @override
+  String get homeSooqUsed => 'Used Market';
+
+  @override
+  String get homeSooqUsedSub => 'Buy & sell between people';
+
+  @override
+  String get homeSooqUsedBtn => 'Browse';
+
+  @override
+  String get homeSooqBalla => 'Balla Market';
+
+  @override
+  String get homeSooqBallaSub => 'Bundles & bulk goods';
+
+  @override
+  String get homeSooqBallaBtn => 'Discover';
+
+  @override
+  String get homeTrendingToday => '🔥 Trending Today';
+
+  @override
+  String get homeWalletBalance => 'Balance';
 
   @override
   String get homeCategories => 'Categories';
@@ -719,4 +764,96 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get insufficientWalletError =>
       'Your balance is insufficient to cover the COD commission. Please top up your wallet first.';
+
+  @override
+  String get postSellUsed => 'Sell a Used Item';
+
+  @override
+  String get postSellUsedSub => 'List for free — buyers contact via chat';
+
+  @override
+  String get postSellBalla => 'Sell Bulk / Thrift';
+
+  @override
+  String get postSellBallaSub => 'Sell by piece, kg, or bundle';
+
+  @override
+  String get whatsappChat => 'Contact Seller';
+
+  @override
+  String checkoutUnitFormat(String price, String qty, String unit) {
+    return '$price IQD ($qty $unit)';
+  }
+
+  @override
+  String get homeSectionAuctions => 'Live Auctions 🔴';
+
+  @override
+  String get homeSectionMatajir => 'New in Stores 🏬';
+
+  @override
+  String get homeSectionMustamal => 'Mustamal Deals 🤝';
+
+  @override
+  String get homeSectionBalla => 'Balla Treasures 📦';
+
+  @override
+  String get shopAll => 'Shop All';
+
+  @override
+  String walletBalance(String amount) {
+    return 'Balance: $amount';
+  }
+
+  @override
+  String get omniboxHint => 'What are you looking for today?';
+
+  @override
+  String get miniAppMazadTagline => 'Live Bidding';
+
+  @override
+  String get miniAppMatajirTagline => 'Official Shops';
+
+  @override
+  String get miniAppMustamalTagline => 'Used Market';
+
+  @override
+  String get miniAppBallaTagline => 'Bulk Market';
+
+  @override
+  String get matajirTitle => 'Official Stores 🏬';
+
+  @override
+  String get ballaTitle => 'Balla Market 📦';
+
+  @override
+  String get miniAppMazad => 'Mazad';
+
+  @override
+  String get miniAppMustamal => 'Mustamal';
+
+  @override
+  String get miniAppMatajir => 'Matajir';
+
+  @override
+  String get miniAppBalla => 'Balla';
+
+  @override
+  String get cartTitleMatajir => 'Matajir Cart';
+
+  @override
+  String get cartTitleBalla => 'Balla Cart';
+
+  @override
+  String get cartConflictTitle => 'Different Store!';
+
+  @override
+  String get cartConflictMessage =>
+      'You already have items from a different store in your cart. You can keep your current cart or clear it and add the new item.';
+
+  @override
+  String get cartConflictKeep => 'Keep Current Cart';
+
+  @override
+  String get cartConflictClear => 'Clear & Add New Item';
 }

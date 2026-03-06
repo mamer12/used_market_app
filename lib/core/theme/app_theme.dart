@@ -19,6 +19,23 @@ class AppTheme {
   static const Color error = Color(0xFFE53935); // Error red
   static const Color liveBadge = Color(0xFFFF1744); // Live badge red
 
+  // ── Mini-App Brand Colors ──────────────────────────────
+  /// Matajir official stores — trustworthy blue.
+  static const Color matajirBlue = Color(0xFF1565C0);
+  static const Color matajirBlueSurface = Color(0xFFE3F2FD);
+
+  /// Balla bulk market — deep purple.
+  static const Color ballaPurple = Color(0xFF7C4DFF);
+  static const Color ballaPurpleSurface = Color(0xFFEDE7F6);
+
+  /// Mustamal used market — warm orange.
+  static const Color mustamalOrange = Color(0xFFE65100);
+  static const Color mustamalOrangeSurface = Color(0xFFFFF3E0);
+
+  /// Mazad live auctions — alert red.
+  static const Color mazadRed = Color(0xFFD32F2F);
+  static const Color mazadRedSurface = Color(0xFFFFEBEE);
+
   // ── Typography ───────────────────────────────────────
   static TextTheme get _textTheme => TextTheme(
     displayLarge: GoogleFonts.cairo(

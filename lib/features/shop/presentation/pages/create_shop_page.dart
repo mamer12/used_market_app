@@ -53,8 +53,9 @@ class _CreateShopPageState extends State<CreateShopPage> {
   void _nextStep() {
     // Validate current step before proceeding
     if (_currentStep == 1 && !_profileFormKey.currentState!.validate()) return;
-    if (_currentStep == 2 && !_logisticsFormKey.currentState!.validate())
+    if (_currentStep == 2 && !_logisticsFormKey.currentState!.validate()) {
       return;
+    }
 
     if (_currentStep < 4) {
       _pageController.nextPage(

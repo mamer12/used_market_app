@@ -334,13 +334,13 @@ class ProfilePage extends StatelessWidget {
               width: 36.w,
               height: 36.w,
               decoration: BoxDecoration(
-                color: item.iconBg ?? AppTheme.surface,
+                color: AppTheme.surface,
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Icon(
                 item.icon,
                 size: 18.sp,
-                color: item.iconColor ?? AppTheme.textSecondary,
+                color: AppTheme.textSecondary,
               ),
             ),
             SizedBox(width: 12.w),
@@ -350,7 +350,7 @@ class ProfilePage extends StatelessWidget {
                 style: GoogleFonts.cairo(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: item.labelColor ?? AppTheme.textPrimary,
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ),
@@ -571,18 +571,12 @@ class _MenuItem {
   final IconData icon;
   final String label;
   final void Function(BuildContext)? onTap;
-  final Color? iconBg;
-  final Color? iconColor;
-  final Color? labelColor;
   final Widget? trailing;
 
   const _MenuItem({
     required this.icon,
     required this.label,
     required this.onTap,
-    this.iconBg,
-    this.iconColor,
-    this.labelColor,
     this.trailing,
   });
 }

@@ -33,22 +33,10 @@ class AuthRepositoryImpl implements AuthRepository {
     if (token != null && token.isNotEmpty) {
       await _tokenStorage.saveToken(token);
     } else {
-      // If registration succeeded but returned no token, try a silent login.
-      // Note: This may fail if the backend consumes the OTP during registration.
-      try {
-        final loginResponse = await _remoteDataSource.login(
-          LoginRequest(phoneNumber: request.phoneNumber, otp: request.otp),
-        );
-        if (loginResponse.token != null) {
-          await _tokenStorage.saveToken(loginResponse.token!);
-        }
-      } catch (e) {
-        // If both fail, the account is likely created but we can't log in automatically.
-        throw ApiException(
-          'Account created! Please log in with a new code.',
-          statusCode: 201, // Indicate success of creation but need login
-        );
-      }
+      throw ApiException(
+        'Account created! Please log in with a new code.',
+        statusCode: 201, // Indicate success of creation but need login
+      );
     }
   }
 

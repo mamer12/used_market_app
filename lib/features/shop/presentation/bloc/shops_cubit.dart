@@ -151,12 +151,7 @@ class ShopProductsCubit extends Cubit<ShopProductsState> {
       );
     } catch (e, st) {
       LogService().error('Failed to load shop catalog', e, st);
-      emit(
-        state.copyWith(
-          isLoading: false,
-          error: 'Failed to load products.',
-        ),
-      );
+      emit(state.copyWith(isLoading: false, error: 'Failed to load products.'));
     }
   }
 }

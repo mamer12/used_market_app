@@ -11,12 +11,15 @@ import '../../../../l10n/generated/app_localizations.dart';
 import '../../../shop/data/models/shop_models.dart';
 import '../../../shop/presentation/pages/checkout_page.dart';
 import '../bloc/cart_cubit.dart';
+import '../cubit/balla_cart_cubit.dart';
+import '../cubit/matajir_cart_cubit.dart';
 
 // IQD formatter
 String _iqd(num v) => '${NumberFormat("#,###", "en_US").format(v.toInt())} د.ع';
 
 class CartPage extends StatefulWidget {
-  const CartPage({super.key});
+  final CartCubit? cartCubit;
+  const CartPage({super.key, this.cartCubit});
 
   @override
   State<CartPage> createState() => _CartPageState();
@@ -25,10 +28,12 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabs;
+  late final CartCubit _cubit;
 
   @override
   void initState() {
     super.initState();
+    _cubit = widget.cartCubit ?? context.read<CartCubit>();
     _tabs = TabController(length: 3, vsync: this);
     _tabs.addListener(() => setState(() {}));
   }
@@ -42,6 +47,7 @@ class _CartPageState extends State<CartPage>
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
+      bloc: _cubit,
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppTheme.surface,
@@ -55,8 +61,12 @@ class _CartPageState extends State<CartPage>
                   child: TabBarView(
                     controller: _tabs,
                     children: [
-                      _CartTab(items: state.cartItems, total: state.cartTotal),
-                      _SavedTab(items: state.savedProducts),
+                      _CartTab(
+                        items: state.cartItems,
+                        total: state.cartTotal,
+                        cubit: _cubit,
+                      ),
+                      _SavedTab(items: state.savedProducts, cubit: _cubit),
                       const _BidsTab(),
                     ],
                   ),
@@ -81,7 +91,7 @@ class _CartPageState extends State<CartPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.activityTitle,
+                  _getTitle(l10n),
                   style: GoogleFonts.cairo(
                     fontSize: 26.sp,
                     fontWeight: FontWeight.w700,
@@ -103,7 +113,7 @@ class _CartPageState extends State<CartPage>
             GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
-                context.read<CartCubit>().clearCart();
+                _cubit.clearCart();
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
@@ -179,6 +189,12 @@ class _CartPageState extends State<CartPage>
         ),
       ),
     );
+  }
+
+  String _getTitle(AppLocalizations l10n) {
+    if (_cubit is MatajirCartCubit) return l10n.cartTitleMatajir;
+    if (_cubit is BallaCartCubit) return l10n.cartTitleBalla;
+    return l10n.activityTitle;
   }
 }
 
@@ -267,8 +283,13 @@ class _PillTab extends StatelessWidget {
 class _CartTab extends StatelessWidget {
   final List<CartItem> items;
   final double total;
+  final CartCubit cubit;
 
-  const _CartTab({required this.items, required this.total});
+  const _CartTab({
+    required this.items,
+    required this.total,
+    required this.cubit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -281,10 +302,11 @@ class _CartTab extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 16.h),
             itemCount: items.length,
             separatorBuilder: (_, _) => SizedBox(height: 12.h),
-            itemBuilder: (context, index) => _CartItemCard(item: items[index]),
+            itemBuilder: (context, index) =>
+                _CartItemCard(item: items[index], cubit: cubit),
           ),
         ),
-        _CheckoutBar(total: total, items: items),
+        _CheckoutBar(total: total, items: items, cubit: cubit),
       ],
     );
   }
@@ -292,13 +314,12 @@ class _CartTab extends StatelessWidget {
 
 class _CartItemCard extends StatelessWidget {
   final CartItem item;
+  final CartCubit cubit;
 
-  const _CartItemCard({required this.item});
+  const _CartItemCard({required this.item, required this.cubit});
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<CartCubit>();
-
     return Dismissible(
       key: ValueKey(item.product.id),
       direction: DismissDirection.endToStart,
@@ -478,12 +499,16 @@ class _StepBtn extends StatelessWidget {
   }
 }
 
-// Checkout sticky bar
 class _CheckoutBar extends StatelessWidget {
   final double total;
   final List<CartItem> items;
+  final CartCubit cubit;
 
-  const _CheckoutBar({required this.total, required this.items});
+  const _CheckoutBar({
+    required this.total,
+    required this.items,
+    required this.cubit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -536,6 +561,7 @@ class _CheckoutBar extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => CheckoutPage(
                     products: items.map((e) => e.product).toList(),
+                    cartCubit: cubit,
                   ),
                 ),
               );
@@ -583,8 +609,9 @@ class _CheckoutBar extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════
 class _SavedTab extends StatelessWidget {
   final List<ProductModel> items;
+  final CartCubit cubit;
 
-  const _SavedTab({required this.items});
+  const _SavedTab({required this.items, required this.cubit});
 
   @override
   Widget build(BuildContext context) {
@@ -601,20 +628,20 @@ class _SavedTab extends StatelessWidget {
         childAspectRatio: 0.72,
       ),
       itemCount: items.length,
-      itemBuilder: (context, index) => _SavedProductCard(product: items[index]),
+      itemBuilder: (context, index) =>
+          _SavedProductCard(product: items[index], cubit: cubit),
     );
   }
 }
 
 class _SavedProductCard extends StatelessWidget {
   final ProductModel product;
+  final CartCubit cubit;
 
-  const _SavedProductCard({required this.product});
+  const _SavedProductCard({required this.product, required this.cubit});
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<CartCubit>();
-
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.background,

@@ -44,10 +44,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
 
   @override
   Future<CartItemServerModel> addToCart(AddToCartRequest request) async {
-    final response = await _dio.post(
-      ApiConstants.cart,
-      data: request.toJson(),
-    );
+    final response = await _dio.post(ApiConstants.cart, data: request.toJson());
     return CartItemServerModel.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -90,9 +87,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
       ApiConstants.savedItems,
       data: request.toJson(),
     );
-    return SavedItemServerModel.fromJson(
-      response.data as Map<String, dynamic>,
-    );
+    return SavedItemServerModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   @override

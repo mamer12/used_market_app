@@ -28,7 +28,8 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
   WebSocketChannel? _channel;
   final _bidController = StreamController<BidModel>.broadcast();
   final _bidPlacedController = StreamController<BidPlacedEvent>.broadcast();
-  final _auctionEndedController = StreamController<AuctionEndedEvent>.broadcast();
+  final _auctionEndedController =
+      StreamController<AuctionEndedEvent>.broadcast();
   final _errorController = StreamController<String>.broadcast();
 
   AuctionWebSocketServiceImpl(this._tokenStorage);
@@ -40,7 +41,8 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
   Stream<BidPlacedEvent> get bidPlacedStream => _bidPlacedController.stream;
 
   @override
-  Stream<AuctionEndedEvent> get auctionEndedStream => _auctionEndedController.stream;
+  Stream<AuctionEndedEvent> get auctionEndedStream =>
+      _auctionEndedController.stream;
 
   @override
   Stream<String> get errorStream => _errorController.stream;
@@ -74,10 +76,14 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
 
           switch (type) {
             case 'bid_placed':
-              final bid = BidModel.fromJson(data['bid'] as Map<String, dynamic>);
+              final bid = BidModel.fromJson(
+                data['bid'] as Map<String, dynamic>,
+              );
               final currentPrice = _parseMoney(data['current_price']);
               _bidController.add(bid);
-              _bidPlacedController.add(BidPlacedEvent(bid: bid, currentPrice: currentPrice));
+              _bidPlacedController.add(
+                BidPlacedEvent(bid: bid, currentPrice: currentPrice),
+              );
 
             case 'auction_ended':
               final event = AuctionEndedEvent(

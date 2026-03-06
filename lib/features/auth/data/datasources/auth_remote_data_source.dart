@@ -52,7 +52,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<AuthResponse> registerWithPassword(PasswordRegisterRequest request) async {
+  Future<AuthResponse> registerWithPassword(
+    PasswordRegisterRequest request,
+  ) async {
     final response = await _dio.post(
       ApiConstants.authRegisterPassword,
       data: request.toJson(),
