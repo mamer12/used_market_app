@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
-import '../../features/auth/presentation/widgets/auth_bottom_sheet.dart';
 
 /// Wraps any widget to enforce authentication before executing an action.
 ///
-/// **"Lazy Auth" Pattern:**
+/// **Mandatory Auth Pattern (post-lazy-auth removal):**
 /// - If user is **authenticated** → executes [onAuthenticated] immediately.
-/// - If user is a **guest** → opens [AuthBottomSheet] → on success,
-///   automatically executes [onAuthenticated] ("Smart Action Retry").
+/// - If user is **unauthenticated** → navigates to `/login`.
+///   After successful login, the global router guard returns the user to their
+///   intended destination automatically.
 ///
 /// This widget uses [Listener] instead of [GestureDetector] / [InkWell]
 /// to avoid adding Material render objects that corrupt the semantics tree
@@ -27,7 +28,7 @@ class AuthGuard extends StatelessWidget {
   /// The visual widget (button, card, etc.).
   final Widget child;
 
-  /// Action to run when user is (or becomes) authenticated.
+  /// Action to run when user is authenticated.
   final VoidCallback onAuthenticated;
 
   const AuthGuard({
@@ -57,8 +58,9 @@ class AuthGuard extends StatelessWidget {
       // ✅ Already logged in — run immediately
       onAuthenticated();
     } else {
-      // 🔐 Guest — open login sheet with Smart Retry callback
-      AuthBottomSheet.show(context, onSuccess: onAuthenticated);
+      // 🔐 Not authenticated — redirect to login.
+      // The router guard preserves context and returns user after auth.
+      context.go('/login');
     }
   }
 }

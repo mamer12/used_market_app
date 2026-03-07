@@ -1,0 +1,10 @@
+{
+    "projectId": "6943572419901515998",
+    "projectName": "projects/6943572419901515998",
+    "title": "Luqta - Auth Flow (Registration & Login)",
+    "screens": {
+        "login": "cd44ccc28d794339843e75581afdf71a",
+        "verify_otp": "2f1de5faf5b2405e9718518f21a7e909",
+        "registration": "de870b36b50240ecbd3aeb240f67f597"
+    }
+}

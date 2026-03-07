@@ -66,6 +66,60 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginPhoneInvalid => 'رقم هاتف غير صالح';
 
   @override
+  String get verifyOtpTitle => 'تحقق من هويتك';
+
+  @override
+  String get verifyOtpSubtitle => 'أرسلنا رمزاً من 6 أرقام إلى رقمك';
+
+  @override
+  String get verifyOtpResendIn => 'إعادة الإرسال خلال';
+
+  @override
+  String get verifyOtpResend => 'إعادة الإرسال';
+
+  @override
+  String get verifyOtpSubmit => 'تحقق ومتابعة';
+
+  @override
+  String get verifyOtpEditNumber => 'تعديل الرقم';
+
+  @override
+  String get registerTitle => 'أكمل تسجيلك';
+
+  @override
+  String get registerStepLabel => 'الخطوة 3 من 3';
+
+  @override
+  String get registerFullNameHint => 'الاسم الكامل';
+
+  @override
+  String get registerFullNameLabel => 'ما اسمك؟';
+
+  @override
+  String get registerRoleTitle => 'من أنت؟';
+
+  @override
+  String get registerSubmit => 'إكمال التسجيل';
+
+  @override
+  String get roleUser => 'مشترٍ';
+
+  @override
+  String get roleMerchant => 'تاجر';
+
+  @override
+  String get roleAuctioneer => 'مزايد';
+
+  @override
+  String get roleUserDesc => 'أتصفح وأشتري من المتاجر والمزادات';
+
+  @override
+  String get roleMerchantDesc => 'عندي متجر وأبي أبيع منتجاتي';
+
+  @override
+  String get roleAuctioneerDesc => 'أشارك في مزادات وأبيع بالأعلى سعر';
+
+  @override
   String get homeGreetingSub => 'هلا بيك';
 
   @override

@@ -58,6 +58,60 @@
   "loginPhoneInvalid": "Invalid phone number",
   "@loginPhoneInvalid": { "description": "Validation: invalid phone" },
 
+  "verifyOtpTitle": "Verify it's you",
+  "@verifyOtpTitle": { "description": "Verify OTP page title" },
+
+  "verifyOtpSubtitle": "We sent a 6-digit code to your number",
+  "@verifyOtpSubtitle": { "description": "Verify OTP page subtitle" },
+
+  "verifyOtpResendIn": "Resend in",
+  "@verifyOtpResendIn": { "description": "Resend countdown prefix" },
+
+  "verifyOtpResend": "Resend",
+  "@verifyOtpResend": { "description": "Resend OTP button" },
+
+  "verifyOtpSubmit": "Verify & Continue",
+  "@verifyOtpSubmit": { "description": "Verify OTP submit button" },
+
+  "verifyOtpEditNumber": "Edit number",
+  "@verifyOtpEditNumber": { "description": "Go back to phone input" },
+
+  "registerTitle": "Complete your registration",
+  "@registerTitle": { "description": "Registration page title" },
+
+  "registerStepLabel": "Step 3 of 3",
+  "@registerStepLabel": { "description": "Step indicator on registration page" },
+
+  "registerFullNameHint": "Full name",
+  "@registerFullNameHint": { "description": "Name field hint" },
+
+  "registerFullNameLabel": "What's your name?",
+  "@registerFullNameLabel": { "description": "Name field label" },
+
+  "registerRoleTitle": "Who are you?",
+  "@registerRoleTitle": { "description": "Role selection section title" },
+
+  "registerSubmit": "Complete Registration",
+  "@registerSubmit": { "description": "Registration submit button" },
+
+  "roleUser": "Shopper",
+  "@roleUser": { "description": "Role: consumer user" },
+
+  "roleMerchant": "Merchant",
+  "@roleMerchant": { "description": "Role: shop seller" },
+
+  "roleAuctioneer": "Auctioneer",
+  "@roleAuctioneer": { "description": "Role: auction participant" },
+
+  "roleUserDesc": "Browse and buy from shops and auctions",
+  "@roleUserDesc": { "description": "Role user description" },
+
+  "roleMerchantDesc": "I have a store and want to sell products",
+  "@roleMerchantDesc": { "description": "Role merchant description" },
+
+  "roleAuctioneerDesc": "I participate in auctions and sell to the highest bidder",
+  "@roleAuctioneerDesc": { "description": "Role auctioneer description" },
+
   "homeGreetingSub": "Welcome back",
   "@homeGreetingSub": { "description": "Greeting subtitle" },
 

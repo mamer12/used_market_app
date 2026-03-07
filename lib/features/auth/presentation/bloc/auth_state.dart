@@ -10,7 +10,7 @@ class AuthState extends Equatable {
   /// Phone number used for OTP, retained across the flow.
   final String? phoneNumber;
 
-  /// Display name / nickname (progressive: collected after first action).
+  /// Display name / nickname.
   final String? displayName;
 
   /// Retained OTP code needed for subsequent registration if login fails.
@@ -19,7 +19,7 @@ class AuthState extends Equatable {
   /// Error message if something went wrong.
   final String? error;
 
-  /// Whether an async operation is in progress (OTP send, verify, etc.).
+  /// Whether an async operation is in progress.
   final bool isLoading;
 
   /// Whether the user has completed onboarding.
@@ -63,10 +63,8 @@ class AuthState extends Equatable {
     );
   }
 
-  /// Quick check used by AuthGuard.
+  /// Quick check used by router guard.
   bool get isAuthenticated => status == AuthStatus.authenticated;
-  bool get isGuest =>
-      status == AuthStatus.guest || status == AuthStatus.initial;
 
   @override
   List<Object?> get props => [

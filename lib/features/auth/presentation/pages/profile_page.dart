@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/locale/locale_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/auth_guard.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auction/presentation/pages/active_bids_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -26,9 +25,7 @@ class ProfilePage extends StatelessWidget {
         bottom: false,
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            if (!state.isAuthenticated) {
-              return _buildGuest(context);
-            }
+            // Router guard ensures only authenticated users reach this page.
             return _buildProfile(context, state);
           },
         ),
@@ -483,80 +480,6 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
     ];
-  }
-
-  // ── Guest ────────────────────────────────────────────────
-  Widget _buildGuest(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 90.w,
-              height: 90.w,
-              decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppTheme.primary.withValues(alpha: 0.3),
-                  width: 2,
-                ),
-              ),
-              child: Icon(
-                Icons.person_outline,
-                size: 42.sp,
-                color: AppTheme.primary,
-              ),
-            ),
-            SizedBox(height: 24.h),
-            Text(
-              l10n.profileGuestTitle,
-              style: GoogleFonts.cairo(
-                fontSize: 22.sp,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              l10n.profileGuestSub,
-              style: GoogleFonts.cairo(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 28.h),
-            AuthGuard(
-              onAuthenticated: () {},
-              child: Container(
-                width: double.infinity,
-                height: 52.h,
-                decoration: BoxDecoration(
-                  color: AppTheme.textPrimary,
-                  borderRadius: BorderRadius.circular(14.r),
-                ),
-                child: Center(
-                  child: Text(
-                    l10n.signInBtn,
-                    style: GoogleFonts.cairo(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.buttonText,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   String _getInitials(String name) {

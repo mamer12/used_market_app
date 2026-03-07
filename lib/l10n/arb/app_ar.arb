@@ -25,6 +25,27 @@
   "loginPhoneEmpty": "الرجاء إدخال رقم الهاتف",
   "loginPhoneInvalid": "رقم هاتف غير صالح",
 
+  "verifyOtpTitle": "تحقق من هويتك",
+  "verifyOtpSubtitle": "أرسلنا رمزاً من 6 أرقام إلى رقمك",
+  "verifyOtpResendIn": "إعادة الإرسال خلال",
+  "verifyOtpResend": "إعادة الإرسال",
+  "verifyOtpSubmit": "تحقق ومتابعة",
+  "verifyOtpEditNumber": "تعديل الرقم",
+
+  "registerTitle": "أكمل تسجيلك",
+  "registerStepLabel": "الخطوة 3 من 3",
+  "registerFullNameHint": "الاسم الكامل",
+  "registerFullNameLabel": "ما اسمك؟",
+  "registerRoleTitle": "من أنت؟",
+  "registerSubmit": "إكمال التسجيل",
+
+  "roleUser": "مشترٍ",
+  "roleMerchant": "تاجر",
+  "roleAuctioneer": "مزايد",
+  "roleUserDesc": "أتصفح وأشتري من المتاجر والمزادات",
+  "roleMerchantDesc": "عندي متجر وأبي أبيع منتجاتي",
+  "roleAuctioneerDesc": "أشارك في مزادات وأبيع بالأعلى سعر",
+
   "homeGreetingSub": "هلا بيك",
   "homeGreeting": "هلا بيك",
   "homeSearch": "على شنو تدور اليوم؟",
