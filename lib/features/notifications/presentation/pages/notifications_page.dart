@@ -7,7 +7,6 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/auth_guard.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -117,9 +116,7 @@ class _NotificationsPageState extends State<NotificationsPage>
         bottom: false,
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, authState) {
-            if (!authState.isAuthenticated) {
-              return _buildUnauthenticated();
-            }
+            // Router guard ensures only authenticated users reach this page.
             _initCubit();
             return BlocProvider.value(
               value: _cubit!,
@@ -470,71 +467,6 @@ class _NotificationsPageState extends State<NotificationsPage>
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.textPrimary,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUnauthenticated() {
-    final l10n = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(40.w, 40.h, 40.w, 120.h),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-          Container(
-            width: 80.w,
-            height: 80.w,
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.lock_outline,
-              size: 36.sp,
-              color: AppTheme.primary,
-            ),
-          ),
-          SizedBox(height: 20.h),
-          Text(
-            l10n.signInToViewActivity,
-            style: GoogleFonts.cairo(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            l10n.signInActivitySub,
-            style: GoogleFonts.cairo(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 24.h),
-          AuthGuard(
-            onAuthenticated: () {},
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
-              decoration: BoxDecoration(
-                color: AppTheme.textPrimary,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Text(
-                l10n.signInBtn,
-                style: GoogleFonts.cairo(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.buttonText,
                 ),
               ),
             ),

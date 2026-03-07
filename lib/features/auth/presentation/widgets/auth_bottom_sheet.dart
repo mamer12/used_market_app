@@ -163,7 +163,7 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
                 SizedBox(height: 24.h),
 
                 // ── Content based on auth state ─────────
-                if (state.status == AuthStatus.registrationNameRequired)
+                if (state.status == AuthStatus.registrationRequired)
                   _buildNameView(state)
                 else if (state.status == AuthStatus.otpSent)
                   _buildOtpView(state)
@@ -726,7 +726,9 @@ class _AuthSheetContentState extends State<_AuthSheetContent> {
           onPressed: () {
             final name = _nameController.text.trim();
             if (name.isNotEmpty) {
-              context.read<AuthBloc>().add(AuthRegistrationNameSubmitted(name));
+              context.read<AuthBloc>().add(
+                AuthRegistrationNameSubmitted(fullName: name, role: 'user'),
+              );
             }
           },
         ),

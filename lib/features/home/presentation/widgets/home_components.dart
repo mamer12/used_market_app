@@ -32,17 +32,17 @@ class HomeSection extends StatelessWidget {
         children: [
           if (title != null || trailing != null)
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
                 children: [
                   if (title != null)
                     Expanded(
                       child: Text(
                         title!,
-                        style: GoogleFonts.cairo(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF0F172A),
                         ),
                       ),
                     ),
@@ -72,14 +72,13 @@ class OmniboxWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 52.h,
+        height: 48.h,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
-        margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.h),
+        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: const Color(0xFFF8F9FA),
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.3)),
-          // Subtle shadow to make it pop over the scrolled background
+          border: Border.all(color: const Color(0xFFF1F5F9)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
@@ -90,23 +89,20 @@ class OmniboxWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.search_rounded, color: AppTheme.inactive, size: 24.sp),
-            SizedBox(width: 12.w),
+            Icon(
+              Icons.search_rounded,
+              color: const Color(0xFF94A3B8),
+              size: 24.sp,
+            ),
+            SizedBox(width: 8.w),
             Expanded(
               child: Text(
                 hintText,
-                style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.inactive,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16.sp,
+                  color: const Color(0xFF94A3B8),
                 ),
               ),
-            ),
-            // The Super App "Scanner" icon (often requested in modern e-comm)
-            Icon(
-              Icons.center_focus_weak_rounded,
-              color: AppTheme.inactive,
-              size: 24.sp,
             ),
           ],
         ),
@@ -139,11 +135,7 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
   @override
   void initState() {
     super.initState();
-    // Start with a large offset so we can loop infinitely if desired,
-    // though for simple MVP we just do bounded.
-    _pageController = PageController(
-      viewportFraction: 1.0,
-    ); // Exactly edge-to-edge as per Stitch
+    _pageController = PageController(viewportFraction: 0.85);
   }
 
   @override
@@ -159,7 +151,7 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 160.h,
+          height: 176.h,
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (idx) => setState(() => _currentIndex = idx),
@@ -174,12 +166,11 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                     value = _pageController.page! - index;
                     value = (1 - (value.abs() * 0.15)).clamp(0.0, 1.0);
                   } else {
-                    // Initial build state before dimensions are bound
                     value = _currentIndex == index ? 1.0 : 0.85;
                   }
                   return Center(
                     child: SizedBox(
-                      height: Curves.easeOut.transform(value) * 160.h,
+                      height: Curves.easeOut.transform(value) * 176.h,
                       width: double.infinity,
                       child: child,
                     ),
@@ -191,18 +182,76 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                     margin: EdgeInsets.symmetric(horizontal: 8.w),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16.r),
-                      image: item.imageUrl != null && item.imageUrl!.isNotEmpty
-                          ? DecorationImage(
-                              image: NetworkImage(item.imageUrl!),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
                       color: item.colorHex != null
                           ? Color(item.colorHex!)
-                          : AppTheme.surface,
+                          : AppTheme.primary,
                     ),
-                    // Optional: You can overlay the `title` from the Announcement here
-                    // if it's meant to be text-over-image, but usually banners have baked text.
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
+                      children: [
+                        if (item.imageUrl != null && item.imageUrl!.isNotEmpty)
+                          Positioned.fill(
+                            child: Opacity(
+                              opacity: 0.4,
+                              child: Image.network(
+                                item.imageUrl!,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        Padding(
+                          padding: EdgeInsets.all(24.w),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.title,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 24.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  height: 1.1,
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                item.actionUrl ??
+                                    'Special offers waiting for you',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: 16.h,
+                          left: 16.w,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 4.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(999.r),
+                            ),
+                            child: Text(
+                              'LIVE NOW',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white,
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -210,7 +259,6 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
           ),
         ),
         SizedBox(height: 12.h),
-        // Dots indicator
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
@@ -237,8 +285,8 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
 // ── Bento Grid (T017) ─────────────────────────────────────────────────────────
 
 class BentoGrid extends StatelessWidget {
-  final Map<String, String> labels; // e.g. {'mazad': '...', 'matajir': '...'}
-  final Map<String, String> taglines; // e.g. {'mazad': 'Live Deals', ...}
+  final Map<String, String> labels;
+  final Map<String, String> taglines;
   final void Function(String id) onTileTap;
 
   const BentoGrid({
@@ -251,7 +299,7 @@ class BentoGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
           Row(
@@ -259,10 +307,9 @@ class BentoGrid extends StatelessWidget {
               Expanded(
                 child: _BentoTile(
                   title: labels['mazad'] ?? 'Mazad',
-                  tagline: taglines['mazad'] ?? '',
+                  tagline: 'Live Bidding',
                   icon: Icons.gavel_rounded,
                   color: AppTheme.mazadRed,
-                  isLarge: true,
                   onTap: () => onTileTap('mazad'),
                 ),
               ),
@@ -270,10 +317,9 @@ class BentoGrid extends StatelessWidget {
               Expanded(
                 child: _BentoTile(
                   title: labels['matajir'] ?? 'Matajir',
-                  tagline: taglines['matajir'] ?? '',
+                  tagline: 'Official Shops',
                   icon: Icons.storefront_rounded,
                   color: AppTheme.matajirBlue,
-                  isLarge: true,
                   onTap: () => onTileTap('matajir'),
                 ),
               ),
@@ -285,10 +331,9 @@ class BentoGrid extends StatelessWidget {
               Expanded(
                 child: _BentoTile(
                   title: labels['mustamal'] ?? 'Mustamal',
-                  tagline: taglines['mustamal'] ?? '',
-                  icon: Icons.change_circle_outlined,
+                  tagline: 'Used Market',
+                  icon: Icons.change_circle_rounded,
                   color: AppTheme.mustamalOrange,
-                  isLarge: false,
                   onTap: () => onTileTap('mustamal'),
                 ),
               ),
@@ -296,10 +341,9 @@ class BentoGrid extends StatelessWidget {
               Expanded(
                 child: _BentoTile(
                   title: labels['balla'] ?? 'Balla',
-                  tagline: taglines['balla'] ?? '',
-                  icon: Icons.inventory_2_outlined,
+                  tagline: 'Bulk Market',
+                  icon: Icons.inventory_2_rounded,
                   color: AppTheme.ballaPurple,
-                  isLarge: false,
                   onTap: () => onTileTap('balla'),
                 ),
               ),
@@ -316,7 +360,6 @@ class _BentoTile extends StatelessWidget {
   final String tagline;
   final IconData icon;
   final Color color;
-  final bool isLarge;
   final VoidCallback onTap;
 
   const _BentoTile({
@@ -324,7 +367,6 @@ class _BentoTile extends StatelessWidget {
     required this.tagline,
     required this.icon,
     required this.color,
-    required this.isLarge,
     required this.onTap,
   });
 
@@ -333,42 +375,40 @@ class _BentoTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: isLarge ? 120.h : 100.h,
-        padding: EdgeInsets.all(12.w),
+        padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          color: color.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: color.withValues(alpha: 0.1)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: color, size: isLarge ? 28.sp : 24.sp),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.cairo(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.textPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  tagline,
-                  style: GoogleFonts.cairo(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            Container(
+              width: 40.w,
+              height: 40.w,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Icon(icon, color: Colors.white, size: 24.sp),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              title,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF0F172A),
+              ),
+            ),
+            Text(
+              tagline,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ],
         ),

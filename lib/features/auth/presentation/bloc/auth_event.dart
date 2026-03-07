@@ -13,11 +13,6 @@ class AuthCheckRequested extends AuthEvent {
   const AuthCheckRequested();
 }
 
-/// User chose "Start Browsing" — enter guest mode.
-class AuthGuestModeEntered extends AuthEvent {
-  const AuthGuestModeEntered();
-}
-
 /// User submitted their phone number to request an OTP.
 class AuthOtpRequested extends AuthEvent {
   final String phoneNumber;
@@ -36,18 +31,18 @@ class AuthOtpSubmitted extends AuthEvent {
   List<Object?> get props => [otp];
 }
 
-/// User submitted their name to finalize registration.
+/// User submitted their name and role to finalize registration.
 class AuthRegistrationNameSubmitted extends AuthEvent {
   final String fullName;
-  const AuthRegistrationNameSubmitted(this.fullName);
+  final String role;
+
+  const AuthRegistrationNameSubmitted({
+    required this.fullName,
+    required this.role,
+  });
 
   @override
-  List<Object?> get props => [fullName];
-}
-
-/// User tapped "Sign in with Google".
-class AuthGoogleSignInRequested extends AuthEvent {
-  const AuthGoogleSignInRequested();
+  List<Object?> get props => [fullName, role];
 }
 
 /// User tapped "Change number" — go back to phone input.

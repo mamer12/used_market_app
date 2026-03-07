@@ -67,6 +67,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPhoneInvalid => 'Invalid phone number';
 
   @override
+  String get verifyOtpTitle => 'Verify it\'s you';
+
+  @override
+  String get verifyOtpSubtitle => 'We sent a 6-digit code to your number';
+
+  @override
+  String get verifyOtpResendIn => 'Resend in';
+
+  @override
+  String get verifyOtpResend => 'Resend';
+
+  @override
+  String get verifyOtpSubmit => 'Verify & Continue';
+
+  @override
+  String get verifyOtpEditNumber => 'Edit number';
+
+  @override
+  String get registerTitle => 'Complete your registration';
+
+  @override
+  String get registerStepLabel => 'Step 3 of 3';
+
+  @override
+  String get registerFullNameHint => 'Full name';
+
+  @override
+  String get registerFullNameLabel => 'What\'s your name?';
+
+  @override
+  String get registerRoleTitle => 'Who are you?';
+
+  @override
+  String get registerSubmit => 'Complete Registration';
+
+  @override
+  String get roleUser => 'Shopper';
+
+  @override
+  String get roleMerchant => 'Merchant';
+
+  @override
+  String get roleAuctioneer => 'Auctioneer';
+
+  @override
+  String get roleUserDesc => 'Browse and buy from shops and auctions';
+
+  @override
+  String get roleMerchantDesc => 'I have a store and want to sell products';
+
+  @override
+  String get roleAuctioneerDesc =>
+      'I participate in auctions and sell to the highest bidder';
+
+  @override
   String get homeGreetingSub => 'Welcome back';
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -11,10 +13,10 @@ import '../../domain/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
-/// Manages the full authentication lifecycle for "Lazy Auth".
+/// Manages the full authentication lifecycle.
 ///
-/// The user starts as a guest and can browse freely.
-/// Login is triggered contextually via [AuthGuard] → Bottom Sheet.
+/// Mandatory auth: users must be authenticated to use the app.
+/// The [AuthStatus.unauthenticated] state triggers a router redirect to /login.
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
@@ -25,19 +27,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     : _storage = storage ?? const FlutterSecureStorage(),
       super(const AuthState()) {
     on<AuthCheckRequested>(_onCheckRequested);
-    on<AuthGuestModeEntered>(_onGuestMode);
     on<AuthOtpRequested>(_onOtpRequested);
     on<AuthOtpSubmitted>(_onOtpSubmitted);
     on<AuthRegistrationNameSubmitted>(_onRegistrationNameSubmitted);
-    on<AuthGoogleSignInRequested>(_onGoogleSignIn);
     on<AuthOtpCancelled>(_onOtpCancelled);
     on<AuthLogoutRequested>(_onLogout);
   }
 
+  // iOS Keychain: always specify accessibility to avoid deadlocks when
+  // the Keychain is locked (cold boot / background fetch).
+  static const _iosOptions = IOSOptions(
+    accessibility: KeychainAccessibility.first_unlock_this_device,
+  );
+
   /// Helper to check onboarding status safely.
   Future<bool> hasOnboarded() async {
     try {
-      final value = await _storage.read(key: _onboardedKey);
+      final value = await _storage.read(
+        key: _onboardedKey,
+        iOptions: _iosOptions,
+      );
       return value == 'true';
     } catch (_) {
       return false;
@@ -45,7 +54,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> setOnboarded() async {
-    await _storage.write(key: _onboardedKey, value: 'true');
+    await _storage.write(
+      key: _onboardedKey,
+      value: 'true',
+      iOptions: _iosOptions,
+    );
   }
 
   // ── Event Handlers ──────────────────────────────────────
@@ -57,19 +70,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LogService().info('🔑 Checking for existing session...');
 
     try {
-      final results = await Future.wait([
-        _authRepository.isLoggedIn().then((val) {
-          LogService().info('🔑 isLoggedIn check: $val');
-          return val;
-        }),
-        hasOnboarded().then((val) {
-          LogService().info('🔑 hasOnboarded check: $val');
-          return val;
-        }),
-      ]).timeout(const Duration(seconds: 5));
+      // Run sequentially to avoid concurrent iOS Keychain access which
+      // can cause both reads to deadlock each other.
+      final isLoggedIn = await _authRepository.isLoggedIn().timeout(
+        const Duration(seconds: 5),
+      );
+      LogService().info('🔑 isLoggedIn check: $isLoggedIn');
 
-      final isLoggedIn = results[0];
-      final onboarded = results[1];
+      final onboarded = await hasOnboarded().timeout(
+        const Duration(seconds: 3),
+      );
+      LogService().info('🔑 hasOnboarded check: $onboarded');
 
       if (isLoggedIn) {
         LogService().info(
@@ -86,21 +97,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           ),
         );
       } else {
-        LogService().info('🔑 No session — guest mode (onboarded: $onboarded)');
-        emit(state.copyWith(status: AuthStatus.guest, hasOnboarded: onboarded));
+        LogService().info(
+          '🔑 No session — unauthenticated (onboarded: $onboarded)',
+        );
+        emit(
+          state.copyWith(
+            status: AuthStatus.unauthenticated,
+            hasOnboarded: onboarded,
+          ),
+        );
       }
     } catch (e, stack) {
       LogService().error('Fatal: Auth check failed', e, stack);
-      emit(state.copyWith(status: AuthStatus.guest, hasOnboarded: false));
+      emit(
+        state.copyWith(status: AuthStatus.unauthenticated, hasOnboarded: false),
+      );
     }
-  }
-
-  Future<void> _onGuestMode(
-    AuthGuestModeEntered event,
-    Emitter<AuthState> emit,
-  ) async {
-    await setOnboarded();
-    emit(state.copyWith(status: AuthStatus.guest, hasOnboarded: true));
   }
 
   Future<void> _onOtpRequested(
@@ -110,26 +122,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(isLoading: true, error: null));
 
     try {
-      // In a real app, we would send the OTP request to the backend.
-      // Lugta relies on OTPs now. Sending request:
       await _authRepository.sendOtp(
         SendOtpRequest(phoneNumber: event.phoneNumber),
       );
       LogService().info('📱 OTP Sent to ${event.phoneNumber}');
       emit(
         state.copyWith(
-          status:
-              AuthStatus.otpSent, // Repurposing as "password requested" state
+          status: AuthStatus.otpSent,
           phoneNumber: event.phoneNumber,
           isLoading: false,
         ),
       );
     } catch (e, stack) {
-      LogService().error('Request failed', e, stack);
+      LogService().error('OTP request failed', e, stack);
       emit(
         state.copyWith(
           isLoading: false,
-          error: 'Failed to process request. Please try again.',
+          error: 'Failed to send code. Please try again.',
         ),
       );
     }
@@ -143,11 +152,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       if (state.phoneNumber == null) {
-        throw Exception("Phone number missing");
+        throw Exception('Phone number missing');
       }
 
-      LogService().info('Attempting login with API...');
-      // We pass the OTP code as the password for the login endpoint
+      LogService().info('Attempting login with OTP...');
       await _authRepository.login(
         LoginRequest(phoneNumber: state.phoneNumber!, otp: event.otp),
       );
@@ -166,25 +174,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on DioException catch (e) {
       LogService().error('API Login failed', e, StackTrace.current);
 
-      String errorMessage = "Login failed";
+      String errorMessage = 'Login failed';
       int? statusCode = e.response?.statusCode;
       if (e.error is ApiException) {
         final apiErr = e.error as ApiException;
         errorMessage = apiErr.message;
         statusCode = apiErr.statusCode ?? statusCode;
       } else {
-        errorMessage = e.message ?? "Unknown error";
+        errorMessage = e.message ?? 'Unknown error';
       }
 
-      // If the user doesn't exist, we fallback to requesting their name for registration
-      // The backend returns 401 "user not found" when logging in with an unregistered phone
-      if (errorMessage.toLowerCase().contains("not found") ||
+      // If the user doesn't exist, redirect to registration
+      if (errorMessage.toLowerCase().contains('not found') ||
           statusCode == 404 ||
           statusCode == 401) {
-        LogService().info('Account not found. Prompting for Name...');
+        LogService().info('Account not found. Prompting for Name + Role...');
         emit(
           state.copyWith(
-            status: AuthStatus.registrationNameRequired,
+            status: AuthStatus.registrationRequired,
             isLoading: false,
             otpCode: event.otp,
           ),
@@ -194,7 +201,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       emit(state.copyWith(isLoading: false, error: errorMessage));
     } catch (e, stack) {
-      LogService().error('Login/OTP failed', e, stack);
+      LogService().error('OTP submission failed', e, stack);
       emit(
         state.copyWith(
           isLoading: false,
@@ -212,10 +219,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       if (state.phoneNumber == null || state.otpCode == null) {
-        throw Exception("Missing phone number or OTP code");
+        throw Exception('Missing phone number or OTP code');
       }
 
-      LogService().info('Attempting registration...');
+      LogService().info('Attempting registration with role: ${event.role}...');
       await _authRepository.register(
         RegisterRequest(
           fullName: event.fullName,
@@ -224,6 +231,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
 
+      // Update role via profile update after registration if backend doesn't
+      // support role in /auth/otp/register yet.
       LogService().info('✅ Registration successful, fetching user...');
       final user = await _authRepository.getUser();
       emit(
@@ -237,11 +246,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } on DioException catch (e) {
       LogService().error('Registration failed (Dio)', e, StackTrace.current);
-      String errorMessage = "Registration failed";
+      String errorMessage = 'Registration failed';
       if (e.error is ApiException) {
         errorMessage = (e.error as ApiException).message;
       } else {
-        errorMessage = e.message ?? "Unknown error";
+        errorMessage = e.message ?? 'Unknown error';
       }
       emit(state.copyWith(isLoading: false, error: errorMessage));
     } catch (e, stack) {
@@ -255,37 +264,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onGoogleSignIn(
-    AuthGoogleSignInRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(isLoading: true, error: null));
-
-    try {
-      // TODO: Replace with actual Google Sign-In
-      await Future<void>.delayed(const Duration(seconds: 1));
-
-      LogService().info('✅ Google Sign-In — user authenticated');
-      emit(state.copyWith(status: AuthStatus.authenticated, isLoading: false));
-    } catch (e, stack) {
-      LogService().error('Google Sign-In failed', e, stack);
-      emit(
-        state.copyWith(
-          isLoading: false,
-          error: 'Google Sign-In failed. Please try again.',
-        ),
-      );
-    }
-  }
-
   Future<void> _onOtpCancelled(
     AuthOtpCancelled event,
     Emitter<AuthState> emit,
   ) async {
-    // Reset to guest so the sheet shows phone input again
+    // Reset to unauthenticated so the login page shows phone input again
     emit(
       state.copyWith(
-        status: AuthStatus.guest,
+        status: AuthStatus.unauthenticated,
         clearPhoneNumber: true,
         error: null,
         isLoading: false,
@@ -298,7 +284,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     await _authRepository.logout();
-    LogService().info('👋 User logged out → guest mode');
-    emit(const AuthState(status: AuthStatus.guest, user: null));
+    LogService().info('👋 User logged out → unauthenticated');
+    emit(const AuthState(status: AuthStatus.unauthenticated, user: null));
   }
 }

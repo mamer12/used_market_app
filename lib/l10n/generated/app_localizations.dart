@@ -212,6 +212,114 @@ abstract class AppLocalizations {
   /// **'Invalid phone number'**
   String get loginPhoneInvalid;
 
+  /// Verify OTP page title
+  ///
+  /// In en, this message translates to:
+  /// **'Verify it\'s you'**
+  String get verifyOtpTitle;
+
+  /// Verify OTP page subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to your number'**
+  String get verifyOtpSubtitle;
+
+  /// Resend countdown prefix
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in'**
+  String get verifyOtpResendIn;
+
+  /// Resend OTP button
+  ///
+  /// In en, this message translates to:
+  /// **'Resend'**
+  String get verifyOtpResend;
+
+  /// Verify OTP submit button
+  ///
+  /// In en, this message translates to:
+  /// **'Verify & Continue'**
+  String get verifyOtpSubmit;
+
+  /// Go back to phone input
+  ///
+  /// In en, this message translates to:
+  /// **'Edit number'**
+  String get verifyOtpEditNumber;
+
+  /// Registration page title
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your registration'**
+  String get registerTitle;
+
+  /// Step indicator on registration page
+  ///
+  /// In en, this message translates to:
+  /// **'Step 3 of 3'**
+  String get registerStepLabel;
+
+  /// Name field hint
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get registerFullNameHint;
+
+  /// Name field label
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your name?'**
+  String get registerFullNameLabel;
+
+  /// Role selection section title
+  ///
+  /// In en, this message translates to:
+  /// **'Who are you?'**
+  String get registerRoleTitle;
+
+  /// Registration submit button
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Registration'**
+  String get registerSubmit;
+
+  /// Role: consumer user
+  ///
+  /// In en, this message translates to:
+  /// **'Shopper'**
+  String get roleUser;
+
+  /// Role: shop seller
+  ///
+  /// In en, this message translates to:
+  /// **'Merchant'**
+  String get roleMerchant;
+
+  /// Role: auction participant
+  ///
+  /// In en, this message translates to:
+  /// **'Auctioneer'**
+  String get roleAuctioneer;
+
+  /// Role user description
+  ///
+  /// In en, this message translates to:
+  /// **'Browse and buy from shops and auctions'**
+  String get roleUserDesc;
+
+  /// Role merchant description
+  ///
+  /// In en, this message translates to:
+  /// **'I have a store and want to sell products'**
+  String get roleMerchantDesc;
+
+  /// Role auctioneer description
+  ///
+  /// In en, this message translates to:
+  /// **'I participate in auctions and sell to the highest bidder'**
+  String get roleAuctioneerDesc;
+
   /// Greeting subtitle
   ///
   /// In en, this message translates to:

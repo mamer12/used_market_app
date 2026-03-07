@@ -60,8 +60,16 @@ class _HomePageState extends State<HomePage> {
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    // 1. SliverAppBar — Escrow Wallet + Omnibox
+                    // 1. SliverAppBar — Escrow Wallet
                     _HomeAppBar(l10n: l10n),
+
+                    // 1b. Omnibox
+                    SliverToBoxAdapter(
+                      child: OmniboxWidget(
+                        hintText: 'Search for anything...',
+                        onTap: () => context.push('/search'),
+                      ),
+                    ),
 
                     // 2. Announcements Carousel
                     if (state.announcements.isNotEmpty)
@@ -250,9 +258,9 @@ class _HomePageState extends State<HomePage> {
       onTap: onTap,
       child: Text(
         text,
-        style: GoogleFonts.cairo(
+        style: GoogleFonts.plusJakartaSans(
           fontSize: 14.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.bold,
           color: AppTheme.primary,
         ),
       ),
@@ -269,75 +277,63 @@ class _HomeAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Colors.white.withValues(alpha: 0.8),
       elevation: 0,
       pinned: true,
-      toolbarHeight: 120.h,
+      toolbarHeight: 64.h,
       flexibleSpace: FlexibleSpaceBar(
         background: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 0.w,
-          ), // Let child margins handle padding
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // Top Row — Brand + Escrow Wallet pill
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'لكطة',
-                        style: GoogleFonts.cairo(
-                          fontSize: 26.sp,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.textPrimary,
-                        ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Luqta',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -1,
+                        color: const Color(0xFF0F172A),
                       ),
                     ),
-                    // Escrow Wallet pill
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 6.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
-                        borderRadius: BorderRadius.circular(20.r),
-                        border: Border.all(
-                          color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
+                  ),
+                  // Escrow Wallet pill
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 6.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(999.r),
+                      border: Border.all(color: const Color(0xFFDCFCE7)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 16.sp,
+                          color: const Color(0xFF2E7D32),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.account_balance_wallet_outlined,
-                            size: 15.sp,
+                        SizedBox(width: 8.w),
+                        Text(
+                          'الرصيد: 250,000 د.ع', // Placeholder
+                          style: GoogleFonts.cairo(
                             color: const Color(0xFF2E7D32),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
                           ),
-                          SizedBox(width: 5.w),
-                          Text(
-                            'الرصيد: -- د.ع', // Placeholder: logic to follow in T014
-                            style: GoogleFonts.cairo(
-                              color: const Color(0xFF2E7D32),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.sp,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-
-              // Omnibox Search Bar
-              OmniboxWidget(
-                hintText: l10n.omniboxHint,
-                onTap: () => context.push('/search'),
-              ),
+              SizedBox(height: 12.h),
             ],
           ),
         ),

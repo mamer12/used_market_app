@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/di/injection.dart';
 import '../../core/locale/locale_cubit.dart';
@@ -12,8 +13,30 @@ import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/presentation/bloc/cart_cubit.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  late final AuthBloc _authBloc;
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _authBloc = getIt<AuthBloc>()..add(const AuthCheckRequested());
+    _router = buildAppRouter(_authBloc); // Create once; never rebuild
+  }
+
+  @override
+  void dispose() {
+    _authBloc.close();
+    _router.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +48,7 @@ class App extends StatelessWidget {
       builder: (context, child) {
         return MultiBlocProvider(
           providers: [
-            BlocProvider(
-              create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
-            ),
+            BlocProvider.value(value: _authBloc),
             BlocProvider(
               create: (_) => CartCubit(
                 getIt.isRegistered<CartRemoteDataSource>()
@@ -48,8 +69,8 @@ class App extends StatelessWidget {
                 supportedLocales: AppLocalizations.supportedLocales,
                 locale: locale,
 
-                // go_router integration
-                routerConfig: appRouter,
+                // go_router with mandatory auth redirect (stable instance)
+                routerConfig: _router,
               );
             },
           ),

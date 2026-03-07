@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,13 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../l10n/generated/app_localizations.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
 
 /// Onboarding — 3-slide PageView with "Industrial Pop" aesthetics.
 ///
-/// Shown only on first launch. "Start Browsing" enters guest mode
-/// and navigates straight to HomePage (Lazy Auth pattern).
+/// Shown only on first launch. "Get Started" navigates to /login
+/// for mandatory authentication (no guest mode).
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -42,15 +39,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
   }
 
-  /// Enter guest mode and go to HomePage.
+  /// Navigate to login — mandatory auth, no guest mode.
   void _startBrowsing() {
-    context.read<AuthBloc>().add(const AuthGuestModeEntered());
-    // In guest mode, immediately route to home root using go_router.
-    context.go('/');
+    context.go('/login');
   }
 
   void _onSkip() {
-    _startBrowsing();
+    context.go('/login');
   }
 
   @override
