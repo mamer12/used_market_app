@@ -133,7 +133,7 @@ class HomeCubit extends Cubit<HomeState> {
         state.copyWith(
           isLoading: false,
           portal: portal,
-          liveAuctions: auctions,
+          liveAuctions: portal.mazadat.isNotEmpty ? portal.mazadat : auctions,
           featuredProducts: allProducts,
           shopCatalogs: catalogs,
           announcements: announcements,

@@ -11,6 +11,8 @@ import '../../../../core/utils/iqd_formatter.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/balla_cart_cubit.dart';
 import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
+import '../../../category/presentation/cubit/category_cubit.dart';
+import '../../../category/presentation/cubit/category_state.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
 
 class BallaPage extends StatefulWidget {
@@ -22,32 +24,22 @@ class BallaPage extends StatefulWidget {
 
 class _BallaPageState extends State<BallaPage> {
   late final HomeCubit _cubit;
-  final List<String> _filters = [
-    'الكل',
-    'بالات ملابس',
-    'لوجستيات',
-    'طلبيات',
-    'حصص صناعية',
-  ];
-  final List<IconData> _filterIcons = [
-    Icons.check_circle_rounded,
-    Icons.checkroom_rounded,
-    Icons.local_shipping_rounded,
-    Icons.inventory_2_rounded,
-    Icons.factory_rounded,
-  ];
-  int _selectedFilter = 0;
+  late final CategoryCubit _categoryCubit;
 
   @override
   void initState() {
     super.initState();
     _cubit = getIt<HomeCubit>()..loadFeed();
+    _categoryCubit = getIt<CategoryCubit>(param1: 'balla')..fetchCategories();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider.value(value: _cubit)],
+      providers: [
+        BlocProvider.value(value: _cubit),
+        BlocProvider.value(value: _categoryCubit),
+      ],
       child: BlocListener<BallaCartCubit, CartState>(
         listenWhen: (prev, curr) =>
             curr.cartStatus == CartStatus.conflict &&
@@ -265,60 +257,102 @@ class _BallaPageState extends State<BallaPage> {
   Widget _buildFilters() {
     return SizedBox(
       height: 72.h,
-      child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        scrollDirection: Axis.horizontal,
-        itemCount: _filters.length,
-        separatorBuilder: (_, _) => SizedBox(width: 8.w),
-        itemBuilder: (context, index) {
-          final isSelected = _selectedFilter == index;
-          return GestureDetector(
-            onTap: () => setState(() => _selectedFilter = index),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: isSelected ? AppTheme.ballaPurple : Colors.white,
-                borderRadius: BorderRadius.circular(99.r),
-                border: Border.all(
-                  color: isSelected
-                      ? AppTheme.ballaPurple
-                      : AppTheme.inactive.withValues(alpha: 0.2),
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: AppTheme.ballaPurple.withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _filterIcons[index],
-                    color: isSelected ? Colors.white : AppTheme.textSecondary,
-                    size: 18.sp,
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    _filters[index],
-                    style: GoogleFonts.cairo(
-                      color: isSelected ? Colors.white : AppTheme.textPrimary,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.w600,
-                      fontSize: 14.sp,
+      child: BlocBuilder<CategoryCubit, CategoryState>(
+        builder: (context, state) {
+          return state.map(
+            initial: (_) => const Center(child: CircularProgressIndicator()),
+            loading: (_) => const Center(child: CircularProgressIndicator()),
+            error: (e) => Center(child: Text(e.message)),
+            loaded: (loaded) {
+              final categories = loaded.categories;
+              final hasBack = loaded.parentIdStack.isNotEmpty;
+              final totalCount = categories.length + (hasBack ? 1 : 0);
+
+              return ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                scrollDirection: Axis.horizontal,
+                itemCount: totalCount,
+                separatorBuilder: (_, _) => SizedBox(width: 8.w),
+                itemBuilder: (context, index) {
+                  if (hasBack && index == 0) {
+                    return GestureDetector(
+                      onTap: () => context.read<CategoryCubit>().navigateBack(),
+                      child: _buildFilterItem(
+                        icon: Icons.arrow_back_rounded,
+                        label: 'رجوع',
+                        isSelected: false,
+                      ),
+                    );
+                  }
+
+                  final catIndex = hasBack ? index - 1 : index;
+                  final category = categories[catIndex];
+                  final isSelected =
+                      false; // logic for selection could be added if filtering products
+
+                  return GestureDetector(
+                    onTap: () =>
+                        context.read<CategoryCubit>().drillDown(category.id),
+                    child: _buildFilterItem(
+                      icon: Icons.category_rounded,
+                      label: category.nameAr,
+                      isSelected: isSelected,
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  );
+                },
+              );
+            },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildFilterItem({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: isSelected ? AppTheme.ballaPurple : Colors.white,
+        borderRadius: BorderRadius.circular(99.r),
+        border: Border.all(
+          color: isSelected
+              ? AppTheme.ballaPurple
+              : AppTheme.inactive.withValues(alpha: 0.2),
+        ),
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: AppTheme.ballaPurple.withValues(alpha: 0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? Colors.white : AppTheme.textSecondary,
+            size: 18.sp,
+          ),
+          SizedBox(width: 8.w),
+          Text(
+            label,
+            style: GoogleFonts.cairo(
+              color: isSelected ? Colors.white : AppTheme.textPrimary,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+              fontSize: 14.sp,
+            ),
+          ),
+        ],
       ),
     );
   }

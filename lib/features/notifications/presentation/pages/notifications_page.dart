@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../core/utils/iqd_formatter.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../shop/data/datasources/order_remote_data_source.dart';
@@ -121,27 +121,55 @@ class _NotificationsPageState extends State<NotificationsPage>
             return BlocProvider.value(
               value: _cubit!,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildHeader(),
                   _buildTabBar(),
                   Expanded(
                     child: BlocBuilder<OrdersCubit, OrdersState>(
                       builder: (context, state) {
-                        if (state.isLoading && state.orders.isEmpty) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: AppTheme.primary,
-                            ),
-                          );
-                        }
-                        if (state.error != null && state.orders.isEmpty) {
-                          return _buildError(state.error!);
-                        }
-                        if (state.orders.isEmpty) {
-                          return _buildEmpty();
-                        }
-                        return _buildOrdersList(state.orders);
+                        return CustomScrollView(
+                          slivers: [
+                            if (state.isLoading && state.orders.isEmpty)
+                              const SliverFillRemaining(
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppTheme.primary,
+                                  ),
+                                ),
+                              )
+                            else if (state.error != null &&
+                                state.orders.isEmpty)
+                              SliverFillRemaining(
+                                child: _buildError(state.error!),
+                              )
+                            else if (state.orders.isEmpty)
+                              SliverFillRemaining(child: _buildEmpty())
+                            else
+                              SliverPadding(
+                                padding: EdgeInsets.all(16.w),
+                                sliver: SliverList.separated(
+                                  itemCount: state.orders.length,
+                                  separatorBuilder: (context, index) =>
+                                      SizedBox(height: 16.h),
+                                  itemBuilder: (_, i) =>
+                                      _buildOrderCard(state.orders[i]),
+                                ),
+                              ),
+                            if (!state.isLoading && state.orders.isNotEmpty)
+                              SliverPadding(
+                                padding: EdgeInsets.fromLTRB(
+                                  16.w,
+                                  8.h,
+                                  16.w,
+                                  100.h,
+                                ),
+                                sliver: SliverToBoxAdapter(
+                                  child: _buildPromoBanner(),
+                                ),
+                              ),
+                          ],
+                        );
                       },
                     ),
                   ),
@@ -155,43 +183,44 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   Widget _buildHeader() {
-    final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 4.h),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: AppTheme.inactive.withValues(alpha: 0.1)),
+        ),
+      ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            width: 6.w,
-            height: 28.h,
-            decoration: BoxDecoration(
-              color: AppTheme.primary,
-              borderRadius: BorderRadius.circular(3.r),
-            ),
-          ),
-          SizedBox(width: 10.w),
           Text(
-            l10n.activityPageTitle,
+            'النشاط',
             style: GoogleFonts.cairo(
-              fontSize: 26.sp,
-              fontWeight: FontWeight.w700,
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
             ),
           ),
-          const Spacer(),
-          Container(
-            width: 40.w,
-            height: 40.w,
-            decoration: BoxDecoration(
-              color: AppTheme.background,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppTheme.inactive.withValues(alpha: 0.3),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20.r),
+              onTap: () {},
+              child: Container(
+                width: 40.w,
+                height: 40.w,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.background,
+                ),
+                child: Icon(
+                  Icons.notifications_none_rounded,
+                  size: 24.sp,
+                  color: AppTheme.textPrimary,
+                ),
               ),
-            ),
-            child: Icon(
-              Icons.notifications_none_outlined,
-              size: 20.sp,
-              color: AppTheme.textPrimary,
             ),
           ),
         ],
@@ -200,152 +229,187 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   Widget _buildTabBar() {
-    final l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 0),
+    return Container(
+      color: Colors.white,
       child: Container(
-        height: 44.h,
         decoration: BoxDecoration(
-          color: AppTheme.background,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.2)),
+          border: Border(
+            bottom: BorderSide(color: AppTheme.inactive.withValues(alpha: 0.1)),
+          ),
         ),
         child: TabBar(
           controller: _tabController,
-          indicator: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(10.r),
+          indicator: const UnderlineTabIndicator(
+            borderSide: BorderSide(color: AppTheme.primary, width: 3),
           ),
           indicatorSize: TabBarIndicatorSize.tab,
-          dividerColor: Colors.transparent,
           labelColor: AppTheme.textPrimary,
           unselectedLabelColor: AppTheme.textSecondary,
           labelStyle: GoogleFonts.cairo(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w700,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
           ),
           unselectedLabelStyle: GoogleFonts.cairo(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w500,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
           ),
-          tabs: [
-            Tab(text: l10n.activityTabPurchases),
-            Tab(text: l10n.activityTabSales),
+          tabs: const [
+            Tab(text: 'مشترياتي'),
+            Tab(text: 'مبيعاتي'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOrdersList(List<OrderModel> orders) {
-    return RefreshIndicator(
-      color: AppTheme.primary,
-      onRefresh: () => _cubit!.loadOrders(
-        viewAs: _tabController.index == 0 ? 'buyer' : 'seller',
-        refresh: true,
-      ),
-      child: ListView.separated(
-        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 100.h),
-        itemCount: orders.length,
-        separatorBuilder: (_, _) => SizedBox(height: 10.h),
-        itemBuilder: (_, i) => _buildOrderCard(orders[i]),
-      ),
-    );
-  }
-
   Widget _buildOrderCard(OrderModel order) {
     final (statusLabel, statusColor) = _statusInfo(order.status);
+    final statusIcon = _statusIcon(order.status);
 
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.circular(14.r),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Icon
+          // Icon Box
           Container(
-            width: 48.w,
-            height: 48.w,
+            width: 56.w,
+            height: 56.w,
             decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.12),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: Icon(
-              _statusIcon(order.status),
-              size: 22.sp,
-              color: statusColor,
-            ),
+            child: Icon(statusIcon, size: 28.sp, color: statusColor),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 16.w),
+          // Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Builder(
-                        builder: (context) {
-                          final l10n = AppLocalizations.of(context);
-                          return Text(
-                            l10n.orderNumber(
-                              order.id.substring(0, 8).toUpperCase(),
-                            ),
-                            style: GoogleFonts.cairo(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 8.w,
-                        vertical: 3.h,
+                        vertical: 2.h,
                       ),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(6.r),
+                        color: statusColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(99.r),
                       ),
                       child: Text(
                         statusLabel,
                         style: GoogleFonts.cairo(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.bold,
                           color: statusColor,
                         ),
                       ),
                     ),
+                    Text(
+                      IqdFormatter.format(order.totalPrice.toDouble()),
+                      style: GoogleFonts.cairo(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
                   ],
                 ),
+                SizedBox(height: 8.h),
+                Text(
+                  'LQ-${order.id.length > 4 ? order.id.substring(order.id.length - 4).toUpperCase() : order.id.toUpperCase()}',
+                  style: GoogleFonts.inter(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
                 SizedBox(height: 4.h),
-                Builder(
-                  builder: (context) {
-                    final l10n = AppLocalizations.of(context);
-                    return Text(
-                      l10n.orderQtyPrice(
-                        order.quantity,
-                        order.totalPrice.toInt().toString(),
-                      ),
-                      style: GoogleFonts.cairo(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.textSecondary,
-                      ),
-                    );
-                  },
+                Text(
+                  'الكمية: ${order.quantity} | قيد المعالجة',
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Icon(
+            Icons.chevron_left_rounded,
+            color: AppTheme.inactive.withValues(alpha: 0.5),
+            size: 24.sp,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromoBanner() {
+    return Container(
+      width: double.infinity,
+      height: 120.h,
+      decoration: BoxDecoration(
+        color: AppTheme.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned(
+            right: -20.w,
+            top: 0,
+            bottom: 0,
+            child: Opacity(
+              opacity: 0.1,
+              child: Transform.rotate(
+                angle: 0.2,
+                child: Icon(
+                  Icons.inventory_2_rounded,
+                  size: 150.sp,
+                  color: AppTheme.primary,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'تتبع طلباتك بسهولة',
+                  style: GoogleFonts.cairo(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  'حدث التطبيق للحصول على ميزات جديدة',
+                  style: GoogleFonts.cairo(
+                    fontSize: 14.sp,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -356,47 +420,30 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   (String, Color) _statusInfo(OrderStatus status) {
-    final l10n = AppLocalizations.of(context);
     return switch (status) {
-      OrderStatus.pendingPayment => (
-        l10n.statusPendingPayment,
-        AppTheme.secondary,
-      ),
-      OrderStatus.paidToEscrow => (
-        l10n.statusPaidEscrow,
-        const Color(0xFF00BCD4),
-      ),
-      OrderStatus.shipped => (l10n.statusShipped, AppTheme.primary),
-      OrderStatus.delivered => (l10n.statusDelivered, const Color(0xFF4CAF50)),
-      OrderStatus.fundsReleased => (
-        l10n.statusCompleted,
-        const Color(0xFF4CAF50),
-      ),
-      OrderStatus.pendingCODFulfillment => (
-        l10n.statusPendingCODFulfillment,
-        AppTheme.secondary,
-      ),
-      OrderStatus.deliveredAndCashCollected => (
-        l10n.statusDeliveredAndCashCollected,
-        const Color(0xFF4CAF50),
-      ),
+      OrderStatus.pendingPayment => ('بانتظار الدفع', Colors.orange),
+      OrderStatus.paidToEscrow => ('تم الدفع', Colors.cyan),
+      OrderStatus.shipped => ('تم الشحن', Colors.blue),
+      OrderStatus.delivered => ('تم التوصيل', Colors.green),
+      OrderStatus.fundsReleased => ('مكتمل', Colors.green),
+      OrderStatus.pendingCODFulfillment => ('قيد المعالجة', Colors.orange),
+      OrderStatus.deliveredAndCashCollected => ('مكتمل', Colors.green),
     };
   }
 
   IconData _statusIcon(OrderStatus status) {
     return switch (status) {
-      OrderStatus.pendingPayment => Icons.payment_outlined,
-      OrderStatus.paidToEscrow => Icons.lock_outline,
-      OrderStatus.shipped => Icons.local_shipping_outlined,
-      OrderStatus.delivered => Icons.check_circle_outline,
-      OrderStatus.fundsReleased => Icons.verified_outlined,
-      OrderStatus.pendingCODFulfillment => Icons.delivery_dining_outlined,
-      OrderStatus.deliveredAndCashCollected => Icons.done_all_outlined,
+      OrderStatus.pendingPayment => Icons.schedule_rounded,
+      OrderStatus.paidToEscrow => Icons.lock_outline_rounded,
+      OrderStatus.shipped => Icons.local_shipping_rounded,
+      OrderStatus.delivered => Icons.check_circle_rounded,
+      OrderStatus.fundsReleased => Icons.verified_rounded,
+      OrderStatus.pendingCODFulfillment => Icons.delivery_dining_rounded,
+      OrderStatus.deliveredAndCashCollected => Icons.done_all_rounded,
     };
   }
 
   Widget _buildEmpty() {
-    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -404,31 +451,33 @@ class _NotificationsPageState extends State<NotificationsPage>
           Container(
             width: 80.w,
             height: 80.w,
-            decoration: const BoxDecoration(
-              color: AppTheme.surface,
+            decoration: BoxDecoration(
+              color: Colors.white,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: AppTheme.inactive.withValues(alpha: 0.1),
+              ),
             ),
             child: Icon(
-              Icons.inbox_outlined,
+              Icons.inbox_rounded,
               size: 36.sp,
               color: AppTheme.inactive,
             ),
           ),
           SizedBox(height: 16.h),
           Text(
-            l10n.ordersEmpty,
+            'لا يوجد تشاط',
             style: GoogleFonts.cairo(
               fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
             ),
           ),
           SizedBox(height: 6.h),
           Text(
-            l10n.ordersEmptySub,
+            'قم بالشراء أو البيع لتبدأ',
             style: GoogleFonts.cairo(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w500,
+              fontSize: 14.sp,
               color: AppTheme.textSecondary,
             ),
           ),
@@ -438,13 +487,12 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   Widget _buildError(String message) {
-    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.error_outline, size: 48.sp, color: AppTheme.error),
-          SizedBox(height: 12.h),
+          Icon(Icons.error_outline_rounded, size: 48.sp, color: AppTheme.error),
+          SizedBox(height: 16.h),
           Text(
             message,
             style: GoogleFonts.cairo(
@@ -453,21 +501,21 @@ class _NotificationsPageState extends State<NotificationsPage>
             ),
           ),
           SizedBox(height: 16.h),
-          GestureDetector(
-            onTap: () => _cubit?.loadOrders(refresh: true),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                color: AppTheme.primary,
+          ElevatedButton(
+            onPressed: () => _cubit?.loadOrders(refresh: true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.r),
               ),
-              child: Text(
-                l10n.retryBtn,
-                style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
-                ),
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+            ),
+            child: Text(
+              'إعادة المحاولة',
+              style: GoogleFonts.cairo(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
               ),
             ),
           ),
