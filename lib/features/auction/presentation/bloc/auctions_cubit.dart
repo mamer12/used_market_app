@@ -125,9 +125,15 @@ class AuctionsCubit extends Cubit<AuctionsState> {
       // we filter locally if it has both. Or we assume BE returns them properly and we filter.
       // Actually, if we just want to match the previous local filter behavior:
       final filtered = newAuctions.where((a) {
-        if (state.filterStatus == 'live') return a.status == 'live';
-        if (state.filterStatus == 'upcoming') return a.status == 'upcoming';
-        if (state.filterStatus == 'ended') return a.status == 'ended';
+        if (state.filterStatus == 'live') {
+          return a.status == 'live' || a.status == 'active';
+        }
+        if (state.filterStatus == 'upcoming') {
+          return a.status == 'upcoming';
+        }
+        if (state.filterStatus == 'ended') {
+          return a.status == 'ended';
+        }
         return true;
       }).toList();
 

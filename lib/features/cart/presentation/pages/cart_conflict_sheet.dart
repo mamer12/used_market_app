@@ -84,7 +84,7 @@ class CartConflictSheet extends StatelessWidget {
                   },
                   style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 14.h),
-                    side: BorderSide(color: AppTheme.inactive),
+                    side: const BorderSide(color: AppTheme.inactive),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.r),
                     ),

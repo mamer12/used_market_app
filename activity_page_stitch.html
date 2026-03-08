@@ -1,0 +1,146 @@
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ffb805",
+                        "background-light": "#f6f5f8",
+                        "background-dark": "#1a160a",
+                        "status-blue": "#3b82f6",
+                        "status-green": "#10b981",
+                        "status-orange": "#f59e0b",
+                    },
+                    fontFamily: {
+                        "display": ["Cairo", "Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem", // 12px based on user request
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .active-tab {
+            border-bottom: 3px solid #ffb805;
+            color: #1a160a;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white dark:bg-slate-900 px-4 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+<h1 class="text-xl font-bold">النشاط</h1>
+<button class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+</button>
+</header>
+<!-- Tab Bar -->
+<nav class="bg-white dark:bg-slate-900 flex border-b border-slate-100 dark:border-slate-800">
+<button class="flex-1 py-4 text-sm font-bold active-tab transition-all">
+            مشترياتي
+        </button>
+<button class="flex-1 py-4 text-sm font-bold text-slate-400 dark:text-slate-500 hover:text-slate-600 transition-all">
+            مبيعاتي
+        </button>
+</nav>
+<!-- Main Content (Orders List) -->
+<main class="flex-1 p-4 space-y-4 overflow-y-auto">
+<!-- Card 1: In Transit -->
+<div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-slate-50 dark:border-slate-800 flex items-center gap-4">
+<div class="size-14 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-status-blue text-3xl">local_shipping</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-bold text-status-blue bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">تم الشحن</span>
+<span class="text-sm font-bold text-slate-900 dark:text-slate-100">١٥٠,٠٠٠ د.ع</span>
+</div>
+<p class="text-base font-bold truncate">LQ-4829</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">تصل خلال ٢ يوم</p>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_left</span>
+</div>
+<!-- Card 2: Completed -->
+<div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-slate-50 dark:border-slate-800 flex items-center gap-4">
+<div class="size-14 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-status-green text-3xl">check_circle</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-bold text-status-green bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full">تم التوصيل</span>
+<span class="text-sm font-bold text-slate-900 dark:text-slate-100">٥٠,٠٠٠ د.ع</span>
+</div>
+<p class="text-base font-bold truncate">LQ-3910</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">تم الاستلام في ١٢ مايو</p>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_left</span>
+</div>
+<!-- Card 3: Pending -->
+<div class="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-slate-50 dark:border-slate-800 flex items-center gap-4">
+<div class="size-14 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-status-orange text-3xl">schedule</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-bold text-status-orange bg-orange-50 dark:bg-orange-900/30 px-2 py-0.5 rounded-full">بانتظار الدفع</span>
+<span class="text-sm font-bold text-slate-900 dark:text-slate-100">٢٥,٠٠٠ د.ع</span>
+</div>
+<p class="text-base font-bold truncate">LQ-5102</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">تنتهي الصلاحية خلال ٤ ساعات</p>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_left</span>
+</div>
+<!-- Banner for Promotion -->
+<div class="relative w-full aspect-[21/9] rounded-lg overflow-hidden mt-6">
+<div class="absolute inset-0 bg-primary/20 flex items-center p-6">
+<div class="z-10">
+<h3 class="text-lg font-bold text-slate-900">تتبع طلباتك بسهولة</h3>
+<p class="text-sm text-slate-700">حدث التطبيق للحصول على ميزات جديدة</p>
+</div>
+<div class="absolute -left-4 top-0 h-full opacity-20">
+<span class="material-symbols-outlined text-[120px] rotate-12">package_2</span>
+</div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-l from-primary/10 to-transparent"></div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 pb-8 pt-2 px-6 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold">الرئيسية</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="text-[10px] font-bold">المتجر</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">bar_chart_4_bars</span>
+<span class="text-[10px] font-bold">النشاط</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold">الملف الشخصي</span>
+</a>
+</nav>
+</body></html>

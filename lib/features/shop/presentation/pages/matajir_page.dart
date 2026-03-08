@@ -11,6 +11,8 @@ import '../../../../core/utils/iqd_formatter.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
+import '../../../category/presentation/cubit/category_cubit.dart';
+import '../../../category/presentation/cubit/category_state.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
 import '../../data/models/shop_models.dart';
 import 'shop_products_page.dart';
@@ -24,17 +26,22 @@ class MatajirPage extends StatefulWidget {
 
 class _MatajirPageState extends State<MatajirPage> {
   late final HomeCubit _cubit;
+  late final CategoryCubit _categoryCubit;
 
   @override
   void initState() {
     super.initState();
     _cubit = getIt<HomeCubit>()..loadFeed();
+    _categoryCubit = getIt<CategoryCubit>(param1: 'matajir')..fetchCategories();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider.value(value: _cubit)],
+      providers: [
+        BlocProvider.value(value: _cubit),
+        BlocProvider.value(value: _categoryCubit),
+      ],
       child: BlocListener<MatajirCartCubit, CartState>(
         listenWhen: (prev, curr) =>
             curr.cartStatus == CartStatus.conflict &&
@@ -169,36 +176,65 @@ class _MatajirPageState extends State<MatajirPage> {
                 SliverToBoxAdapter(
                   child: SizedBox(
                     height: 100.h,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      children: [
-                        const _CategoryItem(
-                          icon: Icons.devices_rounded,
-                          label: 'إلكترونيات',
-                          isSelected: true,
-                        ),
-                        SizedBox(width: 12.w),
-                        const _CategoryItem(
-                          icon: Icons.checkroom_rounded,
-                          label: 'أزياء',
-                        ),
-                        SizedBox(width: 12.w),
-                        const _CategoryItem(
-                          icon: Icons.kitchen_rounded,
-                          label: 'أجهزة',
-                        ),
-                        SizedBox(width: 12.w),
-                        const _CategoryItem(
-                          icon: Icons.face_retouching_natural_rounded,
-                          label: 'جمال',
-                        ),
-                        SizedBox(width: 12.w),
-                        const _CategoryItem(
-                          icon: Icons.toys_rounded,
-                          label: 'ألعاب',
-                        ),
-                      ],
+                    child: BlocBuilder<CategoryCubit, CategoryState>(
+                      builder: (context, state) {
+                        return state.map(
+                          initial: (_) =>
+                              const Center(child: CircularProgressIndicator()),
+                          loading: (_) =>
+                              const Center(child: CircularProgressIndicator()),
+                          error: (e) => Center(child: Text(e.message)),
+                          loaded: (loaded) {
+                            if (loaded.categories.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'لا يوجد أقسام',
+                                  style: GoogleFonts.cairo(fontSize: 14.sp),
+                                ),
+                              );
+                            }
+
+                            return ListView(
+                              scrollDirection: Axis.horizontal,
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              children: [
+                                if (loaded.parentIdStack.isNotEmpty) ...[
+                                  GestureDetector(
+                                    onTap: () {
+                                      context
+                                          .read<CategoryCubit>()
+                                          .navigateBack();
+                                    },
+                                    child: const _CategoryItem(
+                                      icon: Icons.arrow_back_rounded,
+                                      label: 'رجوع',
+                                      isSelected: false,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12.w),
+                                ],
+                                ...loaded.categories.map((cat) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(right: 12.w),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        context.read<CategoryCubit>().drillDown(
+                                          cat.id,
+                                        );
+                                      },
+                                      child: _CategoryItem(
+                                        icon: Icons.category_rounded,
+                                        label: cat.nameAr,
+                                        isSelected: false,
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            );
+                          },
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -517,171 +553,175 @@ class _MatajirProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            flex: 5,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (item.images.isNotEmpty)
-                  CachedNetworkImage(
-                    imageUrl: item.images.first,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        Container(color: const Color(0xFFF1F5F9)),
-                  )
-                else
-                  Container(color: const Color(0xFFF1F5F9)),
-                Positioned(
-                  top: 8.h,
-                  left: 8.w,
-                  child: Container(
-                    padding: EdgeInsets.all(6.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.favorite_border_rounded,
-                      size: 18.sp,
-                      color: const Color(0xFF475569),
-                    ),
-                  ),
-                ),
-              ],
+    return InkWell(
+      onTap: () => context.push('/matajir/product/${item.id}', extra: item),
+      borderRadius: BorderRadius.circular(12.r),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: EdgeInsets.all(12.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Official Store',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 10.sp,
-                          color: const Color(0xFF64748B),
-                        ),
+                  if (item.images.isNotEmpty)
+                    CachedNetworkImage(
+                      imageUrl: item.images.first,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          Container(color: const Color(0xFFF1F5F9)),
+                    )
+                  else
+                    Container(color: const Color(0xFFF1F5F9)),
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    child: Container(
+                      padding: EdgeInsets.all(6.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        shape: BoxShape.circle,
                       ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        item.name,
-                        style: GoogleFonts.cairo(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF0F172A),
-                          height: 1.2,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      child: Icon(
+                        Icons.favorite_border_rounded,
+                        size: 18.sp,
+                        color: const Color(0xFF475569),
                       ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            IqdFormatter.format(
-                              item.price,
-                            ).replaceAll(' IQD', ''),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.matajirBlue,
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'د.ع',
-                            style: GoogleFonts.cairo(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.matajirBlue,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                      BlocBuilder<MatajirCartCubit, CartState>(
-                        builder: (ctx, cartState) {
-                          final inCart = cartState.isInCart(item.id);
-                          return GestureDetector(
-                            onTap: () {
-                              ctx.read<MatajirCartCubit>().addToCart(item);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              height: 36.h,
-                              decoration: BoxDecoration(
-                                color: inCart
-                                    ? const Color(0xFFE2E8F0)
-                                    : AppTheme.matajirBlue,
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    inCart
-                                        ? Icons.check_rounded
-                                        : Icons.add_shopping_cart_rounded,
-                                    color: inCart
-                                        ? const Color(0xFF0F172A)
-                                        : Colors.white,
-                                    size: 16.sp,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Text(
-                                    inCart ? 'في السلة' : 'إضافة للسلة',
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: inCart
-                                          ? const Color(0xFF0F172A)
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
+            Expanded(
+              flex: 5,
+              child: Padding(
+                padding: EdgeInsets.all(12.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Official Store',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 10.sp,
+                            color: const Color(0xFF64748B),
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          item.name,
+                          style: GoogleFonts.cairo(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF0F172A),
+                            height: 1.2,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              IqdFormatter.format(
+                                item.price,
+                              ).replaceAll(' IQD', ''),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.matajirBlue,
+                              ),
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              'د.ع',
+                              style: GoogleFonts.cairo(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.matajirBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8.h),
+                        BlocBuilder<MatajirCartCubit, CartState>(
+                          builder: (ctx, cartState) {
+                            final inCart = cartState.isInCart(item.id);
+                            return GestureDetector(
+                              onTap: () {
+                                ctx.read<MatajirCartCubit>().addToCart(item);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                height: 36.h,
+                                decoration: BoxDecoration(
+                                  color: inCart
+                                      ? const Color(0xFFE2E8F0)
+                                      : AppTheme.matajirBlue,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      inCart
+                                          ? Icons.check_rounded
+                                          : Icons.add_shopping_cart_rounded,
+                                      color: inCart
+                                          ? const Color(0xFF0F172A)
+                                          : Colors.white,
+                                      size: 16.sp,
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Text(
+                                      inCart ? 'في السلة' : 'إضافة للسلة',
+                                      style: GoogleFonts.cairo(
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: inCart
+                                            ? const Color(0xFF0F172A)
+                                            : Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ), // close Column
+              ), // close Padding
+            ), // close Expanded
+          ], // close Column children
+        ), // close Column
+      ), // close Container
+    ); // close InkWell
   }
 }
 

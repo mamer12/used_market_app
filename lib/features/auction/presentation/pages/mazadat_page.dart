@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../category/presentation/cubit/category_cubit.dart';
+import '../../../category/presentation/cubit/category_state.dart';
 import '../../data/models/auction_models.dart';
 import '../bloc/auctions_cubit.dart';
 import 'auction_live_page.dart';
@@ -21,18 +23,13 @@ class MazadatPage extends StatefulWidget {
 
 class _MazadatPageState extends State<MazadatPage> {
   late final AuctionsCubit _cubit;
-  final List<String> _filters = [
-    'الكل',
-    'ينتهي قريباً',
-    'السيارات',
-    'الكترونيات',
-  ];
-  int _selectedFilter = 0;
+  late final CategoryCubit _categoryCubit;
 
   @override
   void initState() {
     super.initState();
     _cubit = getIt<AuctionsCubit>()..loadAuctions();
+    _categoryCubit = getIt<CategoryCubit>(param1: 'mazadat')..fetchCategories();
   }
 
   @override
@@ -47,8 +44,11 @@ class _MazadatPageState extends State<MazadatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _cubit),
+        BlocProvider.value(value: _categoryCubit),
+      ],
       child: Scaffold(
         backgroundColor: const Color(0xFF121212), // Dark theme
         body: SafeArea(
@@ -138,43 +138,61 @@ class _MazadatPageState extends State<MazadatPage> {
               // Filter Bar
               SizedBox(
                 height: 44.h,
-                child: ListView.separated(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _filters.length,
-                  separatorBuilder: (_, _) => SizedBox(width: 12.w),
-                  itemBuilder: (context, index) {
-                    final isSelected = _selectedFilter == index;
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedFilter = index),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.symmetric(horizontal: 20.w),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? Colors.redAccent
-                              : Colors.white.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(14.r),
-                          border: Border.all(
-                            color: isSelected
-                                ? Colors.redAccent
-                                : Colors.white.withValues(alpha: 0.1),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Text(
-                          _filters[index].toUpperCase(),
-                          style: GoogleFonts.cairo(
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.white.withValues(alpha: 0.5),
-                            fontWeight: FontWeight.w900,
-                            fontSize: 12.sp,
-                            letterSpacing: 0.5,
-                          ),
+                child: BlocBuilder<CategoryCubit, CategoryState>(
+                  builder: (context, state) {
+                    return state.map(
+                      initial: (_) => const SizedBox.shrink(),
+                      loading: (_) => const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.redAccent,
                         ),
                       ),
+                      error: (e) => Center(
+                        child: Text(
+                          e.message,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      loaded: (loaded) {
+                        final categories = loaded.categories;
+                        final hasBack = loaded.parentIdStack.isNotEmpty;
+                        final totalCount =
+                            categories.length + (hasBack ? 1 : 0);
+
+                        return ListView.separated(
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: totalCount,
+                          separatorBuilder: (_, _) => SizedBox(width: 12.w),
+                          itemBuilder: (context, index) {
+                            if (hasBack && index == 0) {
+                              return GestureDetector(
+                                onTap: () => context
+                                    .read<CategoryCubit>()
+                                    .navigateBack(),
+                                child: _buildCategoryChip(
+                                  label: 'رجوع',
+                                  isSelected: false,
+                                  isBack: true,
+                                ),
+                              );
+                            }
+
+                            final catIndex = hasBack ? index - 1 : index;
+                            final category = categories[catIndex];
+
+                            return GestureDetector(
+                              onTap: () => context
+                                  .read<CategoryCubit>()
+                                  .drillDown(category.id),
+                              child: _buildCategoryChip(
+                                label: category.nameAr,
+                                isSelected: false,
+                              ),
+                            );
+                          },
+                        );
+                      },
                     );
                   },
                 ),
@@ -232,6 +250,50 @@ class _MazadatPageState extends State<MazadatPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip({
+    required String label,
+    required bool isSelected,
+    bool isBack = false,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: isSelected
+            ? Colors.redAccent
+            : Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: isSelected
+              ? Colors.redAccent
+              : Colors.white.withValues(alpha: 0.1),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isBack) ...[
+            Icon(Icons.arrow_back_rounded, color: Colors.white, size: 14.sp),
+            SizedBox(width: 6.w),
+          ],
+          Text(
+            label.toUpperCase(),
+            style: GoogleFonts.cairo(
+              color: isSelected
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 0.5),
+              fontWeight: FontWeight.w900,
+              fontSize: 12.sp,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
       ),
     );
   }

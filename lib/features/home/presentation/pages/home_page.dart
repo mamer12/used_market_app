@@ -7,6 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../auction/data/models/auction_models.dart';
+import '../../../auction/presentation/pages/auction_live_page.dart';
+import '../../../shop/data/models/shop_models.dart';
 import '../../data/models/portal_models.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/curated_carousel.dart';
@@ -147,7 +150,27 @@ class _HomePageState extends State<HomePage> {
                                 )
                                 .toList(),
                             onProductTap: (product) {
-                              // Tap auction
+                              final original = state.liveAuctions.firstWhere(
+                                (a) => a.id == product.id,
+                                orElse: () => const AuctionModel(),
+                              );
+                              if (original.id != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AuctionLivePage(
+                                      auctionId: original.id ?? '',
+                                      title: original.title,
+                                      currentPrice:
+                                          '${original.currentPrice ?? 0}',
+                                      currency: 'د.ع',
+                                      imageUrl: original.images.isNotEmpty
+                                          ? original.images.first
+                                          : 'https://placehold.co/800x800/png',
+                                    ),
+                                  ),
+                                );
+                              }
                             },
                           ),
                         ),
@@ -179,7 +202,23 @@ class _HomePageState extends State<HomePage> {
                                 )
                                 .toList(),
                             onProductTap: (product) {
-                              // Navigate to product detail
+                              final original = state.featuredProducts
+                                  .firstWhere(
+                                    (p) => p.id == product.id,
+                                    orElse: () => const ProductModel(
+                                      id: '',
+                                      name: '',
+                                      price: 0,
+                                      images: [],
+                                      shopId: '',
+                                    ),
+                                  );
+                              if (original.id.isNotEmpty) {
+                                context.push(
+                                  '/matajir/product/${original.id}',
+                                  extra: original,
+                                );
+                              }
                             },
                           ),
                         ),
@@ -235,7 +274,22 @@ class _HomePageState extends State<HomePage> {
                                 )
                                 .toList(),
                             onProductTap: (product) {
-                              // Navigate to balla product detail
+                              final original = state.portal.balla.firstWhere(
+                                (p) => p.id == product.id,
+                                orElse: () => const ProductModel(
+                                  id: '',
+                                  name: '',
+                                  price: 0,
+                                  images: [],
+                                  shopId: '',
+                                ),
+                              );
+                              if (original.id.isNotEmpty) {
+                                context.push(
+                                  '/balla/product/${original.id}',
+                                  extra: original,
+                                );
+                              }
                             },
                           ),
                         ),

@@ -15,13 +15,17 @@ import '../../features/auth/presentation/pages/verify_otp_page.dart';
 import '../../features/cart/presentation/cubit/balla_cart_cubit.dart';
 import '../../features/cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/cart/presentation/pages/checkout_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
 import '../../features/notifications/presentation/pages/activity_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/shop/data/models/shop_models.dart';
 import '../../features/shop/presentation/pages/balla_page.dart';
+import '../../features/shop/presentation/pages/balla_product_details_page.dart';
 import '../../features/shop/presentation/pages/matajir_page.dart';
 import '../../features/shop/presentation/pages/mustamal_page.dart';
+import '../../features/shop/presentation/pages/product_details_page.dart';
 import '../../features/shop/presentation/pages/shop_products_page.dart';
 import '../di/injection.dart';
 import '../widgets/main_shell.dart';
@@ -127,6 +131,18 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                     CartPage(cartCubit: context.read<MatajirCartCubit>()),
               ),
               GoRoute(
+                path: 'checkout',
+                builder: (context, state) =>
+                    const CheckoutPage(appContext: 'matajir'),
+              ),
+              GoRoute(
+                path: 'product/:id',
+                builder: (context, state) {
+                  final product = state.extra as ProductModel;
+                  return ProductDetailsPage(product: product);
+                },
+              ),
+              GoRoute(
                 path: 'shop/:slug',
                 builder: (context, state) {
                   final slug = state.pathParameters['slug'] ?? '';
@@ -156,6 +172,18 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                 path: 'cart',
                 builder: (context, state) =>
                     CartPage(cartCubit: context.read<BallaCartCubit>()),
+              ),
+              GoRoute(
+                path: 'checkout',
+                builder: (context, state) =>
+                    const CheckoutPage(appContext: 'balla'),
+              ),
+              GoRoute(
+                path: 'product/:id',
+                builder: (context, state) {
+                  final product = state.extra as ProductModel;
+                  return BallaProductDetailsPage(product: product);
+                },
               ),
             ],
           ),
