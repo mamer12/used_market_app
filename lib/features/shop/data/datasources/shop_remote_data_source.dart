@@ -18,6 +18,10 @@ abstract class ShopRemoteDataSource {
     int page = 1,
     int limit = 20,
   });
+
+  Future<ProductModel> createMustamalListing(CreateMustamalRequest request);
+  Future<ProductModel> createBallaListing(
+      String shopId, CreateBallaRequest request);
 }
 
 @LazySingleton(as: ShopRemoteDataSource)
@@ -42,7 +46,7 @@ class ShopRemoteDataSourceImpl implements ShopRemoteDataSource {
   @override
   Future<ShopModel> createShop(CreateShopRequest request) async {
     final response = await _dio.post(
-      ApiConstants.shops,
+      ApiConstants.shopsApply,
       data: request.toJson(),
     );
     return ShopModel.fromJson(response.data as Map<String, dynamic>);
@@ -78,5 +82,26 @@ class ShopRemoteDataSourceImpl implements ShopRemoteDataSource {
         .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
         .toList();
     return (shop, products);
+  }
+
+  @override
+  Future<ProductModel> createMustamalListing(
+    CreateMustamalRequest request,
+  ) async {
+    final response = await _dio.post(
+      ApiConstants.listingsMustamal,
+      data: request.toJson(),
+    );
+    return ProductModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<ProductModel> createBallaListing(
+      String shopId, CreateBallaRequest request) async {
+    final response = await _dio.post(
+      '${ApiConstants.shops}/$shopId/products/balla',
+      data: request.toJson(),
+    );
+    return ProductModel.fromJson(response.data as Map<String, dynamic>);
   }
 }

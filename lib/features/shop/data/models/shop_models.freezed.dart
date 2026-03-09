@@ -652,7 +652,7 @@ mixin _$ProductModel {
 @JsonKey(name: 'title') String get name;// API returns price as a string (e.g. "50000")
 @_PriceConverter() double get price; List<String> get images;@JsonKey(name: 'stock_quantity') int get inStock; String? get description; String? get sku;@JsonKey(name: 'is_active') bool get isActive;// Super App fields — Balla / Matajir distinction
 @JsonKey(name: 'is_balla') bool get isBalla;/// 'piece' | 'kg' | 'bundle'
-@JsonKey(name: 'sales_unit') String get salesUnit;@JsonKey(name: 'created_at') String? get createdAt;@JsonKey(name: 'updated_at') String? get updatedAt;
+@JsonKey(name: 'sales_unit') String get salesUnit; String? get city;@JsonKey(name: 'created_at') String? get createdAt;@JsonKey(name: 'updated_at') String? get updatedAt;
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -665,16 +665,16 @@ $ProductModelCopyWith<ProductModel> get copyWith => _$ProductModelCopyWithImpl<P
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.shopId, shopId) || other.shopId == shopId)&&(identical(other.name, name) || other.name == name)&&(identical(other.price, price) || other.price == price)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.inStock, inStock) || other.inStock == inStock)&&(identical(other.description, description) || other.description == description)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isBalla, isBalla) || other.isBalla == isBalla)&&(identical(other.salesUnit, salesUnit) || other.salesUnit == salesUnit)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.shopId, shopId) || other.shopId == shopId)&&(identical(other.name, name) || other.name == name)&&(identical(other.price, price) || other.price == price)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.inStock, inStock) || other.inStock == inStock)&&(identical(other.description, description) || other.description == description)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isBalla, isBalla) || other.isBalla == isBalla)&&(identical(other.salesUnit, salesUnit) || other.salesUnit == salesUnit)&&(identical(other.city, city) || other.city == city)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,shopId,name,price,const DeepCollectionEquality().hash(images),inStock,description,sku,isActive,isBalla,salesUnit,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,shopId,name,price,const DeepCollectionEquality().hash(images),inStock,description,sku,isActive,isBalla,salesUnit,city,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'ProductModel(id: $id, shopId: $shopId, name: $name, price: $price, images: $images, inStock: $inStock, description: $description, sku: $sku, isActive: $isActive, isBalla: $isBalla, salesUnit: $salesUnit, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'ProductModel(id: $id, shopId: $shopId, name: $name, price: $price, images: $images, inStock: $inStock, description: $description, sku: $sku, isActive: $isActive, isBalla: $isBalla, salesUnit: $salesUnit, city: $city, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -685,7 +685,7 @@ abstract mixin class $ProductModelCopyWith<$Res>  {
   factory $ProductModelCopyWith(ProductModel value, $Res Function(ProductModel) _then) = _$ProductModelCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'shop_id') String shopId,@JsonKey(name: 'title') String name,@_PriceConverter() double price, List<String> images,@JsonKey(name: 'stock_quantity') int inStock, String? description, String? sku,@JsonKey(name: 'is_active') bool isActive,@JsonKey(name: 'is_balla') bool isBalla,@JsonKey(name: 'sales_unit') String salesUnit,@JsonKey(name: 'created_at') String? createdAt,@JsonKey(name: 'updated_at') String? updatedAt
+ String id,@JsonKey(name: 'shop_id') String shopId,@JsonKey(name: 'title') String name,@_PriceConverter() double price, List<String> images,@JsonKey(name: 'stock_quantity') int inStock, String? description, String? sku,@JsonKey(name: 'is_active') bool isActive,@JsonKey(name: 'is_balla') bool isBalla,@JsonKey(name: 'sales_unit') String salesUnit, String? city,@JsonKey(name: 'created_at') String? createdAt,@JsonKey(name: 'updated_at') String? updatedAt
 });
 
 
@@ -702,7 +702,7 @@ class _$ProductModelCopyWithImpl<$Res>
 
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shopId = null,Object? name = null,Object? price = null,Object? images = null,Object? inStock = null,Object? description = freezed,Object? sku = freezed,Object? isActive = null,Object? isBalla = null,Object? salesUnit = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? shopId = null,Object? name = null,Object? price = null,Object? images = null,Object? inStock = null,Object? description = freezed,Object? sku = freezed,Object? isActive = null,Object? isBalla = null,Object? salesUnit = null,Object? city = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,shopId: null == shopId ? _self.shopId : shopId // ignore: cast_nullable_to_non_nullable
@@ -715,7 +715,8 @@ as String?,sku: freezed == sku ? _self.sku : sku // ignore: cast_nullable_to_non
 as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
 as bool,isBalla: null == isBalla ? _self.isBalla : isBalla // ignore: cast_nullable_to_non_nullable
 as bool,salesUnit: null == salesUnit ? _self.salesUnit : salesUnit // ignore: cast_nullable_to_non_nullable
-as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -802,10 +803,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'shop_id')  String shopId, @JsonKey(name: 'title')  String name, @_PriceConverter()  double price,  List<String> images, @JsonKey(name: 'stock_quantity')  int inStock,  String? description,  String? sku, @JsonKey(name: 'is_active')  bool isActive, @JsonKey(name: 'is_balla')  bool isBalla, @JsonKey(name: 'sales_unit')  String salesUnit, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'shop_id')  String shopId, @JsonKey(name: 'title')  String name, @_PriceConverter()  double price,  List<String> images, @JsonKey(name: 'stock_quantity')  int inStock,  String? description,  String? sku, @JsonKey(name: 'is_active')  bool isActive, @JsonKey(name: 'is_balla')  bool isBalla, @JsonKey(name: 'sales_unit')  String salesUnit,  String? city, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
-return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.inStock,_that.description,_that.sku,_that.isActive,_that.isBalla,_that.salesUnit,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.inStock,_that.description,_that.sku,_that.isActive,_that.isBalla,_that.salesUnit,_that.city,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -823,10 +824,10 @@ return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'shop_id')  String shopId, @JsonKey(name: 'title')  String name, @_PriceConverter()  double price,  List<String> images, @JsonKey(name: 'stock_quantity')  int inStock,  String? description,  String? sku, @JsonKey(name: 'is_active')  bool isActive, @JsonKey(name: 'is_balla')  bool isBalla, @JsonKey(name: 'sales_unit')  String salesUnit, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'shop_id')  String shopId, @JsonKey(name: 'title')  String name, @_PriceConverter()  double price,  List<String> images, @JsonKey(name: 'stock_quantity')  int inStock,  String? description,  String? sku, @JsonKey(name: 'is_active')  bool isActive, @JsonKey(name: 'is_balla')  bool isBalla, @JsonKey(name: 'sales_unit')  String salesUnit,  String? city, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel():
-return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.inStock,_that.description,_that.sku,_that.isActive,_that.isBalla,_that.salesUnit,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.inStock,_that.description,_that.sku,_that.isActive,_that.isBalla,_that.salesUnit,_that.city,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -843,10 +844,10 @@ return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'shop_id')  String shopId, @JsonKey(name: 'title')  String name, @_PriceConverter()  double price,  List<String> images, @JsonKey(name: 'stock_quantity')  int inStock,  String? description,  String? sku, @JsonKey(name: 'is_active')  bool isActive, @JsonKey(name: 'is_balla')  bool isBalla, @JsonKey(name: 'sales_unit')  String salesUnit, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'shop_id')  String shopId, @JsonKey(name: 'title')  String name, @_PriceConverter()  double price,  List<String> images, @JsonKey(name: 'stock_quantity')  int inStock,  String? description,  String? sku, @JsonKey(name: 'is_active')  bool isActive, @JsonKey(name: 'is_balla')  bool isBalla, @JsonKey(name: 'sales_unit')  String salesUnit,  String? city, @JsonKey(name: 'created_at')  String? createdAt, @JsonKey(name: 'updated_at')  String? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
-return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.inStock,_that.description,_that.sku,_that.isActive,_that.isBalla,_that.salesUnit,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.inStock,_that.description,_that.sku,_that.isActive,_that.isBalla,_that.salesUnit,_that.city,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -858,7 +859,7 @@ return $default(_that.id,_that.shopId,_that.name,_that.price,_that.images,_that.
 @JsonSerializable()
 
 class _ProductModel implements ProductModel {
-  const _ProductModel({required this.id, @JsonKey(name: 'shop_id') required this.shopId, @JsonKey(name: 'title') required this.name, @_PriceConverter() required this.price, final  List<String> images = const [], @JsonKey(name: 'stock_quantity') this.inStock = 0, this.description, this.sku, @JsonKey(name: 'is_active') this.isActive = true, @JsonKey(name: 'is_balla') this.isBalla = false, @JsonKey(name: 'sales_unit') this.salesUnit = 'piece', @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt}): _images = images;
+  const _ProductModel({required this.id, @JsonKey(name: 'shop_id') required this.shopId, @JsonKey(name: 'title') required this.name, @_PriceConverter() required this.price, final  List<String> images = const [], @JsonKey(name: 'stock_quantity') this.inStock = 0, this.description, this.sku, @JsonKey(name: 'is_active') this.isActive = true, @JsonKey(name: 'is_balla') this.isBalla = false, @JsonKey(name: 'sales_unit') this.salesUnit = 'piece', this.city, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt}): _images = images;
   factory _ProductModel.fromJson(Map<String, dynamic> json) => _$ProductModelFromJson(json);
 
 @override final  String id;
@@ -882,6 +883,7 @@ class _ProductModel implements ProductModel {
 @override@JsonKey(name: 'is_balla') final  bool isBalla;
 /// 'piece' | 'kg' | 'bundle'
 @override@JsonKey(name: 'sales_unit') final  String salesUnit;
+@override final  String? city;
 @override@JsonKey(name: 'created_at') final  String? createdAt;
 @override@JsonKey(name: 'updated_at') final  String? updatedAt;
 
@@ -898,16 +900,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.shopId, shopId) || other.shopId == shopId)&&(identical(other.name, name) || other.name == name)&&(identical(other.price, price) || other.price == price)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.inStock, inStock) || other.inStock == inStock)&&(identical(other.description, description) || other.description == description)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isBalla, isBalla) || other.isBalla == isBalla)&&(identical(other.salesUnit, salesUnit) || other.salesUnit == salesUnit)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.shopId, shopId) || other.shopId == shopId)&&(identical(other.name, name) || other.name == name)&&(identical(other.price, price) || other.price == price)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.inStock, inStock) || other.inStock == inStock)&&(identical(other.description, description) || other.description == description)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isBalla, isBalla) || other.isBalla == isBalla)&&(identical(other.salesUnit, salesUnit) || other.salesUnit == salesUnit)&&(identical(other.city, city) || other.city == city)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,shopId,name,price,const DeepCollectionEquality().hash(_images),inStock,description,sku,isActive,isBalla,salesUnit,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,shopId,name,price,const DeepCollectionEquality().hash(_images),inStock,description,sku,isActive,isBalla,salesUnit,city,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'ProductModel(id: $id, shopId: $shopId, name: $name, price: $price, images: $images, inStock: $inStock, description: $description, sku: $sku, isActive: $isActive, isBalla: $isBalla, salesUnit: $salesUnit, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'ProductModel(id: $id, shopId: $shopId, name: $name, price: $price, images: $images, inStock: $inStock, description: $description, sku: $sku, isActive: $isActive, isBalla: $isBalla, salesUnit: $salesUnit, city: $city, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -918,7 +920,7 @@ abstract mixin class _$ProductModelCopyWith<$Res> implements $ProductModelCopyWi
   factory _$ProductModelCopyWith(_ProductModel value, $Res Function(_ProductModel) _then) = __$ProductModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'shop_id') String shopId,@JsonKey(name: 'title') String name,@_PriceConverter() double price, List<String> images,@JsonKey(name: 'stock_quantity') int inStock, String? description, String? sku,@JsonKey(name: 'is_active') bool isActive,@JsonKey(name: 'is_balla') bool isBalla,@JsonKey(name: 'sales_unit') String salesUnit,@JsonKey(name: 'created_at') String? createdAt,@JsonKey(name: 'updated_at') String? updatedAt
+ String id,@JsonKey(name: 'shop_id') String shopId,@JsonKey(name: 'title') String name,@_PriceConverter() double price, List<String> images,@JsonKey(name: 'stock_quantity') int inStock, String? description, String? sku,@JsonKey(name: 'is_active') bool isActive,@JsonKey(name: 'is_balla') bool isBalla,@JsonKey(name: 'sales_unit') String salesUnit, String? city,@JsonKey(name: 'created_at') String? createdAt,@JsonKey(name: 'updated_at') String? updatedAt
 });
 
 
@@ -935,7 +937,7 @@ class __$ProductModelCopyWithImpl<$Res>
 
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shopId = null,Object? name = null,Object? price = null,Object? images = null,Object? inStock = null,Object? description = freezed,Object? sku = freezed,Object? isActive = null,Object? isBalla = null,Object? salesUnit = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? shopId = null,Object? name = null,Object? price = null,Object? images = null,Object? inStock = null,Object? description = freezed,Object? sku = freezed,Object? isActive = null,Object? isBalla = null,Object? salesUnit = null,Object? city = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_ProductModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,shopId: null == shopId ? _self.shopId : shopId // ignore: cast_nullable_to_non_nullable
@@ -948,7 +950,8 @@ as String?,sku: freezed == sku ? _self.sku : sku // ignore: cast_nullable_to_non
 as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
 as bool,isBalla: null == isBalla ? _self.isBalla : isBalla // ignore: cast_nullable_to_non_nullable
 as bool,salesUnit: null == salesUnit ? _self.salesUnit : salesUnit // ignore: cast_nullable_to_non_nullable
-as String,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -1235,6 +1238,592 @@ as String,stockQuantity: null == stockQuantity ? _self.stockQuantity : stockQuan
 as int,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
 as List<String>,sku: freezed == sku ? _self.sku : sku // ignore: cast_nullable_to_non_nullable
 as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$CreateMustamalRequest {
+
+ String get title; String get description; double get price;@JsonKey(name: 'category_id') int get categoryId; String get condition; String get city; List<String> get images;@JsonKey(name: 'listing_type') String get listingType;
+/// Create a copy of CreateMustamalRequest
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CreateMustamalRequestCopyWith<CreateMustamalRequest> get copyWith => _$CreateMustamalRequestCopyWithImpl<CreateMustamalRequest>(this as CreateMustamalRequest, _$identity);
+
+  /// Serializes this CreateMustamalRequest to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateMustamalRequest&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.price, price) || other.price == price)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.listingType, listingType) || other.listingType == listingType));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,title,description,price,categoryId,condition,city,const DeepCollectionEquality().hash(images),listingType);
+
+@override
+String toString() {
+  return 'CreateMustamalRequest(title: $title, description: $description, price: $price, categoryId: $categoryId, condition: $condition, city: $city, images: $images, listingType: $listingType)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CreateMustamalRequestCopyWith<$Res>  {
+  factory $CreateMustamalRequestCopyWith(CreateMustamalRequest value, $Res Function(CreateMustamalRequest) _then) = _$CreateMustamalRequestCopyWithImpl;
+@useResult
+$Res call({
+ String title, String description, double price,@JsonKey(name: 'category_id') int categoryId, String condition, String city, List<String> images,@JsonKey(name: 'listing_type') String listingType
+});
+
+
+
+
+}
+/// @nodoc
+class _$CreateMustamalRequestCopyWithImpl<$Res>
+    implements $CreateMustamalRequestCopyWith<$Res> {
+  _$CreateMustamalRequestCopyWithImpl(this._self, this._then);
+
+  final CreateMustamalRequest _self;
+  final $Res Function(CreateMustamalRequest) _then;
+
+/// Create a copy of CreateMustamalRequest
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = null,Object? price = null,Object? categoryId = null,Object? condition = null,Object? city = null,Object? images = null,Object? listingType = null,}) {
+  return _then(_self.copyWith(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
+as double,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
+as int,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
+as List<String>,listingType: null == listingType ? _self.listingType : listingType // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [CreateMustamalRequest].
+extension CreateMustamalRequestPatterns on CreateMustamalRequest {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CreateMustamalRequest value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CreateMustamalRequest() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CreateMustamalRequest value)  $default,){
+final _that = this;
+switch (_that) {
+case _CreateMustamalRequest():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CreateMustamalRequest value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CreateMustamalRequest() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String description,  double price, @JsonKey(name: 'category_id')  int categoryId,  String condition,  String city,  List<String> images, @JsonKey(name: 'listing_type')  String listingType)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CreateMustamalRequest() when $default != null:
+return $default(_that.title,_that.description,_that.price,_that.categoryId,_that.condition,_that.city,_that.images,_that.listingType);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String description,  double price, @JsonKey(name: 'category_id')  int categoryId,  String condition,  String city,  List<String> images, @JsonKey(name: 'listing_type')  String listingType)  $default,) {final _that = this;
+switch (_that) {
+case _CreateMustamalRequest():
+return $default(_that.title,_that.description,_that.price,_that.categoryId,_that.condition,_that.city,_that.images,_that.listingType);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String description,  double price, @JsonKey(name: 'category_id')  int categoryId,  String condition,  String city,  List<String> images, @JsonKey(name: 'listing_type')  String listingType)?  $default,) {final _that = this;
+switch (_that) {
+case _CreateMustamalRequest() when $default != null:
+return $default(_that.title,_that.description,_that.price,_that.categoryId,_that.condition,_that.city,_that.images,_that.listingType);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _CreateMustamalRequest implements CreateMustamalRequest {
+  const _CreateMustamalRequest({required this.title, required this.description, required this.price, @JsonKey(name: 'category_id') required this.categoryId, required this.condition, required this.city, final  List<String> images = const [], @JsonKey(name: 'listing_type') this.listingType = 'fixed_price'}): _images = images;
+  factory _CreateMustamalRequest.fromJson(Map<String, dynamic> json) => _$CreateMustamalRequestFromJson(json);
+
+@override final  String title;
+@override final  String description;
+@override final  double price;
+@override@JsonKey(name: 'category_id') final  int categoryId;
+@override final  String condition;
+@override final  String city;
+ final  List<String> _images;
+@override@JsonKey() List<String> get images {
+  if (_images is EqualUnmodifiableListView) return _images;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_images);
+}
+
+@override@JsonKey(name: 'listing_type') final  String listingType;
+
+/// Create a copy of CreateMustamalRequest
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CreateMustamalRequestCopyWith<_CreateMustamalRequest> get copyWith => __$CreateMustamalRequestCopyWithImpl<_CreateMustamalRequest>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CreateMustamalRequestToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateMustamalRequest&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.price, price) || other.price == price)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.listingType, listingType) || other.listingType == listingType));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,title,description,price,categoryId,condition,city,const DeepCollectionEquality().hash(_images),listingType);
+
+@override
+String toString() {
+  return 'CreateMustamalRequest(title: $title, description: $description, price: $price, categoryId: $categoryId, condition: $condition, city: $city, images: $images, listingType: $listingType)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CreateMustamalRequestCopyWith<$Res> implements $CreateMustamalRequestCopyWith<$Res> {
+  factory _$CreateMustamalRequestCopyWith(_CreateMustamalRequest value, $Res Function(_CreateMustamalRequest) _then) = __$CreateMustamalRequestCopyWithImpl;
+@override @useResult
+$Res call({
+ String title, String description, double price,@JsonKey(name: 'category_id') int categoryId, String condition, String city, List<String> images,@JsonKey(name: 'listing_type') String listingType
+});
+
+
+
+
+}
+/// @nodoc
+class __$CreateMustamalRequestCopyWithImpl<$Res>
+    implements _$CreateMustamalRequestCopyWith<$Res> {
+  __$CreateMustamalRequestCopyWithImpl(this._self, this._then);
+
+  final _CreateMustamalRequest _self;
+  final $Res Function(_CreateMustamalRequest) _then;
+
+/// Create a copy of CreateMustamalRequest
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = null,Object? price = null,Object? categoryId = null,Object? condition = null,Object? city = null,Object? images = null,Object? listingType = null,}) {
+  return _then(_CreateMustamalRequest(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
+as double,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
+as int,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
+as List<String>,listingType: null == listingType ? _self.listingType : listingType // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$CreateBallaRequest {
+
+ String get title; String get description; double get price;@JsonKey(name: 'category_id') int get categoryId; String get condition; String get city; List<String> get images;@JsonKey(name: 'sales_unit') String get salesUnit; double get weight;@JsonKey(name: 'is_balla') bool get isBalla;
+/// Create a copy of CreateBallaRequest
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CreateBallaRequestCopyWith<CreateBallaRequest> get copyWith => _$CreateBallaRequestCopyWithImpl<CreateBallaRequest>(this as CreateBallaRequest, _$identity);
+
+  /// Serializes this CreateBallaRequest to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateBallaRequest&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.price, price) || other.price == price)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.salesUnit, salesUnit) || other.salesUnit == salesUnit)&&(identical(other.weight, weight) || other.weight == weight)&&(identical(other.isBalla, isBalla) || other.isBalla == isBalla));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,title,description,price,categoryId,condition,city,const DeepCollectionEquality().hash(images),salesUnit,weight,isBalla);
+
+@override
+String toString() {
+  return 'CreateBallaRequest(title: $title, description: $description, price: $price, categoryId: $categoryId, condition: $condition, city: $city, images: $images, salesUnit: $salesUnit, weight: $weight, isBalla: $isBalla)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CreateBallaRequestCopyWith<$Res>  {
+  factory $CreateBallaRequestCopyWith(CreateBallaRequest value, $Res Function(CreateBallaRequest) _then) = _$CreateBallaRequestCopyWithImpl;
+@useResult
+$Res call({
+ String title, String description, double price,@JsonKey(name: 'category_id') int categoryId, String condition, String city, List<String> images,@JsonKey(name: 'sales_unit') String salesUnit, double weight,@JsonKey(name: 'is_balla') bool isBalla
+});
+
+
+
+
+}
+/// @nodoc
+class _$CreateBallaRequestCopyWithImpl<$Res>
+    implements $CreateBallaRequestCopyWith<$Res> {
+  _$CreateBallaRequestCopyWithImpl(this._self, this._then);
+
+  final CreateBallaRequest _self;
+  final $Res Function(CreateBallaRequest) _then;
+
+/// Create a copy of CreateBallaRequest
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = null,Object? price = null,Object? categoryId = null,Object? condition = null,Object? city = null,Object? images = null,Object? salesUnit = null,Object? weight = null,Object? isBalla = null,}) {
+  return _then(_self.copyWith(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
+as double,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
+as int,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
+as List<String>,salesUnit: null == salesUnit ? _self.salesUnit : salesUnit // ignore: cast_nullable_to_non_nullable
+as String,weight: null == weight ? _self.weight : weight // ignore: cast_nullable_to_non_nullable
+as double,isBalla: null == isBalla ? _self.isBalla : isBalla // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [CreateBallaRequest].
+extension CreateBallaRequestPatterns on CreateBallaRequest {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CreateBallaRequest value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CreateBallaRequest() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CreateBallaRequest value)  $default,){
+final _that = this;
+switch (_that) {
+case _CreateBallaRequest():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CreateBallaRequest value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CreateBallaRequest() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String description,  double price, @JsonKey(name: 'category_id')  int categoryId,  String condition,  String city,  List<String> images, @JsonKey(name: 'sales_unit')  String salesUnit,  double weight, @JsonKey(name: 'is_balla')  bool isBalla)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CreateBallaRequest() when $default != null:
+return $default(_that.title,_that.description,_that.price,_that.categoryId,_that.condition,_that.city,_that.images,_that.salesUnit,_that.weight,_that.isBalla);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String description,  double price, @JsonKey(name: 'category_id')  int categoryId,  String condition,  String city,  List<String> images, @JsonKey(name: 'sales_unit')  String salesUnit,  double weight, @JsonKey(name: 'is_balla')  bool isBalla)  $default,) {final _that = this;
+switch (_that) {
+case _CreateBallaRequest():
+return $default(_that.title,_that.description,_that.price,_that.categoryId,_that.condition,_that.city,_that.images,_that.salesUnit,_that.weight,_that.isBalla);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String description,  double price, @JsonKey(name: 'category_id')  int categoryId,  String condition,  String city,  List<String> images, @JsonKey(name: 'sales_unit')  String salesUnit,  double weight, @JsonKey(name: 'is_balla')  bool isBalla)?  $default,) {final _that = this;
+switch (_that) {
+case _CreateBallaRequest() when $default != null:
+return $default(_that.title,_that.description,_that.price,_that.categoryId,_that.condition,_that.city,_that.images,_that.salesUnit,_that.weight,_that.isBalla);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _CreateBallaRequest implements CreateBallaRequest {
+  const _CreateBallaRequest({required this.title, required this.description, required this.price, @JsonKey(name: 'category_id') required this.categoryId, required this.condition, required this.city, final  List<String> images = const [], @JsonKey(name: 'sales_unit') required this.salesUnit, required this.weight, @JsonKey(name: 'is_balla') this.isBalla = true}): _images = images;
+  factory _CreateBallaRequest.fromJson(Map<String, dynamic> json) => _$CreateBallaRequestFromJson(json);
+
+@override final  String title;
+@override final  String description;
+@override final  double price;
+@override@JsonKey(name: 'category_id') final  int categoryId;
+@override final  String condition;
+@override final  String city;
+ final  List<String> _images;
+@override@JsonKey() List<String> get images {
+  if (_images is EqualUnmodifiableListView) return _images;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_images);
+}
+
+@override@JsonKey(name: 'sales_unit') final  String salesUnit;
+@override final  double weight;
+@override@JsonKey(name: 'is_balla') final  bool isBalla;
+
+/// Create a copy of CreateBallaRequest
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CreateBallaRequestCopyWith<_CreateBallaRequest> get copyWith => __$CreateBallaRequestCopyWithImpl<_CreateBallaRequest>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CreateBallaRequestToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateBallaRequest&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.price, price) || other.price == price)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.salesUnit, salesUnit) || other.salesUnit == salesUnit)&&(identical(other.weight, weight) || other.weight == weight)&&(identical(other.isBalla, isBalla) || other.isBalla == isBalla));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,title,description,price,categoryId,condition,city,const DeepCollectionEquality().hash(_images),salesUnit,weight,isBalla);
+
+@override
+String toString() {
+  return 'CreateBallaRequest(title: $title, description: $description, price: $price, categoryId: $categoryId, condition: $condition, city: $city, images: $images, salesUnit: $salesUnit, weight: $weight, isBalla: $isBalla)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CreateBallaRequestCopyWith<$Res> implements $CreateBallaRequestCopyWith<$Res> {
+  factory _$CreateBallaRequestCopyWith(_CreateBallaRequest value, $Res Function(_CreateBallaRequest) _then) = __$CreateBallaRequestCopyWithImpl;
+@override @useResult
+$Res call({
+ String title, String description, double price,@JsonKey(name: 'category_id') int categoryId, String condition, String city, List<String> images,@JsonKey(name: 'sales_unit') String salesUnit, double weight,@JsonKey(name: 'is_balla') bool isBalla
+});
+
+
+
+
+}
+/// @nodoc
+class __$CreateBallaRequestCopyWithImpl<$Res>
+    implements _$CreateBallaRequestCopyWith<$Res> {
+  __$CreateBallaRequestCopyWithImpl(this._self, this._then);
+
+  final _CreateBallaRequest _self;
+  final $Res Function(_CreateBallaRequest) _then;
+
+/// Create a copy of CreateBallaRequest
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = null,Object? price = null,Object? categoryId = null,Object? condition = null,Object? city = null,Object? images = null,Object? salesUnit = null,Object? weight = null,Object? isBalla = null,}) {
+  return _then(_CreateBallaRequest(
+title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
+as double,categoryId: null == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
+as int,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
+as List<String>,salesUnit: null == salesUnit ? _self.salesUnit : salesUnit // ignore: cast_nullable_to_non_nullable
+as String,weight: null == weight ? _self.weight : weight // ignore: cast_nullable_to_non_nullable
+as double,isBalla: null == isBalla ? _self.isBalla : isBalla // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

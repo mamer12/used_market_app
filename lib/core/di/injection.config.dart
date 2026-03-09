@@ -42,6 +42,9 @@ import '../../features/category/domain/repositories/category_repository.dart'
     as _i869;
 import '../../features/category/presentation/cubit/category_cubit.dart'
     as _i859;
+import '../../features/home/presentation/bloc/create_balla_cubit.dart' as _i740;
+import '../../features/home/presentation/bloc/create_mustamal_cubit.dart'
+    as _i231;
 import '../../features/home/presentation/bloc/home_cubit.dart' as _i816;
 import '../../features/media/data/datasources/media_remote_data_source.dart'
     as _i1028;
@@ -49,6 +52,11 @@ import '../../features/notifications/presentation/pages/notifications_page.dart'
     as _i499;
 import '../../features/search/data/datasources/search_remote_data_source.dart'
     as _i280;
+import '../../features/search/data/repositories/search_repository_impl.dart'
+    as _i1017;
+import '../../features/search/domain/repositories/search_repository.dart'
+    as _i357;
+import '../../features/search/presentation/bloc/search_cubit.dart' as _i77;
 import '../../features/shop/data/datasources/order_remote_data_source.dart'
     as _i239;
 import '../../features/shop/data/datasources/shop_remote_data_source.dart'
@@ -114,6 +122,12 @@ _i174.GetIt init(
   gh.factory<_i52.MatajirCartCubit>(
     () => _i52.MatajirCartCubit(gh<_i607.CartRemoteDataSource>()),
   );
+  gh.lazySingleton<_i357.SearchRepository>(
+    () => _i1017.SearchRepositoryImpl(gh<_i280.SearchRemoteDataSource>()),
+  );
+  gh.factory<_i77.SearchCubit>(
+    () => _i77.SearchCubit(gh<_i357.SearchRepository>()),
+  );
   gh.lazySingleton<_i958.OrderRepository>(
     () => _i1001.OrderRepositoryImpl(gh<_i239.OrderRemoteDataSource>()),
   );
@@ -132,6 +146,18 @@ _i174.GetIt init(
   );
   gh.lazySingleton<_i88.CategoryRemoteDataSource>(
     () => _i88.CategoryRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
+  gh.factory<_i740.CreateBallaCubit>(
+    () => _i740.CreateBallaCubit(
+      gh<_i106.ShopRepository>(),
+      gh<_i1028.MediaRemoteDataSource>(),
+    ),
+  );
+  gh.factory<_i231.CreateMustamalCubit>(
+    () => _i231.CreateMustamalCubit(
+      gh<_i106.ShopRepository>(),
+      gh<_i1028.MediaRemoteDataSource>(),
+    ),
   );
   gh.factory<_i771.OrderCubit>(
     () => _i771.OrderCubit(gh<_i958.OrderRepository>()),

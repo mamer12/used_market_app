@@ -50,20 +50,18 @@ class _MatajirPageState extends State<MatajirPage> {
           CartConflictSheet.show(context, context.read<MatajirCartCubit>());
         },
         child: Scaffold(
-          backgroundColor: const Color(
-            0xFFF6F7F8,
-          ), // background-light from HTML
+          backgroundColor: AppTheme.background,
           body: SafeArea(
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 // ── Contextual App Bar ────────
                 SliverAppBar(
-                  backgroundColor: Colors.white.withValues(alpha: 0.8),
+                  backgroundColor: AppTheme.background.withValues(alpha: 0.92),
                   elevation: 0,
                   pinned: true,
                   centerTitle: false,
-                  iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+                  iconTheme: const IconThemeData(color: AppTheme.textPrimary),
                   leading: IconButton(
                     icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp),
                     onPressed: () {
@@ -77,10 +75,9 @@ class _MatajirPageState extends State<MatajirPage> {
                   title: Text(
                     'المتاجر الرسمية',
                     style: GoogleFonts.cairo(
-                      color: const Color(0xFF0F172A),
+                      color: AppTheme.textPrimary,
                       fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   actions: [
@@ -97,7 +94,7 @@ class _MatajirPageState extends State<MatajirPage> {
                                 ),
                                 child: Icon(
                                   Icons.shopping_cart_outlined,
-                                  color: const Color(0xFF0F172A),
+                                  color: AppTheme.textPrimary,
                                   size: 24.sp,
                                 ),
                               ),
@@ -144,15 +141,15 @@ class _MatajirPageState extends State<MatajirPage> {
                     child: Container(
                       height: 48.h,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9), // slate-100
-                        borderRadius: BorderRadius.circular(12.r),
+                        color: AppTheme.surface,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                       ),
                       child: Row(
                         children: [
                           SizedBox(width: 16.w),
                           Icon(
                             Icons.search_rounded,
-                            color: const Color(0xFF94A3B8), // slate-400
+                            color: AppTheme.textTertiary,
                             size: 22.sp,
                           ),
                           SizedBox(width: 12.w),
@@ -160,7 +157,7 @@ class _MatajirPageState extends State<MatajirPage> {
                             child: Text(
                               'ابحث عن متجر أو منتج...',
                               style: GoogleFonts.cairo(
-                                color: const Color(0xFF94A3B8),
+                                color: AppTheme.textTertiary,
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -248,8 +245,8 @@ class _MatajirPageState extends State<MatajirPage> {
                       vertical: 8.h,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
-                      borderRadius: BorderRadius.circular(12.r),
+                      color: AppTheme.textPrimary,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                       image: const DecorationImage(
                         image: NetworkImage(
                           'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&q=80&w=800',
@@ -326,9 +323,9 @@ class _MatajirPageState extends State<MatajirPage> {
                               SizedBox(height: 8.h),
                               Text(
                                 'SAMSUNG Official Store',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.cairo(
                                   fontSize: 20.sp,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w800,
                                   color: Colors.white,
                                   height: 1.1,
                                 ),
@@ -337,7 +334,7 @@ class _MatajirPageState extends State<MatajirPage> {
                                 'عروض الحجز المسبق لفئة S24 الجديدة!',
                                 style: GoogleFonts.cairo(
                                   fontSize: 14.sp,
-                                  color: const Color(0xFFE2E8F0),
+                                  color: AppTheme.divider,
                                 ),
                               ),
                             ],
@@ -386,8 +383,8 @@ class _MatajirPageState extends State<MatajirPage> {
                                 'المتاجر الموثوقة',
                                 style: GoogleFonts.cairo(
                                   fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF0F172A),
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.textPrimary,
                                 ),
                               ),
                               Text(
@@ -438,8 +435,8 @@ class _MatajirPageState extends State<MatajirPage> {
                             'أحدث المنتجات الرسمية',
                             style: GoogleFonts.cairo(
                               fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF0F172A),
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
                             ),
                           ),
                         ),
@@ -510,11 +507,11 @@ class _CategoryItem extends StatelessWidget {
             shape: BoxShape.circle,
             color: isSelected
                 ? AppTheme.matajirBlue.withValues(alpha: 0.05)
-                : const Color(0xFFF8FAFC),
+                : AppTheme.surface,
             border: Border.all(
               color: isSelected
                   ? AppTheme.matajirBlue
-                  : const Color(0xFFE2E8F0),
+                  : AppTheme.divider,
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -527,7 +524,7 @@ class _CategoryItem extends StatelessWidget {
               icon,
               color: isSelected
                   ? AppTheme.matajirBlue
-                  : const Color(0xFF475569),
+                  : AppTheme.textSecondary,
               size: 28.sp,
             ),
           ),
@@ -538,7 +535,7 @@ class _CategoryItem extends StatelessWidget {
           style: GoogleFonts.cairo(
             fontSize: 12.sp,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-            color: isSelected ? AppTheme.matajirBlue : const Color(0xFF475569),
+            color: isSelected ? AppTheme.matajirBlue : AppTheme.textSecondary,
           ),
         ),
       ],
@@ -555,19 +552,12 @@ class _MatajirProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => context.push('/matajir/product/${item.id}', extra: item),
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: AppTheme.surfaceAlt,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -583,10 +573,10 @@ class _MatajirProductCard extends StatelessWidget {
                       imageUrl: item.images.first,
                       fit: BoxFit.cover,
                       placeholder: (context, url) =>
-                          Container(color: const Color(0xFFF1F5F9)),
+                          Container(color: AppTheme.shimmerBase),
                     )
                   else
-                    Container(color: const Color(0xFFF1F5F9)),
+                    Container(color: AppTheme.shimmerBase),
                   Positioned(
                     top: 8.h,
                     left: 8.w,
@@ -599,7 +589,7 @@ class _MatajirProductCard extends StatelessWidget {
                       child: Icon(
                         Icons.favorite_border_rounded,
                         size: 18.sp,
-                        color: const Color(0xFF475569),
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                   ),
@@ -618,9 +608,9 @@ class _MatajirProductCard extends StatelessWidget {
                       children: [
                         Text(
                           'Official Store',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.cairo(
                             fontSize: 10.sp,
-                            color: const Color(0xFF64748B),
+                            color: AppTheme.textTertiary,
                           ),
                         ),
                         SizedBox(height: 4.h),
@@ -628,8 +618,8 @@ class _MatajirProductCard extends StatelessWidget {
                           item.name,
                           style: GoogleFonts.cairo(
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF0F172A),
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
                             height: 1.2,
                           ),
                           maxLines: 2,
@@ -649,9 +639,8 @@ class _MatajirProductCard extends StatelessWidget {
                               IqdFormatter.format(
                                 item.price,
                               ).replaceAll(' IQD', ''),
-                              style: GoogleFonts.plusJakartaSans(
+                              style: AppTheme.priceStyle(
                                 fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
                                 color: AppTheme.matajirBlue,
                               ),
                             ),
@@ -679,9 +668,9 @@ class _MatajirProductCard extends StatelessWidget {
                                 height: 36.h,
                                 decoration: BoxDecoration(
                                   color: inCart
-                                      ? const Color(0xFFE2E8F0)
+                                      ? AppTheme.divider
                                       : AppTheme.matajirBlue,
-                                  borderRadius: BorderRadius.circular(8.r),
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -691,7 +680,7 @@ class _MatajirProductCard extends StatelessWidget {
                                           ? Icons.check_rounded
                                           : Icons.add_shopping_cart_rounded,
                                       color: inCart
-                                          ? const Color(0xFF0F172A)
+                                          ? AppTheme.textPrimary
                                           : Colors.white,
                                       size: 16.sp,
                                     ),
@@ -702,7 +691,7 @@ class _MatajirProductCard extends StatelessWidget {
                                         fontSize: 12.sp,
                                         fontWeight: FontWeight.bold,
                                         color: inCart
-                                            ? const Color(0xFF0F172A)
+                                            ? AppTheme.textPrimary
                                             : Colors.white,
                                       ),
                                     ),
@@ -738,9 +727,9 @@ class _MerchantCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         ),
         child: Column(
           children: [
@@ -776,9 +765,9 @@ class _MerchantCard extends StatelessWidget {
                             shop.name.isNotEmpty
                                 ? shop.name[0].toUpperCase()
                                 : 'S',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.cairo(
                               fontSize: 24.sp,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w800,
                               color: AppTheme.matajirBlue,
                             ),
                           ),
@@ -806,10 +795,10 @@ class _MerchantCard extends StatelessWidget {
             Text(
               shop.name,
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.cairo(
                 fontSize: 12.sp,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF0F172A),
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

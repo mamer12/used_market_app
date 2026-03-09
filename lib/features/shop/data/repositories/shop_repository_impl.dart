@@ -50,4 +50,15 @@ class ShopRepositoryImpl implements ShopRepository {
     );
     return products;
   }
+
+  @override
+  Future<ProductModel> createMustamalListing(CreateMustamalRequest request) {
+    return _remoteDataSource.createMustamalListing(request);
+  }
+
+  @override
+  Future<ProductModel> createBallaListing(
+      String shopId, CreateBallaRequest request) {
+    return _remoteDataSource.createBallaListing(shopId, request);
+  }
 }

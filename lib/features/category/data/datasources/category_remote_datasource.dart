@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/network/api_constants.dart';
 import '../models/category_model.dart';
 
 abstract class CategoryRemoteDataSource {
@@ -29,7 +30,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
     }
 
     final response = await _dio.get(
-      '/categories',
+      ApiConstants.categories,
       queryParameters: queryParameters,
     );
 

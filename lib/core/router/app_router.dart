@@ -16,10 +16,14 @@ import '../../features/cart/presentation/cubit/balla_cart_cubit.dart';
 import '../../features/cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/cart/presentation/pages/checkout_page.dart';
+import '../../features/home/presentation/pages/add_balla_page.dart';
+import '../../features/home/presentation/pages/create_mustamal_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
 import '../../features/notifications/presentation/pages/activity_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/search/presentation/bloc/search_cubit.dart';
+import '../../features/search/presentation/pages/search_page.dart';
 import '../../features/shop/data/models/shop_models.dart';
 import '../../features/shop/presentation/pages/balla_page.dart';
 import '../../features/shop/presentation/pages/balla_product_details_page.dart';
@@ -109,7 +113,10 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       // ── Protected routes ────────────────────────────────────────────────
       GoRoute(
         path: '/search',
-        builder: (_, _) => const Placeholder(child: Text('Search')),
+        builder: (context, state) => BlocProvider<SearchCubit>(
+          create: (context) => getIt<SearchCubit>(),
+          child: const SearchPage(),
+        ),
       ),
 
       // Matajir Mini-App (Isolated Cart)
@@ -169,6 +176,10 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
             builder: (context, state) => const BallaPage(),
             routes: [
               GoRoute(
+                path: 'create',
+                builder: (context, state) => const AddBallaPage(),
+              ),
+              GoRoute(
                 path: 'cart',
                 builder: (context, state) =>
                     CartPage(cartCubit: context.read<BallaCartCubit>()),
@@ -191,7 +202,16 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       ),
 
       // Mustamal Mini-App
-      GoRoute(path: '/mustamal', builder: (_, _) => const MustamalPage()),
+      GoRoute(
+        path: '/mustamal',
+        builder: (_, _) => const MustamalPage(),
+        routes: [
+          GoRoute(
+            path: 'create',
+            builder: (context, state) => const CreateMustamalPage(),
+          ),
+        ],
+      ),
 
       // Mazadat Mini-App
       GoRoute(path: '/mazadat', builder: (_, _) => const MazadatPage()),

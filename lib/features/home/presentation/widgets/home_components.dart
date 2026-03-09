@@ -39,10 +39,10 @@ class HomeSection extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title!,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.cairo(
                           fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF0F172A),
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                     ),
@@ -76,31 +76,24 @@ class OmniboxWidget extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FA),
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: AppTheme.surfaceAlt,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: AppTheme.divider),
         ),
         child: Row(
           children: [
             Icon(
               Icons.search_rounded,
-              color: const Color(0xFF94A3B8),
+              color: AppTheme.textTertiary,
               size: 24.sp,
             ),
             SizedBox(width: 8.w),
             Expanded(
               child: Text(
                 hintText,
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.cairo(
                   fontSize: 16.sp,
-                  color: const Color(0xFF94A3B8),
+                  color: AppTheme.textTertiary,
                 ),
               ),
             ),
@@ -207,9 +200,9 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                             children: [
                               Text(
                                 item.title,
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.cairo(
                                   fontSize: 24.sp,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w800,
                                   color: Colors.white,
                                   height: 1.1,
                                 ),
@@ -218,7 +211,7 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                               Text(
                                 item.actionUrl ??
                                     'Special offers waiting for you',
-                                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.cairo(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white.withValues(alpha: 0.8),
@@ -241,10 +234,10 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                             ),
                             child: Text(
                               'LIVE NOW',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.cairo(
                                 color: Colors.white,
                                 fontSize: 10.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                                 letterSpacing: 1.5,
                               ),
                             ),
@@ -377,9 +370,9 @@ class _BentoTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: color.withValues(alpha: 0.1)),
+          color: color.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: color.withValues(alpha: 0.12)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,24 +382,24 @@ class _BentoTile extends StatelessWidget {
               height: 40.w,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
               child: Icon(icon, color: Colors.white, size: 24.sp),
             ),
             SizedBox(height: 12.h),
             Text(
               title,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.cairo(
                 fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF0F172A),
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
               ),
             ),
             Text(
               tagline,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.cairo(
                 fontSize: 12.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 color: color,
               ),
             ),

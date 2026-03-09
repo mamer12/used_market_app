@@ -12,6 +12,7 @@ _AuctionItemModel _$AuctionItemModelFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String? ?? '',
       category: json['category'] as String?,
       condition: json['condition'] as String?,
+      city: json['city'] as String?,
       images:
           (json['images'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -25,6 +26,7 @@ Map<String, dynamic> _$AuctionItemModelToJson(_AuctionItemModel instance) =>
       'description': instance.description,
       'category': instance.category,
       'condition': instance.condition,
+      'city': instance.city,
       'images': instance.images,
     };
 
@@ -37,6 +39,7 @@ _AuctionModel _$AuctionModelFromJson(
   description: json['description'] as String? ?? '',
   category: json['category'] as String?,
   condition: json['condition'] as String?,
+  city: json['city'] as String?,
   images:
       (json['images'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
@@ -62,6 +65,7 @@ Map<String, dynamic> _$AuctionModelToJson(_AuctionModel instance) =>
       'description': instance.description,
       'category': instance.category,
       'condition': instance.condition,
+      'city': instance.city,
       'images': instance.images,
       'start_price': _$JsonConverterToJson<Object?, int>(
         instance.startPrice,
@@ -94,6 +98,7 @@ _CreateAuctionRequest _$CreateAuctionRequestFromJson(
   description: json['description'] as String,
   category: json['category'] as String,
   condition: json['condition'] as String,
+  city: json['city'] as String,
   startPrice: (json['start_price'] as num).toInt(),
   minBidIncrement: (json['min_bid_increment'] as num).toInt(),
   durationHours: (json['duration_hours'] as num).toInt(),
@@ -110,6 +115,7 @@ Map<String, dynamic> _$CreateAuctionRequestToJson(
   'description': instance.description,
   'category': instance.category,
   'condition': instance.condition,
+  'city': instance.city,
   'start_price': instance.startPrice,
   'min_bid_increment': instance.minBidIncrement,
   'duration_hours': instance.durationHours,

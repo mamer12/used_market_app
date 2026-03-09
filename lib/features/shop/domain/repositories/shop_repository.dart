@@ -21,4 +21,8 @@ abstract class ShopRepository {
     int page = 1,
     int limit = 20,
   });
+
+  Future<ProductModel> createMustamalListing(CreateMustamalRequest request);
+  Future<ProductModel> createBallaListing(
+      String shopId, CreateBallaRequest request);
 }

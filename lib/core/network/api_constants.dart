@@ -29,7 +29,7 @@ class ApiConstants {
   }
 
   /// REST API Base URL
-  static String get baseUrl => 'http://$_host:8080/api/v1';
+  static String get baseUrl => 'http://$_host:8080/api/v1/';
 
   /// WebSocket Base URL
   static String get wsBaseUrl => 'ws://$_host:8080/ws';
@@ -38,38 +38,57 @@ class ApiConstants {
   static String get mediaBaseUrl => 'http://$_host:9000/lugta-media';
 
   // --- Auth Endpoints ---
-  static const String sendOtp = '/auth/otp/send';
-  static const String register = '/auth/otp/register';
-  static const String login = '/auth/otp/login';
+  static const String sendOtp = 'auth/otp/send';
+  static const String register = 'auth/otp/register';
+  static const String login = 'auth/otp/login';
 
   // --- Media Endpoints ---
-  static const String mediaUpload = '/media';
+  static const String mediaUpload = 'media';
 
   // --- Auction Endpoints ---
   static const String auctions =
-      '/auctions'; // GET (list/details), POST (create)
+      'auctions'; // GET (list/details), POST (create)
+
+  // --- Listing Endpoints (C2C) ---
+  static const String listingsMustamal = 'listings/mustamal'; // POST
 
   // --- Shop Endpoints ---
-  static const String shops = '/shops'; // POST
+  static const String shops = 'shops'; // GET (list)
+  static const String shopsApply = 'shops/apply'; // POST (create)
 
   // --- Cart Endpoints ---
-  static const String cart = '/cart'; // GET (list), POST (add), DELETE (clear)
+  static const String cart = 'cart'; // GET (list), POST (add), DELETE (clear)
 
   // --- Saved Items / Wishlist ---
-  static const String savedItems = '/saved-items'; // GET, POST, DELETE
+  static const String savedItems = 'saved-items'; // GET, POST, DELETE
 
   // --- Order Endpoints ---
-  static const String ordersShop = '/orders/shop'; // POST (buy)
-  static const String ordersMe = '/orders/me'; // GET (my orders)
-  static const String ordersStatus = '/orders'; // PATCH /:id/status
+  static const String ordersShop = 'orders/shop'; // POST (buy)
+  static const String ordersMe = 'orders/me'; // GET (my orders)
+  static const String ordersStatus = 'orders'; // PATCH /:id/status
 
   // --- User Endpoints ---
-  static const String usersMe = '/users/me'; // GET (current user)
+  static const String usersMe =
+      'users/me'; // GET (current user), PATCH (update profile)
+
+  // --- Invoices ---
+  static const String invoicesMe = 'invoices/me'; // GET (my invoices)
+
+  // --- Categories ---
+  static const String categories = 'categories'; // GET ?app_context=&parent_id=
+
+  // --- Portal / BFF ---
+  static const String mobileHome = 'mobile/home'; // GET (super-app home screen)
+
+  // --- Second Chance ---
+  /// POST /auctions/{id}/second-chance/accept
+  static String secondChanceAccept(String auctionId) =>
+      'auctions/$auctionId/second-chance/accept';
 
   // --- Auth (password-based) ---
-  static const String authRegisterPassword = '/auth/register';
-  static const String authLoginPassword = '/auth/login';
+  static const String authRegisterPassword = 'auth/register';
+  static const String authLoginPassword = 'auth/login';
 
   // --- Search ---
-  static const String search = '/search'; // GET ?q=
+  static const String search = 'search'; // GET ?q=
 }

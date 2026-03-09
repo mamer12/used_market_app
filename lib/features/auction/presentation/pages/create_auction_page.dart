@@ -27,6 +27,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
   final _startPriceController = TextEditingController();
   final _minBidController = TextEditingController();
   final _durationController = TextEditingController(text: '24');
+  final _cityController = TextEditingController(text: 'بغداد');
 
   String _selectedCategory = 'electronics';
   String _selectedCondition = 'new';
@@ -50,7 +51,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     'other',
   ];
 
-  static const _conditions = ['new', 'like_new', 'good', 'fair'];
+  static const _conditions = ['new', 'used_good', 'used_fair'];
 
   @override
   void initState() {
@@ -66,6 +67,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     _startPriceController.dispose();
     _minBidController.dispose();
     _durationController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -116,6 +118,9 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
             ? 1000
             : int.parse(_minBidController.text.trim()),
         durationHours: int.tryParse(_durationController.text.trim()) ?? 24,
+        city: _cityController.text.trim().isEmpty
+            ? 'بغداد'
+            : _cityController.text.trim(),
         images: imageUrls,
       );
 
@@ -183,8 +188,11 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                   controller: _titleController,
                   label: l10n.auctionFieldTitle,
                   icon: Icons.gavel_rounded,
-                  validator: (v) =>
-                      v!.isEmpty ? l10n.auctionFieldRequired : null,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return l10n.auctionFieldRequired;
+                    if (v.trim().length < 5) return 'العنوان يجب أن يكون 5 أحرف على الأقل';
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16.h),
 
@@ -219,8 +227,10 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                         icon: Icons.attach_money_rounded,
                         keyboardType: TextInputType.number,
                         validator: (v) {
-                          if (v!.isEmpty) return l10n.auctionFieldRequired;
-                          if (int.tryParse(v) == null) return 'أرقام فقط';
+                          if (v == null || v.isEmpty) return l10n.auctionFieldRequired;
+                          final n = int.tryParse(v);
+                          if (n == null) return 'أرقام فقط';
+                          if (n < 1000) return 'الحد الأدنى 1,000';
                           return null;
                         },
                       ),
@@ -232,6 +242,14 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                         label: l10n.auctionFieldReservePrice,
                         icon: Icons.trending_up_rounded,
                         keyboardType: TextInputType.number,
+                        validator: (v) {
+                          if (v != null && v.isNotEmpty) {
+                            final n = int.tryParse(v);
+                            if (n == null) return 'أرقام فقط';
+                            if (n < 1000) return 'الحد الأدنى 1,000';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ],
@@ -249,6 +267,13 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                     if ((int.tryParse(v) ?? 0) < 1) return '1 ساعة على الأقل';
                     return null;
                   },
+                ),
+                SizedBox(height: 16.h),
+                _buildTextField(
+                  controller: _cityController,
+                  label: 'المدينة',
+                  icon: Icons.location_on_outlined,
+                  validator: (v) => v!.isEmpty ? 'يرجى إدخال المدينة' : null,
                 ),
                 SizedBox(height: 32.h),
 

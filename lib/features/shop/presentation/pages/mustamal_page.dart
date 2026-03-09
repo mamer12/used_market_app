@@ -98,7 +98,7 @@ class _MustamalPageState extends State<MustamalPage> {
                         size: 20.sp,
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () => context.push('/mustamal/create'),
                   ),
                   SizedBox(width: 12.w),
                 ],

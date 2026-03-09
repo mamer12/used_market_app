@@ -80,7 +80,7 @@ class HomeCubit extends Cubit<HomeState> {
       //    Falls back to parallel requests if the backend hasn't been updated.
       SuperAppPortalResponse? portal;
       try {
-        final response = await _dio.get(_portalEndpoint);
+        final response = await _dio.get(ApiConstants.mobileHome);
         portal = SuperAppPortalResponse.fromJson(response.data);
       } catch (e) {
         portal = null;
@@ -142,7 +142,10 @@ class HomeCubit extends Cubit<HomeState> {
     } catch (e, st) {
       LogService().error('Failed to load home feed', e, st);
       emit(
-        state.copyWith(isLoading: false, error: 'Failed to build home feed.'),
+        state.copyWith(
+          isLoading: false,
+          error: 'Failed to build home feed: ${e.toString()}',
+        ),
       );
     }
   }
@@ -201,8 +204,4 @@ class HomeCubit extends Cubit<HomeState> {
 
     return list;
   }
-
-  /// Endpoint constant — add to [ApiConstants] when backend deploys it.
-  // ignore: unused_field
-  static const _portalEndpoint = '/mobile/home';
 }

@@ -112,6 +112,7 @@ _ProductModel _$ProductModelFromJson(Map<String, dynamic> json) =>
       isActive: json['is_active'] as bool? ?? true,
       isBalla: json['is_balla'] as bool? ?? false,
       salesUnit: json['sales_unit'] as String? ?? 'piece',
+      city: json['city'] as String?,
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
     );
@@ -129,6 +130,7 @@ Map<String, dynamic> _$ProductModelToJson(_ProductModel instance) =>
       'is_active': instance.isActive,
       'is_balla': instance.isBalla,
       'sales_unit': instance.salesUnit,
+      'city': instance.city,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
     };
@@ -155,4 +157,64 @@ Map<String, dynamic> _$AddProductRequestToJson(_AddProductRequest instance) =>
       'stock_quantity': instance.stockQuantity,
       'images': instance.images,
       'sku': instance.sku,
+    };
+
+_CreateMustamalRequest _$CreateMustamalRequestFromJson(
+  Map<String, dynamic> json,
+) => _CreateMustamalRequest(
+  title: json['title'] as String,
+  description: json['description'] as String,
+  price: (json['price'] as num).toDouble(),
+  categoryId: (json['category_id'] as num).toInt(),
+  condition: json['condition'] as String,
+  city: json['city'] as String,
+  images:
+      (json['images'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  listingType: json['listing_type'] as String? ?? 'fixed_price',
+);
+
+Map<String, dynamic> _$CreateMustamalRequestToJson(
+  _CreateMustamalRequest instance,
+) => <String, dynamic>{
+  'title': instance.title,
+  'description': instance.description,
+  'price': instance.price,
+  'category_id': instance.categoryId,
+  'condition': instance.condition,
+  'city': instance.city,
+  'images': instance.images,
+  'listing_type': instance.listingType,
+};
+
+_CreateBallaRequest _$CreateBallaRequestFromJson(Map<String, dynamic> json) =>
+    _CreateBallaRequest(
+      title: json['title'] as String,
+      description: json['description'] as String,
+      price: (json['price'] as num).toDouble(),
+      categoryId: (json['category_id'] as num).toInt(),
+      condition: json['condition'] as String,
+      city: json['city'] as String,
+      images:
+          (json['images'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      salesUnit: json['sales_unit'] as String,
+      weight: (json['weight'] as num).toDouble(),
+      isBalla: json['is_balla'] as bool? ?? true,
+    );
+
+Map<String, dynamic> _$CreateBallaRequestToJson(_CreateBallaRequest instance) =>
+    <String, dynamic>{
+      'title': instance.title,
+      'description': instance.description,
+      'price': instance.price,
+      'category_id': instance.categoryId,
+      'condition': instance.condition,
+      'city': instance.city,
+      'images': instance.images,
+      'sales_unit': instance.salesUnit,
+      'weight': instance.weight,
+      'is_balla': instance.isBalla,
     };

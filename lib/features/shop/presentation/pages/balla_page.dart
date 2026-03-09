@@ -158,6 +158,24 @@ class _BallaPageState extends State<BallaPage> {
         ),
       ),
       actions: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20.r),
+            onTap: () => context.push('/balla/create'),
+            child: Container(
+              width: 40.w,
+              height: 40.w,
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.add_business_rounded,
+                color: AppTheme.ballaPurple,
+                size: 24.sp,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 8.w),
         BlocBuilder<BallaCartCubit, CartState>(
           builder: (ctx, cartState) {
             return Center(
