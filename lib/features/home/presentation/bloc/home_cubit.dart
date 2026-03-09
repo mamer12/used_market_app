@@ -79,14 +79,58 @@ class HomeCubit extends Cubit<HomeState> {
       // 1. Try the new unified portal endpoint first.
       //    Falls back to parallel requests if the backend hasn't been updated.
       SuperAppPortalResponse? portal;
+      bool isConnectivityError = false;
       try {
-        final response = await _dio.get(_portalEndpoint);
+        final response = await _dio.get(ApiConstants.mobileHome);
         portal = SuperAppPortalResponse.fromJson(response.data);
-      } catch (e) {
+      } on DioException catch (e) {
+        // If the failure is a connectivity / timeout issue, skip the legacy
+        // parallel endpoints — they will fail for the same reason and just
+        // add another 15 s of dead waiting.
+        isConnectivityError = const {
+          DioExceptionType.connectionTimeout,
+          DioExceptionType.sendTimeout,
+          DioExceptionType.receiveTimeout,
+          DioExceptionType.connectionError,
+        }.contains(e.type);
+        portal = null;
+      } catch (_) {
         portal = null;
       }
 
-      // 2. Legacy parallel fetch (always runs until dedicated endpoint is live)
+      // If the portal succeeded, skip legacy parallel fetch entirely.
+      if (portal != null) {
+        final announcements = portal.announcements.isNotEmpty
+            ? portal.announcements
+            : _synthesiseAnnouncements(portal.mazadat, portal.matajir);
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            portal: portal,
+            liveAuctions: portal.mazadat,
+            featuredProducts: portal.balla,
+            shopCatalogs: const [],
+            announcements: announcements,
+          ),
+        );
+        return;
+      }
+
+      // If we know the network is unreachable, fail fast instead of
+      // waiting another 15+ s for legacy endpoints to time out.
+      if (isConnectivityError) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            error: 'تعذر الاتصال بالخادم — تحقق من اتصالك بالإنترنت',
+          ),
+        );
+        return;
+      }
+
+      // 2. Legacy parallel fetch (portal endpoint returned a server error or
+      //    isn't deployed yet).
       final topLevel = await Future.wait([
         _auctionRepository.getLiveAuctions(limit: 8),
         _shopRepository.listShops(limit: 6),
@@ -116,7 +160,7 @@ class HomeCubit extends Cubit<HomeState> {
       final ballaProducts = allProducts.where((p) => p.isBalla).toList();
       final matajirShops = shops;
 
-      portal ??= SuperAppPortalResponse(
+      final fallbackPortal = SuperAppPortalResponse(
         mazadat: auctions,
         mustamal: const [], // populated once /mobile/home endpoint exists
         matajir: matajirShops,
@@ -125,26 +169,43 @@ class HomeCubit extends Cubit<HomeState> {
 
       // 5. Synthesise announcements from live portal data, or use static
       //    placeholders until the backend surfaces an `announcements` array.
-      final announcements = portal.announcements.isNotEmpty
-          ? portal.announcements
-          : _synthesiseAnnouncements(auctions, shops);
+      final announcements =
+          _synthesiseAnnouncements(auctions, shops);
 
       emit(
         state.copyWith(
           isLoading: false,
-          portal: portal,
-          liveAuctions: portal.mazadat.isNotEmpty ? portal.mazadat : auctions,
+          portal: fallbackPortal,
+          liveAuctions: auctions,
           featuredProducts: allProducts,
           shopCatalogs: catalogs,
           announcements: announcements,
         ),
       );
+    } on DioException catch (e, st) {
+      LogService().error('Failed to load home feed', e, st);
+      final msg = _isConnectivityDioError(e)
+          ? 'تعذر الاتصال بالخادم — تحقق من اتصالك بالإنترنت'
+          : 'فشل تحميل الصفحة الرئيسية: ${e.message}';
+      emit(state.copyWith(isLoading: false, error: msg));
     } catch (e, st) {
       LogService().error('Failed to load home feed', e, st);
       emit(
-        state.copyWith(isLoading: false, error: 'Failed to build home feed.'),
+        state.copyWith(
+          isLoading: false,
+          error: 'فشل تحميل الصفحة الرئيسية',
+        ),
       );
     }
+  }
+
+  static bool _isConnectivityDioError(DioException e) {
+    return const {
+      DioExceptionType.connectionTimeout,
+      DioExceptionType.sendTimeout,
+      DioExceptionType.receiveTimeout,
+      DioExceptionType.connectionError,
+    }.contains(e.type);
   }
 
   /// Builds static/synthesised announcements from fetched data until the
@@ -201,8 +262,4 @@ class HomeCubit extends Cubit<HomeState> {
 
     return list;
   }
-
-  /// Endpoint constant — add to [ApiConstants] when backend deploys it.
-  // ignore: unused_field
-  static const _portalEndpoint = '/mobile/home';
 }

@@ -11,6 +11,7 @@ import '../../../auction/data/models/auction_models.dart';
 import '../../../auction/presentation/pages/auction_live_page.dart';
 import '../../../shop/data/models/shop_models.dart';
 import '../../data/models/portal_models.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/curated_carousel.dart';
 import '../widgets/home_components.dart';
@@ -51,8 +52,36 @@ class _HomePageState extends State<HomePage> {
           child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
               if (state.isLoading && state.liveAuctions.isEmpty) {
-                return const Center(
-                  child: CircularProgressIndicator(color: AppTheme.primary),
+                return const HomePageSkeleton();
+              }
+
+              if (state.error != null && state.liveAuctions.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 48.sp, color: Colors.red),
+                      SizedBox(height: 16.h),
+                      Text(
+                        state.error!,
+                        style: GoogleFonts.cairo(
+                          fontSize: 16.sp,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 24.h),
+                      ElevatedButton(
+                        onPressed: () => _cubit.loadFeed(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                        ),
+                        child: Text(
+                          'إعادة المحاولة',
+                          style: GoogleFonts.cairo(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }
 
@@ -312,9 +341,9 @@ class _HomePageState extends State<HomePage> {
       onTap: onTap,
       child: Text(
         text,
-        style: GoogleFonts.plusJakartaSans(
+        style: GoogleFonts.cairo(
           fontSize: 14.sp,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
           color: AppTheme.primary,
         ),
       ),
@@ -331,7 +360,7 @@ class _HomeAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      backgroundColor: Colors.white.withValues(alpha: 0.8),
+      backgroundColor: AppTheme.background.withValues(alpha: 0.92),
       elevation: 0,
       pinned: true,
       toolbarHeight: 64.h,
@@ -346,12 +375,11 @@ class _HomeAppBar extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Luqta',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: -1,
-                        color: const Color(0xFF0F172A),
+                      'لكطة',
+                      style: GoogleFonts.cairo(
+                        fontSize: 26.sp,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                   ),
@@ -362,23 +390,25 @@ class _HomeAppBar extends StatelessWidget {
                       vertical: 6.h,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(999.r),
-                      border: Border.all(color: const Color(0xFFDCFCE7)),
+                      color: AppTheme.success.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                      border: Border.all(
+                        color: AppTheme.success.withValues(alpha: 0.15),
+                      ),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           Icons.account_balance_wallet_outlined,
                           size: 16.sp,
-                          color: const Color(0xFF2E7D32),
+                          color: AppTheme.success,
                         ),
                         SizedBox(width: 8.w),
                         Text(
                           'الرصيد: 250,000 د.ع', // Placeholder
                           style: GoogleFonts.cairo(
-                            color: const Color(0xFF2E7D32),
-                            fontWeight: FontWeight.bold,
+                            color: AppTheme.success,
+                            fontWeight: FontWeight.w700,
                             fontSize: 14.sp,
                           ),
                         ),

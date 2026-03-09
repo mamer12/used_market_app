@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,6 +13,11 @@ import '../../../auction/data/datasources/auction_remote_data_source.dart';
 import '../../../auction/data/models/auction_models.dart';
 import '../../../media/data/datasources/media_remote_data_source.dart';
 
+/// Create Auction form — "أطلق مزادك".
+///
+/// Image grid (1 main + thumbnails), duration chips, escrow guarantee card.
+///
+/// Based on Stitch Screen 6 (bce228b7).
 class CreateAuctionPage extends StatefulWidget {
   const CreateAuctionPage({super.key});
 
@@ -26,13 +32,20 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
   final _descController = TextEditingController();
   final _startPriceController = TextEditingController();
   final _minBidController = TextEditingController();
-  final _durationController = TextEditingController(text: '24');
+  final _cityController = TextEditingController(text: 'بغداد');
 
   String _selectedCategory = 'electronics';
   String _selectedCondition = 'new';
+  int _selectedDurationIndex = 0; // 0=24h, 1=3d, 2=7d
+
+  static const _durationOptions = [
+    {'label': '٢٤ ساعة', 'hours': 24},
+    {'label': '٣ أيام', 'hours': 72},
+    {'label': '٧ أيام', 'hours': 168},
+  ];
 
   final List<File> _selectedImages = [];
-  static const _maxImages = 5;
+  static const _maxImages = 6;
 
   bool _isLoading = false;
   String? _loadingStep;
@@ -50,7 +63,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     'other',
   ];
 
-  static const _conditions = ['new', 'like_new', 'good', 'fair'];
+  static const _conditions = ['new', 'used_good', 'used_fair'];
 
   @override
   void initState() {
@@ -65,7 +78,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     _descController.dispose();
     _startPriceController.dispose();
     _minBidController.dispose();
-    _durationController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -96,7 +109,6 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     });
 
     try {
-      // Step 1: Upload images (if any) and get CDN URLs
       List<String> imageUrls = [];
       if (_selectedImages.isNotEmpty) {
         imageUrls = await _mediaDs.uploadImages(_selectedImages);
@@ -105,7 +117,9 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
       if (!mounted) return;
       setState(() => _loadingStep = 'جاري إطلاق المزاد…');
 
-      // Step 2: Build the request body and submit to the API
+      final durationHours =
+          _durationOptions[_selectedDurationIndex]['hours'] as int;
+
       final request = CreateAuctionRequest(
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
@@ -115,7 +129,10 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
         minBidIncrement: _minBidController.text.trim().isEmpty
             ? 1000
             : int.parse(_minBidController.text.trim()),
-        durationHours: int.tryParse(_durationController.text.trim()) ?? 24,
+        durationHours: durationHours,
+        city: _cityController.text.trim().isEmpty
+            ? 'بغداد'
+            : _cityController.text.trim(),
         images: imageUrls,
       );
 
@@ -126,7 +143,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.auctionCreatedSuccess, style: GoogleFonts.cairo()),
-          backgroundColor: AppTheme.primary,
+          backgroundColor: AppTheme.mazadGreen,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -149,7 +166,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AppTheme.surface,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: Text(
           l10n.auctionCreateTitle,
@@ -158,14 +175,14 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
             color: AppTheme.textPrimary,
           ),
         ),
-        backgroundColor: AppTheme.surface,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: AppTheme.textPrimary),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
           child: Form(
             key: _formKey,
             child: Column(
@@ -174,8 +191,8 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                 _buildHeader(l10n),
                 SizedBox(height: 24.h),
 
-                // ── Image Picker ─────────────────────────────────────
-                _buildImagePicker(l10n),
+                // ── Image Grid (Stitch Screen 6) ────────────────────
+                _buildImageGrid(l10n),
                 SizedBox(height: 24.h),
 
                 // ── Title ────────────────────────────────────────────
@@ -183,8 +200,13 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                   controller: _titleController,
                   label: l10n.auctionFieldTitle,
                   icon: Icons.gavel_rounded,
-                  validator: (v) =>
-                      v!.isEmpty ? l10n.auctionFieldRequired : null,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return l10n.auctionFieldRequired;
+                    if (v.trim().length < 5) {
+                      return 'العنوان يجب أن يكون 5 أحرف على الأقل';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16.h),
 
@@ -219,8 +241,12 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                         icon: Icons.attach_money_rounded,
                         keyboardType: TextInputType.number,
                         validator: (v) {
-                          if (v!.isEmpty) return l10n.auctionFieldRequired;
-                          if (int.tryParse(v) == null) return 'أرقام فقط';
+                          if (v == null || v.isEmpty) {
+                            return l10n.auctionFieldRequired;
+                          }
+                          final n = int.tryParse(v);
+                          if (n == null) return 'أرقام فقط';
+                          if (n < 1000) return 'الحد الأدنى 1,000';
                           return null;
                         },
                       ),
@@ -232,28 +258,38 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                         label: l10n.auctionFieldReservePrice,
                         icon: Icons.trending_up_rounded,
                         keyboardType: TextInputType.number,
+                        validator: (v) {
+                          if (v != null && v.isNotEmpty) {
+                            final n = int.tryParse(v);
+                            if (n == null) return 'أرقام فقط';
+                            if (n < 1000) return 'الحد الأدنى 1,000';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ],
                 ),
+                SizedBox(height: 20.h),
+
+                // ── Duration Chips (Stitch Screen 6) ─────────────────
+                _buildDurationChips(),
                 SizedBox(height: 16.h),
 
-                // ── Duration ─────────────────────────────────────────
                 _buildTextField(
-                  controller: _durationController,
-                  label: 'مدة المزاد (ساعات)',
-                  icon: Icons.timer_outlined,
-                  keyboardType: TextInputType.number,
-                  validator: (v) {
-                    if (v!.isEmpty) return l10n.auctionFieldRequired;
-                    if ((int.tryParse(v) ?? 0) < 1) return '1 ساعة على الأقل';
-                    return null;
-                  },
+                  controller: _cityController,
+                  label: 'المدينة',
+                  icon: Icons.location_on_outlined,
+                  validator: (v) => v!.isEmpty ? 'يرجى إدخال المدينة' : null,
                 ),
-                SizedBox(height: 32.h),
+                SizedBox(height: 24.h),
+
+                // ── Escrow Guarantee Card (Stitch Screen 6) ──────────
+                _buildEscrowGuaranteeCard(),
+                SizedBox(height: 24.h),
 
                 _buildSubmitButton(l10n),
-                SizedBox(height: 24.h),
+                SizedBox(height: 32.h),
               ],
             ),
           ),
@@ -262,13 +298,14 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     );
   }
 
+  // ── Header ────────────────────────────────────────────────────────────────
   Widget _buildHeader(AppLocalizations l10n) {
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppTheme.liveBadge.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.liveBadge.withValues(alpha: 0.2)),
+        color: AppTheme.mazadGreen.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+        border: Border.all(color: AppTheme.mazadGreen.withValues(alpha: 0.15)),
       ),
       child: Column(
         children: [
@@ -276,13 +313,13 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
             width: 64.w,
             height: 64.w,
             decoration: BoxDecoration(
-              color: AppTheme.liveBadge.withValues(alpha: 0.2),
+              color: AppTheme.mazadGreen.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.campaign_rounded,
               size: 32.sp,
-              color: AppTheme.liveBadge,
+              color: AppTheme.mazadGreen,
             ),
           ),
           SizedBox(height: 16.h),
@@ -309,7 +346,8 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     );
   }
 
-  Widget _buildImagePicker(AppLocalizations l10n) {
+  // ── Image Grid (Stitch: 1 main + 5 thumbs in 4-col arrangement) ──────────
+  Widget _buildImageGrid(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -322,91 +360,300 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
           ),
         ),
         SizedBox(height: 12.h),
-        SizedBox(
-          height: 90.h,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              // Add photo button
-              if (_selectedImages.length < _maxImages)
-                GestureDetector(
-                  onTap: _pickImages,
-                  child: Container(
-                    width: 80.w,
-                    height: 80.w,
-                    margin: EdgeInsets.only(left: 8.w),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: AppTheme.primary,
-                        width: 1.5,
-                        strokeAlign: BorderSide.strokeAlignOutside,
+        // Main large image area
+        GestureDetector(
+          onTap: _selectedImages.isEmpty ? _pickImages : null,
+          child: Container(
+            height: 180.h,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: _selectedImages.isEmpty
+                  ? AppTheme.mazadGreen.withValues(alpha: 0.04)
+                  : null,
+              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+              border: Border.all(
+                color: _selectedImages.isEmpty
+                    ? AppTheme.mazadGreen.withValues(alpha: 0.3)
+                    : AppTheme.divider,
+                width: _selectedImages.isEmpty ? 2 : 1,
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: _selectedImages.isEmpty
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add_photo_alternate_outlined,
+                        color: AppTheme.mazadGreen,
+                        size: 40.sp,
                       ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add_photo_alternate_outlined,
-                          color: AppTheme.primary,
-                          size: 28.sp,
+                      SizedBox(height: 8.h),
+                      Text(
+                        'أضف صورة رئيسية',
+                        style: GoogleFonts.cairo(
+                          fontSize: 14.sp,
+                          color: AppTheme.mazadGreen,
+                          fontWeight: FontWeight.w600,
                         ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          'أضف صورة',
-                          style: GoogleFonts.cairo(
-                            fontSize: 10.sp,
-                            color: AppTheme.primary,
-                            fontWeight: FontWeight.w600,
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'اسحب أو اضغط لرفع الصور',
+                        style: GoogleFonts.cairo(
+                          fontSize: 11.sp,
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                    ],
+                  )
+                : Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.file(
+                        _selectedImages.first,
+                        fit: BoxFit.cover,
+                      ),
+                      // Delete button
+                      Positioned(
+                        top: 8.h,
+                        left: 8.w,
+                        child: GestureDetector(
+                          onTap: () => _removeImage(0),
+                          child: Container(
+                            width: 28.w,
+                            height: 28.w,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.close, size: 16.sp,
+                                color: Colors.white),
                           ),
                         ),
-                      ],
+                      ),
+                      // "Main" badge
+                      Positioned(
+                        bottom: 8.h,
+                        right: 8.w,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.w, vertical: 3.h),
+                          decoration: BoxDecoration(
+                            color: AppTheme.mazadGreen,
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.radiusFull),
+                          ),
+                          child: Text(
+                            'الرئيسية',
+                            style: GoogleFonts.cairo(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+        SizedBox(height: 8.h),
+        // Thumbnail grid (5 slots)
+        SizedBox(
+          height: 72.h,
+          child: Row(
+            children: List.generate(5, (index) {
+              final imgIndex = index + 1; // offset by 1 (main is at 0)
+              final hasImage = imgIndex < _selectedImages.length;
+              final isAddButton =
+                  !hasImage && _selectedImages.length < _maxImages;
+
+              return Expanded(
+                child: GestureDetector(
+                  onTap:
+                      isAddButton ? _pickImages : null,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 3.w),
+                    decoration: BoxDecoration(
+                      color: isAddButton
+                          ? AppTheme.surface
+                          : AppTheme.shimmerBase,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      border: Border.all(
+                        color: isAddButton
+                            ? AppTheme.divider
+                            : Colors.transparent,
+                      ),
                     ),
+                    clipBehavior: Clip.antiAlias,
+                    child: hasImage
+                        ? Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.file(
+                                _selectedImages[imgIndex],
+                                fit: BoxFit.cover,
+                              ),
+                              Positioned(
+                                top: 2,
+                                left: 2,
+                                child: GestureDetector(
+                                  onTap: () => _removeImage(imgIndex),
+                                  child: Container(
+                                    width: 18.w,
+                                    height: 18.w,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.close,
+                                        size: 10.sp, color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : isAddButton
+                            ? Center(
+                                child: Icon(
+                                  Icons.add_rounded,
+                                  color: AppTheme.textTertiary,
+                                  size: 20.sp,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                   ),
                 ),
-              // Thumbnails
-              for (int i = 0; i < _selectedImages.length; i++)
-                Stack(
-                  children: [
-                    Container(
-                      width: 80.w,
-                      height: 80.w,
-                      margin: EdgeInsets.only(left: 8.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.r),
-                        image: DecorationImage(
-                          image: FileImage(_selectedImages[i]),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 2,
-                      right: 4,
-                      child: GestureDetector(
-                        onTap: () => _removeImage(i),
-                        child: Container(
-                          width: 20.w,
-                          height: 20.w,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.close,
-                            size: 12.sp,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-            ],
+              );
+            }),
           ),
         ),
       ],
+    );
+  }
+
+  // ── Duration Chips (Stitch Screen 6) ──────────────────────────────────────
+  Widget _buildDurationChips() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'مدة المزاد',
+          style: GoogleFonts.cairo(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        SizedBox(height: 10.h),
+        Row(
+          children: List.generate(_durationOptions.length, (index) {
+            final isSelected = _selectedDurationIndex == index;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() => _selectedDurationIndex = index);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppTheme.mazadGreen
+                        : AppTheme.surfaceAlt,
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.radiusFull),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppTheme.mazadGreen
+                          : AppTheme.divider,
+                      width: isSelected ? 2 : 1,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color:
+                                  AppTheme.mazadGreen.withValues(alpha: 0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    _durationOptions[index]['label'] as String,
+                    style: GoogleFonts.cairo(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected
+                          ? AppTheme.textPrimary
+                          : AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  // ── Escrow Guarantee Card (Stitch Screen 6: "ضمان الأمانة") ───────────────
+  Widget _buildEscrowGuaranteeCard() {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: AppTheme.mazadGreen.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: AppTheme.mazadGreen.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48.w,
+            height: 48.w,
+            decoration: BoxDecoration(
+              color: AppTheme.mazadGreen.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.verified_user_rounded,
+              color: AppTheme.mazadGreen,
+              size: 26.sp,
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'ضمان الأمانة',
+                  style: GoogleFonts.cairo(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  'مزادك محمي بنظام الضمان — المبلغ يُحجز حتى تسليم المنتج بأمان.',
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.sp,
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -452,18 +699,18 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
       labelStyle: GoogleFonts.cairo(fontSize: 13.sp, color: AppTheme.inactive),
       prefixIcon: Icon(icon, color: AppTheme.inactive, size: 20.sp),
       filled: true,
-      fillColor: AppTheme.background,
+      fillColor: AppTheme.surfaceAlt,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14.r),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        borderSide: const BorderSide(color: AppTheme.divider),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14.r),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        borderSide: const BorderSide(color: AppTheme.divider),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14.r),
-        borderSide: const BorderSide(color: AppTheme.primary),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        borderSide: const BorderSide(color: AppTheme.mazadGreen),
       ),
     );
   }
@@ -498,18 +745,18 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
           child: Icon(icon, color: AppTheme.inactive, size: 22.sp),
         ),
         filled: true,
-        fillColor: AppTheme.background,
+        fillColor: AppTheme.surfaceAlt,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          borderSide: const BorderSide(color: AppTheme.divider),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          borderSide: const BorderSide(color: AppTheme.divider),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
-          borderSide: const BorderSide(color: AppTheme.liveBadge),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          borderSide: const BorderSide(color: AppTheme.mazadGreen),
         ),
       ),
     );
@@ -522,13 +769,13 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
         duration: const Duration(milliseconds: 200),
         height: 56.h,
         decoration: BoxDecoration(
-          color: _isLoading ? AppTheme.inactive : AppTheme.liveBadge,
-          borderRadius: BorderRadius.circular(16.r),
+          color: _isLoading ? AppTheme.inactive : AppTheme.mazadGreen,
+          borderRadius: BorderRadius.circular(AppTheme.radiusFull),
           boxShadow: _isLoading
               ? []
               : [
                   BoxShadow(
-                    color: AppTheme.liveBadge.withValues(alpha: 0.3),
+                    color: AppTheme.mazadGreen.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -557,13 +804,21 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                     ),
                   ],
                 )
-              : Text(
-                  l10n.auctionLaunchBtn,
-                  style: GoogleFonts.cairo(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      l10n.auctionLaunchBtn,
+                      style: GoogleFonts.cairo(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Icon(Icons.rocket_launch_rounded,
+                        color: AppTheme.textPrimary, size: 20.sp),
+                  ],
                 ),
         ),
       ),

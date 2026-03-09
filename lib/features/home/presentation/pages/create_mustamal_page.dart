@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../bloc/create_mustamal_cubit.dart';
 
 /// Create Used Item listing page — Sooq Al-Mustamal (C2C fixed-price).
 /// Sellers negotiate via WhatsApp/Chat; no cart involved.
@@ -26,7 +29,6 @@ class _CreateMustamalPageState extends State<CreateMustamalPage> {
   String _condition = 'like_new';
   String _category = 'electronics';
   final List<File> _images = [];
-  bool _isLoading = false;
   final _picker = ImagePicker();
 
   static const _conditions = ['new', 'like_new', 'good', 'fair'];
@@ -60,157 +62,228 @@ class _CreateMustamalPageState extends State<CreateMustamalPage> {
     });
   }
 
-  void _submit() async {
+  void _submit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _isLoading = true);
-    // TODO: wire to ItemRemoteDataSource.createListing() when available
-    await Future.delayed(const Duration(seconds: 1));
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('تم نشر الإعلان بنجاح!', style: GoogleFonts.cairo()),
-        backgroundColor: AppTheme.secondary,
-        behavior: SnackBarBehavior.floating,
-      ),
+    if (_images.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'يرجى إضافة صورة واحدة على الأقل',
+            style: GoogleFonts.cairo(),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    context.read<CreateMustamalCubit>().submit(
+      title: _titleCtrl.text,
+      description: _descCtrl.text,
+      price: double.parse(_priceCtrl.text),
+      categoryId: 1, // Defaulting for now
+      condition: _condition,
+      city: _cityCtrl.text.trim().isEmpty ? 'بغداد' : _cityCtrl.text.trim(),
+      localImages: _images,
     );
-    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.surface,
-      appBar: AppBar(
-        title: Text(
-          'بيع شيء مستعمل',
-          style: GoogleFonts.cairo(
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
-        ),
-        backgroundColor: AppTheme.surface,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header
-                Container(
-                  padding: EdgeInsets.all(20.w),
-                  decoration: BoxDecoration(
-                    color: AppTheme.secondary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(
-                      color: AppTheme.secondary.withValues(alpha: 0.2),
+    return BlocProvider(
+      create: (context) => getIt<CreateMustamalCubit>(),
+      child: BlocConsumer<CreateMustamalCubit, CreateMustamalState>(
+        listener: (context, state) {
+          state.whenOrNull(
+            success: (_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'تم نشر الإعلان بنجاح!',
+                    style: GoogleFonts.cairo(),
+                  ),
+                  backgroundColor: AppTheme.secondary,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              Navigator.of(context).pop();
+            },
+            error: (msg) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(msg, style: GoogleFonts.cairo()),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            },
+          );
+        },
+        builder: (context, state) {
+          final isLoading = state.maybeWhen(
+            loading: () => true,
+            orElse: () => false,
+          );
+
+          return Scaffold(
+            backgroundColor: AppTheme.surface,
+            appBar: AppBar(
+              title: Text(
+                'بيع شيء مستعمل',
+                style: GoogleFonts.cairo(
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              backgroundColor: AppTheme.surface,
+              elevation: 0,
+              centerTitle: true,
+              iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+            ),
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 24.w,
+                      vertical: 16.h,
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // ... Header ...
+                          Container(
+                            padding: EdgeInsets.all(20.w),
+                            decoration: BoxDecoration(
+                              color: AppTheme.secondary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(16.r),
+                              border: Border.all(
+                                color: AppTheme.secondary.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 52.w,
+                                  height: 52.w,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.secondary.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.autorenew_rounded,
+                                    size: 28.sp,
+                                    color: AppTheme.secondary,
+                                  ),
+                                ),
+                                SizedBox(width: 14.w),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'سوق المستعمل',
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppTheme.textPrimary,
+                                        ),
+                                      ),
+                                      Text(
+                                        'المشترون سيتواصلون معك مباشرة',
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 12.sp,
+                                          color: AppTheme.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 24.h),
+
+                          // Images
+                          _buildImagePicker(),
+                          SizedBox(height: 20.h),
+
+                          _buildField(_titleCtrl, 'عنوان الإعلان', Icons.title),
+                          SizedBox(height: 14.h),
+                          _buildField(
+                            _descCtrl,
+                            'وصف الإعلان',
+                            Icons.description_outlined,
+                            maxLines: 3,
+                          ),
+                          SizedBox(height: 14.h),
+                          _buildField(
+                            _priceCtrl,
+                            'السعر (دينار)',
+                            Icons.attach_money,
+                            type: TextInputType.number,
+                            validator: (v) {
+                              if (v!.isEmpty) return 'مطلوب';
+                              if (int.tryParse(v) == null) return 'أرقام فقط';
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 14.h),
+                          _buildField(
+                            _cityCtrl,
+                            'المدينة',
+                            Icons.location_on_outlined,
+                          ),
+                          SizedBox(height: 14.h),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildDropdown(
+                                  'الحالة',
+                                  Icons.star_outline,
+                                  _conditions,
+                                  _condition,
+                                  (v) => setState(() => _condition = v!),
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: _buildDropdown(
+                                  'الفئة',
+                                  Icons.category_outlined,
+                                  _categories,
+                                  _category,
+                                  (v) => setState(() => _category = v!),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 32.h),
+                          _buildSubmitButton(context, isLoading),
+                        ],
+                      ),
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 52.w,
-                        height: 52.w,
-                        decoration: BoxDecoration(
-                          color: AppTheme.secondary.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.autorenew_rounded,
-                          size: 28.sp,
+                  if (isLoading)
+                    Container(
+                      color: Colors.black26,
+                      child: const Center(
+                        child: CircularProgressIndicator(
                           color: AppTheme.secondary,
                         ),
                       ),
-                      SizedBox(width: 14.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'سوق المستعمل',
-                              style: GoogleFonts.cairo(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              'المشترون سيتواصلون معك مباشرة',
-                              style: GoogleFonts.cairo(
-                                fontSize: 12.sp,
-                                color: AppTheme.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 24.h),
-
-                // Images
-                _buildImagePicker(),
-                SizedBox(height: 20.h),
-
-                _buildField(_titleCtrl, 'عنوان الإعلان', Icons.title),
-                SizedBox(height: 14.h),
-                _buildField(
-                  _descCtrl,
-                  'وصف الإعلان',
-                  Icons.description_outlined,
-                  maxLines: 3,
-                ),
-                SizedBox(height: 14.h),
-                _buildField(
-                  _priceCtrl,
-                  'السعر (دينار)',
-                  Icons.attach_money,
-                  type: TextInputType.number,
-                  validator: (v) {
-                    if (v!.isEmpty) return 'مطلوب';
-                    if (int.tryParse(v) == null) return 'أرقام فقط';
-                    return null;
-                  },
-                ),
-                SizedBox(height: 14.h),
-                _buildField(_cityCtrl, 'المدينة', Icons.location_on_outlined),
-                SizedBox(height: 14.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildDropdown(
-                        'الحالة',
-                        Icons.star_outline,
-                        _conditions,
-                        _condition,
-                        (v) => setState(() => _condition = v!),
-                      ),
                     ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: _buildDropdown(
-                        'الفئة',
-                        Icons.category_outlined,
-                        _categories,
-                        _category,
-                        (v) => setState(() => _category = v!),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 32.h),
-                _buildSubmitButton(),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -372,16 +445,16 @@ class _CreateMustamalPageState extends State<CreateMustamalPage> {
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(BuildContext context, bool isLoading) {
     return GestureDetector(
-      onTap: _isLoading ? null : _submit,
+      onTap: isLoading ? null : () => _submit(context),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         height: 56.h,
         decoration: BoxDecoration(
-          color: _isLoading ? AppTheme.inactive : AppTheme.secondary,
+          color: isLoading ? AppTheme.inactive : AppTheme.secondary,
           borderRadius: BorderRadius.circular(16.r),
-          boxShadow: _isLoading
+          boxShadow: isLoading
               ? []
               : [
                   BoxShadow(
@@ -392,7 +465,7 @@ class _CreateMustamalPageState extends State<CreateMustamalPage> {
                 ],
         ),
         child: Center(
-          child: _isLoading
+          child: isLoading
               ? const CircularProgressIndicator(
                   strokeWidth: 2,
                   color: Colors.white,

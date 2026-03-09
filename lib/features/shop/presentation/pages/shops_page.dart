@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../../data/models/shop_models.dart';
 import '../bloc/shops_cubit.dart';
 import 'shop_products_page.dart';
@@ -108,9 +109,7 @@ class _ShopsPageState extends State<ShopsPage> {
     return BlocBuilder<ShopsCubit, ShopsState>(
       builder: (context, state) {
         if (state.isLoading && state.shops.isEmpty) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppTheme.primary),
-          );
+          return const ShopsPageSkeleton();
         }
 
         if (state.error != null && state.shops.isEmpty) {

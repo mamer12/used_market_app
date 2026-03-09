@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../core/theme/app_theme.dart';
 
+/// Warm-themed bid confirmation bottom sheet.
 class BidConfirmationSheet extends StatelessWidget {
   final int bidAmount;
   final int currentHighest;
@@ -50,13 +52,10 @@ class BidConfirmationSheet extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
-        border: Border(
-          top: BorderSide(
-            color: Colors.white.withValues(alpha: 0.10),
-            width: 1,
-          ),
+        color: AppTheme.surfaceAlt,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusXl)),
+        border: const Border(
+          top: BorderSide(color: AppTheme.divider, width: 1),
         ),
       ),
       padding: EdgeInsets.fromLTRB(
@@ -73,7 +72,7 @@ class BidConfirmationSheet extends StatelessWidget {
             width: 40.w,
             height: 4.h,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
+              color: AppTheme.divider,
               borderRadius: BorderRadius.circular(2.r),
             ),
           ),
@@ -90,14 +89,14 @@ class BidConfirmationSheet extends StatelessWidget {
                   style: GoogleFonts.cairo(
                     fontSize: 22.sp,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 Text(
-                  'You\'re about to place a bid',
-                  style: GoogleFonts.inter(
+                  'تحقق من التفاصيل قبل التأكيد',
+                  style: GoogleFonts.cairo(
                     fontSize: 13.sp,
-                    color: Colors.white.withValues(alpha: 0.55),
+                    color: AppTheme.textTertiary,
                   ),
                 ),
               ],
@@ -109,35 +108,32 @@ class BidConfirmationSheet extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16.r),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+              border: Border.all(color: AppTheme.divider),
             ),
             child: Column(
               children: [
                 _SummaryRow(
-                  label: 'Current Highest • المزايد الحالي',
-                  value: '${_fmt(currentHighest)} IQD',
-                  valueColor: Colors.white.withValues(alpha: 0.7),
+                  label: 'المزايد الحالي',
+                  value: '${_fmt(currentHighest)} د.ع',
+                  valueColor: AppTheme.textSecondary,
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 10.h),
-                  child: Divider(
-                    color: Colors.white.withValues(alpha: 0.07),
-                    height: 1,
-                  ),
+                  child: const Divider(color: AppTheme.divider, height: 1),
                 ),
                 _SummaryRow(
-                  label: 'مبلغ مزايدتك • Your Bid Amount',
-                  value: '${_fmt(bidAmount)} IQD',
-                  valueColor: AppTheme.primary,
+                  label: 'مبلغ مزايدتك',
+                  value: '${_fmt(bidAmount)} د.ع',
+                  valueColor: AppTheme.mazadGreen,
                   valueLarge: true,
                 ),
                 SizedBox(height: 8.h),
                 _SummaryRow(
-                  label: 'الفارق • Difference',
-                  value: '+${_fmt(diff)} IQD',
-                  valueColor: const Color(0xFF34C759),
+                  label: 'الفارق',
+                  value: '+${_fmt(diff)} د.ع',
+                  valueColor: AppTheme.success,
                 ),
               ],
             ),
@@ -148,10 +144,10 @@ class BidConfirmationSheet extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF9F0A).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12.r),
+              color: AppTheme.secondary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               border: Border.all(
-                color: const Color(0xFFFF9F0A).withValues(alpha: 0.25),
+                color: AppTheme.secondary.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -159,7 +155,7 @@ class BidConfirmationSheet extends StatelessWidget {
               children: [
                 Icon(
                   Icons.info_outline_rounded,
-                  color: const Color(0xFFFF9F0A),
+                  color: AppTheme.secondary,
                   size: 18.sp,
                 ),
                 SizedBox(width: 10.w),
@@ -168,7 +164,7 @@ class BidConfirmationSheet extends StatelessWidget {
                     'يُرجى التأكد من توفر الرصيد في محفظة ZainCash الخاصة بك لتجنب إلغاء العرض.',
                     style: GoogleFonts.cairo(
                       fontSize: 12.sp,
-                      color: const Color(0xFFFF9F0A),
+                      color: AppTheme.secondary,
                       height: 1.5,
                     ),
                   ),
@@ -187,18 +183,16 @@ class BidConfirmationSheet extends StatelessWidget {
                   child: Container(
                     height: 52.h,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14.r),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.15),
-                      ),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                      border: Border.all(color: AppTheme.divider),
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'إلغاء • Cancel',
+                      'إلغاء',
                       style: GoogleFonts.cairo(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                   ),
@@ -209,17 +203,18 @@ class BidConfirmationSheet extends StatelessWidget {
                 flex: 2,
                 child: GestureDetector(
                   onTap: () {
+                    HapticFeedback.mediumImpact();
                     Navigator.of(context).pop(true);
                     onConfirm();
                   },
                   child: Container(
                     height: 52.h,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(14.r),
+                      color: AppTheme.mazadGreen,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primary.withValues(alpha: 0.45),
+                          color: AppTheme.mazadGreen.withValues(alpha: 0.35),
                           blurRadius: 14,
                           offset: const Offset(0, 4),
                         ),
@@ -229,18 +224,15 @@ class BidConfirmationSheet extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.lock_rounded,
-                          color: Colors.black,
-                          size: 18.sp,
-                        ),
+                        Icon(Icons.lock_rounded,
+                            color: AppTheme.textPrimary, size: 18.sp),
                         SizedBox(width: 8.w),
                         Text(
-                          'تأكيد المزايدة • Confirm Bid',
+                          'تأكيد المزايدة',
                           style: GoogleFonts.cairo(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w800,
-                            color: Colors.black,
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                       ],
@@ -255,7 +247,7 @@ class BidConfirmationSheet extends StatelessWidget {
             'المزايدات ملزمة. قد يؤثر الانسحاب على حسابك.',
             style: GoogleFonts.cairo(
               fontSize: 10.sp,
-              color: Colors.white.withValues(alpha: 0.35),
+              color: AppTheme.textTertiary,
             ),
           ),
         ],
@@ -287,16 +279,15 @@ class _SummaryRow extends StatelessWidget {
             label,
             style: GoogleFonts.cairo(
               fontSize: 12.sp,
-              color: Colors.white.withValues(alpha: 0.55),
+              color: AppTheme.textTertiary,
             ),
           ),
         ),
         SizedBox(width: 8.w),
         Text(
           value,
-          style: GoogleFonts.inter(
+          style: AppTheme.priceStyle(
             fontSize: valueLarge ? 20.sp : 14.sp,
-            fontWeight: FontWeight.w800,
             color: valueColor,
           ),
         ),

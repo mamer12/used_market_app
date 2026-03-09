@@ -4,7 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auction/presentation/pages/active_bids_page.dart';
+import '../../features/auction/presentation/pages/auction_lost_page.dart';
+import '../../features/auction/presentation/pages/auction_won_page.dart';
+import '../../features/auction/presentation/pages/create_auction_page.dart';
 import '../../features/auction/presentation/pages/mazadat_page.dart';
+import '../../features/auction/presentation/pages/second_chance_offer_page.dart';
+import '../../features/auction/presentation/pages/settlement_confirm_receipt_page.dart';
 import '../../features/auth/domain/entities/auth_status.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -16,10 +22,14 @@ import '../../features/cart/presentation/cubit/balla_cart_cubit.dart';
 import '../../features/cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/cart/presentation/pages/checkout_page.dart';
+import '../../features/home/presentation/pages/add_balla_page.dart';
+import '../../features/home/presentation/pages/create_mustamal_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
 import '../../features/notifications/presentation/pages/activity_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/search/presentation/bloc/search_cubit.dart';
+import '../../features/search/presentation/pages/search_page.dart';
 import '../../features/shop/data/models/shop_models.dart';
 import '../../features/shop/presentation/pages/balla_page.dart';
 import '../../features/shop/presentation/pages/balla_product_details_page.dart';
@@ -109,7 +119,10 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       // ── Protected routes ────────────────────────────────────────────────
       GoRoute(
         path: '/search',
-        builder: (_, _) => const Placeholder(child: Text('Search')),
+        builder: (context, state) => BlocProvider<SearchCubit>(
+          create: (context) => getIt<SearchCubit>(),
+          child: const SearchPage(),
+        ),
       ),
 
       // Matajir Mini-App (Isolated Cart)
@@ -169,6 +182,10 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
             builder: (context, state) => const BallaPage(),
             routes: [
               GoRoute(
+                path: 'create',
+                builder: (context, state) => const AddBallaPage(),
+              ),
+              GoRoute(
                 path: 'cart',
                 builder: (context, state) =>
                     CartPage(cartCubit: context.read<BallaCartCubit>()),
@@ -191,10 +208,90 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       ),
 
       // Mustamal Mini-App
-      GoRoute(path: '/mustamal', builder: (_, _) => const MustamalPage()),
+      GoRoute(
+        path: '/mustamal',
+        builder: (_, _) => const MustamalPage(),
+        routes: [
+          GoRoute(
+            path: 'create',
+            builder: (context, state) => const CreateMustamalPage(),
+          ),
+        ],
+      ),
 
       // Mazadat Mini-App
-      GoRoute(path: '/mazadat', builder: (_, _) => const MazadatPage()),
+      GoRoute(
+        path: '/mazadat',
+        builder: (_, _) => const MazadatPage(),
+        routes: [
+          GoRoute(
+            path: 'create',
+            builder: (_, _) => const CreateAuctionPage(),
+          ),
+          GoRoute(
+            path: 'bids',
+            builder: (_, _) => const ActiveBidsPage(),
+          ),
+          GoRoute(
+            path: 'won',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return AuctionWonPage(
+                itemTitle: extra['itemTitle'] as String? ?? '',
+                winningBid: extra['winningBid'] as int? ?? 0,
+                currency: extra['currency'] as String? ?? 'د.ع',
+                endTime: extra['endTime'] as DateTime? ?? DateTime.now(),
+                imageUrl: extra['imageUrl'] as String? ??
+                    'https://placehold.co/400x400/png',
+              );
+            },
+          ),
+          GoRoute(
+            path: 'lost',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return AuctionLostPage(
+                itemTitle: extra['itemTitle'] as String? ?? '',
+                closingPrice: extra['closingPrice'] as double? ?? 0,
+                winnerInitials: extra['winnerInitials'] as String? ?? '؟',
+                imageUrl: extra['imageUrl'] as String? ??
+                    'https://placehold.co/400x400/png',
+              );
+            },
+          ),
+          GoRoute(
+            path: 'settlement-confirm',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return SettlementConfirmReceiptPage(
+                itemTitle: extra['itemTitle'] as String? ?? '',
+                finalPrice: extra['finalPrice'] as double? ?? 0,
+                imageUrl: extra['imageUrl'] as String? ??
+                    'https://placehold.co/400x400/png',
+                transactionId: extra['transactionId'] as String? ?? '',
+                auctionId: extra['auctionId'] as String? ?? '',
+              );
+            },
+          ),
+          GoRoute(
+            path: 'second-chance',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return SecondChanceOfferPage(
+                auctionId: extra['auctionId'] as String? ?? '',
+                itemTitle: extra['itemTitle'] as String? ?? '',
+                lastBidPrice: extra['lastBidPrice'] as double? ?? 0,
+                imageUrl: extra['imageUrl'] as String? ??
+                    'https://placehold.co/400x400/png',
+                expiresAt: extra['expiresAt'] as DateTime? ??
+                    DateTime.now().add(const Duration(hours: 24)),
+                itemDescription:
+                    extra['itemDescription'] as String? ?? '',
+              );
+            },
+          ),
+        ],
+      ),
 
       // ── Main tabbed shell ───────────────────────────────────────────────
       StatefulShellRoute.indexedStack(

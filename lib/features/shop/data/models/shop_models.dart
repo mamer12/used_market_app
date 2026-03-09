@@ -96,6 +96,7 @@ abstract class ProductModel with _$ProductModel {
 
     /// 'piece' | 'kg' | 'bundle'
     @JsonKey(name: 'sales_unit') @Default('piece') String salesUnit,
+    String? city,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
   }) = _ProductModel;
@@ -117,4 +118,40 @@ abstract class AddProductRequest with _$AddProductRequest {
 
   factory AddProductRequest.fromJson(Map<String, dynamic> json) =>
       _$AddProductRequestFromJson(json);
+}
+
+@freezed
+abstract class CreateMustamalRequest with _$CreateMustamalRequest {
+  const factory CreateMustamalRequest({
+    required String title,
+    required String description,
+    required double price,
+    @JsonKey(name: 'category_id') required int categoryId,
+    required String condition,
+    required String city,
+    @Default([]) List<String> images,
+    @JsonKey(name: 'listing_type') @Default('fixed_price') String listingType,
+  }) = _CreateMustamalRequest;
+
+  factory CreateMustamalRequest.fromJson(Map<String, dynamic> json) =>
+      _$CreateMustamalRequestFromJson(json);
+}
+
+@freezed
+abstract class CreateBallaRequest with _$CreateBallaRequest {
+  const factory CreateBallaRequest({
+    required String title,
+    required String description,
+    required double price,
+    @JsonKey(name: 'category_id') required int categoryId,
+    required String condition,
+    required String city,
+    @Default([]) List<String> images,
+    @JsonKey(name: 'sales_unit') required String salesUnit,
+    required double weight,
+    @JsonKey(name: 'is_balla') @Default(true) bool isBalla,
+  }) = _CreateBallaRequest;
+
+  factory CreateBallaRequest.fromJson(Map<String, dynamic> json) =>
+      _$CreateBallaRequestFromJson(json);
 }

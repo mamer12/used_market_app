@@ -31,6 +31,7 @@ abstract class AuctionItemModel with _$AuctionItemModel {
     @Default('') String description,
     String? category,
     String? condition,
+    String? city,
     @Default([]) List<String> images,
   }) = _AuctionItemModel;
 
@@ -51,6 +52,7 @@ abstract class AuctionModel with _$AuctionModel {
     @Default('') String description,
     String? category,
     String? condition,
+    String? city,
     @Default([]) List<String> images,
 
     // Monetary fields — API sends as strings.
@@ -88,6 +90,7 @@ abstract class CreateAuctionRequest with _$CreateAuctionRequest {
     required String description,
     required String category,
     required String condition,
+    required String city,
     @JsonKey(name: 'start_price') required int startPrice,
     @JsonKey(name: 'min_bid_increment') required int minBidIncrement,
     @JsonKey(name: 'duration_hours') required int durationHours,
@@ -139,6 +142,7 @@ AuctionModel auctionFromApiResponse(Map<String, dynamic> json) {
     if (item.containsKey('images')) 'images': item['images'],
     if (item.containsKey('category')) 'category': item['category'],
     if (item.containsKey('condition')) 'condition': item['condition'],
+    if (item.containsKey('city')) 'city': item['city'],
   });
 }
 

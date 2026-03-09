@@ -15,6 +15,26 @@
             "flutterMode": "debug"
         },
         {
+            // MCP-enabled: exposes VM service on fixed ports so the
+            // flutter_inspector_mcp server can connect.
+            // Use this when you want AI tools to control/inspect the app.
+            "name": "Mustamal (DEV + MCP)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_dev.dart",
+            "args": [
+                "--flavor",
+                "development",
+                "--target",
+                "lib/main_dev.dart",
+                "--host-vmservice-port=8182",
+                "--dds-port=8181",
+                "--enable-vm-service",
+                "--disable-service-auth-codes"
+            ],
+            "flutterMode": "debug"
+        },
+        {
             // Use this config when running on a physical iPhone/Android.
             // Update DEV_HOST to your Mac's local IP (run: ifconfig | grep 192)
             "name": "Mustamal (DEV - Device)",

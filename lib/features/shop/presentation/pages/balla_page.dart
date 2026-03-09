@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/balla_cart_cubit.dart';
 import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
@@ -158,6 +159,24 @@ class _BallaPageState extends State<BallaPage> {
         ),
       ),
       actions: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20.r),
+            onTap: () => context.push('/balla/create'),
+            child: Container(
+              width: 40.w,
+              height: 40.w,
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.add_business_rounded,
+                color: AppTheme.ballaPurple,
+                size: 24.sp,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 8.w),
         BlocBuilder<BallaCartCubit, CartState>(
           builder: (ctx, cartState) {
             return Center(
@@ -260,8 +279,8 @@ class _BallaPageState extends State<BallaPage> {
       child: BlocBuilder<CategoryCubit, CategoryState>(
         builder: (context, state) {
           return state.map(
-            initial: (_) => const Center(child: CircularProgressIndicator()),
-            loading: (_) => const Center(child: CircularProgressIndicator()),
+            initial: (_) => const CategoryChipsSkeleton(),
+            loading: (_) => const CategoryChipsSkeleton(),
             error: (e) => Center(child: Text(e.message)),
             loaded: (loaded) {
               final categories = loaded.categories;
@@ -459,11 +478,7 @@ class _BallaPageState extends State<BallaPage> {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         if (state.isLoading && state.portal.balla.isEmpty) {
-          return const SliverFillRemaining(
-            child: Center(
-              child: CircularProgressIndicator(color: AppTheme.ballaPurple),
-            ),
-          );
+          return const BallaListSkeleton();
         }
 
         final items = state.portal.balla;

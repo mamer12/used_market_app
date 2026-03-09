@@ -315,7 +315,7 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const activeColor = AppTheme.primary; // Yellow — pops on white pill
-    const inactiveColor = Color(0xFF9E9E9E); // Medium grey — soft on white
+    const inactiveColor = AppTheme.textTertiary; // Warm grey — soft on white
 
     return GestureDetector(
       onTap: onTap,
@@ -411,7 +411,7 @@ class _PostActionSheet extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.background,
+        color: AppTheme.surfaceAlt,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
       ),
       padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, (safeBottom + 24).h),
@@ -423,7 +423,7 @@ class _PostActionSheet extends StatelessWidget {
             width: 40.w,
             height: 4.h,
             decoration: BoxDecoration(
-              color: AppTheme.inactive.withValues(alpha: 0.4),
+              color: AppTheme.divider,
               borderRadius: BorderRadius.circular(2.r),
             ),
           ),

@@ -74,8 +74,8 @@ class _ProductCard extends StatelessWidget {
               height: 160.w,
               width: 160.w,
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9), // slate-100
-                borderRadius: BorderRadius.circular(12.r),
+                color: AppTheme.shimmerBase,
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
               ),
               clipBehavior: Clip.antiAlias,
               child: Stack(
@@ -85,10 +85,10 @@ class _ProductCard extends StatelessWidget {
                     imageUrl: product.imageUrl,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
-                      color: AppTheme.inactive.withValues(alpha: 0.1),
+                      color: AppTheme.shimmerBase,
                     ),
                     errorWidget: (context, url, err) => Container(
-                      color: AppTheme.inactive.withValues(alpha: 0.1),
+                      color: AppTheme.shimmerBase,
                       child: const Icon(Icons.broken_image),
                     ),
                   ),
@@ -118,10 +118,10 @@ class _ProductCard extends StatelessWidget {
                           SizedBox(width: 4.w),
                           Text(
                             'BID',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.cairo(
                               color: Colors.white,
                               fontSize: 10.sp,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
@@ -134,19 +134,19 @@ class _ProductCard extends StatelessWidget {
             SizedBox(height: 8.h),
             Text(
               'ENDS IN 02:45', // Placeholder
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.cairo(
                 fontSize: 12.sp,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF64748B), // slate-500
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary,
               ),
             ),
             SizedBox(height: 2.h),
             Text(
               product.title,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.cairo(
                 fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF0F172A), // slate-900
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -154,9 +154,8 @@ class _ProductCard extends StatelessWidget {
             SizedBox(height: 2.h),
             Text(
               IqdFormatter.format(product.price),
-              style: GoogleFonts.cairo(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
+              style: AppTheme.priceStyle(
+                fontSize: 16.sp,
                 color: AppTheme.primary,
               ),
             ),
@@ -181,9 +180,9 @@ class _ProductCard extends StatelessWidget {
         width: 200.w,
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC), // slate-50
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: const Color(0xFFF1F5F9)), // slate-100
+          color: AppTheme.surfaceAlt,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,16 +192,16 @@ class _ProductCard extends StatelessWidget {
               height: 100.h,
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
               clipBehavior: Clip.antiAlias,
               child: CachedNetworkImage(
                 imageUrl: product.imageUrl,
                 fit: BoxFit.cover,
                 placeholder: (context, url) =>
-                    Container(color: AppTheme.inactive.withValues(alpha: 0.1)),
+                    Container(color: AppTheme.shimmerBase),
                 errorWidget: (context, url, err) => Container(
-                  color: AppTheme.inactive.withValues(alpha: 0.1),
+                  color: AppTheme.shimmerBase,
                   child: const Icon(Icons.broken_image),
                 ),
               ),
@@ -222,10 +221,10 @@ class _ProductCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'OFFICIAL STORE',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.cairo(
                       fontSize: 10.sp,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF94A3B8), // slate-400
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textTertiary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -236,10 +235,10 @@ class _ProductCard extends StatelessWidget {
             SizedBox(height: 4.h),
             Text(
               product.title,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.cairo(
                 fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF0F172A),
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -250,9 +249,8 @@ class _ProductCard extends StatelessWidget {
               children: [
                 Text(
                   IqdFormatter.format(product.price),
-                  style: GoogleFonts.cairo(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
+                  style: AppTheme.priceStyle(
+                    fontSize: 16.sp,
                     color: themeColor,
                   ),
                 ),
@@ -261,9 +259,9 @@ class _ProductCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
-                      color: const Color(0xFFE2E8F0),
-                    ), // slate-200
-                    borderRadius: BorderRadius.circular(6.r),
+                      color: AppTheme.divider,
+                    ),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
                   child: Icon(Icons.add_shopping_cart_rounded, size: 16.sp),
                 ),

@@ -249,18 +249,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 IqdFormatter.format(
                   widget.product.price,
                 ).replaceAll(' د.ع', ''),
-                style: GoogleFonts.spaceGrotesk(
+                style: AppTheme.priceStyle(
                   fontSize: 32.sp,
-                  fontWeight: FontWeight.w800,
                   color: AppTheme.matajirBlue,
                 ),
               ),
               SizedBox(width: 8.w),
               Text(
                 'د.ع',
-                style: GoogleFonts.cairo(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+                style: AppTheme.priceSuffixStyle(
                   color: AppTheme.matajirBlue.withValues(alpha: 0.8),
                 ),
               ),
@@ -275,18 +272,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return Container(
       margin: EdgeInsets.all(16.w),
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppTheme.cardDecoration,
       child: Row(
         children: [
           Container(
@@ -474,9 +460,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       child: Container(
         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.95),
-          border: Border(
-            top: BorderSide(color: AppTheme.inactive.withValues(alpha: 0.1)),
+          color: AppTheme.surfaceAlt.withValues(alpha: 0.95),
+          border: const Border(
+            top: BorderSide(color: AppTheme.divider),
           ),
           boxShadow: [
             BoxShadow(
@@ -505,12 +491,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.matajirBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(99.r),
-                  ),
+                  shape: const StadiumBorder(),
                   minimumSize: Size(double.infinity, 56.h),
-                  shadowColor: AppTheme.matajirBlue.withValues(alpha: 0.4),
-                  elevation: 8,
+                  elevation: 0,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

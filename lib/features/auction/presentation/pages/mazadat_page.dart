@@ -1,19 +1,32 @@
 import 'dart:async';
+import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/iqd_formatter.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../category/presentation/cubit/category_cubit.dart';
 import '../../../category/presentation/cubit/category_state.dart';
 import '../../data/models/auction_models.dart';
 import '../bloc/auctions_cubit.dart';
 import 'auction_live_page.dart';
+import 'mazadat_account_page.dart';
+import 'mazadat_watchlist_page.dart';
 
+/// مزادات — Auctions marketplace hub.
+///
+/// Warm "Iraqi Bazaar Modernism" design with featured banner,
+/// category chips, and large auction cards.
+///
+/// Based on Stitch Screen 8 (953e87ff).
 class MazadatPage extends StatefulWidget {
   const MazadatPage({super.key});
 
@@ -24,6 +37,7 @@ class MazadatPage extends StatefulWidget {
 class _MazadatPageState extends State<MazadatPage> {
   late final AuctionsCubit _cubit;
   late final CategoryCubit _categoryCubit;
+  int _selectedNavIndex = 0;
 
   @override
   void initState() {
@@ -32,14 +46,49 @@ class _MazadatPageState extends State<MazadatPage> {
     _categoryCubit = getIt<CategoryCubit>(param1: 'mazadat')..fetchCategories();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  /// Maps bottom nav index to IndexedStack index.
+  /// Nav: 0=Home, 1=Watchlist, 2=FAB, 3=Activity(push), 4=Account
+  /// Stack: 0=Home, 1=Watchlist, 2=Account
+  int _navToStackIndex(int navIndex) {
+    switch (navIndex) {
+      case 1:
+        return 1;
+      case 4:
+        return 2;
+      default:
+        return 0;
+    }
   }
 
-  String _formatIQD(num price) {
-    final formatted = NumberFormat('#,###', 'en_US').format(price.toInt());
-    return '$formatted دينار';
+  void _onNavTap(int index) {
+    HapticFeedback.selectionClick();
+    if (index == 2) {
+      _showCreateSheet();
+      return;
+    }
+    if (index == 3) {
+      context.push('/mazadat/bids');
+      return;
+    }
+    setState(() => _selectedNavIndex = index);
+  }
+
+  void _showCreateSheet() {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => _MazadatCreateSheet(
+        onLiveAuction: () {
+          Navigator.pop(ctx);
+          context.push('/mazadat/create');
+        },
+        onFixedProduct: () {
+          Navigator.pop(ctx);
+        },
+      ),
+    );
   }
 
   @override
@@ -50,247 +99,330 @@ class _MazadatPageState extends State<MazadatPage> {
         BlocProvider.value(value: _categoryCubit),
       ],
       child: Scaffold(
-        backgroundColor: const Color(0xFF121212), // Dark theme
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go('/');
-                        }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(8.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white,
-                          size: 18.sp,
-                        ),
+        backgroundColor: AppTheme.background,
+        body: Stack(
+          children: [
+            // ── Body Switcher ────────────────────────
+            IndexedStack(
+              index: _navToStackIndex(_selectedNavIndex),
+              children: [
+                // Tab 0: Home (marketplace)
+                SafeArea(
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+              // ── App Bar ────────────────────────────────
+              SliverAppBar(
+                backgroundColor: AppTheme.background,
+                elevation: 0,
+                pinned: true,
+                centerTitle: false,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp),
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/');
+                    }
+                  },
+                ),
+                title: Text(
+                  'سوق المزادات',
+                  style: GoogleFonts.cairo(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                actions: [
+                  // Wallet badge (from Stitch Screen 8)
+                  Container(
+                    margin: EdgeInsets.only(left: 16.w),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                    decoration: BoxDecoration(
+                      color: AppTheme.mazadGreen.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                      border: Border.all(
+                        color: AppTheme.mazadGreen.withValues(alpha: 0.2),
                       ),
                     ),
-                    SizedBox(width: 16.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        Icon(Icons.account_balance_wallet_rounded,
+                            color: AppTheme.mazadGreen, size: 18.sp),
+                        SizedBox(width: 6.w),
                         Text(
-                          'MAZADAT',
+                          '٤٥٠,٠٠٠ د.ع',
                           style: GoogleFonts.cairo(
-                            color: Colors.white,
-                            fontSize: 24.sp,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                            height: 1.1,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary,
                           ),
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              width: 6.w,
-                              height: 6.w,
-                              decoration: const BoxDecoration(
-                                color: Colors.redAccent,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            SizedBox(width: 6.w),
-                            Text(
-                              'LIVE AUCTIONS',
-                              style: GoogleFonts.inter(
-                                color: Colors.redAccent,
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
-                    const Spacer(),
-                    Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14.r),
-                      ),
-                      child: Icon(
-                        Icons.notifications_active_rounded,
-                        color: Colors.redAccent,
-                        size: 22.sp,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 4.w),
+                ],
               ),
 
-              // Filter Bar
-              SizedBox(
-                height: 44.h,
-                child: BlocBuilder<CategoryCubit, CategoryState>(
-                  builder: (context, state) {
-                    return state.map(
-                      initial: (_) => const SizedBox.shrink(),
-                      loading: (_) => const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                      error: (e) => Center(
-                        child: Text(
-                          e.message,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      loaded: (loaded) {
-                        final categories = loaded.categories;
-                        final hasBack = loaded.parentIdStack.isNotEmpty;
-                        final totalCount =
-                            categories.length + (hasBack ? 1 : 0);
+              // ── Featured Banner Hero ───────────────────
+              SliverToBoxAdapter(
+                child: _FeaturedBanner(),
+              ),
 
-                        return ListView.separated(
-                          padding: EdgeInsets.symmetric(horizontal: 20.w),
-                          scrollDirection: Axis.horizontal,
-                          itemCount: totalCount,
-                          separatorBuilder: (_, _) => SizedBox(width: 12.w),
-                          itemBuilder: (context, index) {
-                            if (hasBack && index == 0) {
-                              return GestureDetector(
+              // ── Sponsored Content (Stitch Screen 2) ────
+              SliverToBoxAdapter(
+                child: _SponsoredSection(cubit: _cubit),
+              ),
+
+              // ── View Toggle + Filter (Stitch Screen 2) ─
+              SliverToBoxAdapter(
+                child: _ViewToggleAndFilter(),
+              ),
+
+              // ── Category Chips ─────────────────────────
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 48.h,
+                  child: BlocBuilder<CategoryCubit, CategoryState>(
+                    builder: (context, state) {
+                      return state.map(
+                        initial: (_) => const SizedBox.shrink(),
+                        loading: (_) => const CategoryChipsSkeleton(),
+                        error: (e) => Center(
+                          child: Text(
+                            e.message,
+                            style:
+                                GoogleFonts.cairo(color: AppTheme.textSecondary),
+                          ),
+                        ),
+                        loaded: (loaded) {
+                          final cats = loaded.categories;
+                          final hasBack = loaded.parentIdStack.isNotEmpty;
+                          return ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: cats.length + (hasBack ? 1 : 0) + 1,
+                            separatorBuilder: (_, _) => SizedBox(width: 8.w),
+                            itemBuilder: (context, index) {
+                              // "All" chip
+                              if (index == 0 && !hasBack) {
+                                return _CategoryChip(
+                                  label: 'الكل',
+                                  isSelected: true,
+                                  onTap: () {},
+                                );
+                              }
+                              if (hasBack && index == 0) {
+                                return _CategoryChip(
+                                  label: 'رجوع',
+                                  isBack: true,
+                                  onTap: () => context
+                                      .read<CategoryCubit>()
+                                      .navigateBack(),
+                                );
+                              }
+                              final catIndex =
+                                  hasBack ? index - 1 : index - 1;
+                              if (catIndex < 0 || catIndex >= cats.length) {
+                                return const SizedBox.shrink();
+                              }
+                              final cat = cats[catIndex];
+                              return _CategoryChip(
+                                label: cat.nameAr,
                                 onTap: () => context
                                     .read<CategoryCubit>()
-                                    .navigateBack(),
-                                child: _buildCategoryChip(
-                                  label: 'رجوع',
-                                  isSelected: false,
-                                  isBack: true,
-                                ),
+                                    .drillDown(cat.id),
                               );
-                            }
-
-                            final catIndex = hasBack ? index - 1 : index;
-                            final category = categories[catIndex];
-
-                            return GestureDetector(
-                              onTap: () => context
-                                  .read<CategoryCubit>()
-                                  .drillDown(category.id),
-                              child: _buildCategoryChip(
-                                label: category.nameAr,
-                                isSelected: false,
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
-              SizedBox(height: 16.h),
 
-              // Body
-              Expanded(
-                child: BlocBuilder<AuctionsCubit, AuctionsState>(
-                  builder: (context, state) {
-                    if (state.isLoading && state.auctions.isEmpty) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.redAccent,
+              // ── "Hot Auctions Now" Header ──────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding:
+                      EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 12.h),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8.w,
+                        height: 8.w,
+                        decoration: const BoxDecoration(
+                          color: AppTheme.mazadGreen,
+                          shape: BoxShape.circle,
                         ),
-                      );
-                    }
-                    if (state.auctions.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.gavel,
-                              size: 80.sp,
-                              color: Colors.white24,
-                            ),
-                            SizedBox(height: 16.h),
-                            Text(
-                              'لا توجد مزادات نشطة حالياً',
-                              style: GoogleFonts.cairo(
-                                color: Colors.white54,
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          'مزادات ساخنة الآن',
+                          style: GoogleFonts.cairo(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.textPrimary,
+                          ),
                         ),
-                      );
-                    }
-                    return ListView.separated(
-                      padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 100.h),
-                      itemCount: state.auctions.length,
-                      separatorBuilder: (_, _) => SizedBox(height: 24.h),
-                      itemBuilder: (context, index) {
-                        return _AuctionMassiveCard(
-                          auction: state.auctions[index],
-                          formatIQD: _formatIQD,
-                        );
-                      },
-                    );
-                  },
+                      ),
+                      GestureDetector(
+                        onTap: () {},
+                        child: Text(
+                          'عرض الكل',
+                          style: GoogleFonts.cairo(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.mazadGreen,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
+
+              // ── Auction Cards ──────────────────────────
+              BlocBuilder<AuctionsCubit, AuctionsState>(
+                builder: (context, state) {
+                  if (state.isLoading && state.auctions.isEmpty) {
+                    return const AuctionListSkeleton();
+                  }
+                  if (state.auctions.isEmpty) {
+                    return SliverFillRemaining(child: _EmptyAuctions());
+                  }
+                  return SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => Padding(
+                          padding: EdgeInsets.only(bottom: 16.h),
+                          child:
+                              _AuctionCard(auction: state.auctions[index]),
+                        ),
+                        childCount: state.auctions.length,
+                      ),
+                    ),
+                  );
+                },
+              ),
+                ],
+              ),
+            ),
+            // Tab 1: Watchlist
+            const MazadatWatchlistPage(),
+            // Tab 4: Account (mapped to index 2 in IndexedStack)
+            const MazadatAccountPage(),
+          ],
         ),
+        // ── Mazadat Bottom Nav (Stitch Screen 8) ──
+        _MazadatBottomNav(
+          currentIndex: _selectedNavIndex,
+          onTap: _onNavTap,
+        ),
+      ],
+    ),
       ),
     );
   }
+}
 
-  Widget _buildCategoryChip({
-    required String label,
-    required bool isSelected,
-    bool isBack = false,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: isSelected
-            ? Colors.redAccent
-            : Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(
-          color: isSelected
-              ? Colors.redAccent
-              : Colors.white.withValues(alpha: 0.1),
-          width: 1.5,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+// ── Featured Banner (Stitch Screen 2: full-width hero) ──────────────────────
+class _FeaturedBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200.h,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          if (isBack) ...[
-            Icon(Icons.arrow_back_rounded, color: Colors.white, size: 14.sp),
-            SizedBox(width: 6.w),
-          ],
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.cairo(
-              color: isSelected
-                  ? Colors.white
-                  : Colors.white.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w900,
-              fontSize: 12.sp,
-              letterSpacing: 0.5,
+          // Background image placeholder
+          Container(color: AppTheme.shimmerBase),
+          // Gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.8),
+                  Colors.black.withValues(alpha: 0.1),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          // Content
+          Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Exclusive badge (Stitch: gold italic)
+                Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentYellow,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                  child: Text(
+                    'عرض حصري',
+                    style: GoogleFonts.cairo(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w900,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'مزاد الأرقام المميزة الليلة!',
+                  style: GoogleFonts.cairo(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    height: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Dot indicators
+          Positioned(
+            bottom: 16.h,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  height: 4.h,
+                  width: 24.w,
+                  decoration: BoxDecoration(
+                    color: AppTheme.mazadGreen,
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
+                ),
+                SizedBox(width: 6.w),
+                Container(
+                  height: 4.h,
+                  width: 8.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -299,16 +431,396 @@ class _MazadatPageState extends State<MazadatPage> {
   }
 }
 
-class _AuctionMassiveCard extends StatelessWidget {
-  final AuctionModel auction;
-  final String Function(num) formatIQD;
+// ── Sponsored Content Section (Stitch Screen 2) ────────────────────────────
+class _SponsoredSection extends StatelessWidget {
+  final AuctionsCubit cubit;
+  const _SponsoredSection({required this.cubit});
 
-  const _AuctionMassiveCard({required this.auction, required this.formatIQD});
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 24.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Row(
+            children: [
+              Icon(Icons.stars_rounded,
+                  color: AppTheme.mazadGreen, size: 14.sp),
+              SizedBox(width: 6.w),
+              Text(
+                'محتوى ممول',
+                style: GoogleFonts.cairo(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textTertiary,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 10.h),
+        SizedBox(
+          height: 100.h,
+          child: BlocBuilder<AuctionsCubit, AuctionsState>(
+            bloc: cubit,
+            builder: (context, state) {
+              final items = state.auctions.take(4).toList();
+              if (items.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                scrollDirection: Axis.horizontal,
+                itemCount: items.length,
+                separatorBuilder: (_, _) => SizedBox(width: 12.w),
+                itemBuilder: (_, index) =>
+                    _SponsoredCard(auction: items[index]),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SponsoredCard extends StatelessWidget {
+  final AuctionModel auction;
+  const _SponsoredCard({required this.auction});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = auction.images.isNotEmpty;
+    return Container(
+      width: 240.w,
+      padding: EdgeInsets.all(8.r),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: AppTheme.divider),
+      ),
+      child: Row(
+        children: [
+          // Thumbnail
+          Container(
+            width: 76.w,
+            height: double.infinity,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              color: AppTheme.shimmerBase,
+            ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (hasImage)
+                  CachedNetworkImage(
+                    imageUrl: auction.images.first,
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) =>
+                        Container(color: AppTheme.shimmerBase),
+                    errorWidget: (_, _, _) =>
+                        Container(color: AppTheme.shimmerBase),
+                  )
+                else
+                  Icon(Icons.gavel_rounded,
+                      size: 24.sp, color: AppTheme.shimmerHighlight),
+                // Time overlay
+                Positioned(
+                  top: 4.h,
+                  right: 4.w,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 5.w, vertical: 2.h),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: Text(
+                      '03:45',
+                      style: GoogleFonts.cairo(
+                        color: Colors.white,
+                        fontSize: 8.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 10.w),
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 6.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: AppTheme.mazadGreen.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        auction.category ?? 'إلكترونيات',
+                        style: GoogleFonts.cairo(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.mazadGreen,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      auction.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'يبدأ من',
+                      style: GoogleFonts.cairo(
+                        fontSize: 8.sp,
+                        color: AppTheme.textTertiary,
+                      ),
+                    ),
+                    Text(
+                      IqdFormatter.format(
+                        (auction.startPrice ?? auction.currentPrice ?? 0)
+                            .toDouble(),
+                      ),
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.success,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── View Toggle + Filter (Stitch Screen 2) ──────────────────────────────────
+class _ViewToggleAndFilter extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 4.h),
+      child: Row(
+        children: [
+          // View toggle
+          Container(
+            padding: EdgeInsets.all(4.r),
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 32.w,
+                  height: 32.w,
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceAlt,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: Icon(Icons.view_agenda_rounded,
+                      size: 16.sp, color: AppTheme.textPrimary),
+                ),
+                SizedBox(width: 2.w),
+                SizedBox(
+                  width: 32.w,
+                  height: 32.w,
+                  child: Icon(Icons.grid_view_rounded,
+                      size: 16.sp, color: AppTheme.textTertiary),
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+          // Sort & Filter button
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                  horizontal: 14.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: AppTheme.divider),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'ترتيب وتصفية',
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  SizedBox(width: 6.w),
+                  Icon(Icons.tune_rounded,
+                      size: 16.sp, color: AppTheme.textSecondary),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Category Chip ───────────────────────────────────────────────────────────
+class _CategoryChip extends StatelessWidget {
+  final String label;
+  final bool isBack;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _CategoryChip({
+    required this.label,
+    this.isBack = false,
+    this.isSelected = false,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.textPrimary : AppTheme.surfaceAlt,
+          borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+          border: Border.all(
+            color: isSelected ? AppTheme.textPrimary : AppTheme.divider,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isBack) ...[
+              Icon(Icons.arrow_back_rounded,
+                  color: AppTheme.textPrimary, size: 14.sp),
+              SizedBox(width: 4.w),
+            ],
+            Text(
+              label,
+              style: GoogleFonts.cairo(
+                color: isSelected ? Colors.white : AppTheme.textSecondary,
+                fontWeight: FontWeight.w600,
+                fontSize: 13.sp,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Empty State ─────────────────────────────────────────────────────────────
+class _EmptyAuctions extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(48.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80.w,
+              height: 80.w,
+              decoration: BoxDecoration(
+                color: AppTheme.mazadGreen.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.gavel_rounded,
+                size: 40.sp,
+                color: AppTheme.mazadGreen.withValues(alpha: 0.5),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'لا توجد مزادات نشطة حالياً',
+              style: GoogleFonts.cairo(
+                color: AppTheme.textSecondary,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              'تابعنا لتكون أول من يعرف عن المزادات الجديدة',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                color: AppTheme.textTertiary,
+                fontSize: 13.sp,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Auction Card (Stitch Screen 8 style) ────────────────────────────────────
+class _AuctionCard extends StatelessWidget {
+  final AuctionModel auction;
+
+  const _AuctionCard({required this.auction});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = auction.images.isNotEmpty;
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -317,7 +829,7 @@ class _AuctionMassiveCard extends StatelessWidget {
               title: auction.title,
               currentPrice: '${auction.currentPrice ?? 0}',
               currency: 'د.ع',
-              imageUrl: auction.images.isNotEmpty
+              imageUrl: hasImage
                   ? auction.images.first
                   : 'https://placehold.co/800x800/png',
             ),
@@ -325,178 +837,167 @@ class _AuctionMassiveCard extends StatelessWidget {
         );
       },
       child: Container(
-        height: 400.h,
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.circular(30.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          color: AppTheme.surfaceAlt,
+          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+          border: Border.all(color: AppTheme.divider, width: 2),
         ),
         clipBehavior: Clip.antiAlias,
-        child: Stack(
-          fit: StackFit.expand,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (auction.images.isNotEmpty)
-              Image.network(
-                auction.images.first,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(color: Colors.grey[900]),
-              )
-            else
-              Container(color: Colors.grey[900]),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    const Color(0xFF121212),
-                    const Color(0xFF121212).withValues(alpha: 0.8),
-                    const Color(0xFF121212).withValues(alpha: 0.2),
-                    Colors.black.withValues(alpha: 0.4),
-                  ],
-                  stops: const [0.0, 0.4, 0.7, 1.0],
-                ),
+            // ── Image Section (taller: 240h) ──
+            SizedBox(
+              height: 240.h,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (hasImage)
+                    CachedNetworkImage(
+                      imageUrl: auction.images.first,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) =>
+                          Container(color: AppTheme.shimmerBase),
+                      errorWidget: (_, _, _) =>
+                          Container(color: AppTheme.shimmerBase),
+                    )
+                  else
+                    Container(
+                      color: AppTheme.shimmerBase,
+                      child: Icon(Icons.gavel_rounded,
+                          size: 48.sp, color: AppTheme.shimmerHighlight),
+                    ),
+                  // Timer badge (top-right, dark pill with gold timer icon)
+                  Positioned(
+                    top: 16.h,
+                    right: 16.w,
+                    child: _CountdownPill(
+                        endTime: auction.endTime ?? DateTime.now()),
+                  ),
+                  // Favorite button (top-left, Stitch Screen 2)
+                  Positioned(
+                    top: 16.h,
+                    left: 16.w,
+                    child: GestureDetector(
+                      onTap: () => HapticFeedback.lightImpact(),
+                      child: Container(
+                        width: 34.w,
+                        height: 34.w,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: ClipOval(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                            child: Icon(
+                              Icons.favorite_border_rounded,
+                              color: Colors.white,
+                              size: 18.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Positioned(
-              top: 20.h,
-              left: 20.w,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 14.w,
-                    vertical: 8.h,
-                  ),
-                  color: Colors.black.withValues(alpha: 0.6),
-                  child: _GlowingCountdown(
-                    endTime: auction.endTime ?? DateTime.now(),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 24.h,
-              left: 24.w,
-              right: 24.w,
+            // ── Info Section ──
+            Padding(
+              padding: EdgeInsets.all(20.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(6.r),
-                        ),
-                        child: Text(
-                          'HOT',
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w900,
-                          ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              auction.title,
+                              style: GoogleFonts.cairo(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (auction.condition != null) ...[
+                              SizedBox(height: 4.h),
+                              Text(
+                                'الحالة: ${auction.condition}',
+                                style: GoogleFonts.cairo(
+                                  fontSize: 12.sp,
+                                  color: AppTheme.textTertiary,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'LIVE AUCTION',
-                        style: GoogleFonts.inter(
-                          color: Colors.white70,
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 12.h),
-                  Text(
-                    auction.title,
-                    style: GoogleFonts.cairo(
-                      color: Colors.white,
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w900,
-                      height: 1.1,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 20.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'CURRENT BID',
-                            style: GoogleFonts.inter(
-                              color: Colors.white54,
+                            'أعلى عطاء',
+                            style: GoogleFonts.cairo(
                               fontSize: 10.sp,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textTertiary,
                             ),
                           ),
                           Text(
-                            formatIQD(
-                              auction.currentPrice ?? auction.startPrice ?? 0,
+                            IqdFormatter.format(
+                              (auction.currentPrice ?? auction.startPrice ?? 0)
+                                  .toDouble(),
                             ),
-                            style: GoogleFonts.inter(
-                              color: Colors.greenAccent,
+                            style: AppTheme.priceStyle(
                               fontSize: 20.sp,
-                              fontWeight: FontWeight.w900,
+                              color: AppTheme.success,
                             ),
                           ),
                         ],
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 24.w,
-                          vertical: 14.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(16.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.redAccent.withValues(alpha: 0.4),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.gavel_rounded,
-                              color: Colors.white,
-                              size: 20.sp,
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              'BID NOW',
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
+                  ),
+                  SizedBox(height: 16.h),
+                  // Full-width bid button (Stitch pattern)
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    decoration: BoxDecoration(
+                      color: AppTheme.mazadGreen,
+                      borderRadius:
+                          BorderRadius.circular(AppTheme.radiusLg),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.mazadGreen.withValues(alpha: 0.25),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'زايد الآن',
+                          style: GoogleFonts.cairo(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Icon(Icons.trending_up_rounded,
+                            color: AppTheme.textPrimary, size: 20.sp),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -508,15 +1009,16 @@ class _AuctionMassiveCard extends StatelessWidget {
   }
 }
 
-class _GlowingCountdown extends StatefulWidget {
+// ── Countdown Pill ──────────────────────────────────────────────────────────
+class _CountdownPill extends StatefulWidget {
   final DateTime endTime;
-  const _GlowingCountdown({required this.endTime});
+  const _CountdownPill({required this.endTime});
 
   @override
-  State<_GlowingCountdown> createState() => _GlowingCountdownState();
+  State<_CountdownPill> createState() => _CountdownPillState();
 }
 
-class _GlowingCountdownState extends State<_GlowingCountdown> {
+class _CountdownPillState extends State<_CountdownPill> {
   late Timer _timer;
   Duration _timeLeft = Duration.zero;
 
@@ -543,34 +1045,347 @@ class _GlowingCountdownState extends State<_GlowingCountdown> {
 
   @override
   Widget build(BuildContext context) {
-    if (_timeLeft.isNegative || _timeLeft == Duration.zero) {
-      return Text(
-        'انتهى',
-        style: GoogleFonts.cairo(
-          color: Colors.redAccent,
-          fontWeight: FontWeight.bold,
-        ),
-      );
-    }
-    final h = _timeLeft.inHours;
+    final isExpired = _timeLeft == Duration.zero;
+    final h = _timeLeft.inHours.toString().padLeft(2, '0');
     final m = _timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = _timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0');
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.timer, color: Colors.redAccent, size: 14.sp),
-        SizedBox(width: 6.w),
-        Text(
-          '$h:$m:$s',
-          style: GoogleFonts.cairo(
-            color: Colors.redAccent,
-            fontWeight: FontWeight.w900,
-            fontSize: 14.sp,
-            letterSpacing: 1.5,
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.timer_rounded,
+              color: AppTheme.accentYellow, size: 14.sp),
+          SizedBox(width: 6.w),
+          Text(
+            isExpired ? 'انتهى' : '$h:$m:$s',
+            style: GoogleFonts.cairo(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 12.sp,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Mazadat Bottom Nav (Stitch Screen 8 pattern) ────────────────────────────
+class _MazadatBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const _MazadatBottomNav({
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.95),
+              border: Border(
+                top: BorderSide(
+                  color: AppTheme.divider.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _MazadatNavItem(
+                      icon: Icons.home_rounded,
+                      filledIcon: Icons.home_rounded,
+                      label: 'الرئيسية',
+                      isActive: currentIndex == 0,
+                      onTap: () => onTap(0),
+                    ),
+                    _MazadatNavItem(
+                      icon: Icons.visibility_outlined,
+                      filledIcon: Icons.visibility_rounded,
+                      label: 'المراقبة',
+                      isActive: currentIndex == 1,
+                      onTap: () => onTap(1),
+                    ),
+                    // ── Center FAB (Stitch: black circle + primary icon) ──
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 18.h),
+                      child: GestureDetector(
+                        onTap: () => onTap(2),
+                        child: Container(
+                          width: 60.w,
+                          height: 60.w,
+                          decoration: BoxDecoration(
+                            color: AppTheme.textPrimary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 4,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.add_rounded,
+                            color: AppTheme.mazadGreen,
+                            size: 30.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                    _MazadatNavItem(
+                      icon: Icons.history_rounded,
+                      filledIcon: Icons.history_rounded,
+                      label: 'نشاطي',
+                      isActive: currentIndex == 3,
+                      onTap: () => onTap(3),
+                    ),
+                    _MazadatNavItem(
+                      icon: Icons.person_outline_rounded,
+                      filledIcon: Icons.person_rounded,
+                      label: 'حسابي',
+                      isActive: currentIndex == 4,
+                      onTap: () => onTap(4),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+// ── Mazadat Nav Item ────────────────────────────────────────────────────────
+class _MazadatNavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData filledIcon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _MazadatNavItem({
+    required this.icon,
+    required this.filledIcon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isActive ? AppTheme.mazadGreen : AppTheme.inactive;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 56.w,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(isActive ? filledIcon : icon, color: color, size: 24.sp),
+            SizedBox(height: 2.h),
+            Text(
+              label,
+              style: GoogleFonts.cairo(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Create Action Bottom Sheet (Stitch Screen 8) ───────────────────────────
+class _MazadatCreateSheet extends StatelessWidget {
+  final VoidCallback onLiveAuction;
+  final VoidCallback onFixedProduct;
+
+  const _MazadatCreateSheet({
+    required this.onLiveAuction,
+    required this.onFixedProduct,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 80.h),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(32.r),
+        ),
+        border: Border(
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 48.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              Container(
+                margin: EdgeInsets.only(top: 12.h, bottom: 28.h),
+                width: 48.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: AppTheme.inactive,
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+              // Title
+              Text(
+                'ماذا تود أن تضيف؟',
+                style: GoogleFonts.cairo(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              SizedBox(height: 24.h),
+              // Options grid
+              Row(
+                children: [
+                  Expanded(
+                    child: _CreateOption(
+                      icon: Icons.bolt_rounded,
+                      label: 'إضافة مزاد مباشر',
+                      iconBgColor: AppTheme.mazadGreen.withValues(alpha: 0.12),
+                      iconColor: AppTheme.mazadGreen,
+                      onTap: onLiveAuction,
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: _CreateOption(
+                      icon: Icons.inventory_2_rounded,
+                      label: 'إضافة منتج ثابت',
+                      iconBgColor: AppTheme.surface,
+                      iconColor: AppTheme.textSecondary,
+                      onTap: onFixedProduct,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 28.h),
+              // Cancel
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'إلغاء',
+                    style: GoogleFonts.cairo(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Create Option Card ──────────────────────────────────────────────────────
+class _CreateOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color iconBgColor;
+  final Color iconColor;
+  final VoidCallback onTap;
+
+  const _CreateOption({
+    required this.icon,
+    required this.label,
+    required this.iconBgColor,
+    required this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        padding: EdgeInsets.all(24.w),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceAlt,
+          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+          border: Border.all(color: AppTheme.divider),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 60.w,
+              height: 60.w,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 28.sp),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

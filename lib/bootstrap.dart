@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mcp_toolkit/mcp_toolkit.dart';
 
 import 'core/config/flavor.dart';
 import 'core/di/injection.dart';
@@ -42,6 +43,17 @@ Future<void> bootstrap(
 
   configureDependencies();
   log.info('🚀 Bootstrapping with flavor: ${flavor.name}');
+
+  // ── MCP Toolkit (debug only) ────────────────────────
+  // Registers VM service extensions so the Flutter Inspector
+  // MCP server can take screenshots, read widget tree, etc.
+  assert(() {
+    MCPToolkitBinding.instance
+      ..initialize()
+      ..initializeFlutterToolkit();
+    log.info('🔌 MCP Toolkit initialized');
+    return true;
+  }());
 
   runApp(await builder());
 }

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AuctionItemModel {
 
- String get title; String get description; String? get category; String? get condition; List<String> get images;
+ String get title; String get description; String? get category; String? get condition; String? get city; List<String> get images;
 /// Create a copy of AuctionItemModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $AuctionItemModelCopyWith<AuctionItemModel> get copyWith => _$AuctionItemModelCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuctionItemModel&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&const DeepCollectionEquality().equals(other.images, images));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuctionItemModel&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other.images, images));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,description,category,condition,const DeepCollectionEquality().hash(images));
+int get hashCode => Object.hash(runtimeType,title,description,category,condition,city,const DeepCollectionEquality().hash(images));
 
 @override
 String toString() {
-  return 'AuctionItemModel(title: $title, description: $description, category: $category, condition: $condition, images: $images)';
+  return 'AuctionItemModel(title: $title, description: $description, category: $category, condition: $condition, city: $city, images: $images)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $AuctionItemModelCopyWith<$Res>  {
   factory $AuctionItemModelCopyWith(AuctionItemModel value, $Res Function(AuctionItemModel) _then) = _$AuctionItemModelCopyWithImpl;
 @useResult
 $Res call({
- String title, String description, String? category, String? condition, List<String> images
+ String title, String description, String? category, String? condition, String? city, List<String> images
 });
 
 
@@ -65,12 +65,13 @@ class _$AuctionItemModelCopyWithImpl<$Res>
 
 /// Create a copy of AuctionItemModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = null,Object? category = freezed,Object? condition = freezed,Object? images = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = null,Object? category = freezed,Object? condition = freezed,Object? city = freezed,Object? images = null,}) {
   return _then(_self.copyWith(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String?,condition: freezed == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String?,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String description,  String? category,  String? condition,  List<String> images)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String description,  String? category,  String? condition,  String? city,  List<String> images)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuctionItemModel() when $default != null:
-return $default(_that.title,_that.description,_that.category,_that.condition,_that.images);case _:
+return $default(_that.title,_that.description,_that.category,_that.condition,_that.city,_that.images);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.title,_that.description,_that.category,_that.condition,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String description,  String? category,  String? condition,  List<String> images)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String description,  String? category,  String? condition,  String? city,  List<String> images)  $default,) {final _that = this;
 switch (_that) {
 case _AuctionItemModel():
-return $default(_that.title,_that.description,_that.category,_that.condition,_that.images);case _:
+return $default(_that.title,_that.description,_that.category,_that.condition,_that.city,_that.images);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.title,_that.description,_that.category,_that.condition,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String description,  String? category,  String? condition,  List<String> images)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String description,  String? category,  String? condition,  String? city,  List<String> images)?  $default,) {final _that = this;
 switch (_that) {
 case _AuctionItemModel() when $default != null:
-return $default(_that.title,_that.description,_that.category,_that.condition,_that.images);case _:
+return $default(_that.title,_that.description,_that.category,_that.condition,_that.city,_that.images);case _:
   return null;
 
 }
@@ -213,13 +214,14 @@ return $default(_that.title,_that.description,_that.category,_that.condition,_th
 @JsonSerializable()
 
 class _AuctionItemModel implements AuctionItemModel {
-  const _AuctionItemModel({this.title = '', this.description = '', this.category, this.condition, final  List<String> images = const []}): _images = images;
+  const _AuctionItemModel({this.title = '', this.description = '', this.category, this.condition, this.city, final  List<String> images = const []}): _images = images;
   factory _AuctionItemModel.fromJson(Map<String, dynamic> json) => _$AuctionItemModelFromJson(json);
 
 @override@JsonKey() final  String title;
 @override@JsonKey() final  String description;
 @override final  String? category;
 @override final  String? condition;
+@override final  String? city;
  final  List<String> _images;
 @override@JsonKey() List<String> get images {
   if (_images is EqualUnmodifiableListView) return _images;
@@ -241,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuctionItemModel&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&const DeepCollectionEquality().equals(other._images, _images));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuctionItemModel&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other._images, _images));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,description,category,condition,const DeepCollectionEquality().hash(_images));
+int get hashCode => Object.hash(runtimeType,title,description,category,condition,city,const DeepCollectionEquality().hash(_images));
 
 @override
 String toString() {
-  return 'AuctionItemModel(title: $title, description: $description, category: $category, condition: $condition, images: $images)';
+  return 'AuctionItemModel(title: $title, description: $description, category: $category, condition: $condition, city: $city, images: $images)';
 }
 
 
@@ -261,7 +263,7 @@ abstract mixin class _$AuctionItemModelCopyWith<$Res> implements $AuctionItemMod
   factory _$AuctionItemModelCopyWith(_AuctionItemModel value, $Res Function(_AuctionItemModel) _then) = __$AuctionItemModelCopyWithImpl;
 @override @useResult
 $Res call({
- String title, String description, String? category, String? condition, List<String> images
+ String title, String description, String? category, String? condition, String? city, List<String> images
 });
 
 
@@ -278,12 +280,13 @@ class __$AuctionItemModelCopyWithImpl<$Res>
 
 /// Create a copy of AuctionItemModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = null,Object? category = freezed,Object? condition = freezed,Object? images = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = null,Object? category = freezed,Object? condition = freezed,Object? city = freezed,Object? images = null,}) {
   return _then(_AuctionItemModel(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String?,condition: freezed == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String?,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
@@ -297,7 +300,7 @@ as List<String>,
 mixin _$AuctionModel {
 
  String? get id;@JsonKey(name: 'item_id') String? get itemId;// Flattened from nested `item` object via custom fromJson below.
- String get title; String get description; String? get category; String? get condition; List<String> get images;// Monetary fields — API sends as strings.
+ String get title; String get description; String? get category; String? get condition; String? get city; List<String> get images;// Monetary fields — API sends as strings.
 @JsonKey(name: 'start_price')@_MoneyConverter() int? get startPrice;@JsonKey(name: 'current_price')@_MoneyConverter() int? get currentPrice;@JsonKey(name: 'min_bid_increment')@_MoneyConverter() int? get minBidIncrement;// Status
  String get status;@JsonKey(name: 'start_time') DateTime? get startTime;@JsonKey(name: 'end_time') DateTime? get endTime;@JsonKey(name: 'winner_id') String? get winnerId;// Live stream — empty string means no stream active
 @JsonKey(name: 'stream_url') String get streamUrl;
@@ -313,16 +316,16 @@ $AuctionModelCopyWith<AuctionModel> get copyWith => _$AuctionModelCopyWithImpl<A
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuctionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.itemId, itemId) || other.itemId == itemId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.startPrice, startPrice) || other.startPrice == startPrice)&&(identical(other.currentPrice, currentPrice) || other.currentPrice == currentPrice)&&(identical(other.minBidIncrement, minBidIncrement) || other.minBidIncrement == minBidIncrement)&&(identical(other.status, status) || other.status == status)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.winnerId, winnerId) || other.winnerId == winnerId)&&(identical(other.streamUrl, streamUrl) || other.streamUrl == streamUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuctionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.itemId, itemId) || other.itemId == itemId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.startPrice, startPrice) || other.startPrice == startPrice)&&(identical(other.currentPrice, currentPrice) || other.currentPrice == currentPrice)&&(identical(other.minBidIncrement, minBidIncrement) || other.minBidIncrement == minBidIncrement)&&(identical(other.status, status) || other.status == status)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.winnerId, winnerId) || other.winnerId == winnerId)&&(identical(other.streamUrl, streamUrl) || other.streamUrl == streamUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,itemId,title,description,category,condition,const DeepCollectionEquality().hash(images),startPrice,currentPrice,minBidIncrement,status,startTime,endTime,winnerId,streamUrl);
+int get hashCode => Object.hash(runtimeType,id,itemId,title,description,category,condition,city,const DeepCollectionEquality().hash(images),startPrice,currentPrice,minBidIncrement,status,startTime,endTime,winnerId,streamUrl);
 
 @override
 String toString() {
-  return 'AuctionModel(id: $id, itemId: $itemId, title: $title, description: $description, category: $category, condition: $condition, images: $images, startPrice: $startPrice, currentPrice: $currentPrice, minBidIncrement: $minBidIncrement, status: $status, startTime: $startTime, endTime: $endTime, winnerId: $winnerId, streamUrl: $streamUrl)';
+  return 'AuctionModel(id: $id, itemId: $itemId, title: $title, description: $description, category: $category, condition: $condition, city: $city, images: $images, startPrice: $startPrice, currentPrice: $currentPrice, minBidIncrement: $minBidIncrement, status: $status, startTime: $startTime, endTime: $endTime, winnerId: $winnerId, streamUrl: $streamUrl)';
 }
 
 
@@ -333,7 +336,7 @@ abstract mixin class $AuctionModelCopyWith<$Res>  {
   factory $AuctionModelCopyWith(AuctionModel value, $Res Function(AuctionModel) _then) = _$AuctionModelCopyWithImpl;
 @useResult
 $Res call({
- String? id,@JsonKey(name: 'item_id') String? itemId, String title, String description, String? category, String? condition, List<String> images,@JsonKey(name: 'start_price')@_MoneyConverter() int? startPrice,@JsonKey(name: 'current_price')@_MoneyConverter() int? currentPrice,@JsonKey(name: 'min_bid_increment')@_MoneyConverter() int? minBidIncrement, String status,@JsonKey(name: 'start_time') DateTime? startTime,@JsonKey(name: 'end_time') DateTime? endTime,@JsonKey(name: 'winner_id') String? winnerId,@JsonKey(name: 'stream_url') String streamUrl
+ String? id,@JsonKey(name: 'item_id') String? itemId, String title, String description, String? category, String? condition, String? city, List<String> images,@JsonKey(name: 'start_price')@_MoneyConverter() int? startPrice,@JsonKey(name: 'current_price')@_MoneyConverter() int? currentPrice,@JsonKey(name: 'min_bid_increment')@_MoneyConverter() int? minBidIncrement, String status,@JsonKey(name: 'start_time') DateTime? startTime,@JsonKey(name: 'end_time') DateTime? endTime,@JsonKey(name: 'winner_id') String? winnerId,@JsonKey(name: 'stream_url') String streamUrl
 });
 
 
@@ -350,7 +353,7 @@ class _$AuctionModelCopyWithImpl<$Res>
 
 /// Create a copy of AuctionModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? itemId = freezed,Object? title = null,Object? description = null,Object? category = freezed,Object? condition = freezed,Object? images = null,Object? startPrice = freezed,Object? currentPrice = freezed,Object? minBidIncrement = freezed,Object? status = null,Object? startTime = freezed,Object? endTime = freezed,Object? winnerId = freezed,Object? streamUrl = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? itemId = freezed,Object? title = null,Object? description = null,Object? category = freezed,Object? condition = freezed,Object? city = freezed,Object? images = null,Object? startPrice = freezed,Object? currentPrice = freezed,Object? minBidIncrement = freezed,Object? status = null,Object? startTime = freezed,Object? endTime = freezed,Object? winnerId = freezed,Object? streamUrl = null,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,itemId: freezed == itemId ? _self.itemId : itemId // ignore: cast_nullable_to_non_nullable
@@ -358,6 +361,7 @@ as String?,title: null == title ? _self.title : title // ignore: cast_nullable_t
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String?,condition: freezed == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String?,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
 as List<String>,startPrice: freezed == startPrice ? _self.startPrice : startPrice // ignore: cast_nullable_to_non_nullable
 as int?,currentPrice: freezed == currentPrice ? _self.currentPrice : currentPrice // ignore: cast_nullable_to_non_nullable
@@ -452,10 +456,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id, @JsonKey(name: 'item_id')  String? itemId,  String title,  String description,  String? category,  String? condition,  List<String> images, @JsonKey(name: 'start_price')@_MoneyConverter()  int? startPrice, @JsonKey(name: 'current_price')@_MoneyConverter()  int? currentPrice, @JsonKey(name: 'min_bid_increment')@_MoneyConverter()  int? minBidIncrement,  String status, @JsonKey(name: 'start_time')  DateTime? startTime, @JsonKey(name: 'end_time')  DateTime? endTime, @JsonKey(name: 'winner_id')  String? winnerId, @JsonKey(name: 'stream_url')  String streamUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id, @JsonKey(name: 'item_id')  String? itemId,  String title,  String description,  String? category,  String? condition,  String? city,  List<String> images, @JsonKey(name: 'start_price')@_MoneyConverter()  int? startPrice, @JsonKey(name: 'current_price')@_MoneyConverter()  int? currentPrice, @JsonKey(name: 'min_bid_increment')@_MoneyConverter()  int? minBidIncrement,  String status, @JsonKey(name: 'start_time')  DateTime? startTime, @JsonKey(name: 'end_time')  DateTime? endTime, @JsonKey(name: 'winner_id')  String? winnerId, @JsonKey(name: 'stream_url')  String streamUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuctionModel() when $default != null:
-return $default(_that.id,_that.itemId,_that.title,_that.description,_that.category,_that.condition,_that.images,_that.startPrice,_that.currentPrice,_that.minBidIncrement,_that.status,_that.startTime,_that.endTime,_that.winnerId,_that.streamUrl);case _:
+return $default(_that.id,_that.itemId,_that.title,_that.description,_that.category,_that.condition,_that.city,_that.images,_that.startPrice,_that.currentPrice,_that.minBidIncrement,_that.status,_that.startTime,_that.endTime,_that.winnerId,_that.streamUrl);case _:
   return orElse();
 
 }
@@ -473,10 +477,10 @@ return $default(_that.id,_that.itemId,_that.title,_that.description,_that.catego
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id, @JsonKey(name: 'item_id')  String? itemId,  String title,  String description,  String? category,  String? condition,  List<String> images, @JsonKey(name: 'start_price')@_MoneyConverter()  int? startPrice, @JsonKey(name: 'current_price')@_MoneyConverter()  int? currentPrice, @JsonKey(name: 'min_bid_increment')@_MoneyConverter()  int? minBidIncrement,  String status, @JsonKey(name: 'start_time')  DateTime? startTime, @JsonKey(name: 'end_time')  DateTime? endTime, @JsonKey(name: 'winner_id')  String? winnerId, @JsonKey(name: 'stream_url')  String streamUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id, @JsonKey(name: 'item_id')  String? itemId,  String title,  String description,  String? category,  String? condition,  String? city,  List<String> images, @JsonKey(name: 'start_price')@_MoneyConverter()  int? startPrice, @JsonKey(name: 'current_price')@_MoneyConverter()  int? currentPrice, @JsonKey(name: 'min_bid_increment')@_MoneyConverter()  int? minBidIncrement,  String status, @JsonKey(name: 'start_time')  DateTime? startTime, @JsonKey(name: 'end_time')  DateTime? endTime, @JsonKey(name: 'winner_id')  String? winnerId, @JsonKey(name: 'stream_url')  String streamUrl)  $default,) {final _that = this;
 switch (_that) {
 case _AuctionModel():
-return $default(_that.id,_that.itemId,_that.title,_that.description,_that.category,_that.condition,_that.images,_that.startPrice,_that.currentPrice,_that.minBidIncrement,_that.status,_that.startTime,_that.endTime,_that.winnerId,_that.streamUrl);case _:
+return $default(_that.id,_that.itemId,_that.title,_that.description,_that.category,_that.condition,_that.city,_that.images,_that.startPrice,_that.currentPrice,_that.minBidIncrement,_that.status,_that.startTime,_that.endTime,_that.winnerId,_that.streamUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -493,10 +497,10 @@ return $default(_that.id,_that.itemId,_that.title,_that.description,_that.catego
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id, @JsonKey(name: 'item_id')  String? itemId,  String title,  String description,  String? category,  String? condition,  List<String> images, @JsonKey(name: 'start_price')@_MoneyConverter()  int? startPrice, @JsonKey(name: 'current_price')@_MoneyConverter()  int? currentPrice, @JsonKey(name: 'min_bid_increment')@_MoneyConverter()  int? minBidIncrement,  String status, @JsonKey(name: 'start_time')  DateTime? startTime, @JsonKey(name: 'end_time')  DateTime? endTime, @JsonKey(name: 'winner_id')  String? winnerId, @JsonKey(name: 'stream_url')  String streamUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id, @JsonKey(name: 'item_id')  String? itemId,  String title,  String description,  String? category,  String? condition,  String? city,  List<String> images, @JsonKey(name: 'start_price')@_MoneyConverter()  int? startPrice, @JsonKey(name: 'current_price')@_MoneyConverter()  int? currentPrice, @JsonKey(name: 'min_bid_increment')@_MoneyConverter()  int? minBidIncrement,  String status, @JsonKey(name: 'start_time')  DateTime? startTime, @JsonKey(name: 'end_time')  DateTime? endTime, @JsonKey(name: 'winner_id')  String? winnerId, @JsonKey(name: 'stream_url')  String streamUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _AuctionModel() when $default != null:
-return $default(_that.id,_that.itemId,_that.title,_that.description,_that.category,_that.condition,_that.images,_that.startPrice,_that.currentPrice,_that.minBidIncrement,_that.status,_that.startTime,_that.endTime,_that.winnerId,_that.streamUrl);case _:
+return $default(_that.id,_that.itemId,_that.title,_that.description,_that.category,_that.condition,_that.city,_that.images,_that.startPrice,_that.currentPrice,_that.minBidIncrement,_that.status,_that.startTime,_that.endTime,_that.winnerId,_that.streamUrl);case _:
   return null;
 
 }
@@ -508,7 +512,7 @@ return $default(_that.id,_that.itemId,_that.title,_that.description,_that.catego
 @JsonSerializable()
 
 class _AuctionModel implements AuctionModel {
-  const _AuctionModel({this.id, @JsonKey(name: 'item_id') this.itemId, this.title = '', this.description = '', this.category, this.condition, final  List<String> images = const [], @JsonKey(name: 'start_price')@_MoneyConverter() this.startPrice, @JsonKey(name: 'current_price')@_MoneyConverter() this.currentPrice, @JsonKey(name: 'min_bid_increment')@_MoneyConverter() this.minBidIncrement, this.status = 'active', @JsonKey(name: 'start_time') this.startTime, @JsonKey(name: 'end_time') this.endTime, @JsonKey(name: 'winner_id') this.winnerId, @JsonKey(name: 'stream_url') this.streamUrl = ''}): _images = images;
+  const _AuctionModel({this.id, @JsonKey(name: 'item_id') this.itemId, this.title = '', this.description = '', this.category, this.condition, this.city, final  List<String> images = const [], @JsonKey(name: 'start_price')@_MoneyConverter() this.startPrice, @JsonKey(name: 'current_price')@_MoneyConverter() this.currentPrice, @JsonKey(name: 'min_bid_increment')@_MoneyConverter() this.minBidIncrement, this.status = 'active', @JsonKey(name: 'start_time') this.startTime, @JsonKey(name: 'end_time') this.endTime, @JsonKey(name: 'winner_id') this.winnerId, @JsonKey(name: 'stream_url') this.streamUrl = ''}): _images = images;
   factory _AuctionModel.fromJson(Map<String, dynamic> json) => _$AuctionModelFromJson(json);
 
 @override final  String? id;
@@ -518,6 +522,7 @@ class _AuctionModel implements AuctionModel {
 @override@JsonKey() final  String description;
 @override final  String? category;
 @override final  String? condition;
+@override final  String? city;
  final  List<String> _images;
 @override@JsonKey() List<String> get images {
   if (_images is EqualUnmodifiableListView) return _images;
@@ -550,16 +555,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuctionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.itemId, itemId) || other.itemId == itemId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.startPrice, startPrice) || other.startPrice == startPrice)&&(identical(other.currentPrice, currentPrice) || other.currentPrice == currentPrice)&&(identical(other.minBidIncrement, minBidIncrement) || other.minBidIncrement == minBidIncrement)&&(identical(other.status, status) || other.status == status)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.winnerId, winnerId) || other.winnerId == winnerId)&&(identical(other.streamUrl, streamUrl) || other.streamUrl == streamUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuctionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.itemId, itemId) || other.itemId == itemId)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.startPrice, startPrice) || other.startPrice == startPrice)&&(identical(other.currentPrice, currentPrice) || other.currentPrice == currentPrice)&&(identical(other.minBidIncrement, minBidIncrement) || other.minBidIncrement == minBidIncrement)&&(identical(other.status, status) || other.status == status)&&(identical(other.startTime, startTime) || other.startTime == startTime)&&(identical(other.endTime, endTime) || other.endTime == endTime)&&(identical(other.winnerId, winnerId) || other.winnerId == winnerId)&&(identical(other.streamUrl, streamUrl) || other.streamUrl == streamUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,itemId,title,description,category,condition,const DeepCollectionEquality().hash(_images),startPrice,currentPrice,minBidIncrement,status,startTime,endTime,winnerId,streamUrl);
+int get hashCode => Object.hash(runtimeType,id,itemId,title,description,category,condition,city,const DeepCollectionEquality().hash(_images),startPrice,currentPrice,minBidIncrement,status,startTime,endTime,winnerId,streamUrl);
 
 @override
 String toString() {
-  return 'AuctionModel(id: $id, itemId: $itemId, title: $title, description: $description, category: $category, condition: $condition, images: $images, startPrice: $startPrice, currentPrice: $currentPrice, minBidIncrement: $minBidIncrement, status: $status, startTime: $startTime, endTime: $endTime, winnerId: $winnerId, streamUrl: $streamUrl)';
+  return 'AuctionModel(id: $id, itemId: $itemId, title: $title, description: $description, category: $category, condition: $condition, city: $city, images: $images, startPrice: $startPrice, currentPrice: $currentPrice, minBidIncrement: $minBidIncrement, status: $status, startTime: $startTime, endTime: $endTime, winnerId: $winnerId, streamUrl: $streamUrl)';
 }
 
 
@@ -570,7 +575,7 @@ abstract mixin class _$AuctionModelCopyWith<$Res> implements $AuctionModelCopyWi
   factory _$AuctionModelCopyWith(_AuctionModel value, $Res Function(_AuctionModel) _then) = __$AuctionModelCopyWithImpl;
 @override @useResult
 $Res call({
- String? id,@JsonKey(name: 'item_id') String? itemId, String title, String description, String? category, String? condition, List<String> images,@JsonKey(name: 'start_price')@_MoneyConverter() int? startPrice,@JsonKey(name: 'current_price')@_MoneyConverter() int? currentPrice,@JsonKey(name: 'min_bid_increment')@_MoneyConverter() int? minBidIncrement, String status,@JsonKey(name: 'start_time') DateTime? startTime,@JsonKey(name: 'end_time') DateTime? endTime,@JsonKey(name: 'winner_id') String? winnerId,@JsonKey(name: 'stream_url') String streamUrl
+ String? id,@JsonKey(name: 'item_id') String? itemId, String title, String description, String? category, String? condition, String? city, List<String> images,@JsonKey(name: 'start_price')@_MoneyConverter() int? startPrice,@JsonKey(name: 'current_price')@_MoneyConverter() int? currentPrice,@JsonKey(name: 'min_bid_increment')@_MoneyConverter() int? minBidIncrement, String status,@JsonKey(name: 'start_time') DateTime? startTime,@JsonKey(name: 'end_time') DateTime? endTime,@JsonKey(name: 'winner_id') String? winnerId,@JsonKey(name: 'stream_url') String streamUrl
 });
 
 
@@ -587,7 +592,7 @@ class __$AuctionModelCopyWithImpl<$Res>
 
 /// Create a copy of AuctionModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? itemId = freezed,Object? title = null,Object? description = null,Object? category = freezed,Object? condition = freezed,Object? images = null,Object? startPrice = freezed,Object? currentPrice = freezed,Object? minBidIncrement = freezed,Object? status = null,Object? startTime = freezed,Object? endTime = freezed,Object? winnerId = freezed,Object? streamUrl = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? itemId = freezed,Object? title = null,Object? description = null,Object? category = freezed,Object? condition = freezed,Object? city = freezed,Object? images = null,Object? startPrice = freezed,Object? currentPrice = freezed,Object? minBidIncrement = freezed,Object? status = null,Object? startTime = freezed,Object? endTime = freezed,Object? winnerId = freezed,Object? streamUrl = null,}) {
   return _then(_AuctionModel(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,itemId: freezed == itemId ? _self.itemId : itemId // ignore: cast_nullable_to_non_nullable
@@ -595,6 +600,7 @@ as String?,title: null == title ? _self.title : title // ignore: cast_nullable_t
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String?,condition: freezed == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String?,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
 as List<String>,startPrice: freezed == startPrice ? _self.startPrice : startPrice // ignore: cast_nullable_to_non_nullable
 as int?,currentPrice: freezed == currentPrice ? _self.currentPrice : currentPrice // ignore: cast_nullable_to_non_nullable
@@ -615,7 +621,7 @@ as String,
 /// @nodoc
 mixin _$CreateAuctionRequest {
 
- String get title; String get description; String get category; String get condition;@JsonKey(name: 'start_price') int get startPrice;@JsonKey(name: 'min_bid_increment') int get minBidIncrement;@JsonKey(name: 'duration_hours') int get durationHours; List<String> get images;@JsonKey(name: 'stream_url') String? get streamUrl;
+ String get title; String get description; String get category; String get condition; String get city;@JsonKey(name: 'start_price') int get startPrice;@JsonKey(name: 'min_bid_increment') int get minBidIncrement;@JsonKey(name: 'duration_hours') int get durationHours; List<String> get images;@JsonKey(name: 'stream_url') String? get streamUrl;
 /// Create a copy of CreateAuctionRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -628,16 +634,16 @@ $CreateAuctionRequestCopyWith<CreateAuctionRequest> get copyWith => _$CreateAuct
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateAuctionRequest&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.startPrice, startPrice) || other.startPrice == startPrice)&&(identical(other.minBidIncrement, minBidIncrement) || other.minBidIncrement == minBidIncrement)&&(identical(other.durationHours, durationHours) || other.durationHours == durationHours)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.streamUrl, streamUrl) || other.streamUrl == streamUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateAuctionRequest&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&(identical(other.startPrice, startPrice) || other.startPrice == startPrice)&&(identical(other.minBidIncrement, minBidIncrement) || other.minBidIncrement == minBidIncrement)&&(identical(other.durationHours, durationHours) || other.durationHours == durationHours)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.streamUrl, streamUrl) || other.streamUrl == streamUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,description,category,condition,startPrice,minBidIncrement,durationHours,const DeepCollectionEquality().hash(images),streamUrl);
+int get hashCode => Object.hash(runtimeType,title,description,category,condition,city,startPrice,minBidIncrement,durationHours,const DeepCollectionEquality().hash(images),streamUrl);
 
 @override
 String toString() {
-  return 'CreateAuctionRequest(title: $title, description: $description, category: $category, condition: $condition, startPrice: $startPrice, minBidIncrement: $minBidIncrement, durationHours: $durationHours, images: $images, streamUrl: $streamUrl)';
+  return 'CreateAuctionRequest(title: $title, description: $description, category: $category, condition: $condition, city: $city, startPrice: $startPrice, minBidIncrement: $minBidIncrement, durationHours: $durationHours, images: $images, streamUrl: $streamUrl)';
 }
 
 
@@ -648,7 +654,7 @@ abstract mixin class $CreateAuctionRequestCopyWith<$Res>  {
   factory $CreateAuctionRequestCopyWith(CreateAuctionRequest value, $Res Function(CreateAuctionRequest) _then) = _$CreateAuctionRequestCopyWithImpl;
 @useResult
 $Res call({
- String title, String description, String category, String condition,@JsonKey(name: 'start_price') int startPrice,@JsonKey(name: 'min_bid_increment') int minBidIncrement,@JsonKey(name: 'duration_hours') int durationHours, List<String> images,@JsonKey(name: 'stream_url') String? streamUrl
+ String title, String description, String category, String condition, String city,@JsonKey(name: 'start_price') int startPrice,@JsonKey(name: 'min_bid_increment') int minBidIncrement,@JsonKey(name: 'duration_hours') int durationHours, List<String> images,@JsonKey(name: 'stream_url') String? streamUrl
 });
 
 
@@ -665,12 +671,13 @@ class _$CreateAuctionRequestCopyWithImpl<$Res>
 
 /// Create a copy of CreateAuctionRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = null,Object? category = null,Object? condition = null,Object? startPrice = null,Object? minBidIncrement = null,Object? durationHours = null,Object? images = null,Object? streamUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? description = null,Object? category = null,Object? condition = null,Object? city = null,Object? startPrice = null,Object? minBidIncrement = null,Object? durationHours = null,Object? images = null,Object? streamUrl = freezed,}) {
   return _then(_self.copyWith(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String,startPrice: null == startPrice ? _self.startPrice : startPrice // ignore: cast_nullable_to_non_nullable
 as int,minBidIncrement: null == minBidIncrement ? _self.minBidIncrement : minBidIncrement // ignore: cast_nullable_to_non_nullable
 as int,durationHours: null == durationHours ? _self.durationHours : durationHours // ignore: cast_nullable_to_non_nullable
@@ -761,10 +768,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String description,  String category,  String condition, @JsonKey(name: 'start_price')  int startPrice, @JsonKey(name: 'min_bid_increment')  int minBidIncrement, @JsonKey(name: 'duration_hours')  int durationHours,  List<String> images, @JsonKey(name: 'stream_url')  String? streamUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  String description,  String category,  String condition,  String city, @JsonKey(name: 'start_price')  int startPrice, @JsonKey(name: 'min_bid_increment')  int minBidIncrement, @JsonKey(name: 'duration_hours')  int durationHours,  List<String> images, @JsonKey(name: 'stream_url')  String? streamUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreateAuctionRequest() when $default != null:
-return $default(_that.title,_that.description,_that.category,_that.condition,_that.startPrice,_that.minBidIncrement,_that.durationHours,_that.images,_that.streamUrl);case _:
+return $default(_that.title,_that.description,_that.category,_that.condition,_that.city,_that.startPrice,_that.minBidIncrement,_that.durationHours,_that.images,_that.streamUrl);case _:
   return orElse();
 
 }
@@ -782,10 +789,10 @@ return $default(_that.title,_that.description,_that.category,_that.condition,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String description,  String category,  String condition, @JsonKey(name: 'start_price')  int startPrice, @JsonKey(name: 'min_bid_increment')  int minBidIncrement, @JsonKey(name: 'duration_hours')  int durationHours,  List<String> images, @JsonKey(name: 'stream_url')  String? streamUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  String description,  String category,  String condition,  String city, @JsonKey(name: 'start_price')  int startPrice, @JsonKey(name: 'min_bid_increment')  int minBidIncrement, @JsonKey(name: 'duration_hours')  int durationHours,  List<String> images, @JsonKey(name: 'stream_url')  String? streamUrl)  $default,) {final _that = this;
 switch (_that) {
 case _CreateAuctionRequest():
-return $default(_that.title,_that.description,_that.category,_that.condition,_that.startPrice,_that.minBidIncrement,_that.durationHours,_that.images,_that.streamUrl);case _:
+return $default(_that.title,_that.description,_that.category,_that.condition,_that.city,_that.startPrice,_that.minBidIncrement,_that.durationHours,_that.images,_that.streamUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -802,10 +809,10 @@ return $default(_that.title,_that.description,_that.category,_that.condition,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String description,  String category,  String condition, @JsonKey(name: 'start_price')  int startPrice, @JsonKey(name: 'min_bid_increment')  int minBidIncrement, @JsonKey(name: 'duration_hours')  int durationHours,  List<String> images, @JsonKey(name: 'stream_url')  String? streamUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  String description,  String category,  String condition,  String city, @JsonKey(name: 'start_price')  int startPrice, @JsonKey(name: 'min_bid_increment')  int minBidIncrement, @JsonKey(name: 'duration_hours')  int durationHours,  List<String> images, @JsonKey(name: 'stream_url')  String? streamUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _CreateAuctionRequest() when $default != null:
-return $default(_that.title,_that.description,_that.category,_that.condition,_that.startPrice,_that.minBidIncrement,_that.durationHours,_that.images,_that.streamUrl);case _:
+return $default(_that.title,_that.description,_that.category,_that.condition,_that.city,_that.startPrice,_that.minBidIncrement,_that.durationHours,_that.images,_that.streamUrl);case _:
   return null;
 
 }
@@ -817,13 +824,14 @@ return $default(_that.title,_that.description,_that.category,_that.condition,_th
 @JsonSerializable()
 
 class _CreateAuctionRequest implements CreateAuctionRequest {
-  const _CreateAuctionRequest({required this.title, required this.description, required this.category, required this.condition, @JsonKey(name: 'start_price') required this.startPrice, @JsonKey(name: 'min_bid_increment') required this.minBidIncrement, @JsonKey(name: 'duration_hours') required this.durationHours, final  List<String> images = const [], @JsonKey(name: 'stream_url') this.streamUrl}): _images = images;
+  const _CreateAuctionRequest({required this.title, required this.description, required this.category, required this.condition, required this.city, @JsonKey(name: 'start_price') required this.startPrice, @JsonKey(name: 'min_bid_increment') required this.minBidIncrement, @JsonKey(name: 'duration_hours') required this.durationHours, final  List<String> images = const [], @JsonKey(name: 'stream_url') this.streamUrl}): _images = images;
   factory _CreateAuctionRequest.fromJson(Map<String, dynamic> json) => _$CreateAuctionRequestFromJson(json);
 
 @override final  String title;
 @override final  String description;
 @override final  String category;
 @override final  String condition;
+@override final  String city;
 @override@JsonKey(name: 'start_price') final  int startPrice;
 @override@JsonKey(name: 'min_bid_increment') final  int minBidIncrement;
 @override@JsonKey(name: 'duration_hours') final  int durationHours;
@@ -849,16 +857,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateAuctionRequest&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.startPrice, startPrice) || other.startPrice == startPrice)&&(identical(other.minBidIncrement, minBidIncrement) || other.minBidIncrement == minBidIncrement)&&(identical(other.durationHours, durationHours) || other.durationHours == durationHours)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.streamUrl, streamUrl) || other.streamUrl == streamUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateAuctionRequest&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.city, city) || other.city == city)&&(identical(other.startPrice, startPrice) || other.startPrice == startPrice)&&(identical(other.minBidIncrement, minBidIncrement) || other.minBidIncrement == minBidIncrement)&&(identical(other.durationHours, durationHours) || other.durationHours == durationHours)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.streamUrl, streamUrl) || other.streamUrl == streamUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,description,category,condition,startPrice,minBidIncrement,durationHours,const DeepCollectionEquality().hash(_images),streamUrl);
+int get hashCode => Object.hash(runtimeType,title,description,category,condition,city,startPrice,minBidIncrement,durationHours,const DeepCollectionEquality().hash(_images),streamUrl);
 
 @override
 String toString() {
-  return 'CreateAuctionRequest(title: $title, description: $description, category: $category, condition: $condition, startPrice: $startPrice, minBidIncrement: $minBidIncrement, durationHours: $durationHours, images: $images, streamUrl: $streamUrl)';
+  return 'CreateAuctionRequest(title: $title, description: $description, category: $category, condition: $condition, city: $city, startPrice: $startPrice, minBidIncrement: $minBidIncrement, durationHours: $durationHours, images: $images, streamUrl: $streamUrl)';
 }
 
 
@@ -869,7 +877,7 @@ abstract mixin class _$CreateAuctionRequestCopyWith<$Res> implements $CreateAuct
   factory _$CreateAuctionRequestCopyWith(_CreateAuctionRequest value, $Res Function(_CreateAuctionRequest) _then) = __$CreateAuctionRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String title, String description, String category, String condition,@JsonKey(name: 'start_price') int startPrice,@JsonKey(name: 'min_bid_increment') int minBidIncrement,@JsonKey(name: 'duration_hours') int durationHours, List<String> images,@JsonKey(name: 'stream_url') String? streamUrl
+ String title, String description, String category, String condition, String city,@JsonKey(name: 'start_price') int startPrice,@JsonKey(name: 'min_bid_increment') int minBidIncrement,@JsonKey(name: 'duration_hours') int durationHours, List<String> images,@JsonKey(name: 'stream_url') String? streamUrl
 });
 
 
@@ -886,12 +894,13 @@ class __$CreateAuctionRequestCopyWithImpl<$Res>
 
 /// Create a copy of CreateAuctionRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = null,Object? category = null,Object? condition = null,Object? startPrice = null,Object? minBidIncrement = null,Object? durationHours = null,Object? images = null,Object? streamUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? description = null,Object? category = null,Object? condition = null,Object? city = null,Object? startPrice = null,Object? minBidIncrement = null,Object? durationHours = null,Object? images = null,Object? streamUrl = freezed,}) {
   return _then(_CreateAuctionRequest(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String,startPrice: null == startPrice ? _self.startPrice : startPrice // ignore: cast_nullable_to_non_nullable
 as int,minBidIncrement: null == minBidIncrement ? _self.minBidIncrement : minBidIncrement // ignore: cast_nullable_to_non_nullable
 as int,durationHours: null == durationHours ? _self.durationHours : durationHours // ignore: cast_nullable_to_non_nullable

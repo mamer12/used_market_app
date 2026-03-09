@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
 
 class MustamalPage extends StatefulWidget {
@@ -98,7 +99,7 @@ class _MustamalPageState extends State<MustamalPage> {
                         size: 20.sp,
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () => context.push('/mustamal/create'),
                   ),
                   SizedBox(width: 12.w),
                 ],
@@ -153,13 +154,7 @@ class _MustamalPageState extends State<MustamalPage> {
               BlocBuilder<HomeCubit, HomeState>(
                 builder: (context, state) {
                   if (state.isLoading && state.portal.mustamal.isEmpty) {
-                    return const SliverFillRemaining(
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: AppTheme.secondary,
-                        ),
-                      ),
-                    );
+                    return const SliverProductGridSkeleton();
                   }
 
                   final items = state.portal.mustamal;

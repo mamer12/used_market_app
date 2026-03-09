@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 
+/// Alternative bidding page — warm theme.
 class BiddingPage extends StatefulWidget {
   final String auctionId;
   final String imageUrl;
@@ -42,7 +44,6 @@ class _BiddingPageState extends State<BiddingPage>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    // Mock initial bids
     _bids.addAll([
       {
         'name': 'أحمد محمد',
@@ -64,6 +65,7 @@ class _BiddingPageState extends State<BiddingPage>
   }
 
   void _placeBid(double increment) {
+    HapticFeedback.mediumImpact();
     setState(() {
       _currentBid += increment;
       _bids.insert(0, {
@@ -78,7 +80,7 @@ class _BiddingPageState extends State<BiddingPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF140F23),
+      backgroundColor: AppTheme.background,
       body: Stack(children: [_buildContent(), _buildHeader()]),
       bottomNavigationBar: _buildBottomControls(context),
     );
@@ -97,7 +99,7 @@ class _BiddingPageState extends State<BiddingPage>
               top: MediaQuery.of(context).padding.top + 8.h,
               bottom: 8.h,
             ),
-            color: const Color(0xFF140F23).withValues(alpha: 0.8),
+            color: AppTheme.background.withValues(alpha: 0.85),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
@@ -109,16 +111,12 @@ class _BiddingPageState extends State<BiddingPage>
                       width: 40.w,
                       height: 40.w,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
+                        color: AppTheme.surface,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
+                        border: Border.all(color: AppTheme.divider),
                       ),
-                      child: const Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Colors.white,
-                      ),
+                      child: const Icon(Icons.arrow_forward_rounded,
+                          color: AppTheme.textPrimary),
                     ),
                   ),
                   Row(
@@ -126,12 +124,12 @@ class _BiddingPageState extends State<BiddingPage>
                       Container(
                         width: 8.w,
                         height: 8.w,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.mazadRed,
+                        decoration: BoxDecoration(
+                          color: AppTheme.mazadGreen,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.mazadRed,
+                              color: AppTheme.mazadGreen.withValues(alpha: 0.4),
                               blurRadius: 4,
                               spreadRadius: 1,
                             ),
@@ -144,7 +142,7 @@ class _BiddingPageState extends State<BiddingPage>
                         style: GoogleFonts.cairo(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                     ],
@@ -152,15 +150,12 @@ class _BiddingPageState extends State<BiddingPage>
                   Container(
                     width: 40.w,
                     height: 40.w,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                    decoration: const BoxDecoration(
+                      color: AppTheme.surface,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.share_outlined,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    child: const Icon(Icons.share_outlined,
+                        color: AppTheme.textPrimary, size: 20),
                   ),
                 ],
               ),
@@ -179,7 +174,7 @@ class _BiddingPageState extends State<BiddingPage>
           _buildAuctionItemCard(),
           _buildCountdownSection(),
           _buildBidHistory(),
-          SizedBox(height: 180.h), // Footer spacing
+          SizedBox(height: 180.h),
         ],
       ),
     );
@@ -189,15 +184,11 @@ class _BiddingPageState extends State<BiddingPage>
     return Container(
       margin: EdgeInsets.all(16.w),
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
+      decoration: AppTheme.cardDecoration,
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             child: CachedNetworkImage(
               imageUrl: widget.imageUrl,
               width: 80.w,
@@ -215,7 +206,7 @@ class _BiddingPageState extends State<BiddingPage>
                   style: GoogleFonts.cairo(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppTheme.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -225,15 +216,14 @@ class _BiddingPageState extends State<BiddingPage>
                   'أعلى مزايدة حالية',
                   style: GoogleFonts.cairo(
                     fontSize: 11.sp,
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: AppTheme.textTertiary,
                   ),
                 ),
                 Text(
                   IqdFormatter.format(_currentBid),
-                  style: GoogleFonts.spaceGrotesk(
+                  style: AppTheme.priceStyle(
                     fontSize: 18.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.primary,
+                    color: AppTheme.mazadGreen,
                   ),
                 ),
               ],
@@ -253,17 +243,17 @@ class _BiddingPageState extends State<BiddingPage>
           padding: EdgeInsets.symmetric(vertical: 24.h),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppTheme.mazadRed.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(20.r),
+            color: AppTheme.mazadGreenSurface,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
             border: Border.all(
-              color: AppTheme.mazadRed.withValues(
-                alpha: 0.2 + (_glowController.value * 0.3),
+              color: AppTheme.mazadGreen.withValues(
+                alpha: 0.15 + (_glowController.value * 0.2),
               ),
             ),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.mazadRed.withValues(
-                  alpha: 0.1 * _glowController.value,
+                color: AppTheme.mazadGreen.withValues(
+                  alpha: 0.06 * _glowController.value,
                 ),
                 blurRadius: 20,
                 spreadRadius: 5,
@@ -277,25 +267,15 @@ class _BiddingPageState extends State<BiddingPage>
                 style: GoogleFonts.cairo(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.mazadRed,
+                  color: AppTheme.mazadGreen,
                 ),
               ),
               SizedBox(height: 8.h),
               Text(
                 '02:45:12',
-                style: GoogleFonts.spaceGrotesk(
+                style: AppTheme.priceStyle(
                   fontSize: 48.sp,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: 4,
-                  shadows: [
-                    Shadow(
-                      color: AppTheme.mazadRed.withValues(
-                        alpha: 0.5 * _glowController.value,
-                      ),
-                      blurRadius: 10,
-                    ),
-                  ],
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -311,8 +291,9 @@ class _BiddingPageState extends State<BiddingPage>
       padding: EdgeInsets.all(16.w),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20.r),
+        color: AppTheme.surfaceAlt,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: AppTheme.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,7 +303,7 @@ class _BiddingPageState extends State<BiddingPage>
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppTheme.textSecondary,
             ),
           ),
           SizedBox(height: 16.h),
@@ -330,10 +311,8 @@ class _BiddingPageState extends State<BiddingPage>
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _bids.length,
-            separatorBuilder: (context, index) => Divider(
-              color: Colors.white.withValues(alpha: 0.05),
-              height: 24.h,
-            ),
+            separatorBuilder: (context, index) =>
+                Divider(color: AppTheme.divider, height: 24.h),
             itemBuilder: (context, index) {
               final bid = _bids[index];
               final isMe = bid['isMe'] == true;
@@ -344,8 +323,8 @@ class _BiddingPageState extends State<BiddingPage>
                     height: 32.w,
                     decoration: BoxDecoration(
                       color: isMe
-                          ? AppTheme.primary
-                          : Colors.white.withValues(alpha: 0.1),
+                          ? AppTheme.mazadGreen.withValues(alpha: 0.2)
+                          : AppTheme.surface,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -353,7 +332,7 @@ class _BiddingPageState extends State<BiddingPage>
                           ? Icons.person_rounded
                           : Icons.person_outline_rounded,
                       size: 16.sp,
-                      color: isMe ? Colors.black : Colors.white,
+                      color: isMe ? AppTheme.mazadGreen : AppTheme.textTertiary,
                     ),
                   ),
                   SizedBox(width: 12.w),
@@ -366,14 +345,16 @@ class _BiddingPageState extends State<BiddingPage>
                           style: GoogleFonts.cairo(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.bold,
-                            color: isMe ? AppTheme.primary : Colors.white,
+                            color: isMe
+                                ? AppTheme.mazadGreen
+                                : AppTheme.textPrimary,
                           ),
                         ),
                         Text(
                           bid['time'],
                           style: GoogleFonts.cairo(
                             fontSize: 10.sp,
-                            color: Colors.white.withValues(alpha: 0.4),
+                            color: AppTheme.textTertiary,
                           ),
                         ),
                       ],
@@ -381,10 +362,9 @@ class _BiddingPageState extends State<BiddingPage>
                   ),
                   Text(
                     IqdFormatter.format(bid['amount']),
-                    style: GoogleFonts.spaceGrotesk(
+                    style: AppTheme.priceStyle(
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                 ],
@@ -399,42 +379,47 @@ class _BiddingPageState extends State<BiddingPage>
   Widget _buildBottomControls(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFF140F23).withValues(alpha: 0.95),
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-        ),
+      decoration: const BoxDecoration(
+        color: AppTheme.surfaceAlt,
+        border: Border(top: BorderSide(color: AppTheme.divider)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
-              _buildIncrementButton('+250k', 250000),
+              _buildIncrementButton('+250K', 250000),
               SizedBox(width: 8.w),
-              _buildIncrementButton('+500k', 500000),
+              _buildIncrementButton('+500K', 500000),
               SizedBox(width: 8.w),
               _buildIncrementButton('+1M', 1000000),
             ],
           ),
           SizedBox(height: 16.h),
-          ElevatedButton(
-            onPressed: () => _placeBid(250000),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.mazadRed,
-              minimumSize: Size(double.infinity, 56.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.r),
+          GestureDetector(
+            onTap: () => _placeBid(250000),
+            child: Container(
+              width: double.infinity,
+              height: 56.h,
+              decoration: BoxDecoration(
+                color: AppTheme.mazadGreen,
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.mazadGreen.withValues(alpha: 0.35),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              shadowColor: AppTheme.mazadRed.withValues(alpha: 0.4),
-              elevation: 8,
-            ),
-            child: Text(
-              'زايد الآن',
-              style: GoogleFonts.cairo(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+              alignment: Alignment.center,
+              child: Text(
+                'زايد الآن',
+                style: GoogleFonts.cairo(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ),
           ),
@@ -450,17 +435,17 @@ class _BiddingPageState extends State<BiddingPage>
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+            border: Border.all(color: AppTheme.divider),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
-            style: GoogleFonts.spaceGrotesk(
+            style: GoogleFonts.cairo(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppTheme.textPrimary,
             ),
           ),
         ),

@@ -8,6 +8,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/services/log_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../shop/data/datasources/order_remote_data_source.dart';
@@ -131,13 +132,7 @@ class _NotificationsPageState extends State<NotificationsPage>
                         return CustomScrollView(
                           slivers: [
                             if (state.isLoading && state.orders.isEmpty)
-                              const SliverFillRemaining(
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: AppTheme.primary,
-                                  ),
-                                ),
-                              )
+                              const OrdersListSkeleton()
                             else if (state.error != null &&
                                 state.orders.isEmpty)
                               SliverFillRemaining(
