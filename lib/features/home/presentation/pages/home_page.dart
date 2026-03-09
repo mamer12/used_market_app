@@ -11,6 +11,7 @@ import '../../../auction/data/models/auction_models.dart';
 import '../../../auction/presentation/pages/auction_live_page.dart';
 import '../../../shop/data/models/shop_models.dart';
 import '../../data/models/portal_models.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/curated_carousel.dart';
 import '../widgets/home_components.dart';
@@ -51,9 +52,7 @@ class _HomePageState extends State<HomePage> {
           child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
               if (state.isLoading && state.liveAuctions.isEmpty) {
-                return const Center(
-                  child: CircularProgressIndicator(color: AppTheme.primary),
-                );
+                return const HomePageSkeleton();
               }
 
               if (state.error != null && state.liveAuctions.isEmpty) {

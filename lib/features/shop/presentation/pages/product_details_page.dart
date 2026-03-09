@@ -461,7 +461,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h),
         decoration: BoxDecoration(
           color: AppTheme.surfaceAlt.withValues(alpha: 0.95),
-          border: Border(
+          border: const Border(
             top: BorderSide(color: AppTheme.divider),
           ),
           boxShadow: [

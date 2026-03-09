@@ -1,0 +1,292 @@
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "industrial-black": "#121212",
+                        "accent-yellow": "#FFD700",
+                    },
+                    fontFamily: {
+                        "sans": ["Cairo", "Inter", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .pulsing-dot {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: .3; }
+            }
+        }
+    </style>
+<style>
+        #bottom-sheet-toggle:checked ~ #bottom-sheet-container {
+            display: flex;
+        }
+        #bottom-sheet-toggle:checked ~ #bottom-sheet-container #bottom-sheet-content {
+            transform: translateY(0);
+        }#grid-view:checked ~ main #listing-container {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            padding-inline: 16px;
+        }
+        #grid-view:checked ~ main #listing-container > div {
+            border-radius: 1.5rem;
+        }
+        #grid-view:checked ~ main #listing-container .listing-image-container {
+            height: 140px;
+        }
+        #grid-view:checked ~ main #listing-container .listing-content {
+            padding: 12px;
+        }
+        #grid-view:checked ~ main #listing-container h4 {
+            font-size: 0.875rem;
+            height: 2.5rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        #grid-view:checked ~ main #listing-container .bid-label {
+            display: none;
+        }
+        #grid-view:checked ~ main #listing-container .bid-value {
+            font-size: 0.9rem;
+        }
+        #grid-view:checked ~ main #listing-container .action-btn {
+            padding-block: 8px;
+            font-size: 0.75rem;
+            border-radius: 12px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-slate-50 text-industrial-black min-h-screen font-sans">
+<input class="hidden" id="bottom-sheet-toggle" type="checkbox"/>
+<input checked="" class="hidden" id="list-view" name="view-toggle" type="radio"/>
+<input class="hidden" id="grid-view" name="view-toggle" type="radio"/>
+<div class="max-w-[430px] mx-auto bg-white min-h-screen flex flex-col relative shadow-2xl">
+<header class="flex items-center justify-between px-4 py-3 sticky top-0 bg-white/90 backdrop-blur-md z-30 border-b border-slate-100">
+<button class="size-10 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100">
+<span class="material-symbols-outlined text-xl">arrow_forward</span>
+</button>
+<h1 class="text-lg font-extrabold tracking-tight">سوق المزادات</h1>
+<div class="flex items-center bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full gap-2">
+<span class="material-symbols-outlined text-lg text-green-600 fill-1">account_balance_wallet</span>
+<span class="text-sm font-bold text-green-700">٤٥٠,٠٠٠ د.ع</span>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto pb-32">
+<section class="relative w-full h-52 overflow-hidden">
+<div class="flex w-full h-full">
+<div class="relative w-full h-full flex-shrink-0">
+<img alt="Featured Auction" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7L-u9fft9VjVrmtpQUZogxGca3a73ReZl2BQ4Pj-eNbj0oWjZpSrmyykLxgcRwaYiecuHsIXaJjb5O2IMyG1NaFIsnvjMRvpcJihgEP-3zwbuFeBY7Iqvzd5xH10JIg5MTbzw1VGs1rM21S8lYaZ6cGG2-GbJixpPdI4cALImmBfSfpZKJ69swPq1V0PRKQBXHI8VawXEp4ndvXHfs67-EhJXjzTcQRW3EL3UoTtMvTjJaFzbzQ25wApWXgC57_7UIilJBN9Qhz4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-6">
+<span class="bg-accent-yellow text-black text-[10px] font-black px-2 py-0.5 w-fit rounded mb-2 uppercase italic">عرض حصري</span>
+<h2 class="text-white text-xl font-black leading-tight drop-shadow-md">مزاد الأرقام المميزة الليلة!</h2>
+</div>
+</div>
+</div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+<div class="h-1 w-6 bg-primary rounded-full"></div>
+<div class="h-1 w-2 bg-white/50 rounded-full"></div>
+</div>
+</section>
+<section class="mt-6">
+<div class="px-4 mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">stars</span>
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">محتوى ممول</h3>
+</div>
+<div class="flex gap-3 overflow-x-auto px-4 no-scrollbar">
+<div class="min-w-[240px] bg-slate-50 rounded-2xl p-2 border border-slate-100 flex gap-3">
+<div class="size-20 rounded-xl overflow-hidden flex-shrink-0 relative">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7L-u9fft9VjVrmtpQUZogxGca3a73ReZl2BQ4Pj-eNbj0oWjZpSrmyykLxgcRwaYiecuHsIXaJjb5O2IMyG1NaFIsnvjMRvpcJihgEP-3zwbuFeBY7Iqvzd5xH10JIg5MTbzw1VGs1rM21S8lYaZ6cGG2-GbJixpPdI4cALImmBfSfpZKJ69swPq1V0PRKQBXHI8VawXEp4ndvXHfs67-EhJXjzTcQRW3EL3UoTtMvTjJaFzbzQ25wApWXgC57_7UIilJBN9Qhz4"/>
+<div class="absolute top-1 right-1 bg-black/60 backdrop-blur-sm text-[8px] text-white px-1.5 py-0.5 rounded-md font-bold">03:45</div>
+</div>
+<div class="flex flex-col justify-between py-1">
+<div>
+<span class="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">إلكترونيات</span>
+<h4 class="text-xs font-bold mt-1 line-clamp-1">ساعة كلاسيكية فاخرة</h4>
+</div>
+<div class="flex flex-col">
+<span class="text-[8px] text-slate-400">يبدأ من</span>
+<span class="text-xs font-black text-green-600">١,٢٠٠,٠٠٠ د.ع</span>
+</div>
+</div>
+</div>
+<div class="min-w-[240px] bg-slate-50 rounded-2xl p-2 border border-slate-100 flex gap-3">
+<div class="size-20 rounded-xl overflow-hidden flex-shrink-0 relative">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGOCtpVAXFn2uuUHlbdT-HMm_I1MUh_TI5xHnTlqQG2sVSNj3ks4ZnRGRNkEzxVdBHMitOOIilRNjpclLfhbUBvSNXeYrD1NvSuDl216PSliph-q5msufE6EUS1ZVu2a5gT0vnQTNIVL4L0hli3TKJ-0cr7UVWIDTZI4XxSLoGQUVcVPprxEulya1rvuVmyS6i54foZyWF4VEu_ptynuWK1f5xWxGU-hWVHYpNbXZ-gGL2-gM7BtbA-VjX2tp6hvXa98T6y4I6Bec"/>
+<div class="absolute top-1 right-1 bg-black/60 backdrop-blur-sm text-[8px] text-white px-1.5 py-0.5 rounded-md font-bold">12:09</div>
+</div>
+<div class="flex flex-col justify-between py-1">
+<div>
+<span class="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">جيمنج</span>
+<h4 class="text-xs font-bold mt-1 line-clamp-1">لابتوب مخصص للألعاب</h4>
+</div>
+<div class="flex flex-col">
+<span class="text-[8px] text-slate-400">يبدأ من</span>
+<span class="text-xs font-black text-green-600">٨٥٠,٠٠٠ د.ع</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="mt-8 px-4 flex items-center justify-between">
+<div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+<label class="cursor-pointer size-8 flex items-center justify-center rounded-lg transition-colors peer-checked:bg-white peer-checked:shadow-sm" for="list-view">
+<span class="material-symbols-outlined text-lg">view_agenda</span>
+</label>
+<label class="cursor-pointer size-8 flex items-center justify-center rounded-lg transition-colors peer-checked:bg-white peer-checked:shadow-sm" for="grid-view">
+<span class="material-symbols-outlined text-lg">grid_view</span>
+</label>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+<span>ترتيب وتصفية</span>
+<span class="material-symbols-outlined text-sm">tune</span>
+</button>
+</div>
+</section>
+<section class="mt-4">
+<div class="flex gap-3 overflow-x-auto px-4 no-scrollbar">
+<button class="bg-industrial-black text-white px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-lg shadow-black/10">الكل</button>
+<button class="bg-white text-slate-500 px-5 py-2 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap hover:bg-slate-50">سيارات</button>
+<button class="bg-white text-slate-500 px-5 py-2 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap hover:bg-slate-50">أرقام VIP</button>
+<button class="bg-white text-slate-500 px-5 py-2 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap hover:bg-slate-50">إلكترونيات</button>
+</div>
+</section>
+<div class="mt-6 space-y-4 px-4" id="listing-container">
+<div class="bg-white border border-slate-100 rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+<div class="relative h-56 w-full listing-image-container">
+<img alt="Item" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7L-u9fft9VjVrmtpQUZogxGca3a73ReZl2BQ4Pj-eNbj0oWjZpSrmyykLxgcRwaYiecuHsIXaJjb5O2IMyG1NaFIsnvjMRvpcJihgEP-3zwbuFeBY7Iqvzd5xH10JIg5MTbzw1VGs1rM21S8lYaZ6cGG2-GbJixpPdI4cALImmBfSfpZKJ69swPq1V0PRKQBXHI8VawXEp4ndvXHfs67-EhJXjzTcQRW3EL3UoTtMvTjJaFzbzQ25wApWXgC57_7UIilJBN9Qhz4"/>
+<div class="absolute top-4 right-4 bg-black/70 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5 border border-white/20">
+<span class="material-symbols-outlined text-xs text-accent-yellow">timer</span>
+                            ٠٠:٠٣:٤٥
+                        </div>
+<div class="absolute top-4 left-4 size-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</div>
+</div>
+<div class="p-4 listing-content flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="text-base font-bold leading-tight">ساعة كلاسيكية فاخرة - إصدار خاص</h4>
+<p class="text-slate-400 text-[10px] mt-1">بواسطة: متجر النخبة</p>
+</div>
+<div class="text-left">
+<span class="text-[9px] text-slate-400 block font-bold uppercase bid-label">أعلى عطاء</span>
+<span class="text-lg font-black text-green-600 bid-value">١,٢٠٠,٠٠٠ د.ع</span>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-industrial-black font-black py-3 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] action-btn">
+                            زايد الآن
+                            <span class="material-symbols-outlined text-lg">trending_up</span>
+</button>
+</div>
+</div>
+<div class="bg-white border border-slate-100 rounded-[1.5rem] overflow-hidden shadow-sm">
+<div class="relative h-56 w-full listing-image-container">
+<img alt="Item" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGOCtpVAXFn2uuUHlbdT-HMm_I1MUh_TI5xHnTlqQG2sVSNj3ks4ZnRGRNkEzxVdBHMitOOIilRNjpclLfhbUBvSNXeYrD1NvSuDl216PSliph-q5msufE6EUS1ZVu2a5gT0vnQTNIVL4L0hli3TKJ-0cr7UVWIDTZI4XxSLoGQUVcVPprxEulya1rvuVmyS6i54foZyWF4VEu_ptynuWK1f5xWxGU-hWVHYpNbXZ-gGL2-gM7BtbA-VjX2tp6hvXa98T6y4I6Bec"/>
+<div class="absolute top-4 right-4 bg-black/70 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5 border border-white/20">
+<span class="material-symbols-outlined text-xs text-accent-yellow">timer</span>
+                            ٠٠:١٢:٠٩
+                        </div>
+<div class="absolute top-4 left-4 size-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</div>
+</div>
+<div class="p-4 listing-content flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="text-base font-bold leading-tight">جهاز لابتوب مخصص للألعاب</h4>
+<p class="text-slate-400 text-[10px] mt-1">بواسطة: تيك هب</p>
+</div>
+<div class="text-left">
+<span class="text-[9px] text-slate-400 block font-bold uppercase bid-label">أعلى عطاء</span>
+<span class="text-lg font-black text-green-600 bid-value">٨٥٠,٠٠٠ د.ع</span>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-industrial-black font-black py-3 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] action-btn">
+                            زايد الآن
+                            <span class="material-symbols-outlined text-lg">trending_up</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed inset-0 z-50 hidden items-end justify-center px-4 bg-black/40 backdrop-blur-[2px] max-w-[430px] mx-auto" id="bottom-sheet-container">
+<label class="absolute inset-0 cursor-default" for="bottom-sheet-toggle"></label>
+<div class="w-full bg-white/95 backdrop-blur-2xl rounded-t-[2.5rem] p-6 pb-12 shadow-2xl border-x border-t border-white/40 translate-y-full transition-transform duration-300 ease-out z-[60] relative" id="bottom-sheet-content">
+<div class="w-12 h-1 bg-slate-300 rounded-full mx-auto mb-8"></div>
+<h3 class="text-xl font-extrabold text-center mb-6">ماذا تود أن تضيف؟</h3>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex flex-col items-center justify-center gap-4 bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 group active:scale-95 transition-all">
+<div class="size-16 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-colors">
+<span class="material-symbols-outlined text-3xl font-bold">bolt</span>
+</div>
+<span class="text-xs font-bold">إضافة مزاد مباشر</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-4 bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 group active:scale-95 transition-all">
+<div class="size-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-industrial-black group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl font-bold">inventory_2</span>
+</div>
+<span class="text-xs font-bold">إضافة منتج ثابت</span>
+</button>
+</div>
+<label class="mt-8 flex items-center justify-center w-full py-4 bg-slate-100 rounded-2xl text-slate-500 font-bold cursor-pointer" for="bottom-sheet-toggle">
+                    إلغاء
+                </label>
+</div>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white/95 backdrop-blur-xl border-t border-slate-100 px-2 py-3 pb-8 z-40 flex justify-around items-end">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">home</span>
+<span class="text-[10px] font-bold">الرئيسية</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">visibility</span>
+<span class="text-[10px] font-bold">المراقبة</span>
+</a>
+<div class="relative -top-6">
+<label class="size-16 bg-industrial-black text-primary rounded-full flex items-center justify-center shadow-xl shadow-black/20 border-4 border-white active:scale-95 transition-transform cursor-pointer" for="bottom-sheet-toggle">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</label>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-bold">نشاطي</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold">حسابي</span>
+</a>
+</nav>
+</div>
+
+</body></html>

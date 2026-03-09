@@ -269,8 +269,9 @@ class _AddBallaPageState extends State<AddBallaPage> {
                                   type: TextInputType.number,
                                   validator: (v) {
                                     if (v!.isEmpty) return 'مطلوب';
-                                    if (int.tryParse(v) == null)
+                                    if (int.tryParse(v) == null) {
                                       return 'أرقام فقط';
+                                    }
                                     return null;
                                   },
                                 ),

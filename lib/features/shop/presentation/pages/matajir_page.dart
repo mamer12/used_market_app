@@ -11,6 +11,7 @@ import '../../../../core/utils/iqd_formatter.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../category/presentation/cubit/category_cubit.dart';
 import '../../../category/presentation/cubit/category_state.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
@@ -177,9 +178,9 @@ class _MatajirPageState extends State<MatajirPage> {
                       builder: (context, state) {
                         return state.map(
                           initial: (_) =>
-                              const Center(child: CircularProgressIndicator()),
+                              const CategoryItemsSkeleton(),
                           loading: (_) =>
-                              const Center(child: CircularProgressIndicator()),
+                              const CategoryItemsSkeleton(),
                           error: (e) => Center(child: Text(e.message)),
                           loaded: (loaded) {
                             if (loaded.categories.isEmpty) {
@@ -348,13 +349,7 @@ class _MatajirPageState extends State<MatajirPage> {
                 BlocBuilder<HomeCubit, HomeState>(
                   builder: (context, state) {
                     if (state.isLoading && state.shopCatalogs.isEmpty) {
-                      return const SliverFillRemaining(
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: AppTheme.matajirBlue,
-                          ),
-                        ),
-                      );
+                      return const MatajirCatalogSkeleton();
                     }
 
                     if (state.shopCatalogs.isEmpty) {

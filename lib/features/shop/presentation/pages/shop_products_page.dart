@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../../data/models/shop_models.dart';
 import '../bloc/shops_cubit.dart';
 
@@ -60,11 +61,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
             BlocBuilder<ShopProductsCubit, ShopProductsState>(
               builder: (context, state) {
                 if (state.isLoading && state.products.isEmpty) {
-                  return const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(color: AppTheme.primary),
-                    ),
-                  );
+                  return const SliverProductGridSkeleton();
                 }
 
                 if (state.error != null && state.products.isEmpty) {

@@ -302,7 +302,7 @@ class BentoGrid extends StatelessWidget {
                   title: labels['mazad'] ?? 'Mazad',
                   tagline: 'Live Bidding',
                   icon: Icons.gavel_rounded,
-                  color: AppTheme.mazadRed,
+                  color: AppTheme.mazadGreen,
                   onTap: () => onTileTap('mazad'),
                 ),
               ),

@@ -1,0 +1,152 @@
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "background-light": "#f8faf9",
+                        "surface-light": "#ffffff",
+                        "accent-red": "#ff3b30",
+                    },
+                    fontFamily: {
+                        "sans": ["Cairo", "Inter", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .glass-footer {
+                @apply bg-white/80 backdrop-blur-xl border-t border-white/20;
+            }
+            .pulse-live {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: .5; }
+            }
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light text-slate-900 min-h-screen">
+<div class="max-w-[430px] mx-auto bg-background-light min-h-screen flex flex-col relative pb-48">
+<header class="flex items-center justify-between p-4 sticky top-0 bg-background-light/80 backdrop-blur-md z-30">
+<button class="size-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-slate-100">
+<span class="material-symbols-outlined text-slate-900">arrow_forward</span>
+</button>
+<div class="flex flex-col items-center">
+<h1 class="text-sm font-bold text-slate-900">مزاد مباشر</h1>
+<span class="text-[10px] text-slate-500 font-medium">رقم المزاد: #8829</span>
+</div>
+<button class="size-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-slate-100">
+<span class="material-symbols-outlined text-slate-900">share</span>
+</button>
+</header>
+<main class="flex-1 overflow-y-auto">
+<section class="relative px-4">
+<div class="relative aspect-square rounded-3xl overflow-hidden shadow-xl border-4 border-white">
+<img alt="Auction Item" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7L-u9fft9VjVrmtpQUZogxGca3a73ReZl2BQ4Pj-eNbj0oWjZpSrmyykLxgcRwaYiecuHsIXaJjb5O2IMyG1NaFIsnvjMRvpcJihgEP-3zwbuFeBY7Iqvzd5xH10JIg5MTbzw1VGs1rM21S8lYaZ6cGG2-GbJixpPdI4cALImmBfSfpZKJ69swPq1V0PRKQBXHI8VawXEp4ndvXHfs67-EhJXjzTcQRW3EL3UoTtMvTjJaFzbzQ25wApWXgC57_7UIilJBN9Qhz4"/>
+<div class="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
+<span class="h-1.5 w-6 bg-primary rounded-full"></span>
+<span class="h-1.5 w-1.5 bg-white/50 rounded-full"></span>
+<span class="h-1.5 w-1.5 bg-white/50 rounded-full"></span>
+</div>
+</div>
+</section>
+<section class="px-4 mt-6 flex items-center justify-between gap-3">
+<div class="flex items-center gap-2 bg-accent-red/10 px-3 py-1.5 rounded-full border border-accent-red/20">
+<span class="size-2 bg-accent-red rounded-full pulse-live"></span>
+<span class="text-accent-red text-xs font-extrabold tracking-tight">مباشر</span>
+</div>
+<div class="flex items-center gap-1.5 text-slate-500">
+<span class="material-symbols-outlined text-lg">visibility</span>
+<span class="text-xs font-bold">١,٤٣٢ مشاهد</span>
+</div>
+<div class="flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-sm text-primary">timer</span>
+<span class="text-xs font-bold tabular-nums">٠٢:٤٥:١٢</span>
+</div>
+</section>
+<section class="px-5 mt-4">
+<h2 class="text-xl font-extrabold text-slate-900 leading-tight">آيفون ١٥ برو ماكس - ٢٥٦ جيجابايت</h2>
+<p class="text-slate-500 text-xs mt-1">الحالة: جديد في العلبة • ضمان سنة</p>
+</section>
+<section class="px-5 mt-6 text-center py-6 bg-primary/5 rounded-[2rem] mx-4 border border-primary/10">
+<span class="text-slate-500 text-xs font-bold block mb-1">أعلى عطاء حالي</span>
+<div class="text-4xl font-extrabold text-slate-900 flex items-baseline justify-center gap-2">
+<span>٥١٥,٠٠٠</span>
+<span class="text-lg text-primary">د.ع</span>
+</div>
+<div class="mt-2 flex items-center justify-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-base fill-1">verified</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">سعر المزايدة الأعلى الآن</span>
+</div>
+</section>
+<section class="mt-8 px-4">
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-sm font-bold text-slate-800">سجل المزايدات المباشر</h3>
+<span class="text-[10px] text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full">تحديث تلقائي</span>
+</div>
+<div class="space-y-2.5">
+<div class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-2xl shadow-sm">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
+<img alt="User" class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACoO9-9ofrvLCfrcH-AKq2N5oALtQ3TC4jaZZfVAb6GPo-nagdhthH_K4RO3PVkE1g04kAprcFUyuNqQIP_ElzAlKeqqEQ_7dCm06DYjWdZvaoSvE0WPa2UuskNuCrVyalsjPZiJYPiqBhMwFTHC44gvcpbegfTsu0V2Q52NqNwznVGCwkqZfNj4WRZsgJjObdBfxjGTN09dTs8XCHNPLos1IjP7J3IvFa_S8vssbGKxErO42Njoa4nIkwTbqn6nRthrMAs1SCDc4"/>
+</div>
+<div>
+<p class="text-[11px] font-bold text-slate-900">أحمد زايد</p>
+<p class="text-[9px] text-slate-400">منذ ١٢ ثانية</p>
+</div>
+</div>
+<p class="text-sm font-extrabold text-slate-900">٥٢٠,٠٠٠ د.ع</p>
+</div>
+<div class="flex items-center justify-between p-3 bg-white/50 border border-slate-100 rounded-2xl opacity-80">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
+<img alt="User" class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9Sm5BNTVUGv7n0-bMlCPhtYfZHdr8CF-y1M52OYGv4aVTVqJFJDfEvZ2n1MFMK8IPmaY4A5FjicB1QuMV1u3tfONoM7kFhpYc5KKUqJo54hL9wtUk02VQqdwdAFrv2kp6SAVK2F8DaYKxrYrRj7EeWnHq9Bbcm47icB-ZoZ5_kyTITr5axjBTNBpOZLzrP7NEMHLLoOQqn43MCOBnLzTYWVpVoO6NGGhuge1EwX6jRhxux8vc9DngjkCfZWDSd0fkPYsOI4uz6Rg"/>
+</div>
+<div>
+<p class="text-[11px] font-bold text-slate-900">سارة محمد</p>
+<p class="text-[9px] text-slate-400">منذ دقيقة</p>
+</div>
+</div>
+<p class="text-sm font-extrabold text-slate-900">٥١٥,٠٠٠ د.ع</p>
+</div>
+</div>
+</section>
+</main>
+<div class="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto glass-footer px-4 pt-4 pb-8 z-40">
+<div class="flex items-center justify-between gap-3 mb-4">
+<button class="flex-1 bg-white border border-slate-200 py-2.5 rounded-xl text-[13px] font-bold text-slate-700 active:scale-95 transition-all">+٥,٠٠٠</button>
+<button class="flex-1 bg-white border border-slate-200 py-2.5 rounded-xl text-[13px] font-bold text-slate-700 active:scale-95 transition-all">+١٠,٠٠٠</button>
+<button class="flex-1 bg-white border border-slate-200 py-2.5 rounded-xl text-[13px] font-bold text-slate-700 active:scale-95 transition-all">+٢٥,٠٠٠</button>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-slate-900 font-extrabold py-4.5 rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-xl shadow-primary/30 h-16">
+<span class="material-symbols-outlined font-bold">lock</span>
+<span class="text-lg">تأكيد المزايدة الآن</span>
+</button>
+<p class="text-center text-[9px] text-slate-400 mt-4 uppercase tracking-widest font-bold">
+                عبر الضغط أنت توافق على شروط المزايدة في لكطة
+            </p>
+</div>
+</div>
+
+</body></html>

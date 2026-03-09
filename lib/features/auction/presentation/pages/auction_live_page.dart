@@ -2,17 +2,21 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/iqd_formatter.dart';
 import '../bloc/auction_cubit.dart';
 import 'auction_won_page.dart';
 import 'widgets/bid_confirmation_sheet.dart';
 import 'widgets/outbid_overlay.dart';
 
+/// Live auction bidding page — Iraqi Bazaar Modernism style.
+/// Keeps an immersive image hero at top, warm UI controls below.
 class AuctionLivePage extends StatefulWidget {
   final String auctionId;
   final String title;
@@ -43,7 +47,6 @@ class _AuctionLivePageState extends State<AuctionLivePage>
   late final AnimationController _priceAnim;
   late final Animation<double> _priceScale;
 
-  // Custom bid amount text field
   final _customAmountCtrl = TextEditingController();
 
   @override
@@ -101,6 +104,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
   }
 
   Future<void> _handleBidTap(int amount) async {
+    unawaited(HapticFeedback.mediumImpact());
     final current = _cubit.state.bids.isNotEmpty
         ? _cubit.state.bids.last.amount
         : (_cubit.state.auction?.currentPrice ?? 0);
@@ -121,40 +125,42 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppTheme.surfaceAlt,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         ),
         title: Text(
           'مبلغ مخصص',
           style: GoogleFonts.cairo(
-            color: Colors.white,
+            color: AppTheme.textPrimary,
             fontWeight: FontWeight.w700,
           ),
         ),
         content: TextField(
           controller: _customAmountCtrl,
           keyboardType: TextInputType.number,
-          style: GoogleFonts.inter(color: Colors.white, fontSize: 18.sp),
-          decoration: const InputDecoration(
-            hintText: 'Enter amount in IQD',
-            hintStyle: TextStyle(color: Colors.white38),
-            suffixText: 'IQD',
-            suffixStyle: TextStyle(color: AppTheme.primary),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white24),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: AppTheme.primary),
+          style: GoogleFonts.cairo(
+            color: AppTheme.textPrimary,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+          ),
+          decoration: InputDecoration(
+            hintText: 'أدخل المبلغ بالدينار',
+            hintStyle:
+                GoogleFonts.cairo(color: AppTheme.textTertiary, fontSize: 14.sp),
+            suffixText: 'د.ع',
+            suffixStyle: GoogleFonts.cairo(
+              color: AppTheme.mazadGreen,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
+            child: Text(
+              'إلغاء',
+              style: GoogleFonts.cairo(color: AppTheme.textSecondary),
             ),
           ),
           TextButton(
@@ -165,10 +171,10 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                 _handleBidTap(val);
               }
             },
-            child: const Text(
-              'Bid',
-              style: TextStyle(
-                color: AppTheme.primary,
+            child: Text(
+              'زايد',
+              style: GoogleFonts.cairo(
+                color: AppTheme.mazadGreen,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -184,9 +190,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
       value: _cubit,
       child: BlocConsumer<AuctionCubit, AuctionState>(
         listener: (context, state) {
-          // Sync countdown from server endTime
           _syncCountdown(state.auction?.endTime);
-          // Auction won — navigate to won page
           if (state.isWon && state.auction != null) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
@@ -199,15 +203,12 @@ class _AuctionLivePageState extends State<AuctionLivePage>
               ),
             );
           }
-          // Error snackbar
           if (state.error != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  state.error!,
-                  style: GoogleFonts.cairo(color: Colors.white),
-                ),
-                backgroundColor: Colors.red[800],
+                content:
+                    Text(state.error!, style: GoogleFonts.cairo(color: Colors.white)),
+                backgroundColor: AppTheme.mazadGreen,
               ),
             );
           }
@@ -215,9 +216,9 @@ class _AuctionLivePageState extends State<AuctionLivePage>
         builder: (context, state) {
           if (state.isLoading && state.auction == null) {
             return const Scaffold(
-              backgroundColor: Colors.black,
+              backgroundColor: AppTheme.background,
               body: Center(
-                child: CircularProgressIndicator(color: AppTheme.primary),
+                child: CircularProgressIndicator(color: AppTheme.mazadGreen),
               ),
             );
           }
@@ -229,49 +230,45 @@ class _AuctionLivePageState extends State<AuctionLivePage>
           final viewerCount = 130 + (state.bids.length * 3);
 
           return Scaffold(
-            backgroundColor: Colors.black,
+            backgroundColor: AppTheme.background,
             body: Stack(
               children: [
-                // ── Background image ─────────────────────────────
-                _buildBackground(),
-
-                // ── Main scrollable content ──────────────────────
-                Positioned.fill(
-                  child: SafeArea(
-                    child: Column(
-                      children: [
-                        _buildTopBar(viewerCount),
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20.w),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 12.h),
-                                _buildPriceTimer(currentHigh),
-                                SizedBox(height: 14.h),
-                                _buildTrustChips(),
-                                SizedBox(height: 12.h),
-                                Expanded(child: _buildBidFeed(state)),
-                                _buildBottomControls(
-                                  currentHigh,
-                                  minIncrement,
-                                  state,
-                                ),
-                                SizedBox(
-                                  height:
-                                      MediaQuery.of(context).padding.bottom +
-                                      12.h,
-                                ),
-                              ],
-                            ),
+                SafeArea(
+                  child: Column(
+                    children: [
+                      // ── Header (Stitch Screen 1) ──
+                      _buildHeader(context),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Column(
+                            children: [
+                              // ── Large Image ──
+                              _buildImageHero(),
+                              // ── Live badge + viewers + timer row ──
+                              _buildStatusRow(viewerCount),
+                              // ── Title & condition ──
+                              _buildTitleSection(state),
+                              // ── Current highest bid card ──
+                              _buildCurrentBidCard(currentHigh),
+                              // ── Bid history ──
+                              _buildBidHistory(state),
+                              SizedBox(height: 200.h),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-
-                // ── Outbid overlay (on top of everything) ───────
+                // ── Glass bottom controls ──
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: _buildBottomControls(
+                      currentHigh, minIncrement, state),
+                ),
                 if (state.isOutbid)
                   Positioned.fill(
                     child: OutbidOverlay(
@@ -298,97 +295,36 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     );
   }
 
-  // ── Background ───────────────────────────────────────────
-  Widget _buildBackground() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      height: MediaQuery.of(context).size.height * 0.42,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(
-            widget.imageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) =>
-                Container(color: const Color(0xFF1A1A1A)),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.55),
-                  Colors.transparent,
-                  Colors.black,
-                ],
-                stops: const [0.0, 0.45, 1.0],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Top bar ──────────────────────────────────────────────
-  Widget _buildTopBar(int viewers) {
+  // ── Header (Stitch Screen 1: centered title + auction number) ──
+  Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       child: Row(
         children: [
           _NavBtn(
-            icon: Icons.arrow_back_ios_new_rounded,
+            icon: Icons.arrow_forward_rounded,
             onTap: () => Navigator.of(context).pop(),
           ),
           const Spacer(),
-          // LIVE badge
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
-            decoration: BoxDecoration(
-              color: Colors.red[700],
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
+          Column(
+            children: [
+              Text(
+                'مزاد مباشر',
+                style: GoogleFonts.cairo(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
                 ),
-                SizedBox(width: 5.w),
-                Text(
-                  'LIVE',
-                  style: GoogleFonts.inter(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: 1.5,
-                  ),
+              ),
+              Text(
+                'رقم المزاد: #${widget.auctionId.length >= 4 ? widget.auctionId.substring(widget.auctionId.length - 4) : widget.auctionId}',
+                style: GoogleFonts.cairo(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.textTertiary,
                 ),
-                SizedBox(width: 8.w),
-                Icon(
-                  Icons.visibility_rounded,
-                  size: 13.sp,
-                  color: Colors.white70,
-                ),
-                SizedBox(width: 3.w),
-                Text(
-                  '$viewers',
-                  style: GoogleFonts.inter(
-                    fontSize: 11.sp,
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           const Spacer(),
           _NavBtn(icon: Icons.ios_share_rounded, onTap: () {}),
@@ -397,276 +333,475 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     );
   }
 
-  // ── Price + timer ────────────────────────────────────────
-  Widget _buildPriceTimer(int currentHigh) {
-    final isUrgent = _secondsLeft < 60 && _secondsLeft > 0;
-    return Column(
-      children: [
-        // Timer pill
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+  // ── Large rounded image hero (Stitch Screen 1) ──
+  Widget _buildImageHero() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(
-              color: (isUrgent ? Colors.red : Colors.white).withValues(
-                alpha: 0.12,
-              ),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.timer_rounded,
-                size: 18.sp,
-                color: isUrgent ? Colors.red[400] : Colors.white60,
-              ),
-              SizedBox(width: 6.w),
-              Text(
-                _secondsLeft == 0 ? '--:--' : _formattedTime,
-                style: GoogleFonts.inter(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w800,
-                  color: isUrgent ? Colors.red[400] : Colors.white,
-                ),
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+            border: Border.all(color: Colors.white, width: 4),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
-        ),
-        SizedBox(height: 10.h),
-        // Price with bounce animation
-        ScaleTransition(
-          scale: _priceScale,
-          child: Column(
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: _fmt(currentHigh),
-                      style: GoogleFonts.inter(
-                        fontSize: 42.sp,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: -1,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '  ${widget.currency}',
-                      style: GoogleFonts.cairo(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white.withValues(alpha: 0.75),
-                      ),
-                    ),
-                  ],
-                ),
+              Image.network(
+                widget.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) =>
+                    Container(color: AppTheme.shimmerBase),
               ),
-              Text(
-                'السعر الحالي',
-                style: GoogleFonts.cairo(
-                  fontSize: 13.sp,
-                  color: Colors.white.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── Trust chips ──────────────────────────────────────────
-  Widget _buildTrustChips() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const _TrustChip(
-          icon: Icons.verified_user_rounded,
-          label: 'بائع موثوق',
-        ),
-        SizedBox(width: 10.w),
-        const _TrustChip(icon: Icons.lock_rounded, label: 'دفع آمن ZainCash'),
-      ],
-    );
-  }
-
-  // ── Bid feed ─────────────────────────────────────────────
-  Widget _buildBidFeed(AuctionState state) {
-    final bids = state.bids.reversed.take(5).toList();
-    if (bids.isEmpty) {
-      return Center(
-        child: Text(
-          'لا توجد مزايدات بعد\nكن أول مزايد!',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.cairo(
-            fontSize: 14.sp,
-            color: Colors.white.withValues(alpha: 0.35),
-          ),
-        ),
-      );
-    }
-    return ShaderMask(
-      shaderCallback: (bounds) => const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Colors.black, Colors.transparent, Colors.black],
-        stops: [0.0, 0.15, 1.0],
-      ).createShader(bounds),
-      blendMode: BlendMode.dstOut,
-      child: ListView.builder(
-        reverse: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: bids.length,
-        itemBuilder: (_, idx) {
-          final bid = bids[idx];
-          final isLatest = idx == 0;
-          final isMe = bid.bidderId == 'me';
-          final masked = isMe
-              ? 'أنت'
-              : 'User ••••${bid.bidderId.length >= 4 ? bid.bidderId.substring(bid.bidderId.length - 4) : bid.bidderId}';
-
-          return AnimatedOpacity(
-            duration: const Duration(milliseconds: 300),
-            opacity: isLatest ? 1.0 : (idx == 1 ? 0.7 : 0.4),
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 10.h),
-              child: Container(
-                padding: EdgeInsets.all(10.r),
-                decoration: BoxDecoration(
-                  color: isMe
-                      ? AppTheme.primary.withValues(alpha: 0.08)
-                      : Colors.white.withValues(alpha: isLatest ? 0.08 : 0.04),
-                  borderRadius: BorderRadius.circular(14.r),
-                  border: Border(
-                    left: BorderSide(
-                      color: isLatest
-                          ? (isMe ? AppTheme.primary : Colors.white30)
-                          : Colors.transparent,
-                      width: 3,
-                    ),
-                  ),
-                ),
+              // Page indicators
+              Positioned(
+                bottom: 16.h,
+                left: 0,
+                right: 0,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 36.w,
-                      height: 36.w,
+                      height: 6.h,
+                      width: 24.w,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isMe
-                            ? AppTheme.primary.withValues(alpha: 0.2)
-                            : Colors.grey[800],
-                      ),
-                      child: Icon(
-                        isMe
-                            ? Icons.person_rounded
-                            : Icons.person_outline_rounded,
-                        color: isMe ? AppTheme.primary : Colors.white60,
-                        size: 18.sp,
+                        color: AppTheme.mazadGreen,
+                        borderRadius: BorderRadius.circular(3.r),
                       ),
                     ),
-                    SizedBox(width: 10.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            masked,
-                            style: GoogleFonts.cairo(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
-                              color: isMe ? AppTheme.primary : Colors.white,
-                            ),
-                          ),
-                          Text(
-                            isLatest ? 'منذ لحظات' : 'منذ ${idx + 1} دقيقة',
-                            style: GoogleFonts.cairo(
-                              fontSize: 10.sp,
-                              color: Colors.white.withValues(alpha: 0.4),
-                            ),
-                          ),
-                        ],
+                    SizedBox(width: 6.w),
+                    Container(
+                      height: 6.h,
+                      width: 6.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(3.r),
                       ),
                     ),
-                    Text(
-                      '+${_fmt(bid.amount)}',
-                      style: GoogleFonts.inter(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w800,
-                        color: isLatest
-                            ? AppTheme.primary
-                            : AppTheme.primary.withValues(alpha: 0.6),
+                    SizedBox(width: 6.w),
+                    Container(
+                      height: 6.h,
+                      width: 6.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(3.r),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        },
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  // ── Bottom controls ──────────────────────────────────────
+  // ── Status row: Live badge + viewers + timer (Stitch Screen 1) ──
+  Widget _buildStatusRow(int viewers) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 0),
+      child: Row(
+        children: [
+          // Live badge (red)
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            decoration: BoxDecoration(
+              color: AppTheme.accentRed.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+              border:
+                  Border.all(color: AppTheme.accentRed.withValues(alpha: 0.2)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8.w,
+                  height: 8.w,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.accentRed,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                SizedBox(width: 6.w),
+                Text(
+                  'مباشر',
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.accentRed,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+          // Viewer count
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.visibility_rounded,
+                  size: 16.sp, color: AppTheme.textTertiary),
+              SizedBox(width: 4.w),
+              Text(
+                '$viewers مشاهد',
+                style: GoogleFonts.cairo(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          // Timer pill (dark)
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            decoration: BoxDecoration(
+              color: AppTheme.textPrimary,
+              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.timer_rounded,
+                    size: 14.sp, color: AppTheme.mazadGreen),
+                SizedBox(width: 6.w),
+                Text(
+                  _secondsLeft == 0 ? '--:--:--' : _formattedTime,
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Title + condition (Stitch Screen 1) ──
+  Widget _buildTitleSection(AuctionState state) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.title,
+            style: GoogleFonts.cairo(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
+              height: 1.3,
+            ),
+          ),
+          if (state.auction?.condition != null) ...[
+            SizedBox(height: 4.h),
+            Text(
+              'الحالة: ${state.auction!.condition} • ضمان سنة',
+              style: GoogleFonts.cairo(
+                fontSize: 12.sp,
+                color: AppTheme.textTertiary,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ── Current highest bid card (Stitch Screen 1: green tinted) ──
+  Widget _buildCurrentBidCard(int currentHigh) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 0),
+      padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 20.w),
+      decoration: BoxDecoration(
+        color: AppTheme.mazadGreen.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(28.r),
+        border:
+            Border.all(color: AppTheme.mazadGreen.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'أعلى عطاء حالي',
+            style: GoogleFonts.cairo(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textTertiary,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          ScaleTransition(
+            scale: _priceScale,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  IqdFormatter.format(currentHigh.toDouble()),
+                  style: AppTheme.priceStyle(
+                    fontSize: 36.sp,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  'د.ع',
+                  style: GoogleFonts.cairo(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.mazadGreen,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.verified_rounded,
+                  size: 14.sp, color: AppTheme.mazadGreen),
+              SizedBox(width: 4.w),
+              Text(
+                'سعر المزايدة الأعلى الآن',
+                style: GoogleFonts.cairo(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.mazadGreen,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Bid history (Stitch Screen 1: white cards with avatars) ──
+  Widget _buildBidHistory(AuctionState state) {
+    final bids = state.bids.reversed.take(5).toList();
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 28.h, 16.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'سجل المزايدات المباشر',
+                style: GoogleFonts.cairo(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              Container(
+                padding:
+                    EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                decoration: BoxDecoration(
+                  color: AppTheme.mazadGreen.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                ),
+                child: Text(
+                  'تحديث تلقائي',
+                  style: GoogleFonts.cairo(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.mazadGreen,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          if (bids.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              child: Center(
+                child: Text(
+                  'لا توجد مزايدات بعد\nكن أول مزايد!',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.cairo(
+                    fontSize: 14.sp,
+                    color: AppTheme.textTertiary,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...bids.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final bid = entry.value;
+              final isLatest = idx == 0;
+              final isMe = bid.bidderId == 'me';
+              final masked = isMe
+                  ? 'أنت'
+                  : 'مزايد ••••${bid.bidderId.length >= 4 ? bid.bidderId.substring(bid.bidderId.length - 4) : bid.bidderId}';
+
+              return Padding(
+                padding: EdgeInsets.only(bottom: 10.h),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: isLatest ? 1.0 : 0.8,
+                  child: Container(
+                    padding: EdgeInsets.all(12.r),
+                    decoration: BoxDecoration(
+                      color: isLatest
+                          ? AppTheme.surfaceAlt
+                          : AppTheme.surfaceAlt.withValues(alpha: 0.5),
+                      borderRadius:
+                          BorderRadius.circular(AppTheme.radiusLg),
+                      border: Border.all(color: AppTheme.divider),
+                    ),
+                    child: Row(
+                      children: [
+                        // Avatar
+                        Container(
+                          width: 34.w,
+                          height: 34.w,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isMe
+                                ? AppTheme.mazadGreen
+                                    .withValues(alpha: 0.2)
+                                : AppTheme.surface,
+                          ),
+                          child: Icon(
+                            isMe
+                                ? Icons.person_rounded
+                                : Icons.person_outline_rounded,
+                            color: isMe
+                                ? AppTheme.mazadGreen
+                                : AppTheme.textTertiary,
+                            size: 18.sp,
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                masked,
+                                style: GoogleFonts.cairo(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              ),
+                              Text(
+                                isLatest
+                                    ? 'منذ لحظات'
+                                    : 'منذ ${idx + 1} دقيقة',
+                                style: GoogleFonts.cairo(
+                                  fontSize: 9.sp,
+                                  color: AppTheme.textTertiary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '${_fmt(bid.amount)} د.ع',
+                          style: AppTheme.priceStyle(
+                            fontSize: 14.sp,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  // ── Glass footer bottom controls (Stitch Screen 1) ─────
   Widget _buildBottomControls(
     int currentHigh,
     int minIncrement,
     AuctionState state,
   ) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Quick bid rail
-        Row(
-          children: [
-            _QuickBidBtn(
-              label: '+5K',
-              onTap: () => _handleBidTap(currentHigh + 5000),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.8),
+            border: Border(
+              top: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.2)),
             ),
-            SizedBox(width: 8.w),
-            _QuickBidBtn(
-              label: '+10K',
-              onTap: () => _handleBidTap(currentHigh + 10000),
-            ),
-            SizedBox(width: 8.w),
-            _QuickBidBtn(
-              label: '+25K',
-              onTap: () => _handleBidTap(currentHigh + 25000),
-            ),
-            SizedBox(width: 8.w),
-            _QuickBidBtn(
-              icon: Icons.edit_rounded,
-              label: 'Custom',
-              onTap: _showCustomAmountDialog,
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        // Main 3D bid button
-        _BigBidButton(
-          isLoading: state.isBidPlacing,
-          onBid: () => _handleBidTap(currentHigh + minIncrement),
-        ),
-        SizedBox(height: 8.h),
-        RichText(
-          text: TextSpan(
-            style: GoogleFonts.cairo(
-              fontSize: 10.sp,
-              color: Colors.white.withValues(alpha: 0.4),
-            ),
-            children: [
-              const TextSpan(text: 'بمزايدتك، أنت توافق على '),
-              const TextSpan(
-                text: 'الشروط والأحكام',
-                style: TextStyle(decoration: TextDecoration.underline),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Quick bid rail (Stitch: +٥,٠٠٠ / +١٠,٠٠٠ / +٢٥,٠٠٠)
+                  Row(
+                    children: [
+                      _QuickBidBtn(
+                        label: '+٥,٠٠٠',
+                        onTap: () => _handleBidTap(currentHigh + 5000),
+                      ),
+                      SizedBox(width: 10.w),
+                      _QuickBidBtn(
+                        label: '+١٠,٠٠٠',
+                        onTap: () => _handleBidTap(currentHigh + 10000),
+                      ),
+                      SizedBox(width: 10.w),
+                      _QuickBidBtn(
+                        label: '+٢٥,٠٠٠',
+                        onTap: () => _handleBidTap(currentHigh + 25000),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12.h),
+                  // Main bid button (Stitch: green with lock icon)
+                  _BigBidButton(
+                    isLoading: state.isBidPlacing,
+                    onBid: () => _handleBidTap(currentHigh + minIncrement),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    'عبر الضغط أنت توافق على شروط المزايدة في لكطة',
+                    style: GoogleFonts.cairo(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textTertiary,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -683,54 +818,22 @@ class _NavBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            width: 40.w,
-            height: 40.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black.withValues(alpha: 0.25),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+      child: Container(
+        width: 40.w,
+        height: 40.w,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppTheme.surfaceAlt,
+          border: Border.all(color: AppTheme.divider),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: Icon(icon, color: Colors.white, size: 18.sp),
-          ),
+          ],
         ),
-      ),
-    );
-  }
-}
-
-class _TrustChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _TrustChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: AppTheme.primary, size: 13.sp),
-          SizedBox(width: 5.w),
-          Text(
-            label,
-            style: GoogleFonts.cairo(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.85),
-            ),
-          ),
-        ],
+        child: Icon(icon, color: AppTheme.textPrimary, size: 18.sp),
       ),
     );
   }
@@ -738,34 +841,34 @@ class _TrustChip extends StatelessWidget {
 
 class _QuickBidBtn extends StatelessWidget {
   final String label;
-  final IconData? icon;
   final VoidCallback onTap;
 
-  const _QuickBidBtn({required this.label, required this.onTap, this.icon});
+  const _QuickBidBtn({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12.h),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(28.r),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+            color: AppTheme.surfaceAlt,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            border: Border.all(color: AppTheme.divider),
           ),
           alignment: Alignment.center,
-          child: icon != null
-              ? Icon(icon, color: Colors.white70, size: 18.sp)
-              : Text(
-                  label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
+          child: Text(
+            label,
+            style: GoogleFonts.cairo(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textSecondary,
+            ),
+          ),
         ),
       ),
     );
@@ -794,10 +897,8 @@ class _BigBidButtonState extends State<_BigBidButton>
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scale = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    _scale = Tween<double>(begin: 1.0, end: 0.95)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -812,6 +913,7 @@ class _BigBidButtonState extends State<_BigBidButton>
       onTapDown: (_) => _ctrl.forward(),
       onTapUp: (_) {
         _ctrl.reverse();
+        HapticFeedback.heavyImpact();
         widget.onBid();
       },
       onTapCancel: () => _ctrl.reverse(),
@@ -823,20 +925,15 @@ class _BigBidButtonState extends State<_BigBidButton>
             final pressed = _ctrl.value > 0;
             return Container(
               width: double.infinity,
-              height: 56.h,
+              height: 60.h,
               decoration: BoxDecoration(
-                color: AppTheme.primary,
-                borderRadius: BorderRadius.circular(16.r),
+                color: AppTheme.mazadGreen,
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primary.withValues(alpha: 0.5),
+                    color: AppTheme.mazadGreen.withValues(alpha: 0.4),
                     offset: Offset(0, pressed ? 2 : 6),
                     blurRadius: pressed ? 4 : 14,
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: pressed ? 0 : 0.25),
-                    offset: const Offset(0, -1),
-                    blurRadius: 2,
                   ),
                 ],
               ),
@@ -853,18 +950,15 @@ class _BigBidButtonState extends State<_BigBidButton>
                   : Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.gavel_rounded,
-                          color: Colors.black,
-                          size: 24.sp,
-                        ),
-                        SizedBox(width: 10.w),
+                        Icon(Icons.lock_rounded,
+                            color: AppTheme.textPrimary, size: 22.sp),
+                        SizedBox(width: 8.w),
                         Text(
-                          'مزايدة الآن',
+                          'تأكيد المزايدة الآن',
                           style: GoogleFonts.cairo(
-                            fontSize: 18.sp,
+                            fontSize: 17.sp,
                             fontWeight: FontWeight.w800,
-                            color: Colors.black,
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                       ],

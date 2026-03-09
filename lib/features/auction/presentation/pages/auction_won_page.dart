@@ -1,5 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,12 +10,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 
-class AuctionWonPage extends StatelessWidget {
+/// Auction Won celebration page — "مبروك!" with confetti particles.
+///
+/// Based on Stitch Screen 4 (c04db738) — warm Iraqi Bazaar Modernism.
+class AuctionWonPage extends StatefulWidget {
   final String itemTitle;
   final int winningBid;
   final String currency;
   final DateTime endTime;
-  final String imageUrl; // Adding imageUrl for UI consistency
+  final String imageUrl;
 
   const AuctionWonPage({
     super.key,
@@ -25,9 +31,33 @@ class AuctionWonPage extends StatelessWidget {
   });
 
   @override
+  State<AuctionWonPage> createState() => _AuctionWonPageState();
+}
+
+class _AuctionWonPageState extends State<AuctionWonPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..forward();
+    HapticFeedback.heavyImpact();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF140F23), // Keeping dark pop background
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -40,6 +70,7 @@ class AuctionWonPage extends StatelessWidget {
                     _buildCelebrationHero(),
                     _buildWinningItemSummary(),
                     _buildEscrowNotice(),
+                    _buildDeadlineNotice(),
                     _buildPaymentSummary(),
                   ],
                 ),
@@ -61,10 +92,16 @@ class AuctionWonPage extends StatelessWidget {
           GestureDetector(
             onTap: () => context.pop(),
             child: Container(
-              width: 48.w,
-              height: 48.w,
+              width: 40.w,
+              height: 40.w,
               alignment: Alignment.center,
-              child: const Icon(Icons.close_rounded, color: Colors.white),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppTheme.surfaceAlt,
+                border: Border.all(color: AppTheme.divider),
+              ),
+              child: Icon(Icons.close_rounded, color: AppTheme.textPrimary,
+                  size: 20.sp),
             ),
           ),
           Expanded(
@@ -74,68 +111,92 @@ class AuctionWonPage extends StatelessWidget {
               style: GoogleFonts.cairo(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppTheme.textPrimary,
               ),
             ),
           ),
-          SizedBox(width: 48.w), // Balance spacing
+          SizedBox(width: 40.w),
         ],
       ),
     );
   }
 
+  // ── Celebration Hero with confetti (Stitch Screen 4) ──────────────────────
   Widget _buildCelebrationHero() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: 240.h),
+      constraints: BoxConstraints(minHeight: 280.h),
       decoration: BoxDecoration(
-        color: AppTheme.mazadRed.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20.r),
+        color: AppTheme.mazadGreen.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         border: Border.all(
-          color: AppTheme.mazadRed.withValues(alpha: 0.2),
+          color: AppTheme.mazadGreen.withValues(alpha: 0.25),
           width: 2,
         ),
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Confetti particles
+          ..._buildConfettiParticles(),
+          // Background celebration icon (faded)
           Positioned.fill(
             child: Opacity(
-              opacity: 0.4,
+              opacity: 0.08,
               child: Icon(
                 Icons.celebration_rounded,
-                size: 120.w,
-                color: AppTheme.mazadRed,
+                size: 160.w,
+                color: AppTheme.mazadGreen,
               ),
             ),
           ),
+          // Main content
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Large check in primary ring (Stitch pattern)
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                width: 80.w,
+                height: 80.w,
                 decoration: BoxDecoration(
-                  color: AppTheme.mazadRed,
-                  borderRadius: BorderRadius.circular(99.r),
+                  shape: BoxShape.circle,
+                  color: AppTheme.mazadGreen.withValues(alpha: 0.15),
+                  border: Border.all(
+                    color: AppTheme.mazadGreen,
+                    width: 3,
+                  ),
+                ),
+                child: Icon(
+                  Icons.check_rounded,
+                  size: 44.sp,
+                  color: AppTheme.mazadGreen,
+                ),
+              ),
+              SizedBox(height: 16.h),
+              // Winner badge
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 5.h),
+                decoration: BoxDecoration(
+                  color: AppTheme.mazadGreen,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                 ),
                 child: Text(
-                  'AUCTION WINNER',
-                  style: GoogleFonts.spaceGrotesk(
+                  'الفائز بالمزاد',
+                  style: GoogleFonts.cairo(
                     fontSize: 12.sp,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
-                    letterSpacing: 1.5,
                   ),
                 ),
               ),
               SizedBox(height: 12.h),
               Text(
-                'مبروك!',
+                'مبروك! 🎉',
                 style: GoogleFonts.cairo(
                   fontSize: 32.sp,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: AppTheme.textPrimary,
                 ),
               ),
               Text(
@@ -143,7 +204,7 @@ class AuctionWonPage extends StatelessWidget {
                 style: GoogleFonts.cairo(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.mazadRed,
+                  color: AppTheme.mazadGreen,
                 ),
               ),
             ],
@@ -151,6 +212,56 @@ class AuctionWonPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // ── Confetti particles ────────────────────────────────────────────────────
+  List<Widget> _buildConfettiParticles() {
+    final random = math.Random(42);
+    final colors = [
+      AppTheme.mazadGreen,
+      AppTheme.mazadGreen,
+      AppTheme.success,
+      const Color(0xFF3B82F6),
+      const Color(0xFFA855F7),
+    ];
+
+    return List.generate(18, (i) {
+      final color = colors[i % colors.length];
+      final left = random.nextDouble() * 0.85 + 0.05;
+      final top = random.nextDouble() * 0.7 + 0.05;
+      final size = (random.nextDouble() * 8 + 4).w;
+      final isCircle = random.nextBool();
+
+      return AnimatedBuilder(
+        animation: _confettiController,
+        builder: (context, child) {
+          final progress = _confettiController.value;
+          final offset = math.sin(progress * math.pi * 2 + i) * 6;
+
+          return Positioned(
+            left: left * 300.w,
+            top: (top * 260.h) + offset,
+            child: Opacity(
+              opacity: (1 - progress * 0.3).clamp(0.3, 1.0),
+              child: Transform.rotate(
+                angle: progress * math.pi * (i.isEven ? 1 : -1),
+                child: Container(
+                  width: size,
+                  height: isCircle ? size : size * 0.5,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+                    borderRadius: isCircle
+                        ? null
+                        : BorderRadius.circular(1.r),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    });
   }
 
   Widget _buildWinningItemSummary() {
@@ -164,17 +275,13 @@ class AuctionWonPage extends StatelessWidget {
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.white.withValues(alpha: 0.6),
+              color: AppTheme.textSecondary,
             ),
           ),
           SizedBox(height: 12.h),
           Container(
             padding: EdgeInsets.all(16.w),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16.r),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-            ),
+            decoration: AppTheme.cardDecoration,
             child: Row(
               children: [
                 Expanded(
@@ -182,20 +289,20 @@ class AuctionWonPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        itemTitle,
+                        widget.itemTitle,
                         style: GoogleFonts.cairo(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                           height: 1.2,
                         ),
                       ),
                       SizedBox(height: 4.h),
                       Text(
-                        'رقم المزاد: #LQ-8829', // Mock ID
-                        style: GoogleFonts.inter(
+                        'رقم المزاد: #LQ-8829',
+                        style: GoogleFonts.cairo(
                           fontSize: 14.sp,
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: AppTheme.textTertiary,
                         ),
                       ),
                       SizedBox(height: 16.h),
@@ -204,15 +311,14 @@ class AuctionWonPage extends StatelessWidget {
                         style: GoogleFonts.cairo(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: AppTheme.textTertiary,
                         ),
                       ),
                       Text(
-                        IqdFormatter.format(winningBid.toDouble()),
-                        style: GoogleFonts.spaceGrotesk(
+                        IqdFormatter.format(widget.winningBid.toDouble()),
+                        style: AppTheme.priceStyle(
                           fontSize: 20.sp,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.mazadRed,
+                          color: AppTheme.mazadGreen,
                         ),
                       ),
                     ],
@@ -220,12 +326,16 @@ class AuctionWonPage extends StatelessWidget {
                 ),
                 SizedBox(width: 16.w),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   child: CachedNetworkImage(
-                    imageUrl: imageUrl,
+                    imageUrl: widget.imageUrl,
                     width: 100.w,
                     height: 100.w,
                     fit: BoxFit.cover,
+                    placeholder: (_, _) =>
+                        Container(color: AppTheme.shimmerBase),
+                    errorWidget: (_, _, _) =>
+                        Container(color: AppTheme.shimmerBase),
                   ),
                 ),
               ],
@@ -236,25 +346,30 @@ class AuctionWonPage extends StatelessWidget {
     );
   }
 
+  // ── Escrow Notice (Stitch: shield_with_heart + prominent styling) ─────────
   Widget _buildEscrowNotice() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppTheme.mazadRed.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.mazadRed.withValues(alpha: 0.3)),
+        color: AppTheme.mazadGreen.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: AppTheme.mazadGreen.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
-            width: 48.w,
-            height: 48.w,
-            decoration: const BoxDecoration(
-              color: AppTheme.mazadRed,
+            width: 52.w,
+            height: 52.w,
+            decoration: BoxDecoration(
+              color: AppTheme.mazadGreen.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.shield_rounded, color: Colors.white),
+            child: Icon(
+              Icons.shield_rounded,
+              color: AppTheme.mazadGreen,
+              size: 28.sp,
+            ),
           ),
           SizedBox(width: 16.w),
           Expanded(
@@ -262,22 +377,54 @@ class AuctionWonPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'حماية الضمان (Escrow)',
+                  'المبلغ محجوز في أمانة لكطة',
                   style: GoogleFonts.cairo(
-                    fontSize: 16.sp,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 SizedBox(height: 4.h),
                 Text(
                   'سيتم حجز المبلغ في الضمان بأمان ولا يتم تحويله للبائع حتى استلام المنتج والتأكد منه',
                   style: GoogleFonts.cairo(
-                    fontSize: 13.sp,
-                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 12.sp,
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── 24-Hour Deadline Notice (Stitch Screen 4) ─────────────────────────────
+  Widget _buildDeadlineNotice() {
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppTheme.mazadGreenSurface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(color: AppTheme.mazadGreen.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.access_time_filled_rounded,
+              color: AppTheme.mazadGreen, size: 22.sp),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              'يرجى إتمام الدفع خلال ٢٤ ساعة لتأكيد الشراء — وإلا قد يُعرض على المزايد التالي.',
+              style: GoogleFonts.cairo(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.mazadGreen,
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -293,11 +440,11 @@ class AuctionWonPage extends StatelessWidget {
           _buildSummaryRow('رسوم المزاد', '25,000 د.ع', isTotal: false),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 12.h),
-            child: Divider(color: Colors.white.withValues(alpha: 0.1)),
+            child: const Divider(color: AppTheme.divider),
           ),
           _buildSummaryRow(
             'المجموع الكلي',
-            IqdFormatter.format(winningBid.toDouble() + 25000),
+            IqdFormatter.format(widget.winningBid.toDouble() + 25000),
             isTotal: true,
           ),
         ],
@@ -318,21 +465,20 @@ class AuctionWonPage extends StatelessWidget {
           style: GoogleFonts.cairo(
             fontSize: isTotal ? 16.sp : 14.sp,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-            color: isTotal ? Colors.white : Colors.white.withValues(alpha: 0.6),
+            color: isTotal ? AppTheme.textPrimary : AppTheme.textSecondary,
           ),
         ),
         Text(
           amount,
           style: isTotal
-              ? GoogleFonts.spaceGrotesk(
+              ? AppTheme.priceStyle(
                   fontSize: 20.sp,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.mazadRed,
+                  color: AppTheme.mazadGreen,
                 )
               : GoogleFonts.cairo(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppTheme.textPrimary,
                 ),
         ),
       ],
@@ -342,82 +488,82 @@ class AuctionWonPage extends StatelessWidget {
   Widget _buildStickyFooter(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 32.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFF140F23).withValues(alpha: 0.95),
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-        ),
+      decoration: const BoxDecoration(
+        color: AppTheme.surfaceAlt,
+        border: Border(top: BorderSide(color: AppTheme.divider)),
       ),
       child: Column(
         children: [
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.mazadRed,
-              minimumSize: Size(double.infinity, 56.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'إتمام الدفع والشحن',
-                  style: GoogleFonts.cairo(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+            },
+            child: Container(
+              width: double.infinity,
+              height: 56.h,
+              decoration: BoxDecoration(
+                color: AppTheme.mazadGreen,
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.mazadGreen.withValues(alpha: 0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
                   ),
-                ),
-                SizedBox(width: 8.w),
-                const Icon(
-                  Icons.arrow_back_rounded,
-                  color: Colors.white,
-                ), // RTL arrow
-              ],
+                ],
+              ),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'إتمام الدفع واستلام السلعة',
+                    style: GoogleFonts.cairo(
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  const Icon(Icons.arrow_back_rounded,
+                      color: AppTheme.textPrimary), // RTL arrow
+                ],
+              ),
             ),
           ),
           SizedBox(height: 12.h),
-          OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
-              minimumSize: Size(double.infinity, 50.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.r),
+          GestureDetector(
+            onTap: () {},
+            child: Container(
+              width: double.infinity,
+              height: 50.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                border: Border.all(color: AppTheme.divider),
               ),
-            ),
-            child: Text(
-              'تواصل مع البائع',
-              style: GoogleFonts.cairo(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+              alignment: Alignment.center,
+              child: Text(
+                'تواصل مع البائع',
+                style: GoogleFonts.cairo(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ),
           ),
-          SizedBox(height: 24.h),
+          SizedBox(height: 20.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.credit_card_rounded,
-                color: Colors.white.withValues(alpha: 0.4),
-                size: 28.w,
-              ),
+              Icon(Icons.credit_card_rounded,
+                  color: AppTheme.textTertiary, size: 28.w),
               SizedBox(width: 24.w),
-              Icon(
-                Icons.account_balance_wallet_rounded,
-                color: Colors.white.withValues(alpha: 0.4),
-                size: 28.w,
-              ),
+              Icon(Icons.account_balance_wallet_rounded,
+                  color: AppTheme.textTertiary, size: 28.w),
               SizedBox(width: 24.w),
-              Icon(
-                Icons.verified_user_rounded,
-                color: Colors.white.withValues(alpha: 0.4),
-                size: 28.w,
-              ),
+              Icon(Icons.verified_user_rounded,
+                  color: AppTheme.textTertiary, size: 28.w),
             ],
           ),
         ],

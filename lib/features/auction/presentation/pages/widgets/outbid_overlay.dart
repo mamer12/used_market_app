@@ -1,16 +1,18 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../core/theme/app_theme.dart';
 
+/// Outbid overlay — warm theme with mazadGreen accents.
 class OutbidOverlay extends StatefulWidget {
   final int newHighest;
   final int myLastBid;
   final int minIncrement;
-  final String timeRemaining; // formatted "MM:SS"
+  final String timeRemaining;
   final void Function(int amount) onBidAgain;
   final VoidCallback onCustomAmount;
   final VoidCallback onLeave;
@@ -38,14 +40,13 @@ class _OutbidOverlayState extends State<OutbidOverlay>
   @override
   void initState() {
     super.initState();
+    HapticFeedback.heavyImpact();
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(
-      begin: 1.0,
-      end: 1.18,
-    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
+    _pulseAnim = Tween<double>(begin: 1.0, end: 1.18)
+        .animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -70,9 +71,9 @@ class _OutbidOverlayState extends State<OutbidOverlay>
     final nextBid = widget.newHighest + widget.minIncrement;
 
     return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+      filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
       child: Container(
-        color: Colors.black.withValues(alpha: 0.80),
+        color: AppTheme.background.withValues(alpha: 0.92),
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -87,43 +88,37 @@ class _OutbidOverlayState extends State<OutbidOverlay>
                     height: 88.w,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFFF3B30),
+                      color: AppTheme.mazadGreen,
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(
-                            0xFFFF3B30,
-                          ).withValues(alpha: 0.45),
+                          color: AppTheme.mazadGreen.withValues(alpha: 0.3),
                           blurRadius: 30,
                           spreadRadius: 8,
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.bolt_rounded,
-                      color: Colors.white,
-                      size: 44.sp,
-                    ),
+                    child:
+                        Icon(Icons.bolt_rounded, color: Colors.white, size: 44.sp),
                   ),
                 ),
                 SizedBox(height: 24.h),
 
                 // Headline
                 Text(
-                  'YOU\'VE BEEN OUTBID!',
-                  style: GoogleFonts.inter(
+                  'تمت المزايدة عليك!',
+                  style: GoogleFonts.cairo(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  'تمت المزايدة عليك!',
+                  'شخص آخر قدم مزايدة أعلى',
                   style: GoogleFonts.cairo(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
                 SizedBox(height: 24.h),
@@ -132,31 +127,36 @@ class _OutbidOverlayState extends State<OutbidOverlay>
                 Container(
                   padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: const Border(
-                      left: BorderSide(color: Color(0xFFFF3B30), width: 3),
-                    ),
+                    color: AppTheme.surfaceAlt,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                    border: Border.all(color: AppTheme.divider),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
                       _BidRow(
-                        label: 'New Highest Bid',
-                        value: '${_fmt(widget.newHighest)} IQD',
-                        valueColor: const Color(0xFFFF3B30),
+                        label: 'أعلى مزايدة جديدة',
+                        value: '${_fmt(widget.newHighest)} د.ع',
+                        valueColor: AppTheme.mazadGreen,
                         large: true,
                       ),
                       SizedBox(height: 8.h),
                       _BidRow(
-                        label: 'Your Last Bid',
-                        value: '${_fmt(widget.myLastBid)} IQD',
-                        valueColor: Colors.white.withValues(alpha: 0.65),
+                        label: 'مزايدتك الأخيرة',
+                        value: '${_fmt(widget.myLastBid)} د.ع',
+                        valueColor: AppTheme.textSecondary,
                       ),
                       SizedBox(height: 8.h),
                       _BidRow(
-                        label: 'Difference',
-                        value: '+${_fmt(diff)} IQD',
-                        valueColor: const Color(0xFFFF3B30),
+                        label: 'الفارق',
+                        value: '+${_fmt(diff)} د.ع',
+                        valueColor: AppTheme.mazadGreen,
                       ),
                     ],
                   ),
@@ -168,18 +168,17 @@ class _OutbidOverlayState extends State<OutbidOverlay>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Auction ends in  ',
+                      'ينتهي المزاد خلال  ',
                       style: GoogleFonts.cairo(
                         fontSize: 13.sp,
-                        color: Colors.white.withValues(alpha: 0.55),
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                     Text(
                       widget.timeRemaining,
-                      style: GoogleFonts.inter(
+                      style: AppTheme.priceStyle(
                         fontSize: 26.sp,
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFFFF3B30),
+                        color: AppTheme.mazadGreen,
                       ),
                     ),
                   ],
@@ -188,16 +187,19 @@ class _OutbidOverlayState extends State<OutbidOverlay>
 
                 // Bid Again button
                 GestureDetector(
-                  onTap: () => widget.onBidAgain(nextBid),
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    widget.onBidAgain(nextBid);
+                  },
                   child: Container(
                     width: double.infinity,
                     height: 56.h,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(16.r),
+                      color: AppTheme.mazadGreen,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primary.withValues(alpha: 0.5),
+                          color: AppTheme.mazadGreen.withValues(alpha: 0.4),
                           blurRadius: 18,
                           offset: const Offset(0, 6),
                         ),
@@ -207,18 +209,15 @@ class _OutbidOverlayState extends State<OutbidOverlay>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.gavel_rounded,
-                          color: Colors.black,
-                          size: 22.sp,
-                        ),
+                        Icon(Icons.gavel_rounded,
+                            color: AppTheme.textPrimary, size: 22.sp),
                         SizedBox(width: 10.w),
                         Text(
-                          'BID AGAIN  +${_fmt(widget.minIncrement)} IQD',
-                          style: GoogleFonts.inter(
+                          'زايد مرة أخرى  +${_fmt(widget.minIncrement)}',
+                          style: GoogleFonts.cairo(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w800,
-                            color: Colors.black,
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                       ],
@@ -234,18 +233,16 @@ class _OutbidOverlayState extends State<OutbidOverlay>
                     width: double.infinity,
                     height: 48.h,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14.r),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.18),
-                      ),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                      border: Border.all(color: AppTheme.divider),
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'مبلغ مخصص • Custom Amount',
+                      'مبلغ مخصص',
                       style: GoogleFonts.cairo(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                   ),
@@ -256,10 +253,10 @@ class _OutbidOverlayState extends State<OutbidOverlay>
                 GestureDetector(
                   onTap: widget.onLeave,
                   child: Text(
-                    'الانسحاب من المزاد • Leave Auction',
+                    'الانسحاب من المزاد',
                     style: GoogleFonts.cairo(
                       fontSize: 12.sp,
-                      color: Colors.white.withValues(alpha: 0.35),
+                      color: AppTheme.textTertiary,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -293,16 +290,15 @@ class _BidRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.cairo(
             fontSize: 12.sp,
-            color: Colors.white.withValues(alpha: 0.5),
+            color: AppTheme.textTertiary,
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.inter(
+          style: AppTheme.priceStyle(
             fontSize: large ? 20.sp : 14.sp,
-            fontWeight: FontWeight.w800,
             color: valueColor,
           ),
         ),

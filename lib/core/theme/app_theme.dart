@@ -30,6 +30,8 @@ class AppTheme {
   static const Color error = Color(0xFFDC2626); // Red 600
   static const Color success = Color(0xFF16A34A); // Green 600
   static const Color liveBadge = Color(0xFFFF1744); // Pulsing red
+  static const Color accentRed = Color(0xFFFF3B30); // Live badge accent
+  static const Color accentYellow = Color(0xFFFFD700); // Gold / exclusive badge
 
   // ── Shimmer Placeholder Colours ──────────────────────
   static const Color shimmerBase = Color(0xFFF5F0E8);
@@ -48,9 +50,9 @@ class AppTheme {
   static const Color mustamalOrange = Color(0xFFE65100);
   static const Color mustamalOrangeSurface = Color(0xFFFFF3E0);
 
-  /// Mazad — alert red
-  static const Color mazadRed = Color(0xFFD32F2F);
-  static const Color mazadRedSurface = Color(0xFFFFEBEE);
+  /// Mazad — Stitch vibrant green
+  static const Color mazadGreen = Color(0xFF13EC6A);
+  static const Color mazadGreenSurface = Color(0xFFE7FDF0);
 
   // ── Spacing Constants (8-point grid) ─────────────────
   static double get spacingXs => 4.w;
@@ -253,11 +255,11 @@ class AppTheme {
       contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusMd),
-        borderSide: BorderSide(color: divider),
+        borderSide: const BorderSide(color: divider),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusMd),
-        borderSide: BorderSide(color: divider),
+        borderSide: const BorderSide(color: divider),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radiusMd),
@@ -278,7 +280,7 @@ class AppTheme {
         fontWeight: FontWeight.w600,
       ),
       shape: const StadiumBorder(),
-      side: BorderSide(color: divider),
+      side: const BorderSide(color: divider),
     ),
     // ── Bottom Sheet ─────────────────────────────
     bottomSheetTheme: BottomSheetThemeData(

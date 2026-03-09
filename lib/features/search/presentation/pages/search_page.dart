@@ -9,6 +9,7 @@ import '../../../../core/utils/iqd_formatter.dart';
 import '../../../auction/data/models/auction_models.dart';
 import '../../../home/data/models/portal_models.dart';
 import '../../../shop/data/models/shop_models.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../bloc/search_cubit.dart';
 
 class SearchPage extends StatefulWidget {
@@ -74,7 +75,7 @@ class _SearchPageState extends State<SearchPage> {
         builder: (context, state) {
           return state.when(
             initial: () => _buildEmptyState('Start typing to find results'),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const SearchResultsSkeleton(),
             success: (results) {
               if (results.isEmpty) {
                 return _buildEmptyState(
@@ -90,13 +91,16 @@ class _SearchPageState extends State<SearchPage> {
                   itemCount: results.length,
                   itemBuilder: (context, index) {
                     final item = results[index];
-                    if (item is AuctionModel)
+                    if (item is AuctionModel) {
                       return _SearchAuctionCard(auction: item);
-                    if (item is ProductModel)
+                    }
+                    if (item is ProductModel) {
                       return _SearchProductCard(product: item);
+                    }
                     if (item is ShopModel) return _SearchShopCard(shop: item);
-                    if (item is ItemModel)
+                    if (item is ItemModel) {
                       return _SearchMustamalCard(item: item);
+                    }
                     return const SizedBox.shrink();
                   },
                 ),
@@ -173,7 +177,7 @@ class _SearchAuctionCard extends StatelessWidget {
                 Text(
                   IqdFormatter.format((auction.currentPrice ?? 0).toDouble()),
                   style: GoogleFonts.cairo(
-                    color: AppTheme.mazadRed,
+                    color: AppTheme.mazadGreen,
                     fontWeight: FontWeight.bold,
                     fontSize: 12.sp,
                   ),
