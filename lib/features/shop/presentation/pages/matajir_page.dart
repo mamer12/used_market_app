@@ -626,29 +626,12 @@ class _MatajirProductCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              IqdFormatter.format(
-                                item.price,
-                              ).replaceAll(' IQD', ''),
-                              style: AppTheme.priceStyle(
-                                fontSize: 18.sp,
-                                color: AppTheme.matajirBlue,
-                              ),
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              'د.ع',
-                              style: GoogleFonts.cairo(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.matajirBlue,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          IqdFormatter.format(item.price),
+                          style: AppTheme.priceStyle(
+                            fontSize: 18.sp,
+                            color: AppTheme.matajirBlue,
+                          ),
                         ),
                         SizedBox(height: 8.h),
                         BlocBuilder<MatajirCartCubit, CartState>(

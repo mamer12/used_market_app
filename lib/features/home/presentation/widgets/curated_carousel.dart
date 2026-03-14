@@ -247,11 +247,15 @@ class _ProductCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  IqdFormatter.format(product.price),
-                  style: AppTheme.priceStyle(
-                    fontSize: 16.sp,
-                    color: themeColor,
+                Flexible(
+                  child: Text(
+                    IqdFormatter.format(product.price),
+                    style: AppTheme.priceStyle(
+                      fontSize: 16.sp,
+                      color: themeColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Container(

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
 import '../../data/models/shop_models.dart';
 import '../bloc/shops_cubit.dart';
@@ -336,8 +337,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
   }
 
   Widget _buildProductCard(ProductModel product) {
-    final priceText =
-        '${product.price.toInt().toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => ',')} IQD';
+    final priceText = IqdFormatter.format(product.price);
 
     return GestureDetector(
       onTap: () {

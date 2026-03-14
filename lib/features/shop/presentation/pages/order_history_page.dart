@@ -3,33 +3,35 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class OrderHistoryPage extends StatelessWidget {
   const OrderHistoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     // Mock Data
     final mockOrders = [
       {
         'id': 'ORD-8921',
-        'date': '24 Feb 2026',
+        'date': '24 فبراير 2026',
         'status': 'DELIVERED',
-        'total': '145,000 IQD',
+        'total': '145,000 د.ع',
         'items': 2,
       },
       {
         'id': 'ORD-7743',
-        'date': '20 Feb 2026',
+        'date': '20 فبراير 2026',
         'status': 'PENDING_PAYMENT',
-        'total': '32,000 IQD',
+        'total': '32,000 د.ع',
         'items': 1,
       },
       {
         'id': 'ORD-5190',
-        'date': '10 Feb 2026',
+        'date': '10 فبراير 2026',
         'status': 'CANCELLED',
-        'total': '80,000 IQD',
+        'total': '80,000 د.ع',
         'items': 1,
       },
     ];
@@ -38,7 +40,7 @@ class OrderHistoryPage extends StatelessWidget {
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         title: Text(
-          'Order History',
+          l10n.profileOrderHistory,
           style: GoogleFonts.cairo(
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
@@ -52,7 +54,7 @@ class OrderHistoryPage extends StatelessWidget {
       body: mockOrders.isEmpty
           ? Center(
               child: Text(
-                'No orders yet.',
+                l10n.orderHistoryEmpty,
                 style: GoogleFonts.cairo(
                   fontSize: 16.sp,
                   color: AppTheme.inactive,
@@ -93,18 +95,32 @@ class _OrderCard extends StatelessWidget {
     required this.itemsCount,
   });
 
+  String _statusLabel(AppLocalizations l10n) {
+    switch (status) {
+      case 'DELIVERED':
+        return l10n.statusDelivered;
+      case 'PENDING_PAYMENT':
+        return l10n.statusPendingPayment;
+      case 'CANCELLED':
+        return l10n.statusCancelled;
+      default:
+        return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     Color statusColor;
     switch (status) {
       case 'DELIVERED':
-        statusColor = const Color(0xFF4CAF50); // Green
+        statusColor = AppTheme.success;
         break;
       case 'PENDING_PAYMENT':
-        statusColor = AppTheme.primary; // Orange
+        statusColor = AppTheme.primary;
         break;
       case 'CANCELLED':
-        statusColor = AppTheme.error; // Red
+        statusColor = AppTheme.error;
         break;
       default:
         statusColor = AppTheme.textSecondary;
@@ -130,8 +146,8 @@ class _OrderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Order #$id',
-                style: GoogleFonts.inter(
+                l10n.orderNumber(id),
+                style: GoogleFonts.cairo(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.textPrimary,
@@ -144,7 +160,7 @@ class _OrderCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Text(
-                  status.replaceAll('_', ' '),
+                  _statusLabel(l10n),
                   style: GoogleFonts.cairo(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w700,
@@ -173,7 +189,7 @@ class _OrderCard extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '$itemsCount item${itemsCount > 1 ? 's' : ''}',
+                l10n.orderItemCount(itemsCount),
                 style: GoogleFonts.cairo(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
@@ -183,13 +199,13 @@ class _OrderCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          Divider(color: Colors.white.withValues(alpha: 0.05), height: 1),
+          Divider(color: AppTheme.divider, height: 1),
           SizedBox(height: 12.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total Amount',
+                l10n.orderTotalAmount,
                 style: GoogleFonts.cairo(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
@@ -198,7 +214,7 @@ class _OrderCard extends StatelessWidget {
               ),
               Text(
                 total,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.cairo(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w800,
                   color: AppTheme.primary,

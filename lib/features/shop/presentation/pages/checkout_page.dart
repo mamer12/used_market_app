@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../cart/presentation/bloc/cart_context.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../data/models/order_models.dart';
@@ -143,33 +144,43 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       children: [
                         _buildOrderSummary(total),
                         SizedBox(height: 32.h),
-                        Text(
-                          'Fulfillment Method',
-                          style: GoogleFonts.cairo(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: 16.h),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildFulfillmentOption(
-                                'delivery',
-                                'Delivery\n(5,000 IQD)',
-                                Icons.local_shipping_outlined,
-                              ),
-                            ),
-                            SizedBox(width: 16.w),
-                            Expanded(
-                              child: _buildFulfillmentOption(
-                                'pickup',
-                                'Pick Up In-Store\n(Free)',
-                                Icons.storefront_outlined,
-                              ),
-                            ),
-                          ],
+                        Builder(
+                          builder: (ctx) {
+                            final l10n = AppLocalizations.of(ctx);
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.checkoutFulfillmentMethod,
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.textPrimary,
+                                  ),
+                                ),
+                                SizedBox(height: 16.h),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildFulfillmentOption(
+                                        'delivery',
+                                        l10n.checkoutDeliveryOption,
+                                        Icons.local_shipping_outlined,
+                                      ),
+                                    ),
+                                    SizedBox(width: 16.w),
+                                    Expanded(
+                                      child: _buildFulfillmentOption(
+                                        'pickup',
+                                        l10n.checkoutPickupOption,
+                                        Icons.storefront_outlined,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         SizedBox(height: 32.h),
                         AnimatedCrossFade(

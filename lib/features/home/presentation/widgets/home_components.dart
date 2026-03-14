@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../data/models/portal_models.dart';
 
 // ── Shared Home Section Wrapper (T014) ───────────────────────────────────────
@@ -210,7 +211,7 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                               SizedBox(height: 4.h),
                               Text(
                                 item.actionUrl ??
-                                    'Special offers waiting for you',
+                                    AppLocalizations.of(context).carouselPromoSubtitle,
                                 style: GoogleFonts.cairo(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -233,12 +234,11 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                               borderRadius: BorderRadius.circular(999.r),
                             ),
                             child: Text(
-                              'LIVE NOW',
+                              AppLocalizations.of(context).homeLiveNow,
                               style: GoogleFonts.cairo(
                                 color: Colors.white,
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w700,
-                                letterSpacing: 1.5,
                               ),
                             ),
                           ),
@@ -299,8 +299,8 @@ class BentoGrid extends StatelessWidget {
             children: [
               Expanded(
                 child: _BentoTile(
-                  title: labels['mazad'] ?? 'Mazad',
-                  tagline: 'Live Bidding',
+                  title: labels['mazad'] ?? 'مزادات',
+                  tagline: taglines['mazad'] ?? 'مزايدة مباشرة',
                   icon: Icons.gavel_rounded,
                   color: AppTheme.mazadGreen,
                   onTap: () => onTileTap('mazad'),
@@ -309,8 +309,8 @@ class BentoGrid extends StatelessWidget {
               SizedBox(width: 12.w),
               Expanded(
                 child: _BentoTile(
-                  title: labels['matajir'] ?? 'Matajir',
-                  tagline: 'Official Shops',
+                  title: labels['matajir'] ?? 'متاجر',
+                  tagline: taglines['matajir'] ?? 'متاجر رسمية',
                   icon: Icons.storefront_rounded,
                   color: AppTheme.matajirBlue,
                   onTap: () => onTileTap('matajir'),
@@ -323,8 +323,8 @@ class BentoGrid extends StatelessWidget {
             children: [
               Expanded(
                 child: _BentoTile(
-                  title: labels['mustamal'] ?? 'Mustamal',
-                  tagline: 'Used Market',
+                  title: labels['mustamal'] ?? 'مستعمل',
+                  tagline: taglines['mustamal'] ?? 'سوق المستعمل',
                   icon: Icons.change_circle_rounded,
                   color: AppTheme.mustamalOrange,
                   onTap: () => onTileTap('mustamal'),
@@ -333,8 +333,8 @@ class BentoGrid extends StatelessWidget {
               SizedBox(width: 12.w),
               Expanded(
                 child: _BentoTile(
-                  title: labels['balla'] ?? 'Balla',
-                  tagline: 'Bulk Market',
+                  title: labels['balla'] ?? 'بالة',
+                  tagline: taglines['balla'] ?? 'سوق الجملة',
                   icon: Icons.inventory_2_rounded,
                   color: AppTheme.ballaPurple,
                   onTap: () => onTileTap('balla'),
@@ -402,6 +402,8 @@ class _BentoTile extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

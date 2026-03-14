@@ -1,13 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
 
 class MustamalPage extends StatefulWidget {
@@ -57,12 +59,11 @@ class _MustamalPageState extends State<MustamalPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'MUSTAMAL MARKET',
+                      AppLocalizations.of(context).homeSooqUsed,
                       style: GoogleFonts.cairo(
                         color: AppTheme.textPrimary,
                         fontSize: 22.sp,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     Row(
@@ -127,7 +128,7 @@ class _MustamalPageState extends State<MustamalPage> {
                     child: TextField(
                       textAlignVertical: TextAlignVertical.center,
                       decoration: InputDecoration(
-                        hintText: 'Search for phones, cars, furniture...',
+                        hintText: AppLocalizations.of(context).mustamalSearchHint,
                         hintStyle: GoogleFonts.cairo(
                           color: AppTheme.inactive,
                           fontSize: 14.sp,
@@ -162,7 +163,7 @@ class _MustamalPageState extends State<MustamalPage> {
                     return SliverFillRemaining(
                       child: Center(
                         child: Text(
-                          'لا يوجد إعلانات مستعمل حالياً',
+                          AppLocalizations.of(context).homeNoProducts,
                           style: GoogleFonts.cairo(fontSize: 16.sp),
                         ),
                       ),
@@ -198,14 +199,11 @@ class _MustamalCard extends StatelessWidget {
 
   const _MustamalCard({required this.item});
 
-  String formatIQD(num price) {
-    final formatted = NumberFormat('#,###', 'en_US').format(price.toInt());
-    return '$formatted IQD';
-  }
 
   @override
   Widget build(BuildContext context) {
-    final title = item.title ?? 'No Title';
+    final l10n = AppLocalizations.of(context);
+    final title = item.title ?? l10n.mustamalNoTitle;
     final price = item.price ?? 0;
     final images = item.images ?? [];
 
@@ -231,10 +229,10 @@ class _MustamalCard extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 if (images.isNotEmpty)
-                  Image.network(
-                    images.first,
+                  CachedNetworkImage(
+                    imageUrl: images.first,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
+                    errorWidget: (context, url, error) => Container(
                       color: AppTheme.inactive.withValues(alpha: 0.1),
                     ),
                   )
@@ -242,23 +240,22 @@ class _MustamalCard extends StatelessWidget {
                   Container(color: AppTheme.inactive.withValues(alpha: 0.1)),
                 Positioned(
                   top: 10.h,
-                  left: 10.w,
+                  right: 10.w,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 8.w,
                       vertical: 4.h,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondary,
+                      color: AppTheme.mustamalOrange,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text(
-                      'PRE-OWNED',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.w900,
+                      l10n.mustamalUsedBadge,
+                      style: GoogleFonts.cairo(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
-                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -290,7 +287,7 @@ class _MustamalCard extends StatelessWidget {
                       ),
                       SizedBox(height: 6.h),
                       Text(
-                        formatIQD(price),
+                        IqdFormatter.format(price),
                         style: GoogleFonts.cairo(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w900,
@@ -310,12 +307,11 @@ class _MustamalCard extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            'VIEW DETAILS',
-                            style: GoogleFonts.inter(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w900,
+                            l10n.mustamalViewDetails,
+                            style: GoogleFonts.cairo(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w700,
                               color: Colors.white,
-                              letterSpacing: 0.5,
                             ),
                           ),
                         ),

@@ -13,8 +13,9 @@ class ApiConstants {
   ///
   /// Override at any time with --dart-define=DEV_HOST=YOUR_IP.
   static const String _devHost =
-      '192.168.68.109'; // <-- localhost for iOS Simulator
-  static const String _prodHost = 'api.mustamal.com'; // <-- your prod domain
+      '192.168.68.104'; // <-- localhost for iOS Simulator
+  static const String _prodHost =
+      'luqta-api-production.up.railway.app'; // Railway deployment
 
   static String get _host {
     // Explicit override wins (useful for CI or a different dev machine).
@@ -28,14 +29,22 @@ class ApiConstants {
     return _devHost; // iOS Simulator + physical iPhone on same LAN
   }
 
+  static bool get _isProduction => kReleaseMode;
+
   /// REST API Base URL
-  static String get baseUrl => 'http://$_host:8080/api/v1/';
+  static String get baseUrl => _isProduction
+      ? 'https://$_prodHost/api/v1/'
+      : 'http://$_host:8080/api/v1/';
 
   /// WebSocket Base URL
-  static String get wsBaseUrl => 'ws://$_host:8080/ws';
+  static String get wsBaseUrl => _isProduction
+      ? 'wss://$_prodHost/ws'
+      : 'ws://$_host:8080/ws';
 
   /// Media Server Base URL
-  static String get mediaBaseUrl => 'http://$_host:9000/lugta-media';
+  static String get mediaBaseUrl => _isProduction
+      ? 'https://$_prodHost/media'
+      : 'http://$_host:9000/lugta-media';
 
   // --- Auth Endpoints ---
   static const String sendOtp = 'auth/otp/send';
