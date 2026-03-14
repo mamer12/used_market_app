@@ -899,5 +899,44 @@
   "@cartConflictKeep": { "description": "Cart conflict: keep existing cart option" },
 
   "cartConflictClear": "Clear & Add New Item",
-  "@cartConflictClear": { "description": "Cart conflict: clear cart and add new item option" }
+  "@cartConflictClear": { "description": "Cart conflict: clear cart and add new item option" },
+
+  "mustamalSearchHint": "Search for phones, cars, furniture...",
+  "@mustamalSearchHint": { "description": "Search bar placeholder in Mustamal page" },
+
+  "mustamalUsedBadge": "Pre-owned",
+  "@mustamalUsedBadge": { "description": "Badge shown on used item cards" },
+
+  "mustamalViewDetails": "View Details",
+  "@mustamalViewDetails": { "description": "Button on Mustamal cards to view item detail" },
+
+  "mustamalNoTitle": "No Title",
+  "@mustamalNoTitle": { "description": "Fallback title when a Mustamal listing has no title" },
+
+  "carouselPromoSubtitle": "Exclusive offers awaiting you",
+  "@carouselPromoSubtitle": { "description": "Fallback subtitle on announcement carousel banner" },
+
+  "checkoutDeliveryOption": "Delivery\n(5,000 IQD)",
+  "@checkoutDeliveryOption": { "description": "Delivery fulfillment option label in checkout" },
+
+  "checkoutPickupOption": "Pick Up In-Store\n(Free)",
+  "@checkoutPickupOption": { "description": "Store pickup fulfillment option label in checkout" },
+
+  "statusCancelled": "Cancelled",
+  "@statusCancelled": { "description": "Order status: cancelled" },
+
+  "orderTotalAmount": "Total Amount",
+  "@orderTotalAmount": { "description": "Label for total price in order history card" },
+
+  "orderItemCount": "{count, plural, one{{count} item} other{{count} items}}",
+  "@orderItemCount": {
+    "description": "Item count in order history card",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "orderHistoryEmpty": "No orders yet.",
+  "@orderHistoryEmpty": { "description": "Empty state message in order history" },
+
+  "checkoutFulfillmentMethod": "Fulfillment Method",
+  "@checkoutFulfillmentMethod": { "description": "Section title for delivery vs pickup choice in checkout" }
 }

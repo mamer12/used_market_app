@@ -358,5 +358,18 @@
   "cartConflictTitle": "متجر مختلف!",
   "cartConflictMessage": "عندك منتجات من متجر ثاني في سلتك. اختار: تحتفظ بسلتك الحالية، أو تمسحها وتضيف المنتج الجديد.",
   "cartConflictKeep": "احتفظ بالسلة الحالية",
-  "cartConflictClear": "امسح وأضف المنتج الجديد"
+  "cartConflictClear": "امسح وأضف المنتج الجديد",
+
+  "mustamalSearchHint": "ابحث عن هاتف، سيارة، أثاث...",
+  "mustamalUsedBadge": "مستعمل",
+  "mustamalViewDetails": "عرض التفاصيل",
+  "mustamalNoTitle": "بدون عنوان",
+  "carouselPromoSubtitle": "عروض حصرية في انتظارك",
+  "checkoutDeliveryOption": "توصيل\n(5,000 د.ع)",
+  "checkoutPickupOption": "استلام من المتجر\n(مجاني)",
+  "statusCancelled": "ملغي",
+  "orderTotalAmount": "المبلغ الإجمالي",
+  "orderItemCount": "{count, plural, one{منتج واحد} two{منتجان} few{{count} منتجات} other{{count} منتج}}",
+  "orderHistoryEmpty": "لا يوجد طلبات بعد.",
+  "checkoutFulfillmentMethod": "طريقة الاستلام"
 }

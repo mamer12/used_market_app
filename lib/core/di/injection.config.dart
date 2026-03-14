@@ -70,6 +70,11 @@ import '../../features/shop/domain/repositories/shop_repository.dart' as _i106;
 import '../../features/shop/presentation/bloc/create_shop_cubit.dart' as _i910;
 import '../../features/shop/presentation/bloc/order_cubit.dart' as _i771;
 import '../../features/shop/presentation/bloc/shops_cubit.dart' as _i162;
+import '../../features/wallet/data/datasources/wallet_remote_datasource.dart'
+    as _i684;
+import '../../features/wallet/data/repositories/wallet_repository_impl.dart'
+    as _i690;
+import '../../features/wallet/presentation/cubit/wallet_cubit.dart' as _i101;
 import '../network/auth_interceptor.dart' as _i908;
 import '../storage/token_storage.dart' as _i973;
 import 'register_module.dart' as _i291;
@@ -97,6 +102,9 @@ _i174.GetIt init(
   );
   gh.lazySingleton<_i280.SearchRemoteDataSource>(
     () => _i280.SearchRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
+  gh.lazySingleton<_i684.WalletRemoteDataSource>(
+    () => _i684.WalletRemoteDataSourceImpl(gh<_i361.Dio>()),
   );
   gh.lazySingleton<_i107.AuthRemoteDataSource>(
     () => _i107.AuthRemoteDataSourceImpl(gh<_i361.Dio>()),
@@ -130,6 +138,12 @@ _i174.GetIt init(
   );
   gh.lazySingleton<_i958.OrderRepository>(
     () => _i1001.OrderRepositoryImpl(gh<_i239.OrderRemoteDataSource>()),
+  );
+  gh.lazySingleton<_i690.WalletRepository>(
+    () => _i690.WalletRepositoryImpl(gh<_i684.WalletRemoteDataSource>()),
+  );
+  gh.factory<_i101.WalletCubit>(
+    () => _i101.WalletCubit(gh<_i690.WalletRepository>()),
   );
   gh.factoryParam<_i797.AuthBloc, _i558.FlutterSecureStorage?, dynamic>(
     (storage, _) =>

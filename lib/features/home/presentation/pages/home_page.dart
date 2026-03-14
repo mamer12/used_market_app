@@ -15,6 +15,8 @@ import '../../../../core/widgets/skeleton_loading.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/curated_carousel.dart';
 import '../widgets/home_components.dart';
+import '../../../wallet/presentation/cubit/wallet_cubit.dart';
+import '../../../../core/utils/iqd_formatter.dart';
 
 // ── Portal Home Screen ─────────────────────────────────────────────────────
 /// The generic Super App Portal — entry point for all 4 Mini-Apps.
@@ -27,16 +29,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final HomeCubit _cubit;
+  late final WalletCubit _walletCubit;
 
   @override
   void initState() {
     super.initState();
     _cubit = getIt<HomeCubit>()..loadFeed();
+    _walletCubit = getIt<WalletCubit>()..loadBalance();
   }
 
   @override
   void dispose() {
     _cubit.close();
+    _walletCubit.close();
     super.dispose();
   }
 
@@ -44,8 +49,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return BlocProvider.value(
-      value: _cubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _cubit),
+        BlocProvider.value(value: _walletCubit),
+      ],
       child: Scaffold(
         backgroundColor: AppTheme.background,
         body: SafeArea(
@@ -383,37 +391,57 @@ class _HomeAppBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Escrow Wallet pill
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 6.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.success.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-                      border: Border.all(
-                        color: AppTheme.success.withValues(alpha: 0.15),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 16.sp,
-                          color: AppTheme.success,
+                  // Live Wallet pill
+                  BlocBuilder<WalletCubit, WalletState>(
+                    builder: (context, walletState) {
+                      return Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 6.h,
                         ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'الرصيد: 250,000 د.ع', // Placeholder
-                          style: GoogleFonts.cairo(
-                            color: AppTheme.success,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.sp,
+                        decoration: BoxDecoration(
+                          color: AppTheme.success.withValues(alpha: 0.08),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.radiusFull),
+                          border: Border.all(
+                            color: AppTheme.success.withValues(alpha: 0.15),
                           ),
                         ),
-                      ],
-                    ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.account_balance_wallet_outlined,
+                              size: 16.sp,
+                              color: AppTheme.success,
+                            ),
+                            SizedBox(width: 8.w),
+                            switch (walletState) {
+                              WalletLoading() => SizedBox(
+                                  width: 72.w,
+                                  height: 14.h,
+                                  child: const SkeletonBox(),
+                                ),
+                              WalletError() => Text(
+                                  'الرصيد: -- د.ع',
+                                  style: GoogleFonts.cairo(
+                                    color: AppTheme.success,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              WalletLoaded(:final balanceIqd) => Text(
+                                  'الرصيد: ${IqdFormatter.format(balanceIqd)}',
+                                  style: GoogleFonts.cairo(
+                                    color: AppTheme.success,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                            },
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

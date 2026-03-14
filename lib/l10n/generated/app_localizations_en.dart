@@ -911,4 +911,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cartConflictClear => 'Clear & Add New Item';
+
+  @override
+  String get mustamalSearchHint => 'Search for phones, cars, furniture...';
+
+  @override
+  String get mustamalUsedBadge => 'Pre-owned';
+
+  @override
+  String get mustamalViewDetails => 'View Details';
+
+  @override
+  String get mustamalNoTitle => 'No Title';
+
+  @override
+  String get carouselPromoSubtitle => 'Exclusive offers awaiting you';
+
+  @override
+  String get checkoutDeliveryOption => 'Delivery\n(5,000 IQD)';
+
+  @override
+  String get checkoutPickupOption => 'Pick Up In-Store\n(Free)';
+
+  @override
+  String get statusCancelled => 'Cancelled';
+
+  @override
+  String get orderTotalAmount => 'Total Amount';
+
+  @override
+  String orderItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '$count item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get orderHistoryEmpty => 'No orders yet.';
+
+  @override
+  String get checkoutFulfillmentMethod => 'Fulfillment Method';
 }

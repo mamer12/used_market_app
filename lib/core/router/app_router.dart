@@ -30,13 +30,20 @@ import '../../features/notifications/presentation/pages/activity_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/search/presentation/bloc/search_cubit.dart';
 import '../../features/search/presentation/pages/search_page.dart';
+import '../../features/home/data/models/portal_models.dart';
 import '../../features/shop/data/models/shop_models.dart';
 import '../../features/shop/presentation/pages/balla_page.dart';
 import '../../features/shop/presentation/pages/balla_product_details_page.dart';
 import '../../features/shop/presentation/pages/matajir_page.dart';
+import '../../features/shop/presentation/pages/dispute_page.dart';
+import '../../features/shop/presentation/pages/favorites_page.dart';
+import '../../features/shop/presentation/pages/mustamal_detail_page.dart';
 import '../../features/shop/presentation/pages/mustamal_page.dart';
 import '../../features/shop/presentation/pages/product_details_page.dart';
+import '../../features/shop/presentation/pages/shipping_address_page.dart';
 import '../../features/shop/presentation/pages/shop_products_page.dart';
+import '../../features/shop/presentation/pages/zaincash_payment_page.dart';
+import '../../features/wallet/presentation/pages/wallet_page.dart';
 import '../di/injection.dart';
 import '../widgets/main_shell.dart';
 
@@ -110,6 +117,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
     },
     routes: [
       // ── Public auth routes ──────────────────────────────────────────────
+      GoRoute(path: '/wallet', builder: (_, _) => const WalletPage()),
       GoRoute(path: '/splash', builder: (_, _) => const SplashPage()),
       GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingPage()),
       GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
@@ -117,6 +125,18 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       GoRoute(path: '/register', builder: (_, _) => const RegistrationPage()),
 
       // ── Protected routes ────────────────────────────────────────────────
+      GoRoute(path: '/favorites', builder: (_, _) => const FavoritesPage()),
+      GoRoute(path: '/shipping-address', builder: (_, _) => const ShippingAddressPage()),
+      GoRoute(
+        path: '/orders/:id/dispute',
+        builder: (context, state) =>
+            DisputePage(orderId: state.pathParameters['id'] ?? ''),
+      ),
+      GoRoute(
+        path: '/mustamal/:id',
+        builder: (context, state) =>
+            MustamalDetailPage(item: state.extra! as ItemModel),
+      ),
       GoRoute(
         path: '/search',
         builder: (context, state) => BlocProvider<SearchCubit>(
@@ -161,6 +181,17 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                   final slug = state.pathParameters['slug'] ?? '';
                   final shopName = state.uri.queryParameters['name'] ?? 'Shop';
                   return ShopProductsPage(shopSlug: slug, shopName: shopName);
+                },
+              ),
+              GoRoute(
+                path: 'zaincash/:orderId',
+                builder: (context, state) {
+                  final orderId = state.pathParameters['orderId'] ?? '';
+                  final paymentUrl = state.extra as String? ?? '';
+                  return ZainCashPaymentPage(
+                    orderId: orderId,
+                    paymentUrl: paymentUrl,
+                  );
                 },
               ),
             ],

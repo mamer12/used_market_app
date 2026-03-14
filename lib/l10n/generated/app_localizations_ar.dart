@@ -905,4 +905,50 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cartConflictClear => 'امسح وأضف المنتج الجديد';
+
+  @override
+  String get mustamalSearchHint => 'ابحث عن هاتف، سيارة، أثاث...';
+
+  @override
+  String get mustamalUsedBadge => 'مستعمل';
+
+  @override
+  String get mustamalViewDetails => 'عرض التفاصيل';
+
+  @override
+  String get mustamalNoTitle => 'بدون عنوان';
+
+  @override
+  String get carouselPromoSubtitle => 'عروض حصرية في انتظارك';
+
+  @override
+  String get checkoutDeliveryOption => 'توصيل\n(5,000 د.ع)';
+
+  @override
+  String get checkoutPickupOption => 'استلام من المتجر\n(مجاني)';
+
+  @override
+  String get statusCancelled => 'ملغي';
+
+  @override
+  String get orderTotalAmount => 'المبلغ الإجمالي';
+
+  @override
+  String orderItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count منتج',
+      few: '$count منتجات',
+      two: 'منتجان',
+      one: 'منتج واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get orderHistoryEmpty => 'لا يوجد طلبات بعد.';
+
+  @override
+  String get checkoutFulfillmentMethod => 'طريقة الاستلام';
 }

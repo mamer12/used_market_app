@@ -72,5 +72,9 @@ class AuctionRepositoryImpl implements AuctionRepository {
   Stream<BidPlacedEvent> get liveBidStream => _webSocketService.bidPlacedStream;
 
   @override
+  Stream<AuctionEndedEvent> get auctionEndedStream =>
+      _webSocketService.auctionEndedStream;
+
+  @override
   Stream<String> get auctionErrorStream => _webSocketService.errorStream;
 }

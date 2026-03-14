@@ -32,6 +32,10 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
       StreamController<AuctionEndedEvent>.broadcast();
   final _errorController = StreamController<String>.broadcast();
 
+  String? _currentAuctionId;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 5;
+
   AuctionWebSocketServiceImpl(this._tokenStorage);
 
   @override
@@ -58,6 +62,12 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
 
   @override
   Future<void> connect(String auctionId) async {
+    _currentAuctionId = auctionId;
+    _reconnectAttempts = 0;
+    await _doConnect(auctionId);
+  }
+
+  Future<void> _doConnect(String auctionId) async {
     final token = await _tokenStorage.getToken();
     final wsUrl = Uri.parse(
       '${ApiConstants.wsBaseUrl}/$auctionId?token=$token',
@@ -92,6 +102,7 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
                 finalPrice: _parseMoney(data['final_price']),
               );
               _auctionEndedController.add(event);
+              _currentAuctionId = null; // Stop reconnect after auction ends
 
             case 'error':
               final msg = data['message'] as String? ?? 'Unknown WS Error';
@@ -106,12 +117,30 @@ class AuctionWebSocketServiceImpl implements AuctionWebSocketService {
       },
       onDone: () {
         _log.info('WS Connection Closed');
+        _scheduleReconnect();
       },
       onError: (error) {
         _log.error('WS Connection Error', error);
         _errorController.add('WebSocket Error: $error');
+        _scheduleReconnect();
       },
     );
+  }
+
+  void _scheduleReconnect() {
+    if (_currentAuctionId == null) return;
+    if (_reconnectAttempts >= _maxReconnectAttempts) {
+      _errorController.add('تعذر إعادة الاتصال بالمزاد');
+      return;
+    }
+    final delay = Duration(seconds: (1 << _reconnectAttempts).clamp(1, 32));
+    _reconnectAttempts++;
+    _log.info(
+      'Reconnecting in ${delay.inSeconds}s (attempt $_reconnectAttempts)',
+    );
+    Future.delayed(delay, () {
+      if (_currentAuctionId != null) _doConnect(_currentAuctionId!);
+    });
   }
 
   @override

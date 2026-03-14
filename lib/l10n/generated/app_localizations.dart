@@ -1837,6 +1837,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear & Add New Item'**
   String get cartConflictClear;
+
+  /// Search bar placeholder in Mustamal page
+  ///
+  /// In en, this message translates to:
+  /// **'Search for phones, cars, furniture...'**
+  String get mustamalSearchHint;
+
+  /// Badge shown on used item cards
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-owned'**
+  String get mustamalUsedBadge;
+
+  /// Button on Mustamal cards to view item detail
+  ///
+  /// In en, this message translates to:
+  /// **'View Details'**
+  String get mustamalViewDetails;
+
+  /// Fallback title when a Mustamal listing has no title
+  ///
+  /// In en, this message translates to:
+  /// **'No Title'**
+  String get mustamalNoTitle;
+
+  /// Fallback subtitle on announcement carousel banner
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive offers awaiting you'**
+  String get carouselPromoSubtitle;
+
+  /// Delivery fulfillment option label in checkout
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery\n(5,000 IQD)'**
+  String get checkoutDeliveryOption;
+
+  /// Store pickup fulfillment option label in checkout
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Up In-Store\n(Free)'**
+  String get checkoutPickupOption;
+
+  /// Order status: cancelled
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
+
+  /// Label for total price in order history card
+  ///
+  /// In en, this message translates to:
+  /// **'Total Amount'**
+  String get orderTotalAmount;
+
+  /// Item count in order history card
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} item} other{{count} items}}'**
+  String orderItemCount(int count);
+
+  /// Empty state message in order history
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet.'**
+  String get orderHistoryEmpty;
+
+  /// Section title for delivery vs pickup choice in checkout
+  ///
+  /// In en, this message translates to:
+  /// **'Fulfillment Method'**
+  String get checkoutFulfillmentMethod;
 }
 
 class _AppLocalizationsDelegate

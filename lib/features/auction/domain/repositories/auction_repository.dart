@@ -24,5 +24,6 @@ abstract class AuctionRepository {
   void disconnectFromAuction();
   void placeRealTimeBid(double amount);
   Stream<BidPlacedEvent> get liveBidStream;
+  Stream<AuctionEndedEvent> get auctionEndedStream;
   Stream<String> get auctionErrorStream;
 }

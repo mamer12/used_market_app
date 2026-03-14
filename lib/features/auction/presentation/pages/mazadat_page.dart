@@ -20,6 +20,8 @@ import '../bloc/auctions_cubit.dart';
 import 'auction_live_page.dart';
 import 'mazadat_account_page.dart';
 import 'mazadat_watchlist_page.dart';
+import '../../../home/data/models/portal_models.dart';
+import '../../../home/presentation/widgets/home_components.dart';
 
 /// مزادات — Auctions marketplace hub.
 ///
@@ -38,6 +40,7 @@ class _MazadatPageState extends State<MazadatPage> {
   late final AuctionsCubit _cubit;
   late final CategoryCubit _categoryCubit;
   int _selectedNavIndex = 0;
+  bool _isGridView = false;
 
   @override
   void initState() {
@@ -87,6 +90,18 @@ class _MazadatPageState extends State<MazadatPage> {
         onFixedProduct: () {
           Navigator.pop(ctx);
         },
+      ),
+    );
+  }
+
+  void _showSortFilterSheet() {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => _SortFilterSheet(
+        cubit: _cubit,
       ),
     );
   }
@@ -155,7 +170,7 @@ class _MazadatPageState extends State<MazadatPage> {
                             color: AppTheme.mazadGreen, size: 18.sp),
                         SizedBox(width: 6.w),
                         Text(
-                          '٤٥٠,٠٠٠ د.ع',
+                          '٠ د.ع',
                           style: GoogleFonts.cairo(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.bold,
@@ -170,8 +185,43 @@ class _MazadatPageState extends State<MazadatPage> {
               ),
 
               // ── Featured Banner Hero ───────────────────
-              SliverToBoxAdapter(
-                child: _FeaturedBanner(),
+              BlocBuilder<AuctionsCubit, AuctionsState>(
+                builder: (context, state) {
+                  if (state.auctions.isEmpty) {
+                    return const SliverToBoxAdapter(child: SizedBox.shrink());
+                  }
+                  final banners = state.auctions.take(3).map((a) => Announcement(
+                    id: a.id ?? '',
+                    title: a.title,
+                    subtitle: 'مزاد ينتهي قريباً',
+                    imageUrl: a.images.isNotEmpty ? a.images.first : 'https://placehold.co/800x800/png',
+                    colorHex: 0xFF2B3A67,
+                    actionUrl: 'زايد الآن',
+                  )).toList();
+                  
+                  return SliverToBoxAdapter(
+                    child: AnnouncementsCarousel(
+                      items: banners,
+                      onTap: (item) {
+                        final original = state.auctions.firstWhere((a) => a.id == item.id);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AuctionLivePage(
+                              auctionId: original.id ?? '',
+                              title: original.title,
+                              currentPrice: '${original.currentPrice ?? 0}',
+                              currency: 'د.ع',
+                              imageUrl: original.images.isNotEmpty
+                                  ? original.images.first
+                                  : 'https://placehold.co/800x800/png',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
 
               // ── Sponsored Content (Stitch Screen 2) ────
@@ -181,7 +231,13 @@ class _MazadatPageState extends State<MazadatPage> {
 
               // ── View Toggle + Filter (Stitch Screen 2) ─
               SliverToBoxAdapter(
-                child: _ViewToggleAndFilter(),
+                child: _ViewToggleAndFilter(
+                  isGridView: _isGridView,
+                  onViewChanged: (isGrid) {
+                    setState(() => _isGridView = isGrid);
+                  },
+                  onSortFilterTap: _showSortFilterSheet,
+                ),
               ),
 
               // ── Category Chips ─────────────────────────
@@ -300,16 +356,29 @@ class _MazadatPageState extends State<MazadatPage> {
                   }
                   return SliverPadding(
                     padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => Padding(
-                          padding: EdgeInsets.only(bottom: 16.h),
-                          child:
-                              _AuctionCard(auction: state.auctions[index]),
-                        ),
-                        childCount: state.auctions.length,
-                      ),
-                    ),
+                    sliver: _isGridView
+                        ? SliverGrid(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16.h,
+                              crossAxisSpacing: 16.w,
+                              childAspectRatio: 0.55,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) =>
+                                  _AuctionGridCard(auction: state.auctions[index]),
+                              childCount: state.auctions.length,
+                            ),
+                          )
+                        : SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) => Padding(
+                                padding: EdgeInsets.only(bottom: 16.h),
+                                child: _AuctionCard(auction: state.auctions[index]),
+                              ),
+                              childCount: state.auctions.length,
+                            ),
+                          ),
                   );
                 },
               ),
@@ -334,102 +403,6 @@ class _MazadatPageState extends State<MazadatPage> {
   }
 }
 
-// ── Featured Banner (Stitch Screen 2: full-width hero) ──────────────────────
-class _FeaturedBanner extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200.h,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Background image placeholder
-          Container(color: AppTheme.shimmerBase),
-          // Gradient overlay
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.8),
-                  Colors.black.withValues(alpha: 0.1),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-          // Content
-          Padding(
-            padding: EdgeInsets.all(24.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Exclusive badge (Stitch: gold italic)
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentYellow,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  child: Text(
-                    'عرض حصري',
-                    style: GoogleFonts.cairo(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w900,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  'مزاد الأرقام المميزة الليلة!',
-                  style: GoogleFonts.cairo(
-                    fontSize: 22.sp,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    height: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Dot indicators
-          Positioned(
-            bottom: 16.h,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: 4.h,
-                  width: 24.w,
-                  decoration: BoxDecoration(
-                    color: AppTheme.mazadGreen,
-                    borderRadius: BorderRadius.circular(2.r),
-                  ),
-                ),
-                SizedBox(width: 6.w),
-                Container(
-                  height: 4.h,
-                  width: 8.w,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(2.r),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ── Sponsored Content Section (Stitch Screen 2) ────────────────────────────
 class _SponsoredSection extends StatelessWidget {
@@ -532,22 +505,9 @@ class _SponsoredCard extends StatelessWidget {
                 Positioned(
                   top: 4.h,
                   right: 4.w,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 5.w, vertical: 2.h),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                    child: Text(
-                      '03:45',
-                      style: GoogleFonts.cairo(
-                        color: Colors.white,
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  child: auction.endTime != null
+                      ? _CountdownPill(endTime: auction.endTime!)
+                      : const SizedBox.shrink(),
                 ),
               ],
             ),
@@ -625,6 +585,16 @@ class _SponsoredCard extends StatelessWidget {
 
 // ── View Toggle + Filter (Stitch Screen 2) ──────────────────────────────────
 class _ViewToggleAndFilter extends StatelessWidget {
+  final bool isGridView;
+  final ValueChanged<bool> onViewChanged;
+  final VoidCallback onSortFilterTap;
+
+  const _ViewToggleAndFilter({
+    required this.isGridView,
+    required this.onViewChanged,
+    required this.onSortFilterTap,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -641,28 +611,44 @@ class _ViewToggleAndFilter extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 32.w,
-                  height: 32.w,
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceAlt,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 4,
-                      ),
-                    ],
+                GestureDetector(
+                  onTap: () => onViewChanged(false),
+                  child: Container(
+                    width: 32.w,
+                    height: 32.w,
+                    decoration: BoxDecoration(
+                      color: !isGridView ? AppTheme.surfaceAlt : Colors.transparent,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                      boxShadow: !isGridView ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 4,
+                        ),
+                      ] : null,
+                    ),
+                    child: Icon(Icons.view_agenda_rounded,
+                        size: 16.sp, color: !isGridView ? AppTheme.textPrimary : AppTheme.textTertiary),
                   ),
-                  child: Icon(Icons.view_agenda_rounded,
-                      size: 16.sp, color: AppTheme.textPrimary),
                 ),
                 SizedBox(width: 2.w),
-                SizedBox(
-                  width: 32.w,
-                  height: 32.w,
-                  child: Icon(Icons.grid_view_rounded,
-                      size: 16.sp, color: AppTheme.textTertiary),
+                GestureDetector(
+                  onTap: () => onViewChanged(true),
+                  child: Container(
+                    width: 32.w,
+                    height: 32.w,
+                    decoration: BoxDecoration(
+                      color: isGridView ? AppTheme.surfaceAlt : Colors.transparent,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                      boxShadow: isGridView ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 4,
+                        ),
+                      ] : null,
+                    ),
+                    child: Icon(Icons.grid_view_rounded,
+                        size: 16.sp, color: isGridView ? AppTheme.textPrimary : AppTheme.textTertiary),
+                  ),
                 ),
               ],
             ),
@@ -670,9 +656,7 @@ class _ViewToggleAndFilter extends StatelessWidget {
           const Spacer(),
           // Sort & Filter button
           GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-            },
+            onTap: onSortFilterTap,
             child: Container(
               padding: EdgeInsets.symmetric(
                   horizontal: 14.w, vertical: 8.h),
@@ -1386,6 +1370,311 @@ class _CreateOption extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Auction Grid Card ───────────────────────────────────────────────────────
+class _AuctionGridCard extends StatelessWidget {
+  final AuctionModel auction;
+
+  const _AuctionGridCard({required this.auction});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = auction.images.isNotEmpty;
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AuctionLivePage(
+              auctionId: auction.id ?? '',
+              title: auction.title,
+              currentPrice: '${auction.currentPrice ?? 0}',
+              currency: 'د.ع',
+              imageUrl: hasImage
+                  ? auction.images.first
+                  : 'https://placehold.co/800x800/png',
+            ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceAlt,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: AppTheme.divider),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Image Section
+            Expanded(
+              flex: 5,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (hasImage)
+                    CachedNetworkImage(
+                      imageUrl: auction.images.first,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) =>
+                          Container(color: AppTheme.shimmerBase),
+                      errorWidget: (_, _, _) =>
+                          Container(color: AppTheme.shimmerBase),
+                    )
+                  else
+                    Container(
+                      color: AppTheme.shimmerBase,
+                      child: Icon(Icons.gavel_rounded,
+                          size: 32.sp, color: AppTheme.shimmerHighlight),
+                    ),
+                  // Timer badge
+                  Positioned(
+                    top: 8.h,
+                    right: 8.w,
+                    child: auction.endTime != null
+                        ? _CountdownPill(endTime: auction.endTime!)
+                        : const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
+            // Info Section
+            Expanded(
+              flex: 4,
+              child: Padding(
+                padding: EdgeInsets.all(12.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      auction.title,
+                      style: GoogleFonts.cairo(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'أعلى عطاء',
+                          style: GoogleFonts.cairo(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textTertiary,
+                          ),
+                        ),
+                        Text(
+                          IqdFormatter.format(
+                            (auction.currentPrice ?? auction.startPrice ?? 0)
+                                .toDouble(),
+                          ),
+                          style: AppTheme.priceStyle(
+                            fontSize: 16.sp,
+                            color: AppTheme.success,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Sort & Filter Sheet ─────────────────────────────────────────────────────
+class _SortFilterSheet extends StatefulWidget {
+  final AuctionsCubit cubit;
+
+  const _SortFilterSheet({required this.cubit});
+
+  @override
+  State<_SortFilterSheet> createState() => _SortFilterSheetState();
+}
+
+class _SortFilterSheetState extends State<_SortFilterSheet> {
+  late String _sortBy;
+  late String _filterStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    _sortBy = widget.cubit.state.sortBy;
+    _filterStatus = widget.cubit.state.filterStatus;
+  }
+
+  void _applyFilter() {
+    widget.cubit.setSortBy(_sortBy);
+    widget.cubit.setFilterStatus(_filterStatus);
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 80.h),
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              margin: EdgeInsets.only(bottom: 24.h),
+              width: 48.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: AppTheme.inactive,
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+          ),
+          Text(
+            'ترتيب وتصفية',
+            style: GoogleFonts.cairo(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          SizedBox(height: 24.h),
+          Text(
+            'حالة المزاد',
+            style: GoogleFonts.cairo(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Wrap(
+            spacing: 8.w,
+            children: [
+              _FilterChip(
+                label: 'الكل',
+                isSelected: _filterStatus == 'all',
+                onSelected: (val) => setState(() => _filterStatus = 'all'),
+              ),
+              _FilterChip(
+                label: 'نشط',
+                isSelected: _filterStatus == 'live',
+                onSelected: (val) => setState(() => _filterStatus = 'live'),
+              ),
+              _FilterChip(
+                label: 'قادم',
+                isSelected: _filterStatus == 'upcoming',
+                onSelected: (val) => setState(() => _filterStatus = 'upcoming'),
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Text(
+            'الترتيب',
+            style: GoogleFonts.cairo(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          ...[
+            {'label': 'ينتهي قريباً', 'value': 'ending_soon'},
+            {'label': 'السعر: من الأقل للأعلى', 'value': 'price_asc'},
+            {'label': 'السعر: من الأعلى للأقل', 'value': 'price_desc'},
+          ].map((item) => ListTile(
+                title: Text(
+                  item['label']!,
+                  style: GoogleFonts.cairo(
+                    fontSize: 14.sp,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                leading: Icon(
+                  _sortBy == item['value']! 
+                      ? Icons.radio_button_checked_rounded 
+                      : Icons.radio_button_unchecked_rounded,
+                  color: _sortBy == item['value']! 
+                      ? AppTheme.primary 
+                      : AppTheme.textSecondary.withValues(alpha: 0.5),
+                ),
+                onTap: () => setState(() => _sortBy = item['value']!),
+                contentPadding: EdgeInsets.zero,
+              )),
+          SizedBox(height: 24.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _applyFilter,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                padding: EdgeInsets.symmetric(vertical: 14.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                ),
+              ),
+              child: Text(
+                'تطبيق',
+                style: GoogleFonts.cairo(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 16.h),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final ValueChanged<bool> onSelected;
+
+  const _FilterChip({
+    required this.label,
+    required this.isSelected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ChoiceChip(
+      label: Text(
+        label,
+        style: GoogleFonts.cairo(
+          fontSize: 13.sp,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? Colors.white : AppTheme.textSecondary,
+        ),
+      ),
+      selected: isSelected,
+      onSelected: onSelected,
+      selectedColor: AppTheme.primary,
+      backgroundColor: AppTheme.surfaceAlt,
     );
   }
 }

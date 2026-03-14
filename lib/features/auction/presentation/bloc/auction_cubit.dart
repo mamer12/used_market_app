@@ -68,6 +68,7 @@ class AuctionCubit extends Cubit<AuctionState> {
 
   StreamSubscription? _bidSubscription;
   StreamSubscription? _errorSubscription;
+  StreamSubscription? _auctionEndedSubscription;
 
   AuctionCubit(this._repository) : super(const AuctionState());
 
@@ -115,11 +116,15 @@ class AuctionCubit extends Cubit<AuctionState> {
         LogService().error('Live Auction WS Error: $msg');
       });
 
-      // Listen for auction ended event
-      _repository.liveBidStream.listen((_) {}).onDone(() {
-        if (state.auction?.status == 'ended') {
-          emit(state.copyWith(isWon: state.auction?.winnerId == 'me'));
-        }
+      _auctionEndedSubscription =
+          _repository.auctionEndedStream.listen((event) {
+        emit(
+          state.copyWith(
+            isWon: event.winnerId != null && event.winnerId == state.auction?.winnerId,
+            finalPrice: event.finalPrice,
+            winnerId: event.winnerId,
+          ),
+        );
       });
     } catch (e, st) {
       LogService().error('Failed to init Auction Live', e, st);
@@ -185,6 +190,7 @@ class AuctionCubit extends Cubit<AuctionState> {
   Future<void> close() {
     _bidSubscription?.cancel();
     _errorSubscription?.cancel();
+    _auctionEndedSubscription?.cancel();
     _repository.disconnectFromAuction();
     return super.close();
   }

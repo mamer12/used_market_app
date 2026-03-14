@@ -7,7 +7,7 @@ import 'bootstrap.dart';
 import 'core/config/flavor.dart';
 
 Future<void> main() async {
-  runZonedGuarded(
+  await runZonedGuarded(
     () async {
       await bootstrap(() => const App(), AppFlavor.development);
     },

@@ -120,22 +120,30 @@ class AuctionsCubit extends Cubit<AuctionsState> {
         limit: 20,
       );
 
-      // Locally apply 'status' filter conceptually here or rely on BE.
-      // Since backend doesn't take 'status' in getAuctions as per instructions (wait, it didn't list it),
-      // we filter locally if it has both. Or we assume BE returns them properly and we filter.
-      // Actually, if we just want to match the previous local filter behavior:
+      final now = DateTime.now();
       final filtered = newAuctions.where((a) {
+        // Never surface ended auctions — not requested by user
+        if (a.status == 'ended') return false;
+        // Also exclude auctions whose endTime has already passed
+        if (a.endTime != null && a.endTime!.isBefore(now)) return false;
+
         if (state.filterStatus == 'live') {
           return a.status == 'live' || a.status == 'active';
         }
         if (state.filterStatus == 'upcoming') {
           return a.status == 'upcoming';
         }
-        if (state.filterStatus == 'ended') {
-          return a.status == 'ended';
-        }
         return true;
       }).toList();
+
+      // local sort since backend might not support all sort queries yet
+      if (state.sortBy == 'price_asc') {
+        filtered.sort((a, b) => (a.currentPrice ?? a.startPrice ?? 0).compareTo(b.currentPrice ?? b.startPrice ?? 0));
+      } else if (state.sortBy == 'price_desc') {
+        filtered.sort((a, b) => (b.currentPrice ?? b.startPrice ?? 0).compareTo(a.currentPrice ?? a.startPrice ?? 0));
+      } else if (state.sortBy == 'ending_soon') {
+        filtered.sort((a, b) => (a.endTime ?? DateTime.now()).compareTo(b.endTime ?? DateTime.now()));
+      }
 
       emit(
         state.copyWith(
