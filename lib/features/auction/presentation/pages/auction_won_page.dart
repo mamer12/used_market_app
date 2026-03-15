@@ -14,6 +14,7 @@ import '../../../../core/utils/iqd_formatter.dart';
 ///
 /// Based on Stitch Screen 4 (c04db738) — warm Iraqi Bazaar Modernism.
 class AuctionWonPage extends StatefulWidget {
+  final String? auctionId;
   final String itemTitle;
   final int winningBid;
   final String currency;
@@ -22,6 +23,7 @@ class AuctionWonPage extends StatefulWidget {
 
   const AuctionWonPage({
     super.key,
+    this.auctionId,
     required this.itemTitle,
     required this.winningBid,
     required this.currency,
@@ -497,6 +499,12 @@ class _AuctionWonPageState extends State<AuctionWonPage>
           GestureDetector(
             onTap: () {
               HapticFeedback.mediumImpact();
+              final id = widget.auctionId ?? 'auction_fallback';
+              context.push('/mazadat/payment/$id', extra: {
+                'itemTitle': widget.itemTitle,
+                'winningBid': widget.winningBid,
+                'imageUrl': widget.imageUrl,
+              });
             },
             child: Container(
               width: double.infinity,

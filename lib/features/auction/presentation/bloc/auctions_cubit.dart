@@ -15,6 +15,10 @@ class AuctionsState {
   final String filterStatus;
   final int page;
   final bool hasReachedMax;
+  final List<BidModel> myBids;
+  final bool isLoadingMyBids;
+  final List<AuctionModel> watchedAuctions;
+  final bool isLoadingWatchlist;
 
   const AuctionsState({
     this.isLoading = false,
@@ -26,6 +30,10 @@ class AuctionsState {
     this.filterStatus = 'live',
     this.page = 1,
     this.hasReachedMax = false,
+    this.myBids = const [],
+    this.isLoadingMyBids = false,
+    this.watchedAuctions = const [],
+    this.isLoadingWatchlist = false,
   });
 
   AuctionsState copyWith({
@@ -38,6 +46,10 @@ class AuctionsState {
     String? filterStatus,
     int? page,
     bool? hasReachedMax,
+    List<BidModel>? myBids,
+    bool? isLoadingMyBids,
+    List<AuctionModel>? watchedAuctions,
+    bool? isLoadingWatchlist,
   }) {
     return AuctionsState(
       isLoading: isLoading ?? this.isLoading,
@@ -49,6 +61,10 @@ class AuctionsState {
       filterStatus: filterStatus ?? this.filterStatus,
       page: page ?? this.page,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      myBids: myBids ?? this.myBids,
+      isLoadingMyBids: isLoadingMyBids ?? this.isLoadingMyBids,
+      watchedAuctions: watchedAuctions ?? this.watchedAuctions,
+      isLoadingWatchlist: isLoadingWatchlist ?? this.isLoadingWatchlist,
     );
   }
 }
@@ -164,5 +180,29 @@ class AuctionsCubit extends Cubit<AuctionsState> {
     if (state.isLoading || state.hasReachedMax) return;
     emit(state.copyWith(page: state.page + 1));
     await loadAuctions();
+  }
+
+  /// Load the current user's bid history (won / lost / pending).
+  Future<void> loadMyBids() async {
+    emit(state.copyWith(isLoadingMyBids: true));
+    try {
+      final bids = await _repository.getMyBids();
+      emit(state.copyWith(isLoadingMyBids: false, myBids: bids));
+    } catch (e, st) {
+      LogService().error('Failed to load my bids', e, st);
+      emit(state.copyWith(isLoadingMyBids: false));
+    }
+  }
+
+  /// Load auctions the user is watching.
+  Future<void> loadWatchedAuctions() async {
+    emit(state.copyWith(isLoadingWatchlist: true));
+    try {
+      final watched = await _repository.getWatchedAuctions();
+      emit(state.copyWith(isLoadingWatchlist: false, watchedAuctions: watched));
+    } catch (e, st) {
+      LogService().error('Failed to load watchlist', e, st);
+      emit(state.copyWith(isLoadingWatchlist: false));
+    }
   }
 }

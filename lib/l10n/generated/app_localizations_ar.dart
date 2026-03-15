@@ -827,7 +827,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get postSellBallaSub => 'بيع بالقطعة أو الكيلو أو البندل';
 
   @override
-  String get whatsappChat => 'تواصل مع البائع';
+  String get whatsappChat => 'تواصل بأمان عبر واتساب';
 
   @override
   String checkoutUnitFormat(String price, String qty, String unit) {
@@ -851,11 +851,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String walletBalance(String amount) {
-    return 'الرصيد: $amount';
+    return 'رصيد ضمانك: $amount';
   }
 
   @override
-  String get omniboxHint => 'على شنو تدور اليوم؟';
+  String get omniboxHint => 'شنو بخاطرك؟ ابحث بصوتك أو اكتب...';
+
+  @override
+  String get escrowProtectionText =>
+      'لأن فلوسك ووقتك غالية، المبلغ يبقى يمنا لحد ما تستلم طلبك.';
 
   @override
   String get miniAppMazadTagline => 'مزايدات مباشرة';
@@ -1038,7 +1042,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get matajirAllCategories => 'كل التصنيفات';
 
   @override
-  String get matajirVerifiedBadge => 'متجر موثق من لكطة';
+  String get matajirVerifiedBadge => 'متجر موثق';
 
   @override
   String get matajirAddToCart => 'أضف للسلة';
@@ -1107,4 +1111,54 @@ class AppLocalizationsAr extends AppLocalizations {
   String matajirStoreCount(int count) {
     return '$count متجر موثق في العراق';
   }
+
+  @override
+  String get matajirPromoEndsIn => 'ينتهي بعد';
+
+  @override
+  String matajirProductCount(int count) {
+    return '$count منتج';
+  }
+
+  @override
+  String get matajirShopEmpty => 'لا توجد منتجات بعد';
+
+  @override
+  String get matajirShopEmptySubtitle => 'لم يُضف هذا المتجر منتجات حتى الآن';
+
+  @override
+  String get matajirRetry => 'إعادة المحاولة';
+
+  @override
+  String get matajirOutOfStock => 'نفد المخزون';
+
+  @override
+  String get matajirVerifiedFull => 'متجر موثق من لكطة';
+
+  @override
+  String get matajirSalesCountPlaceholder => '٢٬٣٤١ عملية بيع';
+
+  @override
+  String get matajirProductSuffix => 'منتج';
+
+  @override
+  String get mazadatNavAuctions => 'المزادات';
+
+  @override
+  String get mazadatNavMyBids => 'مزايداتي';
+
+  @override
+  String get mazadatNavWatchlist => 'المراقبة';
+
+  @override
+  String get mazadatNavAccount => 'حسابي';
+
+  @override
+  String get mazadatWalletBalance => 'رصيد المحفظة';
+
+  @override
+  String get mazadatPayFromWallet => 'ادفع من المحفظة';
+
+  @override
+  String get mazadatTopUpWallet => 'شحن المحفظة';
 }

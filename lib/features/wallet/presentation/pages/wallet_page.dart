@@ -41,33 +41,27 @@ class _WalletPageState extends State<WalletPage> {
           bottom: false,
           child: CustomScrollView(
             slivers: [
-              _SliverWalletAppBar(),
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 16.h),
-                sliver: SliverToBoxAdapter(child: _BalanceCard()),
-              ),
-              SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                sliver: SliverToBoxAdapter(child: _ActionRow()),
-              ),
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(16.w, 28.h, 16.w, 8.h),
-                sliver: SliverToBoxAdapter(
-                  child: Text(
-                    'آخر العمليات',
-                    style: GoogleFonts.cairo(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
+              _buildAppBar(context),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 0),
+                  child: _BalanceCard(),
                 ),
               ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+                  child: _ActionRow(),
+                ),
+              ),
+              SliverToBoxAdapter(child: _buildEscrowInfoCard()),
+              SliverToBoxAdapter(child: _buildSectionHeader('آخر العمليات')),
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
                 sliver: SliverList.separated(
                   itemCount: _mockTransactions.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1, color: AppTheme.divider),
                   itemBuilder: (_, i) =>
                       _TransactionRow(tx: _mockTransactions[i]),
                 ),
@@ -78,142 +72,201 @@ class _WalletPageState extends State<WalletPage> {
       ),
     );
   }
-}
 
-// ── Appbar ─────────────────────────────────────────────────────────────────────
-
-class _SliverWalletAppBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      backgroundColor: Colors.white,
-      elevation: 0,
+      backgroundColor: AppTheme.primary,
       surfaceTintColor: Colors.transparent,
+      foregroundColor: Colors.white,
+      elevation: 0,
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios_new_rounded,
-            color: AppTheme.textPrimary, size: 20.sp),
+            color: Colors.white, size: 20.sp),
         onPressed: () => Navigator.of(context).maybePop(),
       ),
       title: Text(
         'محفظتي',
-        style: GoogleFonts.cairo(
-          fontSize: 18.sp,
+        style: GoogleFonts.tajawal(
+          fontSize: 20.sp,
           fontWeight: FontWeight.w700,
-          color: AppTheme.textPrimary,
+          color: Colors.white,
         ),
       ),
-      centerTitle: false,
+      centerTitle: true,
       actions: [
         IconButton(
-          icon: Icon(Icons.refresh_rounded,
-              color: AppTheme.textPrimary, size: 22.sp),
-          onPressed: () =>
-              context.read<WalletCubit>().loadBalance(),
+          icon: Icon(Icons.refresh_rounded, color: Colors.white, size: 22.sp),
+          onPressed: () => context.read<WalletCubit>().loadBalance(),
         ),
       ],
     );
   }
+
+  Widget _buildEscrowInfoCard() {
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        color: AppTheme.emeraldGreen.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(
+            color: AppTheme.emeraldGreen.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40.w,
+            height: 40.w,
+            decoration: BoxDecoration(
+              color: AppTheme.emeraldGreen.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.shield_rounded,
+                color: AppTheme.emeraldGreen, size: 20.sp),
+          ),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'أمانة لكطة',
+                  style: GoogleFonts.tajawal(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  'فلوسك محمية — ما تنتقل للبائع لحد ما تستلم طلبك',
+                  style: GoogleFonts.tajawal(
+                    fontSize: 12.sp,
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 10.h),
+      child: Row(
+        children: [
+          Container(
+            width: 4.w,
+            height: 20.h,
+            decoration: BoxDecoration(
+              color: AppTheme.primary,
+              borderRadius: BorderRadius.circular(2.r),
+            ),
+          ),
+          SizedBox(width: 10.w),
+          Text(
+            title,
+            style: GoogleFonts.tajawal(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-// ── Balance card ──────────────────────────────────────────────────────────────
+// ── Balance Card ──────────────────────────────────────────────────────────────
 
 class _BalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WalletCubit, WalletState>(
       builder: (context, state) {
+        final balanceText = switch (state) {
+          WalletLoading() => null,
+          WalletError() => '-- د.ع',
+          WalletLoaded(:final balanceIqd) =>
+            '${IqdFormatter.format(balanceIqd.toDouble())} د.ع',
+        };
+
         return Container(
           width: double.infinity,
           padding: EdgeInsets.all(24.w),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF00BFA5), Color(0xFF00796B)],
+              colors: [AppTheme.tigrisBlue, AppTheme.primaryDark],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00BFA5).withValues(alpha: 0.3),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
+                color: AppTheme.tigrisBlue.withValues(alpha: 0.35),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Label row
               Row(
                 children: [
                   Icon(Icons.account_balance_wallet_rounded,
-                      color: Colors.white70, size: 20.sp),
-                  SizedBox(width: 8.w),
+                      color: Colors.white60, size: 16.sp),
+                  SizedBox(width: 6.w),
                   Text(
-                    'الرصيد المتاح',
-                    style: GoogleFonts.cairo(
+                    'رصيد ضمانك',
+                    style: GoogleFonts.tajawal(
                       fontSize: 13.sp,
-                      color: Colors.white70,
+                      color: Colors.white60,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 12.h),
-              switch (state) {
-                WalletLoading() => SkeletonBox(
-                    width: 160.w,
-                    height: 36.h,
-                    borderRadius: 8.r,
+              SizedBox(height: 14.h),
+              // Balance amount
+              if (state is WalletLoading)
+                SkeletonBox(width: 180.w, height: 40.h, borderRadius: 8.r)
+              else
+                Text(
+                  balanceText!,
+                  style: GoogleFonts.tajawal(
+                    fontSize: 36.sp,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    height: 1.1,
                   ),
-                WalletError() => Text(
-                    '-- د.ع',
-                    style: GoogleFonts.cairo(
-                      fontSize: 34.sp,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                WalletLoaded(:final balanceIqd) => Text(
-                    '${IqdFormatter.format(balanceIqd.toDouble())} ',
-                    style: GoogleFonts.cairo(
-                      fontSize: 34.sp,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-              },
+                ),
               SizedBox(height: 4.h),
               Text(
                 'دينار عراقي',
-                style: GoogleFonts.cairo(
-                  fontSize: 12.sp,
-                  color: Colors.white60,
-                ),
+                style: GoogleFonts.tajawal(
+                    fontSize: 12.sp, color: Colors.white38),
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: 20.h),
+              // Escrow lock chip + Dinar Gold badge
               Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 10.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.lock_outline_rounded,
-                            size: 12.sp, color: Colors.white70),
-                        SizedBox(width: 4.w),
-                        Text(
-                          'محمي بأمانة مضمون',
-                          style: GoogleFonts.cairo(
-                            fontSize: 11.sp,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
+                  const _WhitePill(
+                    icon: Icons.lock_rounded,
+                    label: 'محمي بأمانة لكطة',
+                    iconColor: AppTheme.emeraldGreen,
+                  ),
+                  SizedBox(width: 8.w),
+                  const _WhitePill(
+                    icon: Icons.verified_rounded,
+                    label: 'موثق',
+                    iconColor: AppTheme.dinarGold,
                   ),
                 ],
               ),
@@ -225,7 +278,42 @@ class _BalanceCard extends StatelessWidget {
   }
 }
 
-// ── Action row ────────────────────────────────────────────────────────────────
+class _WhitePill extends StatelessWidget {
+  const _WhitePill(
+      {required this.icon, required this.label, required this.iconColor});
+  final IconData icon;
+  final String label;
+  final Color iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12.sp, color: iconColor),
+          SizedBox(width: 5.w),
+          Text(
+            label,
+            style: GoogleFonts.tajawal(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.white70,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Action Row ────────────────────────────────────────────────────────────────
 
 class _ActionRow extends StatelessWidget {
   @override
@@ -235,25 +323,40 @@ class _ActionRow extends StatelessWidget {
         _ActionButton(
           icon: Icons.add_rounded,
           label: 'إيداع',
-          color: AppTheme.primary,
-          onTap: () {
-            // TODO: wire deposit flow
-          },
+          bg: AppTheme.dinarGold.withValues(alpha: 0.12),
+          border: AppTheme.dinarGold.withValues(alpha: 0.30),
+          iconColor: const Color(0xFFB8860B), // dark gold
+          labelColor: const Color(0xFF8B6914),
+          onTap: () {},
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: 10.w),
         _ActionButton(
           icon: Icons.arrow_upward_rounded,
           label: 'سحب',
-          color: AppTheme.error,
-          onTap: () {
-            // TODO: wire withdraw flow
-          },
+          bg: AppTheme.error.withValues(alpha: 0.08),
+          border: AppTheme.error.withValues(alpha: 0.20),
+          iconColor: AppTheme.error,
+          labelColor: AppTheme.error,
+          onTap: () {},
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: 10.w),
         _ActionButton(
           icon: Icons.history_rounded,
           label: 'السجل',
-          color: AppTheme.textSecondary,
+          bg: AppTheme.surface,
+          border: AppTheme.divider,
+          iconColor: AppTheme.textSecondary,
+          labelColor: AppTheme.textSecondary,
+          onTap: () {},
+        ),
+        SizedBox(width: 10.w),
+        _ActionButton(
+          icon: Icons.share_rounded,
+          label: 'مشاركة',
+          bg: AppTheme.surface,
+          border: AppTheme.divider,
+          iconColor: AppTheme.textSecondary,
+          labelColor: AppTheme.textSecondary,
           onTap: () {},
         ),
       ],
@@ -262,17 +365,22 @@ class _ActionRow extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
   const _ActionButton({
     required this.icon,
     required this.label,
-    required this.color,
+    required this.bg,
+    required this.border,
+    required this.iconColor,
+    required this.labelColor,
     required this.onTap,
   });
+  final IconData icon;
+  final String label;
+  final Color bg;
+  final Color border;
+  final Color iconColor;
+  final Color labelColor;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -280,22 +388,22 @@ class _ActionButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 16.h),
+          padding: EdgeInsets.symmetric(vertical: 14.h),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.08),
+            color: bg,
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: color.withValues(alpha: 0.15)),
+            border: Border.all(color: border),
           ),
           child: Column(
             children: [
-              Icon(icon, color: color, size: 22.sp),
+              Icon(icon, color: iconColor, size: 22.sp),
               SizedBox(height: 6.h),
               Text(
                 label,
-                style: GoogleFonts.cairo(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                  color: color,
+                style: GoogleFonts.tajawal(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
+                  color: labelColor,
                 ),
               ),
             ],
@@ -306,7 +414,7 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-// ── Transaction row ───────────────────────────────────────────────────────────
+// ── Transaction Row ───────────────────────────────────────────────────────────
 
 class _TxData {
   final String title;
@@ -314,6 +422,7 @@ class _TxData {
   final int amount;
   final bool isCredit;
   final String date;
+  final _TxType type;
 
   const _TxData({
     required this.title,
@@ -321,20 +430,36 @@ class _TxData {
     required this.amount,
     required this.isCredit,
     required this.date,
+    this.type = _TxType.transfer,
   });
 }
 
+enum _TxType { deposit, withdraw, escrowLock, escrowRelease, transfer, refund }
+
 class _TransactionRow extends StatelessWidget {
+  const _TransactionRow({required this.tx});
   final _TxData tx;
 
-  const _TransactionRow({required this.tx});
+  IconData get _icon => switch (tx.type) {
+        _TxType.deposit => Icons.add_circle_outline_rounded,
+        _TxType.withdraw => Icons.arrow_circle_up_rounded,
+        _TxType.escrowLock => Icons.lock_rounded,
+        _TxType.escrowRelease => Icons.lock_open_rounded,
+        _TxType.refund => Icons.undo_rounded,
+        _TxType.transfer => tx.isCredit
+            ? Icons.arrow_circle_down_rounded
+            : Icons.arrow_circle_up_rounded,
+      };
+
+  Color get _color => switch (tx.type) {
+        _TxType.escrowLock => AppTheme.tigrisBlue,
+        _TxType.escrowRelease => AppTheme.emeraldGreen,
+        _TxType.refund => AppTheme.dinarGold,
+        _ => tx.isCredit ? AppTheme.success : AppTheme.error,
+      };
 
   @override
   Widget build(BuildContext context) {
-    final color = tx.isCredit ? AppTheme.success : AppTheme.error;
-    final icon =
-        tx.isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded;
-
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 14.h),
       child: Row(
@@ -343,10 +468,10 @@ class _TransactionRow extends StatelessWidget {
             width: 44.w,
             height: 44.w,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: _color.withValues(alpha: 0.10),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color, size: 20.sp),
+            child: Icon(_icon, color: _color, size: 20.sp),
           ),
           SizedBox(width: 14.w),
           Expanded(
@@ -355,7 +480,7 @@ class _TransactionRow extends StatelessWidget {
               children: [
                 Text(
                   tx.title,
-                  style: GoogleFonts.cairo(
+                  style: GoogleFonts.tajawal(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.textPrimary,
@@ -363,7 +488,7 @@ class _TransactionRow extends StatelessWidget {
                 ),
                 Text(
                   tx.subtitle,
-                  style: GoogleFonts.cairo(
+                  style: GoogleFonts.tajawal(
                     fontSize: 11.sp,
                     color: AppTheme.textSecondary,
                   ),
@@ -375,18 +500,18 @@ class _TransactionRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${tx.isCredit ? '+' : '-'}${IqdFormatter.format(tx.amount.toDouble())}',
-                style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
+                '${tx.isCredit ? '+' : '-'}${IqdFormatter.format(tx.amount.toDouble())} د.ع',
+                style: GoogleFonts.tajawal(
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
-                  color: color,
+                  color: _color,
                 ),
               ),
               Text(
                 tx.date,
-                style: GoogleFonts.cairo(
+                style: GoogleFonts.tajawal(
                   fontSize: 11.sp,
-                  color: AppTheme.textSecondary,
+                  color: AppTheme.textTertiary,
                 ),
               ),
             ],
@@ -397,42 +522,47 @@ class _TransactionRow extends StatelessWidget {
   }
 }
 
-// ── Mock transactions (replace with API when transaction history endpoint exists)
+// ── Mock data ─────────────────────────────────────────────────────────────────
 
 const _mockTransactions = [
   _TxData(
     title: 'إيداع في المحفظة',
-    subtitle: 'تم الإيداع بنجاح',
+    subtitle: 'تم الإيداع بنجاح عبر ZainCash',
     amount: 150000,
     isCredit: true,
     date: '١٤ مارس',
+    type: _TxType.deposit,
   ),
   _TxData(
-    title: 'شراء منتج',
-    subtitle: 'طلب #LQ-4A2F',
+    title: 'حجز أمانة — طلب #LQ-4A2F',
+    subtitle: 'المبلغ محجوز حتى استلام الطلب',
     amount: 75000,
     isCredit: false,
     date: '١٣ مارس',
+    type: _TxType.escrowLock,
   ),
   _TxData(
-    title: 'استرداد طلب',
-    subtitle: 'طلب #LQ-8C3E',
+    title: 'تحرير أمانة — طلب #LQ-3B1C',
+    subtitle: 'تم تحويل المبلغ للبائع بعد الاستلام',
     amount: 45000,
     isCredit: true,
     date: '١٢ مارس',
+    type: _TxType.escrowRelease,
   ),
   _TxData(
-    title: 'دفع مزاد',
-    subtitle: 'مزاد #AUC-9910',
+    title: 'دفع مزاد #AUC-9910',
+    subtitle: 'فوز بالمزاد — قيد الشحن',
     amount: 200000,
     isCredit: false,
     date: '١١ مارس',
+    type: _TxType.withdraw,
   ),
   _TxData(
-    title: 'مبيعات مضمون',
-    subtitle: 'تحرير أمانة',
+    title: 'استرداد طلب #LQ-8C3E',
+    subtitle: 'تم رد المبلغ بعد نزاع ناجح',
     amount: 320000,
     isCredit: true,
     date: '١٠ مارس',
+    type: _TxType.refund,
   ),
 ];

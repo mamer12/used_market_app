@@ -8,7 +8,10 @@ import '../../features/auction/presentation/pages/active_bids_page.dart';
 import '../../features/auction/presentation/pages/auction_lost_page.dart';
 import '../../features/auction/presentation/pages/auction_won_page.dart';
 import '../../features/auction/presentation/pages/create_auction_page.dart';
-import '../../features/auction/presentation/pages/mazadat_page.dart';
+import '../../features/auction/presentation/bloc/auctions_cubit.dart';
+import '../../features/auction/presentation/pages/mazadat_shell_page.dart';
+import '../../features/auction/presentation/pages/mazadat_payment_page.dart';
+import '../../features/auction/presentation/pages/settlement_confirm_page.dart';
 import '../../features/auction/presentation/pages/second_chance_offer_page.dart';
 import '../../features/auction/presentation/pages/settlement_confirm_receipt_page.dart';
 import '../../features/auth/domain/entities/auth_status.dart';
@@ -252,75 +255,114 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       ),
 
       // Mazadat Mini-App
-      GoRoute(
-        path: '/mazadat',
-        builder: (_, _) => const MazadatPage(),
+      ShellRoute(
+        builder: (context, state, child) {
+          return BlocProvider<AuctionsCubit>(
+            create: (context) => getIt<AuctionsCubit>()
+              ..loadAuctions()
+              ..loadMyBids()
+              ..loadWatchedAuctions(),
+            child: child,
+          );
+        },
         routes: [
           GoRoute(
-            path: 'create',
-            builder: (_, _) => const CreateAuctionPage(),
-          ),
-          GoRoute(
-            path: 'bids',
-            builder: (_, _) => const ActiveBidsPage(),
-          ),
-          GoRoute(
-            path: 'won',
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>? ?? {};
-              return AuctionWonPage(
-                itemTitle: extra['itemTitle'] as String? ?? '',
-                winningBid: extra['winningBid'] as int? ?? 0,
-                currency: extra['currency'] as String? ?? 'د.ع',
-                endTime: extra['endTime'] as DateTime? ?? DateTime.now(),
-                imageUrl: extra['imageUrl'] as String? ??
-                    'https://placehold.co/400x400/png',
-              );
-            },
-          ),
-          GoRoute(
-            path: 'lost',
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>? ?? {};
-              return AuctionLostPage(
-                itemTitle: extra['itemTitle'] as String? ?? '',
-                closingPrice: extra['closingPrice'] as double? ?? 0,
-                winnerInitials: extra['winnerInitials'] as String? ?? '؟',
-                imageUrl: extra['imageUrl'] as String? ??
-                    'https://placehold.co/400x400/png',
-              );
-            },
-          ),
-          GoRoute(
-            path: 'settlement-confirm',
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>? ?? {};
-              return SettlementConfirmReceiptPage(
-                itemTitle: extra['itemTitle'] as String? ?? '',
-                finalPrice: extra['finalPrice'] as double? ?? 0,
-                imageUrl: extra['imageUrl'] as String? ??
-                    'https://placehold.co/400x400/png',
-                transactionId: extra['transactionId'] as String? ?? '',
-                auctionId: extra['auctionId'] as String? ?? '',
-              );
-            },
-          ),
-          GoRoute(
-            path: 'second-chance',
-            builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>? ?? {};
-              return SecondChanceOfferPage(
-                auctionId: extra['auctionId'] as String? ?? '',
-                itemTitle: extra['itemTitle'] as String? ?? '',
-                lastBidPrice: extra['lastBidPrice'] as double? ?? 0,
-                imageUrl: extra['imageUrl'] as String? ??
-                    'https://placehold.co/400x400/png',
-                expiresAt: extra['expiresAt'] as DateTime? ??
-                    DateTime.now().add(const Duration(hours: 24)),
-                itemDescription:
-                    extra['itemDescription'] as String? ?? '',
-              );
-            },
+            path: '/mazadat',
+            builder: (_, _) => const MazadatShellPage(),
+            routes: [
+              GoRoute(
+                path: 'create',
+                builder: (_, _) => const CreateAuctionPage(),
+              ),
+              GoRoute(
+                path: 'bids',
+                builder: (_, _) => const ActiveBidsPage(),
+              ),
+              GoRoute(
+                path: 'payment/:auctionId',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return MazadatPaymentPage(
+                    auctionId: state.pathParameters['auctionId'] ?? '',
+                    itemTitle: extra['itemTitle'] as String? ?? 'عنصر',
+                    winningBid: extra['winningBid'] as int? ?? 0,
+                    imageUrl: extra['imageUrl'] as String? ?? '',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'won',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return AuctionWonPage(
+                    auctionId: extra['auctionId'] as String? ?? '',
+                    itemTitle: extra['itemTitle'] as String? ?? '',
+                    winningBid: extra['winningBid'] as int? ?? 0,
+                    currency: extra['currency'] as String? ?? 'د.ع',
+                    endTime: extra['endTime'] as DateTime? ?? DateTime.now(),
+                    imageUrl: extra['imageUrl'] as String? ??
+                        'https://placehold.co/400x400/png',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'lost',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return AuctionLostPage(
+                    itemTitle: extra['itemTitle'] as String? ?? '',
+                    closingPrice: extra['closingPrice'] as double? ?? 0,
+                    winnerInitials: extra['winnerInitials'] as String? ?? '؟',
+                    imageUrl: extra['imageUrl'] as String? ??
+                        'https://placehold.co/400x400/png',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'payment-success',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return SettlementConfirmPage(
+                    auctionId: extra['auctionId'] as String? ?? '',
+                    itemTitle: extra['itemTitle'] as String? ?? '',
+                    finalPrice: extra['finalPrice'] as double? ?? 0,
+                    imageUrl: extra['imageUrl'] as String? ?? 'https://placehold.co/400x400/png',
+                    transactionId: extra['transactionId'] as String? ?? '',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'settlement-confirm',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return SettlementConfirmReceiptPage(
+                    itemTitle: extra['itemTitle'] as String? ?? '',
+                    finalPrice: extra['finalPrice'] as double? ?? 0,
+                    imageUrl: extra['imageUrl'] as String? ??
+                        'https://placehold.co/400x400/png',
+                    transactionId: extra['transactionId'] as String? ?? '',
+                    auctionId: extra['auctionId'] as String? ?? '',
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'second-chance',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>? ?? {};
+                  return SecondChanceOfferPage(
+                    auctionId: extra['auctionId'] as String? ?? '',
+                    itemTitle: extra['itemTitle'] as String? ?? '',
+                    lastBidPrice: extra['lastBidPrice'] as double? ?? 0,
+                    imageUrl: extra['imageUrl'] as String? ??
+                        'https://placehold.co/400x400/png',
+                    expiresAt: extra['expiresAt'] as DateTime? ??
+                        DateTime.now().add(const Duration(hours: 24)),
+                    itemDescription:
+                        extra['itemDescription'] as String? ?? '',
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),

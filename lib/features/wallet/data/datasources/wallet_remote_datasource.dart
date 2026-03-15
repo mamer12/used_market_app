@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 abstract class WalletRemoteDataSource {
   Future<int> fetchBalance();
+  Future<void> deductBalance(int amount);
 }
 
 @LazySingleton(as: WalletRemoteDataSource)
@@ -24,5 +25,13 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     if (raw is double) return raw.toInt();
     if (raw is String) return int.parse(raw);
     throw StateError('Unexpected balance type: ${raw.runtimeType}');
+  }
+
+  @override
+  Future<void> deductBalance(int amount) async {
+    await _dio.post<Map<String, dynamic>>(
+      'wallet/deduct',
+      data: {'amount': amount},
+    );
   }
 }

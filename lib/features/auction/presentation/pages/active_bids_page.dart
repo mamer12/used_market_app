@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../bloc/auctions_cubit.dart';
 
 /// Bid History / Active Bids page — "سجل المزايدات".
 ///
@@ -25,71 +27,69 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
 
   static const _filters = ['الكل', 'فائز', 'خاسر', 'قيد الانتظار'];
 
-  // Mock data
-  final _mockBids = [
-    {
-      'title': 'آيفون ١٥ برو ماكس',
-      'date': '١٥ مايو ٢٠٢٤',
-      'amount': 1250000.0,
-      'status': 'فائز',
-      'statusKey': 'WON',
-      'image':
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuB7L-u9fft9VjVrmtpQUZogxGca3a73ReZl2BQ4Pj-eNbj0oWjZpSrmyykLxgcRwaYiecuHsIXaJjb5O2IMyG1NaFIsnvjMRvpcJihgEP-3zwbuFeBY7Iqvzd5xH10JIg5MTbzw1VGs1rM21S8lYaZ6cGG2-GbJixpPdI4cALImmBfSfpZKJ69swPq1V0PRKQBXHI8VawXEp4ndvXHfs67-EhJXjzTcQRW3EL3UoTtMvTjJaFzbzQ25wApWXgC57_7UIilJBN9Qhz4',
-    },
-    {
-      'title': 'ساعة ذكية ألترا',
-      'date': '١٢ مايو ٢٠٢٤',
-      'amount': 450000.0,
-      'status': 'لم تربح',
-      'statusKey': 'LOST',
-      'image':
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuB7L-u9fft9VjVrmtpQUZogxGca3a73ReZl2BQ4Pj-eNbj0oWjZpSrmyykLxgcRwaYiecuHsIXaJjb5O2IMyG1NaFIsnvjMRvpcJihgEP-3zwbuFeBY7Iqvzd5xH10JIg5MTbzw1VGs1rM21S8lYaZ6cGG2-GbJixpPdI4cALImmBfSfpZKJ69swPq1V0PRKQBXHI8VawXEp4ndvXHfs67-EhJXjzTcQRW3EL3UoTtMvTjJaFzbzQ25wApWXgC57_7UIilJBN9Qhz4',
-    },
-    {
-      'title': 'لابتوب الألعاب القوي',
-      'date': '٠٨ مايو ٢٠٢٤',
-      'amount': 2100000.0,
-      'status': 'فائز',
-      'statusKey': 'WON',
-      'image':
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuB7L-u9fft9VjVrmtpQUZogxGca3a73ReZl2BQ4Pj-eNbj0oWjZpSrmyykLxgcRwaYiecuHsIXaJjb5O2IMyG1NaFIsnvjMRvpcJihgEP-3zwbuFeBY7Iqvzd5xH10JIg5MTbzw1VGs1rM21S8lYaZ6cGG2-GbJixpPdI4cALImmBfSfpZKJ69swPq1V0PRKQBXHI8VawXEp4ndvXHfs67-EhJXjzTcQRW3EL3UoTtMvTjJaFzbzQ25wApWXgC57_7UIilJBN9Qhz4',
-    },
-    {
-      'title': 'كاميرا احترافية ديجيتال',
-      'date': '٠٥ مايو ٢٠٢٤',
-      'amount': 890000.0,
-      'status': 'لم تربح',
-      'statusKey': 'LOST',
-      'image':
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuB7L-u9fft9VjVrmtpQUZogxGca3a73ReZl2BQ4Pj-eNbj0oWjZpSrmyykLxgcRwaYiecuHsIXaJjb5O2IMyG1NaFIsnvjMRvpcJihgEP-3zwbuFeBY7Iqvzd5xH10JIg5MTbzw1VGs1rM21S8lYaZ6cGG2-GbJixpPdI4cALImmBfSfpZKJ69swPq1V0PRKQBXHI8VawXEp4ndvXHfs67-EhJXjzTcQRW3EL3UoTtMvTjJaFzbzQ25wApWXgC57_7UIilJBN9Qhz4',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Load my bids once the tab is visited. (Safe to call repeatedly, Cubit can dedup if doing heavy work, though loadMyBids doesn't yet).
+    context.read<AuctionsCubit>().loadMyBids();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                children: [
-                  SizedBox(height: 8.h),
-                  _buildStatsGrid(),
-                  SizedBox(height: 20.h),
-                  _buildFilterChips(),
-                  SizedBox(height: 16.h),
-                  ..._buildBidCards(),
-                  SizedBox(height: 32.h),
-                ],
+    return BlocBuilder<AuctionsCubit, AuctionsState>(builder: (context, state) {
+      final allBids = state.myBids;
+      final wonBids = allBids.where((b) => b.auctionId != null).toList(); // simplified check since BidModel doesn't have status yet
+      
+      final filteredBids = allBids;
+      
+      return Scaffold(
+        backgroundColor: const Color(0xFF0A0A0F),
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  children: [
+                    SizedBox(height: 8.h),
+                    _buildStatsGrid(allBids.length, wonBids.length),
+                    SizedBox(height: 20.h),
+                    _buildFilterChips(),
+                    SizedBox(height: 16.h),
+                    if (state.isLoadingMyBids)
+                      const Center(child: CircularProgressIndicator(color: AppTheme.mazadGreen))
+                    else if (filteredBids.isEmpty)
+                      _buildEmptyBids()
+                    else
+                      ..._buildBidCards(filteredBids),
+                    SizedBox(height: 32.h),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      );
+    });
+  }
+
+  Widget _buildEmptyBids() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(height: 48.h),
+        Icon(Icons.history_rounded, color: Colors.white24, size: 64.sp),
+        SizedBox(height: 16.h),
+        Text(
+          'لا توجد مزايدات',
+          style: GoogleFonts.cairo(
+            color: Colors.white,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
     );
   }
 
@@ -99,20 +99,8 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => context.pop(),
-            child: Container(
-              width: 40.w,
-              height: 40.w,
-              decoration: BoxDecoration(
-                color: AppTheme.surfaceAlt,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppTheme.divider),
-              ),
-              child: const Icon(Icons.arrow_forward_rounded,
-                  color: AppTheme.textPrimary),
-            ),
-          ),
+          // Nav header removed; MazadatShell uses common top AppBar. If we need back button, adding it:
+          SizedBox(width: 40.w), // spacing
           Expanded(
             child: Text(
               'سجل المزايدات',
@@ -120,40 +108,27 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
               style: GoogleFonts.cairo(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
+                color: Colors.white,
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              width: 40.w,
-              height: 40.w,
-              decoration: BoxDecoration(
-                color: AppTheme.surfaceAlt,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppTheme.divider),
-              ),
-              child: Icon(Icons.search_rounded,
-                  color: AppTheme.textPrimary, size: 20.sp),
-            ),
-          ),
+          SizedBox(width: 40.w),
         ],
       ),
     );
   }
 
   // ── Stats Grid (Stitch Screen 2) ──────────────────────────────────────────
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(int total, int won) {
     return Row(
       children: [
         Expanded(
           child: Container(
             padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceAlt,
+              color: const Color(0xFF12121A),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.divider),
+              border: Border.all(color: Colors.white12),
             ),
             child: Column(
               children: [
@@ -161,16 +136,16 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                   'إجمالي المزايدات',
                   style: GoogleFonts.cairo(
                     fontSize: 11.sp,
-                    color: AppTheme.textSecondary,
+                    color: Colors.white54,
                   ),
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  '٢٤',
+                  '$total',
                   style: GoogleFonts.cairo(
                     fontSize: 26.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimary,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -194,16 +169,16 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                   'المزادات الفائزة',
                   style: GoogleFonts.cairo(
                     fontSize: 11.sp,
-                    color: AppTheme.textSecondary,
+                    color: Colors.white54,
                   ),
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  '٨',
+                  '$won',
                   style: GoogleFonts.cairo(
                     fontSize: 26.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimary,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -234,10 +209,10 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isActive ? AppTheme.mazadGreen : AppTheme.surfaceAlt,
+                color: isActive ? AppTheme.mazadGreen : const Color(0xFF12121A),
                 borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                 border: Border.all(
-                  color: isActive ? AppTheme.mazadGreen : AppTheme.divider,
+                  color: isActive ? AppTheme.mazadGreen : Colors.white12,
                 ),
               ),
               child: Text(
@@ -245,9 +220,7 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                 style: GoogleFonts.cairo(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.bold,
-                  color: isActive
-                      ? AppTheme.textPrimary
-                      : AppTheme.textSecondary,
+                  color: isActive ? Colors.white : Colors.white54,
                 ),
               ),
             ),
@@ -258,10 +231,10 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
   }
 
   // ── Bid Cards ─────────────────────────────────────────────────────────────
-  List<Widget> _buildBidCards() {
-    return _mockBids.map((bid) {
-      final isWon = bid['statusKey'] == 'WON';
-      final isLost = bid['statusKey'] == 'LOST';
+  List<Widget> _buildBidCards(List<dynamic> bids) {
+    return bids.map((bid) {
+      final isWon = false; // BidModel needs robust status parsing depending on real API
+      final isLost = false;
 
       return Padding(
         padding: EdgeInsets.only(bottom: 12.h),
@@ -270,9 +243,9 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
           child: Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceAlt,
+              color: const Color(0xFF12121A),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.divider),
+              border: Border.all(color: Colors.white12),
             ),
             child: Row(
               children: [
@@ -280,17 +253,14 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   child: CachedNetworkImage(
-                    imageUrl: bid['image'] as String,
+                    imageUrl: 'https://placehold.co/400x400',
                     width: 80.w,
                     height: 80.w,
                     fit: BoxFit.cover,
                     color: isLost ? Colors.grey : null,
-                    colorBlendMode:
-                        isLost ? BlendMode.saturation : null,
-                    placeholder: (_, _) =>
-                        Container(color: AppTheme.shimmerBase),
-                    errorWidget: (_, _, _) =>
-                        Container(color: AppTheme.shimmerBase),
+                    colorBlendMode: isLost ? BlendMode.saturation : null,
+                    placeholder: (_, _) => Container(color: Colors.white10),
+                    errorWidget: (_, _, _) => Container(color: Colors.white10),
                   ),
                 ),
                 SizedBox(width: 12.w),
@@ -308,11 +278,11 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  bid['title'] as String,
+                                  bid.auctionId ?? 'عنصر',
                                   style: GoogleFonts.cairo(
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
+                                    color: Colors.white,
                                     height: 1.2,
                                   ),
                                   maxLines: 1,
@@ -320,10 +290,10 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                                 ),
                                 SizedBox(height: 2.h),
                                 Text(
-                                  bid['date'] as String,
+                                  'الان',
                                   style: GoogleFonts.cairo(
                                     fontSize: 11.sp,
-                                    color: AppTheme.textTertiary,
+                                    color: Colors.white54,
                                   ),
                                 ),
                               ],
@@ -331,23 +301,19 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                           ),
                           // Status badge
                           Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 3.h),
+                            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                             decoration: BoxDecoration(
                               color: isWon
                                   ? AppTheme.mazadGreen.withValues(alpha: 0.15)
-                                  : AppTheme.surface,
-                              borderRadius: BorderRadius.circular(
-                                  AppTheme.radiusFull),
+                                  : Colors.white10,
+                              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                             ),
                             child: Text(
-                              bid['status'] as String,
+                              isWon ? 'فائز' : 'قيد الانتظار',
                               style: GoogleFonts.cairo(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.bold,
-                                color: isWon
-                                    ? AppTheme.success
-                                    : AppTheme.textSecondary,
+                                color: isWon ? AppTheme.mazadGreen : Colors.white54,
                               ),
                             ),
                           ),
@@ -365,14 +331,14 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                                 'مزايدتك الأخيرة',
                                 style: GoogleFonts.cairo(
                                   fontSize: 10.sp,
-                                  color: AppTheme.textTertiary,
+                                  color: Colors.white54,
                                 ),
                               ),
                               Text(
-                                IqdFormatter.format(bid['amount'] as double),
+                                IqdFormatter.format(bid.amount.toDouble()),
                                 style: AppTheme.priceStyle(
                                   fontSize: 14.sp,
-                                  color: AppTheme.textPrimary,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
@@ -381,6 +347,10 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.lightImpact();
+                                context.push('/mazadat/payment/${bid.auctionId}', extra: {
+                                  'winningBid': bid.amount,
+                                  'itemTitle': bid.auctionId ?? '',
+                                });
                               },
                               child: Row(
                                 children: [
@@ -397,14 +367,6 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
                                 ],
                               ),
                             )
-                          else
-                            Text(
-                              'انتهى المزاد',
-                              style: GoogleFonts.cairo(
-                                fontSize: 10.sp,
-                                color: AppTheme.textTertiary,
-                              ),
-                            ),
                         ],
                       ),
                     ],

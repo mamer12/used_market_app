@@ -20,6 +20,8 @@ abstract class AuctionRemoteDataSource {
   });
   Future<AuctionModel> createAuction(CreateAuctionRequest request);
   Future<BidModel> placeBid(String auctionId, PlaceBidRequest request);
+  Future<List<BidModel>> getMyBids();
+  Future<List<AuctionModel>> getWatchedAuctions();
 }
 
 @LazySingleton(as: AuctionRemoteDataSource)
@@ -96,5 +98,23 @@ class AuctionRemoteDataSourceImpl implements AuctionRemoteDataSource {
       data: request.toJson(),
     );
     return BidModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<List<BidModel>> getMyBids() async {
+    final response = await _dio.get('${ApiConstants.auctions}/my-bids');
+    final data = response.data as List;
+    return data
+        .map((e) => BidModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<AuctionModel>> getWatchedAuctions() async {
+    final response = await _dio.get('${ApiConstants.auctions}/watchlist');
+    final data = response.data as List;
+    return data
+        .map((e) => auctionFromApiResponse(e as Map<String, dynamic>))
+        .toList();
   }
 }

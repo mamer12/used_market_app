@@ -833,7 +833,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postSellBallaSub => 'Sell by piece, kg, or bundle';
 
   @override
-  String get whatsappChat => 'Contact Seller';
+  String get whatsappChat => 'Contact Seller Safely via WhatsApp';
 
   @override
   String checkoutUnitFormat(String price, String qty, String unit) {
@@ -857,11 +857,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String walletBalance(String amount) {
-    return 'Balance: $amount';
+    return 'Your Guarantee Balance: $amount';
   }
 
   @override
-  String get omniboxHint => 'What are you looking for today?';
+  String get omniboxHint => 'What\'s on your mind? Search by voice or type...';
+
+  @override
+  String get escrowProtectionText =>
+      'Because your money and time matter, your payment stays with us until you receive your order.';
 
   @override
   String get miniAppMazadTagline => 'Live Bidding';
@@ -1042,7 +1046,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get matajirAllCategories => 'All Categories';
 
   @override
-  String get matajirVerifiedBadge => 'Verified by Luqta';
+  String get matajirVerifiedBadge => 'Verified Shop';
 
   @override
   String get matajirAddToCart => 'Add to Cart';
@@ -1111,4 +1115,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String matajirStoreCount(int count) {
     return '$count verified stores in Iraq';
   }
+
+  @override
+  String get matajirPromoEndsIn => 'Ends in';
+
+  @override
+  String matajirProductCount(int count) {
+    return '$count products';
+  }
+
+  @override
+  String get matajirShopEmpty => 'No products yet';
+
+  @override
+  String get matajirShopEmptySubtitle => 'This shop hasn\'t added products yet';
+
+  @override
+  String get matajirRetry => 'Retry';
+
+  @override
+  String get matajirOutOfStock => 'Out of Stock';
+
+  @override
+  String get matajirVerifiedFull => 'Verified by Luqta';
+
+  @override
+  String get matajirSalesCountPlaceholder => '2,341 sales';
+
+  @override
+  String get matajirProductSuffix => 'products';
+
+  @override
+  String get mazadatNavAuctions => 'Auctions';
+
+  @override
+  String get mazadatNavMyBids => 'My Bids';
+
+  @override
+  String get mazadatNavWatchlist => 'Watchlist';
+
+  @override
+  String get mazadatNavAccount => 'Account';
+
+  @override
+  String get mazadatWalletBalance => 'Wallet Balance';
+
+  @override
+  String get mazadatPayFromWallet => 'Pay From Wallet';
+
+  @override
+  String get mazadatTopUpWallet => 'Top-up Wallet';
 }

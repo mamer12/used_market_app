@@ -37,4 +37,21 @@ class WalletCubit extends Cubit<WalletState> {
       emit(const WalletError());
     }
   }
+
+  /// Deduct [amount] from the wallet (pay for auction win → escrow lock).
+  /// Returns `true` on success; emits updated balance.
+  Future<bool> deductBalance(int amount) async {
+    final currentBalance = state is WalletLoaded
+        ? (state as WalletLoaded).balanceIqd
+        : 0;
+    if (amount > currentBalance) return false;
+
+    try {
+      await _repository.deductBalance(amount);
+      emit(WalletLoaded(currentBalance - amount));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

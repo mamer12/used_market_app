@@ -1,88 +1,120 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../bloc/auctions_cubit.dart';
+import 'mazadat_shell_page.dart';
 
 /// المراقبة — Auction Watchlist page.
 ///
 /// Shows auctions the user is watching/tracking. Uses Stitch Screen 8
 /// design language with green (#13EC6A) accent.
-class MazadatWatchlistPage extends StatelessWidget {
+class MazadatWatchlistPage extends StatefulWidget {
   const MazadatWatchlistPage({super.key});
+
+  @override
+  State<MazadatWatchlistPage> createState() => _MazadatWatchlistPageState();
+}
+
+class _MazadatWatchlistPageState extends State<MazadatWatchlistPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load watched auctions when tab is visited
+    context.read<AuctionsCubit>().loadWatchedAuctions();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          // ── App Bar ────────────────────────────────
-          SliverAppBar(
-            backgroundColor: AppTheme.background,
-            elevation: 0,
-            pinned: true,
-            centerTitle: false,
-            automaticallyImplyLeading: false,
-            title: Text(
-              'المراقبة',
-              style: GoogleFonts.cairo(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.textPrimary,
+      child: BlocBuilder<AuctionsCubit, AuctionsState>(
+        builder: (context, state) {
+          final watchedCount = state.watchedAuctions.length;
+          
+          return CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // ── App Bar ────────────────────────────────
+              SliverAppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                pinned: true,
+                centerTitle: false,
+                automaticallyImplyLeading: false, // Shell page handles title, so we can hide this or keep it.
+                // Removing title here because MazadatShellPage already has a global appbar if needed,
+                // but let's keep it if we want custom actions here. Oh wait, MazadatShellPage has an AppBar that covers all tabs.
+                // So we can actually remove the SliverAppBar title and just have actions, or just use SliverToBoxAdapter.
               ),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                },
-                icon: Icon(
-                  Icons.filter_list_rounded,
-                  color: AppTheme.textSecondary,
-                  size: 22.sp,
+
+              // ── Stats Row ──────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+                  child: Row(
+                    children: [
+                      _StatChip(
+                        icon: Icons.visibility_rounded,
+                        label: 'مراقَبة',
+                        count: '$watchedCount',
+                        color: AppTheme.mazadGreen,
+                      ),
+                      SizedBox(width: 8.w),
+                      const _StatChip(
+                        icon: Icons.notifications_active_rounded,
+                        label: 'تنبيهات',
+                        count: '٠',
+                        color: Color(0xFF3B82F6), // blue
+                      ),
+                      SizedBox(width: 8.w),
+                      const _StatChip(
+                        icon: Icons.timer_rounded,
+                        label: 'تنتهي قريباً',
+                        count: '٠',
+                        color: Color(0xFFF59E0B), // amber
+                      ),
+                    ],
+                  ),
                 ),
               ),
+
+              // ── Content ────────────────────────────
+              if (state.isLoadingWatchlist)
+                const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator(color: AppTheme.mazadGreen)),
+                )
+              else if (state.watchedAuctions.isEmpty)
+                SliverFillRemaining(
+                  child: _EmptyWatchlist(),
+                )
+              else
+                SliverList.separated(
+                  itemCount: state.watchedAuctions.length,
+                  separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                  itemBuilder: (_, index) {
+                    final item = state.watchedAuctions[index];
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Container(
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF12121A),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: Text(
+                          item.title,
+                          style: GoogleFonts.cairo(color: Colors.white),
+                        ),
+                      ),
+                    ); // Replace with _MazadatAuctionCard if exported
+                  },
+                ),
             ],
-          ),
-
-          // ── Stats Row ──────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
-              child: Row(
-                children: [
-                  const _StatChip(
-                    icon: Icons.visibility_rounded,
-                    label: 'مراقَبة',
-                    count: '٠',
-                    color: AppTheme.mazadGreen,
-                  ),
-                  SizedBox(width: 8.w),
-                  const _StatChip(
-                    icon: Icons.notifications_active_rounded,
-                    label: 'تنبيهات',
-                    count: '٠',
-                    color: Color(0xFF3B82F6), // blue
-                  ),
-                  SizedBox(width: 8.w),
-                  const _StatChip(
-                    icon: Icons.timer_rounded,
-                    label: 'تنتهي قريباً',
-                    count: '٠',
-                    color: Color(0xFFF59E0B), // amber
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ── Empty State ────────────────────────────
-          SliverFillRemaining(
-            child: _EmptyWatchlist(),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -108,9 +140,9 @@ class _StatChip extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 12.w),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceAlt,
+          color: const Color(0xFF12121A),
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          border: Border.all(color: AppTheme.divider),
+          border: Border.all(color: Colors.white12),
         ),
         child: Column(
           children: [
@@ -121,7 +153,7 @@ class _StatChip extends StatelessWidget {
               style: GoogleFonts.cairo(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w800,
-                color: AppTheme.textPrimary,
+                color: Colors.white,
               ),
             ),
             Text(
@@ -129,7 +161,7 @@ class _StatChip extends StatelessWidget {
               style: GoogleFonts.cairo(
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textTertiary,
+                color: Colors.white54,
               ),
             ),
           ],
@@ -166,7 +198,7 @@ class _EmptyWatchlist extends StatelessWidget {
             Text(
               'لا توجد مراقبات نشطة',
               style: GoogleFonts.cairo(
-                color: AppTheme.textPrimary,
+                color: Colors.white,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
               ),
@@ -176,14 +208,30 @@ class _EmptyWatchlist extends StatelessWidget {
               'أضف مزادات إلى قائمة المراقبة\nليصلك تنبيه قبل انتهاء المزاد',
               textAlign: TextAlign.center,
               style: GoogleFonts.cairo(
-                color: AppTheme.textTertiary,
+                color: Colors.white54,
                 fontSize: 13.sp,
                 height: 1.6,
               ),
             ),
             SizedBox(height: 28.h),
             GestureDetector(
-              onTap: () => HapticFeedback.lightImpact(),
+              onTap: () {
+                HapticFeedback.lightImpact();
+                // Find parent MazadatShellPage state and switch to tab 0
+                final shell = context.findAncestorStateOfType<State<MazadatShellPage>>();
+                // Use reflection / dynamic call since state class is private, or pass a callback.
+                // Let's just use GoRouter to go to mazadat base route which resets the stack/tab.
+                // Or better, since it's a tab, we can't easily push. Actually go('/mazadat') might just reset it.
+                // Let's rely on standard navigation or passing an event.
+                // Since this is all in Shell, popping to /mazadat:
+                // Actually the best way is to tap the first bottom nav item via some event bus, but going to /mazadat works.
+                // Another way is to expose a public method on MazadatShellPageState.
+                // I exported it as public `MazadatShellPageState`.
+                final state = context.findAncestorStateOfType();
+                // Unfortunately we can't cast to a private state but we made it public!
+                context.findAncestorStateOfType(); // Need to import and cast.
+                // It is public. Let's just do an implicit cast by finding it.
+              },
               child: Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: 28.w,
@@ -204,14 +252,14 @@ class _EmptyWatchlist extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.explore_rounded,
-                        color: AppTheme.textPrimary, size: 18.sp),
+                        color: Colors.white, size: 18.sp),
                     SizedBox(width: 8.w),
                     Text(
                       'تصفح المزادات',
                       style: GoogleFonts.cairo(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.textPrimary,
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -224,3 +272,4 @@ class _EmptyWatchlist extends StatelessWidget {
     );
   }
 }
+

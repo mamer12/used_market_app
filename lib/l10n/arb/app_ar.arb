@@ -300,14 +300,14 @@
   "postSellUsedSub": "إعلان مجاني — المشترون يتواصلون عبر الدردشة",
   "postSellBalla": "بيع بالة / جملة",
   "postSellBallaSub": "بيع بالقطعة أو الكيلو أو البندل",
-  "whatsappChat": "تواصل مع البائع",
+  "whatsappChat": "تواصل بأمان عبر واتساب",
   "checkoutUnitFormat": "{price} دينار ({qty} {unit})",
   "homeSectionAuctions": "مزادات الساعة 🔴",
   "homeSectionMatajir": "جديد في المتاجر 🏬",
   "homeSectionMustamal": "صفقات المستعمل 🤝",
   "homeSectionBalla": "كنوز البالة 📦",
   "shopAll": "تسوق الكل",
-  "walletBalance": "الرصيد: {amount}",
+  "walletBalance": "رصيد ضمانك: {amount}",
   "@walletBalance": {
     "description": "Escrow wallet balance label with amount",
     "placeholders": {
@@ -316,7 +316,8 @@
       }
     }
   },
-  "omniboxHint": "على شنو تدور اليوم؟",
+  "omniboxHint": "شنو بخاطرك؟ ابحث بصوتك أو اكتب...",
+  "escrowProtectionText": "لأن فلوسك ووقتك غالية، المبلغ يبقى يمنا لحد ما تستلم طلبك.",
   "miniAppMazadTagline": "مزايدات مباشرة",
   "miniAppMatajirTagline": "المتاجر الرسمية",
   "miniAppMustamalTagline": "سوق المستعمل",
@@ -402,5 +403,32 @@
         "type": "int"
       }
     }
-  }
+  },
+  "matajirPromoEndsIn": "ينتهي بعد",
+  "matajirProductCount": "{count} منتج",
+  "@matajirProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matajirShopEmpty": "لا توجد منتجات بعد",
+  "matajirShopEmptySubtitle": "لم يُضف هذا المتجر منتجات حتى الآن",
+  "matajirRetry": "إعادة المحاولة",
+  "matajirOutOfStock": "نفد المخزون",
+  "matajirVerifiedBadge": "متجر موثق",
+  "matajirVerifiedFull": "متجر موثق من لكطة",
+  "matajirSalesCountPlaceholder": "٢٬٣٤١ عملية بيع",
+  "matajirProductSuffix": "منتج",
+  "mazadatNavAuctions": "المزادات",
+  "mazadatNavMyBids": "مزايداتي",
+  "mazadatNavWatchlist": "المراقبة",
+  "mazadatNavAccount": "حسابي",
+  "mazadatWalletBalance": "رصيد المحفظة",
+  "mazadatPayFromWallet": "ادفع من المحفظة",
+  "mazadatTopUpWallet": "شحن المحفظة",
+  "mazadatInsufficientBalance": "رصيد غير كاف",
+  "mazadatAmountRequired": "المطلوب سداده",
+  "mazadatPaymentConfirmTitle": "إتمام الدفع"
 }

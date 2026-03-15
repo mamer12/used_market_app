@@ -55,9 +55,8 @@ class PrimaryButton extends StatelessWidget {
     final bg = effective == ButtonVariant.dark
         ? AppTheme.buttonBg
         : AppTheme.primary;
-    final fg = effective == ButtonVariant.dark
-        ? AppTheme.buttonText
-        : AppTheme.textPrimary;
+    // Both primary and dark variants use white text on Tigris Deep
+    const fg = AppTheme.buttonText;
 
     return SizedBox(
       width: double.infinity,
@@ -81,15 +80,13 @@ class PrimaryButton extends StatelessWidget {
   }
 
   Widget _content(ButtonVariant v) {
-    final color = v == ButtonVariant.dark
-        ? AppTheme.buttonText
-        : v == ButtonVariant.outlined
-            ? AppTheme.textPrimary
-            : AppTheme.textPrimary;
+    final color = v == ButtonVariant.outlined
+        ? AppTheme.textPrimary
+        : AppTheme.buttonText; // white on both primary & dark
 
     final label = Text(
       this.label,
-      style: GoogleFonts.cairo(
+      style: GoogleFonts.tajawal(
         fontSize: 16.sp,
         fontWeight: FontWeight.w700,
         color: color,

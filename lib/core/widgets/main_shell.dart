@@ -259,21 +259,27 @@ class _GlassNavPill extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: const LinearGradient(
-                      colors: [AppTheme.primary, AppTheme.secondary],
+                      colors: [AppTheme.primaryMid, AppTheme.primary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primary.withValues(alpha: 0.55),
-                        blurRadius: 22,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 6),
+                        color: AppTheme.primary.withValues(alpha: 0.50),
+                        blurRadius: 24,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 8),
+                      ),
+                      // Dinar Gold halo ring
+                      BoxShadow(
+                        color: AppTheme.dinarGold.withValues(alpha: 0.45),
+                        blurRadius: 0,
+                        spreadRadius: 3,
                       ),
                       BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: Colors.white.withValues(alpha: 0.90),
                         blurRadius: 0,
-                        spreadRadius: 2.5,
+                        spreadRadius: 5,
                       ),
                     ],
                   ),
@@ -312,7 +318,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = AppTheme.secondary;
+    const activeColor = AppTheme.primary;
     const inactiveColor = AppTheme.textTertiary;
 
     return GestureDetector(
@@ -325,25 +331,35 @@ class _NavItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: 28,
+            // Icon inside animated pill background
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              width: isActive ? 44 : 32,
               height: 28,
+              decoration: BoxDecoration(
+                color: isActive
+                    ? activeColor.withValues(alpha: 0.12)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
+              ),
               child: Stack(
+                alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: [
                   AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 180),
                     child: Icon(
                       isActive ? activeIcon : inactiveIcon,
                       key: ValueKey(isActive),
-                      size: 24,
+                      size: 22,
                       color: isActive ? activeColor : inactiveColor,
                     ),
                   ),
                   if (badgeCount > 0)
                     Positioned(
-                      top: -3,
-                      right: -4,
+                      top: -4,
+                      right: -6,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 4,
@@ -358,7 +374,7 @@ class _NavItem extends StatelessWidget {
                         child: Text(
                           badgeCount > 99 ? '99+' : '$badgeCount',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.cairo(
+                          style: GoogleFonts.tajawal(
                             fontSize: 8.5,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -372,23 +388,12 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 3),
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
-              style: GoogleFonts.cairo(
+              style: GoogleFonts.tajawal(
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 color: isActive ? activeColor : inactiveColor,
               ),
               child: Text(label),
-            ),
-            const SizedBox(height: 3),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOutCubic,
-              width: isActive ? 16 : 0,
-              height: 3,
-              decoration: BoxDecoration(
-                color: activeColor,
-                borderRadius: BorderRadius.circular(1.5),
-              ),
             ),
           ],
         ),
@@ -426,7 +431,7 @@ class _PostActionSheet extends StatelessWidget {
           SizedBox(height: 20.h),
           Text(
             l10n.postSheetTitle,
-            style: GoogleFonts.cairo(
+            style: GoogleFonts.tajawal(
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
               color: AppTheme.textPrimary,
@@ -435,7 +440,7 @@ class _PostActionSheet extends StatelessWidget {
           SizedBox(height: 4.h),
           Text(
             l10n.postSheetSub,
-            style: GoogleFonts.cairo(
+            style: GoogleFonts.tajawal(
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
               color: AppTheme.textSecondary,
@@ -551,7 +556,7 @@ class _PostOption extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textPrimary,
@@ -559,7 +564,7 @@ class _PostOption extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                       color: AppTheme.textSecondary,

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class CheckoutPage extends StatefulWidget {
   final String appContext; // e.g. 'matajir' or 'balla'
@@ -78,6 +79,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   // Payment Method Section
                   _buildSectionTitle('وسيلة الدفع'),
                   _buildPaymentMethods(primaryColor),
+
+                  // Madhmoon Escrow Protection Banner
+                  _buildEscrowBanner(context),
 
                   // Billing Summary Section
                   _buildBillingSummary(
@@ -455,6 +459,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEscrowBanner(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        color: AppTheme.emeraldGreen.withValues(alpha: 0.08),
+        border: Border.all(color: AppTheme.tigrisBlue.withValues(alpha: 0.25)),
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.shield_rounded, color: AppTheme.emeraldGreen, size: 22.sp),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context).escrowProtectionText,
+              style: GoogleFonts.tajawal(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.tigrisBlue,
+                height: 1.55,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

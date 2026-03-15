@@ -11,6 +11,7 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/presentation/bloc/cart_cubit.dart';
+import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 class App extends StatefulWidget {
@@ -57,6 +58,7 @@ class _AppState extends State<App> {
               ),
             ),
             BlocProvider(create: (_) => LocaleCubit()),
+            BlocProvider(create: (_) => getIt<WalletCubit>()..loadBalance()),
           ],
           child: BlocBuilder<LocaleCubit, Locale>(
             builder: (context, locale) {

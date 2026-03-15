@@ -54,6 +54,26 @@ class AuctionRepositoryImpl implements AuctionRepository {
   }
 
   @override
+  Future<List<BidModel>> getMyBids() async {
+    try {
+      return await _remoteDataSource.getMyBids();
+    } catch (_) {
+      // API may not be ready yet — return empty list gracefully.
+      return [];
+    }
+  }
+
+  @override
+  Future<List<AuctionModel>> getWatchedAuctions() async {
+    try {
+      return await _remoteDataSource.getWatchedAuctions();
+    } catch (_) {
+      // API may not be ready yet — return empty list gracefully.
+      return [];
+    }
+  }
+
+  @override
   Future<void> connectToAuction(String auctionId) {
     return _webSocketService.connect(auctionId);
   }

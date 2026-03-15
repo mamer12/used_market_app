@@ -1111,7 +1111,7 @@
   "@postSellBallaSub": {
     "description": "FAB sheet: sell balla subtitle"
   },
-  "whatsappChat": "Contact Seller",
+  "whatsappChat": "Contact Seller Safely via WhatsApp",
   "@whatsappChat": {
     "description": "Button label to open WhatsApp/chat with seller"
   },
@@ -1150,7 +1150,7 @@
   "@shopAll": {
     "description": "See all link on retail sections"
   },
-  "walletBalance": "Balance: {amount}",
+  "walletBalance": "Your Guarantee Balance: {amount}",
   "@walletBalance": {
     "description": "Escrow wallet balance label with amount",
     "placeholders": {
@@ -1159,9 +1159,13 @@
       }
     }
   },
-  "omniboxHint": "What are you looking for today?",
+  "omniboxHint": "What's on your mind? Search by voice or type...",
   "@omniboxHint": {
-    "description": "Omnibox / global search hint text"
+    "description": "Omnibox / global search hint text — voice-first"
+  },
+  "escrowProtectionText": "Because your money and time matter, your payment stays with us until you receive your order.",
+  "@escrowProtectionText": {
+    "description": "Madhmoon escrow protection reassurance copy shown on checkout and product detail"
   },
   "miniAppMazadTagline": "Live Bidding",
   "@miniAppMazadTagline": {
@@ -1457,5 +1461,60 @@
         "type": "int"
       }
     }
-  }
+  },
+  "matajirPromoEndsIn": "Ends in",
+  "@matajirPromoEndsIn": {
+    "description": "Promo countdown prefix"
+  },
+  "matajirProductCount": "{count} products",
+  "@matajirProductCount": {
+    "description": "Product count label",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matajirShopEmpty": "No products yet",
+  "@matajirShopEmpty": {
+    "description": "Empty state title for shop products"
+  },
+  "matajirShopEmptySubtitle": "This shop hasn't added products yet",
+  "@matajirShopEmptySubtitle": {
+    "description": "Empty state subtitle for shop products"
+  },
+  "matajirRetry": "Retry",
+  "@matajirRetry": {
+    "description": "Retry button label"
+  },
+  "matajirOutOfStock": "Out of Stock",
+  "@matajirOutOfStock": {
+    "description": "Out of stock badge on product card"
+  },
+  "matajirVerifiedBadge": "Verified Shop",
+  "@matajirVerifiedBadge": {
+    "description": "Short verified badge label"
+  },
+  "matajirVerifiedFull": "Verified by Luqta",
+  "@matajirVerifiedFull": {
+    "description": "Full verified badge label"
+  },
+  "matajirSalesCountPlaceholder": "2,341 sales",
+  "@matajirSalesCountPlaceholder": {
+    "description": "Placeholder sales count until API returns real data"
+  },
+  "matajirProductSuffix": "products",
+  "@matajirProductSuffix": {
+    "description": "Word appended after a pre-formatted product count string"
+  },
+  "mazadatNavAuctions": "Auctions",
+  "mazadatNavMyBids": "My Bids",
+  "mazadatNavWatchlist": "Watchlist",
+  "mazadatNavAccount": "Account",
+  "mazadatWalletBalance": "Wallet Balance",
+  "@mazadatWalletBalance": { "description": "Label for wallet balance in mazadat" },
+  "mazadatPayFromWallet": "Pay From Wallet",
+  "@mazadatPayFromWallet": { "description": "Label for paying from wallet in mazadat" },
+  "mazadatTopUpWallet": "Top-up Wallet",
+  "@mazadatTopUpWallet": { "description": "Label for topping up wallet in mazadat" }
 }

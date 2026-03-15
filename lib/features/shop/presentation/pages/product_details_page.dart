@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../data/models/shop_models.dart';
@@ -130,6 +131,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           _buildImageGallery(),
           _buildProductInfo(),
           _buildVendorCard(),
+          _buildEscrowBadge(context),
           _buildDescription(),
           _buildSpecifications(),
           SizedBox(height: 120.h), // Footer spacing
@@ -309,7 +311,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     SizedBox(width: 4.w),
                     Icon(
                       Icons.verified_rounded,
-                      color: AppTheme.matajirBlue,
+                      color: AppTheme.dinarGold,
                       size: 16.sp,
                     ),
                   ],
@@ -339,6 +341,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               style: GoogleFonts.cairo(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEscrowBadge(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: AppTheme.emeraldGreen.withValues(alpha: 0.08),
+        border: Border.all(color: AppTheme.tigrisBlue.withValues(alpha: 0.20)),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.shield_rounded, color: AppTheme.emeraldGreen, size: 20.sp),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context).escrowProtectionText,
+              style: GoogleFonts.tajawal(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.tigrisBlue,
+                height: 1.5,
               ),
             ),
           ),

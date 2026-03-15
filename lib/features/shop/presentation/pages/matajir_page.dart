@@ -238,8 +238,22 @@ class _MatajirPageState extends State<MatajirPage> {
                         }
 
                         if (products.isEmpty) {
-                          return const SliverToBoxAdapter(
-                              child: SizedBox.shrink());
+                          return SliverToBoxAdapter(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 48.h, horizontal: 32.w),
+                              child: Center(
+                                child: Text(
+                                  l10n.matajirShopEmpty,
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 14.sp,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          );
                         }
 
                         return SliverPadding(
@@ -566,7 +580,7 @@ class _PromoBannerState extends State<_PromoBanner> {
                                 color: Colors.white, size: 13.sp),
                             SizedBox(width: 4.w),
                             Text(
-                              'ينتهي بعد $h:$m:$s',
+                              '${l10n.matajirPromoEndsIn} $h:$m:$s',
                               style: GoogleFonts.cairo(
                                 fontSize: 11.sp,
                                 fontWeight: FontWeight.w600,
@@ -728,6 +742,7 @@ class _MatajirProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return InkWell(
       onTap: () => context.push('/matajir/product/${item.id}', extra: item),
       borderRadius: BorderRadius.circular(AppTheme.radiusLg),
@@ -796,7 +811,7 @@ class _MatajirProductCard extends StatelessWidget {
                             color: AppTheme.success, size: 10.sp),
                         SizedBox(width: 3.w),
                         Text(
-                          'متجر موثق',
+                          l10n.matajirVerifiedBadge,
                           style: GoogleFonts.cairo(
                             fontSize: 10.sp,
                             color: AppTheme.success,
@@ -868,8 +883,8 @@ class _MatajirProductCard extends StatelessWidget {
                                 SizedBox(width: 6.w),
                                 Text(
                                   inCart
-                                      ? 'في السلة'
-                                      : 'أضف للسلة',
+                                      ? l10n.matajirInCart
+                                      : l10n.matajirAddToCart,
                                   style: GoogleFonts.cairo(
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w700,
@@ -979,7 +994,7 @@ class _CartPeekBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '$count منتجات',
+                        l10n.matajirProductCount(count),
                         style: GoogleFonts.cairo(
                           fontSize: 11.sp,
                           color: Colors.white60,

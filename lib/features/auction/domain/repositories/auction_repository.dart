@@ -19,6 +19,12 @@ abstract class AuctionRepository {
   /// Place a bid via REST (POST /auctions/{id}/bids).
   Future<BidModel> placeBid(String auctionId, PlaceBidRequest request);
 
+  /// Fetch the current user's bid history (all statuses).
+  Future<List<BidModel>> getMyBids();
+
+  /// Fetch auctions the user is watching.
+  Future<List<AuctionModel>> getWatchedAuctions();
+
   // WebSocket Methods
   Future<void> connectToAuction(String auctionId);
   void disconnectFromAuction();

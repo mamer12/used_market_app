@@ -1691,7 +1691,7 @@ abstract class AppLocalizations {
   /// Button label to open WhatsApp/chat with seller
   ///
   /// In en, this message translates to:
-  /// **'Contact Seller'**
+  /// **'Contact Seller Safely via WhatsApp'**
   String get whatsappChat;
 
   /// Balla unit price row in checkout
@@ -1733,14 +1733,20 @@ abstract class AppLocalizations {
   /// Escrow wallet balance label with amount
   ///
   /// In en, this message translates to:
-  /// **'Balance: {amount}'**
+  /// **'Your Guarantee Balance: {amount}'**
   String walletBalance(String amount);
 
-  /// Omnibox / global search hint text
+  /// Omnibox / global search hint text — voice-first
   ///
   /// In en, this message translates to:
-  /// **'What are you looking for today?'**
+  /// **'What\'s on your mind? Search by voice or type...'**
   String get omniboxHint;
+
+  /// Madhmoon escrow protection reassurance copy shown on checkout and product detail
+  ///
+  /// In en, this message translates to:
+  /// **'Because your money and time matter, your payment stays with us until you receive your order.'**
+  String get escrowProtectionText;
 
   /// Tagline for Mazad in home bento grid
   ///
@@ -2078,10 +2084,10 @@ abstract class AppLocalizations {
   /// **'All Categories'**
   String get matajirAllCategories;
 
-  /// Verified store badge text
+  /// Short verified badge label
   ///
   /// In en, this message translates to:
-  /// **'Verified by Luqta'**
+  /// **'Verified Shop'**
   String get matajirVerifiedBadge;
 
   /// Add to cart button
@@ -2215,6 +2221,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} verified stores in Iraq'**
   String matajirStoreCount(int count);
+
+  /// Promo countdown prefix
+  ///
+  /// In en, this message translates to:
+  /// **'Ends in'**
+  String get matajirPromoEndsIn;
+
+  /// Product count label
+  ///
+  /// In en, this message translates to:
+  /// **'{count} products'**
+  String matajirProductCount(int count);
+
+  /// Empty state title for shop products
+  ///
+  /// In en, this message translates to:
+  /// **'No products yet'**
+  String get matajirShopEmpty;
+
+  /// Empty state subtitle for shop products
+  ///
+  /// In en, this message translates to:
+  /// **'This shop hasn\'t added products yet'**
+  String get matajirShopEmptySubtitle;
+
+  /// Retry button label
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get matajirRetry;
+
+  /// Out of stock badge on product card
+  ///
+  /// In en, this message translates to:
+  /// **'Out of Stock'**
+  String get matajirOutOfStock;
+
+  /// Full verified badge label
+  ///
+  /// In en, this message translates to:
+  /// **'Verified by Luqta'**
+  String get matajirVerifiedFull;
+
+  /// Placeholder sales count until API returns real data
+  ///
+  /// In en, this message translates to:
+  /// **'2,341 sales'**
+  String get matajirSalesCountPlaceholder;
+
+  /// Word appended after a pre-formatted product count string
+  ///
+  /// In en, this message translates to:
+  /// **'products'**
+  String get matajirProductSuffix;
+
+  /// No description provided for @mazadatNavAuctions.
+  ///
+  /// In en, this message translates to:
+  /// **'Auctions'**
+  String get mazadatNavAuctions;
+
+  /// No description provided for @mazadatNavMyBids.
+  ///
+  /// In en, this message translates to:
+  /// **'My Bids'**
+  String get mazadatNavMyBids;
+
+  /// No description provided for @mazadatNavWatchlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Watchlist'**
+  String get mazadatNavWatchlist;
+
+  /// No description provided for @mazadatNavAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get mazadatNavAccount;
+
+  /// Label for wallet balance in mazadat
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Balance'**
+  String get mazadatWalletBalance;
+
+  /// Label for paying from wallet in mazadat
+  ///
+  /// In en, this message translates to:
+  /// **'Pay From Wallet'**
+  String get mazadatPayFromWallet;
+
+  /// Label for topping up wallet in mazadat
+  ///
+  /// In en, this message translates to:
+  /// **'Top-up Wallet'**
+  String get mazadatTopUpWallet;
 }
 
 class _AppLocalizationsDelegate

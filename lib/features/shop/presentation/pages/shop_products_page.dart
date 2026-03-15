@@ -172,7 +172,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
           ),
           SizedBox(height: 14.h),
           Text(
-            '\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0646\u062a\u062c\u0627\u062a \u0628\u0639\u062f',
+            l10n.matajirShopEmpty,
             style: GoogleFonts.cairo(
               fontSize: 17.sp,
               fontWeight: FontWeight.w700,
@@ -181,7 +181,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
           ),
           SizedBox(height: 6.h),
           Text(
-            '\u0644\u0645 \u064a\u064f\u0636\u0650\u0641 \u0647\u0630\u0627 \u0627\u0644\u0645\u062a\u062c\u0631 \u0645\u0646\u062a\u062c\u0627\u062a \u062d\u062a\u0649 \u0627\u0644\u0622\u0646',
+            l10n.matajirShopEmptySubtitle,
             style: GoogleFonts.cairo(
                 fontSize: 13.sp, color: AppTheme.textSecondary),
           ),
@@ -212,7 +212,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
                 borderRadius: BorderRadius.circular(AppTheme.radiusFull),
               ),
               child: Text(
-                '\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629',
+                l10n.matajirRetry,
                 style: GoogleFonts.cairo(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
@@ -238,6 +238,7 @@ class _StoreHeaderSliver extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = shop?.name ?? fallbackName;
+    final l10n = AppLocalizations.of(context);
 
     return SliverToBoxAdapter(
       child: Stack(
@@ -302,7 +303,7 @@ class _StoreHeaderSliver extends StatelessWidget {
                                 color: AppTheme.success, size: 13.sp),
                             SizedBox(width: 4.w),
                             Text(
-                              '\u0645\u062a\u062c\u0631 \u0645\u0648\u062b\u0642 \u0645\u0646 \u0644\u0643\u0637\u0629',
+                              l10n.matajirVerifiedFull,
                               style: GoogleFonts.cairo(
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w600,
@@ -339,7 +340,7 @@ class _StoreHeaderSliver extends StatelessWidget {
                         ),
                         SizedBox(width: 12.w),
                         Text(
-                          '\u0662\u066c\u0663\u0664\u0661 \u0639\u0645\u0644\u064a\u0629 \u0628\u064a\u0639',
+                          l10n.matajirSalesCountPlaceholder,
                           style: GoogleFonts.cairo(
                             fontSize: 13.sp,
                             color: AppTheme.textSecondary,
@@ -492,6 +493,7 @@ class _StoreProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return InkWell(
       onTap: () =>
           context.push('/matajir/product/${product.id}', extra: product),
@@ -553,7 +555,7 @@ class _StoreProductCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6.r),
                           ),
                           child: Text(
-                            '\u0646\u0641\u062f \u0627\u0644\u0645\u062e\u0632\u0648\u0646',
+                            l10n.matajirOutOfStock,
                             style: GoogleFonts.cairo(
                               fontSize: 11.sp,
                               fontWeight: FontWeight.w700,
@@ -580,7 +582,7 @@ class _StoreProductCard extends StatelessWidget {
                             color: AppTheme.success, size: 10.sp),
                         SizedBox(width: 3.w),
                         Text(
-                          '\u0645\u062a\u062c\u0631 \u0645\u0648\u062b\u0642',
+                          l10n.matajirVerifiedBadge,
                           style: GoogleFonts.cairo(
                             fontSize: 10.sp,
                             color: AppTheme.success,
@@ -653,8 +655,8 @@ class _StoreProductCard extends StatelessWidget {
                                 SizedBox(width: 6.w),
                                 Text(
                                   inCart
-                                      ? '\u0641\u064a \u0627\u0644\u0633\u0644\u0629'
-                                      : '\u0623\u0636\u0641 \u0644\u0644\u0633\u0644\u0629',
+                                      ? l10n.matajirInCart
+                                      : l10n.matajirAddToCart,
                                   style: GoogleFonts.cairo(
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w700,
@@ -722,7 +724,7 @@ class _CartBar extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '$count \u0645\u0646\u062a\u062c\u0627\u062a',
+                    l10n.matajirProductCount(count),
                     style: GoogleFonts.cairo(
                         fontSize: 11.sp, color: Colors.white60),
                   ),
