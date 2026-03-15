@@ -159,7 +159,7 @@ class _CreateShopPageState extends State<CreateShopPage> {
                   onPressed: _prevStep,
                 ),
                 title: Text(
-                  'Open Lugta Shop',
+                  'افتح متجر مضمون',
                   style: GoogleFonts.cairo(
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,

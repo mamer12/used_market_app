@@ -788,7 +788,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                   ),
                   SizedBox(height: 12.h),
                   Text(
-                    'عبر الضغط أنت توافق على شروط المزايدة في لكطة',
+                    'عبر الضغط أنت توافق على شروط المزايدة في مضمون',
                     style: GoogleFonts.cairo(
                       fontSize: 9.sp,
                       fontWeight: FontWeight.bold,

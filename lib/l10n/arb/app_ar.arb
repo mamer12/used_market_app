@@ -1,20 +1,15 @@
 {
   "@@locale": "ar",
-
   "appTitle": "مستعمل",
   "onboardingSkip": "تخطي",
   "onboardingNext": "التالي",
   "onboardingGetStarted": "ابدأ التصفّح",
-
   "onboardingTitle1": "اشترِ بثقة",
   "onboardingDesc1": "كل إعلان موثّق. تسوّق بأمان.",
-
   "onboardingTitle2": "بيع في دقائق",
   "onboardingDesc2": "صوّر، حدّد السعر، وخلّص.",
-
   "onboardingTitle3": "مزادات حية",
   "onboardingDesc3": "زايد بشكل مباشر على منتجات حصرية.",
-
   "loginWelcomeTo": "أهلاً في",
   "loginPhoneNumber": "رقم الهاتف",
   "loginPhoneHint": "7XX XXX XXXX",
@@ -24,28 +19,24 @@
   "loginTerms": "بالمتابعة، أنت توافق على شروط الاستخدام",
   "loginPhoneEmpty": "الرجاء إدخال رقم الهاتف",
   "loginPhoneInvalid": "رقم هاتف غير صالح",
-
   "verifyOtpTitle": "تحقق من هويتك",
   "verifyOtpSubtitle": "أرسلنا رمزاً من 6 أرقام إلى رقمك",
   "verifyOtpResendIn": "إعادة الإرسال خلال",
   "verifyOtpResend": "إعادة الإرسال",
   "verifyOtpSubmit": "تحقق ومتابعة",
   "verifyOtpEditNumber": "تعديل الرقم",
-
   "registerTitle": "أكمل تسجيلك",
   "registerStepLabel": "الخطوة 3 من 3",
   "registerFullNameHint": "الاسم الكامل",
   "registerFullNameLabel": "ما اسمك؟",
   "registerRoleTitle": "من أنت؟",
   "registerSubmit": "إكمال التسجيل",
-
   "roleUser": "مشترٍ",
   "roleMerchant": "تاجر",
   "roleAuctioneer": "مزايد",
   "roleUserDesc": "أتصفح وأشتري من المتاجر والمزادات",
   "roleMerchantDesc": "عندي متجر وأبي أبيع منتجاتي",
   "roleAuctioneerDesc": "أشارك في مزادات وأبيع بالأعلى سعر",
-
   "homeGreetingSub": "هلا بيك",
   "homeGreeting": "هلا بيك",
   "homeSearch": "على شنو تدور اليوم؟",
@@ -75,7 +66,6 @@
   "homeBannerTitle": "سيارات مستعمل\nالمفحوصة",
   "homeBannerSubtitle": "ضمان شامل وتقارير فحص دقيقة",
   "homeBrowseNow": "تصفح الآن",
-
   "categoryAuctions": "مزادات",
   "categoryMobile": "موبايل",
   "categoryCars": "سيارات",
@@ -86,47 +76,35 @@
   "categoryFashion": "أزياء",
   "categoryServices": "خدمات",
   "categoryMore": "المزيد",
-
   "bidders": "{count} مزايدين",
-
   "currency": "د.ع",
-
   "bannerBadge1": "موثوق ١٠٠٪",
   "bannerTitle1": "سيارات مستعمل\nالمفحوصة",
   "bannerSub1": "ضمان شامل وتقارير فحص دقيقة",
   "bannerCta1": "تصفح الآن",
-
   "bannerBadge2": "عروض حصرية",
   "bannerTitle2": "صفقات اليوم 🔥",
   "bannerSub2": "خصم يصل إلى 70% على إلكترونيات مختارة",
   "bannerCta2": "اكتشف العروض",
-
   "bannerBadge3": "مزاد مباشر 🔨",
   "bannerTitle3": "زايد الآن على\nأفضل المنتجات",
   "bannerSub3": "مزادات حية كل يوم بأسعار لا تقاوم",
   "bannerCta3": "شاهد المزادات",
-
   "liveItemTitle1": "طقم كنب إيطالي",
   "liveItemTitle2": "ساعة رولكس أصلية",
   "liveItemTitle3": "آيفون 14 برو ماكس",
-
   "listingTitle1": "حذاء رياضي نايكي أحمر",
   "listingLocation1": "بغداد، المنصور",
-
   "listingTitle2": "لابتوب ديل XPS 13",
   "listingLocation2": "البصرة",
-
   "listingTitle3": "كرسي استرخاء مخملي",
   "listingLocation3": "أربيل",
-
   "listingTitle4": "سماعات بلوتوث سوني",
   "listingLocation4": "النجف",
-
   "timeAgo1": "منذ ساعة",
   "timeAgo2": "منذ ساعتين",
   "timeAgo4": "منذ ٤ ساعات",
   "timeAgo5": "منذ ٥ ساعات",
-
   "auctionCurrentPrice": "السعر الحالي",
   "auctionBidNowLabel": "زايد الآن",
   "auctionPlaceYourBid": "ضع سعرك",
@@ -136,7 +114,6 @@
   "auctionBidder2": "زيد محمد",
   "auctionBidder3": "علي البصراوي",
   "auctionYou": "أنت",
-
   "authSheetTitle": "سجّل دخولك للمتابعة",
   "authSheetSubtitle": "تحتاج تسجيل الدخول لتنفيذ هذا الإجراء. أدخل رقم هاتفك للمتابعة.",
   "authPhoneLabel": "رقم الهاتف",
@@ -150,14 +127,11 @@
   "authVerifyCode": "تحقق ومتابعة  ←",
   "authResendCode": "إعادة إرسال الرمز خلال",
   "authChangeNumber": "تغيير الرقم",
-
   "switchLanguage": "English",
-
   "navHome": "الرئيسية",
   "navMessages": "الرسائل",
   "navActivity": "نشاطاتي",
   "navProfile": "حسابي",
-
   "postSheetTitle": "وش تريد تبيع أو تضيف؟",
   "postSheetSub": "اختار نوع الإضافة",
   "postAuction": "ابدأ مزاد",
@@ -168,14 +142,12 @@
   "postServiceSub": "سبّاكة، كهرباء، تنظيف، أي خدمة",
   "postJob": "انشر وظيفة",
   "postJobSub": "ابحث عن موظفين أو عمال",
-
   "activityTitle": "نشاطاتي",
   "activityOrders": "طلباتي",
   "activitySaved": "المحفوظة",
   "activityBids": "مزايداتي",
   "activityBookings": "حجوزاتي",
   "activitySummary": "{orders} طلب · {saved} محفوظ",
-
   "cartClear": "مسح الكل",
   "cartEmpty": "سلتك فارغة",
   "cartEmptySub": "تصفح المتاجر وأضف منتجات تريد شراءها",
@@ -186,7 +158,6 @@
   "perItem": "للقطعة",
   "totalLabel": "المجموع",
   "addedToCart": "أُضيف إلى السلة",
-
   "bidsTrackTitle": "تتبّع مزايداتك",
   "bidsTrackSub": "شوف المزادات اللي شاركت فيها وحالتها",
   "bidsEmpty": "ما زايدت بعد",
@@ -194,7 +165,6 @@
   "browseBids": "تصفح المزادات",
   "bookingsEmpty": "ما عندك حجوزات",
   "bookingsEmptySub": "احجز خدمة وتشوفها هنا",
-
   "homeWhatLooking": "وش تدور عليه؟",
   "modeAuctions": "مزادات",
   "modeAuctionTag": "زايد واربح",
@@ -204,27 +174,22 @@
   "modeOfficialTag": "ماركات موثقة",
   "modeUsed": "مستعمل",
   "modeUsedTag": "مستخدم بعناية",
-
   "shopsSection": "المتاجر",
   "shopsTrustedSub": "بائعون موثوقون · دفع آمن",
   "usedMarketTitle": "مستعمل ومُجدَّد",
   "usedMarketSub": "اشتري وبع بثقة وسهولة",
   "visitShop": "زيارة",
   "defaultCity": "بغداد",
-
   "auctionWatching": "{count} يشاهد",
   "auctionBidding": "{count} مزايدة",
   "auctionEndedLabel": "انتهى",
-
   "condExcellent": "ممتاز",
   "condVeryGood": "جيد جداً",
   "condGood": "جيد",
   "condFair": "مقبول",
-
   "messagesTitle": "الرسائل",
   "messagesEmpty": "ما عندك رسائل بعد",
   "messagesEmptySub": "تواصل مع البائعين والمشترين مباشرة",
-
   "searchHint": "ابحث عن أي شي...",
   "searchTabAll": "الكل",
   "searchTabAuctions": "مزادات",
@@ -234,37 +199,59 @@
   "searchEmptySub": "جرّب كلمة مثل ايفون أو تلفزيون",
   "searchNoResults": "ما في نتائج",
   "searchNoResultsSub": "ما لقينا شي لـ \"{query}\"",
-  "@searchNoResultsSub": { "description": "No results subtitle with query placeholder", "placeholders": { "query": { "type": "String" } } },
+  "@searchNoResultsSub": {
+    "description": "No results subtitle with query placeholder",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "searchResultCount": "{count} نتيجة",
-  "@searchResultCount": { "description": "Number of search results", "placeholders": { "count": { "type": "int" } } },
+  "@searchResultCount": {
+    "description": "Number of search results",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchMinChars": "اكتب حرفين على الأقل",
-
   "activityPageTitle": "نشاطاتي",
   "activityTabPurchases": "مشترياتي",
   "activityTabSales": "مبيعاتي",
-
   "ordersEmpty": "ما عندك طلبات بعد",
   "ordersEmptySub": "مشترياتك ومبيعاتك راح تظهر هنا",
-
   "retryBtn": "إعادة المحاولة",
-
   "signInToViewActivity": "سجّل دخولك لعرض نشاطاتك",
   "signInActivitySub": "تتبّع مشترياتك ومبيعاتك ومزايداتك في مكان واحد.",
-
   "signInBtn": "تسجيل الدخول",
-
   "orderNumber": "طلب #{id}",
-  "@orderNumber": { "description": "Order card number label", "placeholders": { "id": { "type": "String" } } },
-
+  "@orderNumber": {
+    "description": "Order card number label",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "orderQtyPrice": "الكمية {qty}  •  {price} د.ع",
-  "@orderQtyPrice": { "description": "Order qty and price line", "placeholders": { "qty": { "type": "int" }, "price": { "type": "String" } } },
-
+  "@orderQtyPrice": {
+    "description": "Order qty and price line",
+    "placeholders": {
+      "qty": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
   "statusPendingPayment": "بانتظار الدفع",
   "statusPaidEscrow": "مدفوع — في الضمان",
   "statusShipped": "تم الشحن",
   "statusDelivered": "تم التسليم",
   "statusCompleted": "مكتمل",
-
   "profileTitle": "حسابي",
   "profileVerified": "● موثّق",
   "profileSectionAccount": "الحساب",
@@ -281,17 +268,14 @@
   "profileLogOut": "تسجيل الخروج",
   "profileGuestTitle": "سجّل دخولك في مستعمل",
   "profileGuestSub": "تصفّح ملفك الشخصي وتتبّع طلباتك وأدر إعلاناتك.",
-
   "homeOutOfStock": "نفذ",
   "homeNoProducts": "ما في منتجات.",
   "homeBrowseAuctions": "تصفح المزادات",
   "homeBrowseUsed": "تصفح سوق المستعمل",
-
   "postCreateShop": "أنشئ متجراً",
   "postCreateShopSub": "ابدأ تجارتك الإلكترونية الخاصة",
   "postAddProduct": "أضف منتج للمتجر",
   "postAddProductSub": "أضف سلعة جديدة لمتجرك الحالي",
-
   "auctionCreateTitle": "إنشاء مزاد",
   "auctionHostTitle": "أقم مزاداً",
   "auctionHostSub": "خلّ المزايدين يحددون قيمة منتجك بشكل مباشر.",
@@ -307,63 +291,67 @@
   "auctionSelectTimesError": "الرجاء تحديد وقت البداية والنهاية",
   "auctionCreatedSuccess": "تم إنشاء المزاد بنجاح!",
   "auctionLaunchBtn": "إطلاق المزاد",
-
   "statusPendingCODFulfillment": "بانتظار التسليم النقدي",
   "statusDeliveredAndCashCollected": "تم التسليم ✓",
-
   "bannedUserWarning": "حسابك محظور بسبب 3 مخالفات عدم دفع مزادات. تواصل مع الدعم.",
   "strikesWarning": "لديك {strikes}/3 مخالفات عدم دفع. إذا وصلت إلى 3 سيتم حظر حسابك.",
   "insufficientWalletError": "رصيدك لا يكفي لتغطية عمولة التوصيل النقدي. يرجى شحن محفظتك أولاً.",
-
   "postSellUsed": "بيع شيء مستعمل",
   "postSellUsedSub": "إعلان مجاني — المشترون يتواصلون عبر الدردشة",
-
   "postSellBalla": "بيع بالة / جملة",
   "postSellBallaSub": "بيع بالقطعة أو الكيلو أو البندل",
-
   "whatsappChat": "تواصل مع البائع",
-
   "checkoutUnitFormat": "{price} دينار ({qty} {unit})",
-
   "homeSectionAuctions": "مزادات الساعة 🔴",
   "homeSectionMatajir": "جديد في المتاجر 🏬",
   "homeSectionMustamal": "صفقات المستعمل 🤝",
   "homeSectionBalla": "كنوز البالة 📦",
-
   "shopAll": "تسوق الكل",
-
   "walletBalance": "الرصيد: {amount}",
   "@walletBalance": {
     "description": "Escrow wallet balance label with amount",
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
-
   "omniboxHint": "على شنو تدور اليوم؟",
   "miniAppMazadTagline": "مزايدات مباشرة",
   "miniAppMatajirTagline": "المتاجر الرسمية",
   "miniAppMustamalTagline": "سوق المستعمل",
   "miniAppBallaTagline": "سوق الجملة",
-
   "matajirTitle": "المتاجر الرسمية 🏬",
   "ballaTitle": "سوق البالة 📦",
-
   "miniAppMazad": "مزاد",
   "miniAppMustamal": "مستعمل",
   "miniAppMatajir": "متاجر",
   "miniAppBalla": "بالة",
-
   "cartTitleMatajir": "سلة المتاجر",
   "cartTitleBalla": "سلة البالة",
-
   "cartConflictTitle": "متجر مختلف!",
   "cartConflictMessage": "عندك منتجات من متجر ثاني في سلتك. اختار: تحتفظ بسلتك الحالية، أو تمسحها وتضيف المنتج الجديد.",
   "cartConflictKeep": "احتفظ بالسلة الحالية",
   "cartConflictClear": "امسح وأضف المنتج الجديد",
-
   "mustamalSearchHint": "ابحث عن هاتف، سيارة، أثاث...",
   "mustamalUsedBadge": "مستعمل",
   "mustamalViewDetails": "عرض التفاصيل",
   "mustamalNoTitle": "بدون عنوان",
+  "mustamalSellButton": "بيع شيء +",
+  "mustamalLocationChange": "تغيير",
+  "mustamalNearMe": "قريب مني",
+  "mustamalNearbyTitle": "أقرب إليك",
+  "mustamalAllCategories": "كل الفئات",
+  "mustamalDetailTitle": "تفاصيل الإعلان",
+  "mustamalNegotiable": "قابل للتفاوض",
+  "mustamalSafetyBanner": "لا تدفع قبل الاستلام — استخدم أمانة لكطة للحماية",
+  "mustamalContactWhatsapp": "تواصل مع البائع عبر واتساب",
+  "mustamalInAppChat": "راسل في التطبيق",
+  "mustamalCallSeller": "اتصال",
+  "mustamalSimilarListings": "إعلانات مشابهة",
+  "mustamalLocationTitle": "الموقع",
+  "mustamalDescriptionTitle": "وصف الإعلان",
+  "mustamalSellerTitle": "معلومات البائع",
   "carouselPromoSubtitle": "عروض حصرية في انتظارك",
   "checkoutDeliveryOption": "توصيل\n(5,000 د.ع)",
   "checkoutPickupOption": "استلام من المتجر\n(مجاني)",
@@ -371,5 +359,48 @@
   "orderTotalAmount": "المبلغ الإجمالي",
   "orderItemCount": "{count, plural, one{منتج واحد} two{منتجان} few{{count} منتجات} other{{count} منتج}}",
   "orderHistoryEmpty": "لا يوجد طلبات بعد.",
-  "checkoutFulfillmentMethod": "طريقة الاستلام"
+  "checkoutFulfillmentMethod": "طريقة الاستلام",
+  "matajirTrustBar": "جميع المتاجر موثقة من لكطة ✓",
+  "matajirVerifiedStores": "المتاجر الموثقة",
+  "matajirFeaturedProducts": "منتجات مميزة",
+  "matajirSearchHint": "ابحث عن منتج أو متجر...",
+  "matajirPromoToday": "عروض اليوم",
+  "matajirViewAll": "عرض الكل",
+  "matajirNavHome": "الرئيسية",
+  "matajirNavStores": "المتاجر",
+  "matajirNavCart": "السلة",
+  "matajirNavOrders": "الطلبات",
+  "matajirCategories": "التصنيفات المميزة",
+  "matajirPopularStores": "متاجر شهيرة",
+  "matajirAllCategories": "كل التصنيفات",
+  "matajirVerifiedBadge": "متجر موثق من لكطة",
+  "matajirAddToCart": "أضف للسلة",
+  "matajirInCart": "في السلة",
+  "matajirCompleteOrder": "إتمام الطلب",
+  "matajirSalesCount": "عملية بيع",
+  "matajirStoreProducts": "منتجات المتجر",
+  "matajirFilterAll": "الكل",
+  "matajirCatElectronics": "إلكترونيات",
+  "matajirCatClothing": "ملابس",
+  "matajirCatMobiles": "موبايلات",
+  "matajirCatHome": "منزل",
+  "matajirCatSports": "رياضة",
+  "matajirCatFurniture": "أثاث",
+  "matajirCatCars": "قطع غيار سيارات",
+  "matajirCatBooks": "كتب",
+  "matajirCatPhones": "هواتف وأجهزة لوحية",
+  "matajirCatLaptops": "لابتوب",
+  "matajirCatTVs": "تلفزيونات",
+  "matajirCatAppliances": "أجهزة منزلية",
+  "matajirCatFashion": "أزياء",
+  "matajirNoStores": "لا توجد متاجر بعد",
+  "matajirCartItems": "منتجات",
+  "matajirStoreCount": "{count} متجر موثق في العراق",
+  "@matajirStoreCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -925,6 +925,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mustamalNoTitle => 'No Title';
 
   @override
+  String get mustamalSellButton => 'Sell +';
+
+  @override
+  String get mustamalLocationChange => 'Change';
+
+  @override
+  String get mustamalNearMe => 'Near Me';
+
+  @override
+  String get mustamalNearbyTitle => 'Nearest to You';
+
+  @override
+  String get mustamalAllCategories => 'All Categories';
+
+  @override
+  String get mustamalDetailTitle => 'Listing Details';
+
+  @override
+  String get mustamalNegotiable => 'Negotiable';
+
+  @override
+  String get mustamalSafetyBanner =>
+      'Don\'t pay before receiving — use Luqta Escrow for protection';
+
+  @override
+  String get mustamalContactWhatsapp => 'Contact Seller via WhatsApp';
+
+  @override
+  String get mustamalInAppChat => 'Message in App';
+
+  @override
+  String get mustamalCallSeller => 'Call';
+
+  @override
+  String get mustamalSimilarListings => 'Similar Listings';
+
+  @override
+  String get mustamalLocationTitle => 'Location';
+
+  @override
+  String get mustamalDescriptionTitle => 'Listing Description';
+
+  @override
+  String get mustamalSellerTitle => 'Seller Info';
+
+  @override
   String get carouselPromoSubtitle => 'Exclusive offers awaiting you';
 
   @override
@@ -955,4 +1001,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkoutFulfillmentMethod => 'Fulfillment Method';
+
+  @override
+  String get matajirTrustBar => 'All stores verified by Luqta ✓';
+
+  @override
+  String get matajirVerifiedStores => 'Verified Stores';
+
+  @override
+  String get matajirFeaturedProducts => 'Featured Products';
+
+  @override
+  String get matajirSearchHint => 'Search for a product or store...';
+
+  @override
+  String get matajirPromoToday => 'Today\'s Deals';
+
+  @override
+  String get matajirViewAll => 'View All';
+
+  @override
+  String get matajirNavHome => 'Home';
+
+  @override
+  String get matajirNavStores => 'Stores';
+
+  @override
+  String get matajirNavCart => 'Cart';
+
+  @override
+  String get matajirNavOrders => 'Orders';
+
+  @override
+  String get matajirCategories => 'Featured Categories';
+
+  @override
+  String get matajirPopularStores => 'Popular Stores';
+
+  @override
+  String get matajirAllCategories => 'All Categories';
+
+  @override
+  String get matajirVerifiedBadge => 'Verified by Luqta';
+
+  @override
+  String get matajirAddToCart => 'Add to Cart';
+
+  @override
+  String get matajirInCart => 'In Cart';
+
+  @override
+  String get matajirCompleteOrder => 'Complete Order';
+
+  @override
+  String get matajirSalesCount => 'sales';
+
+  @override
+  String get matajirStoreProducts => 'Store Products';
+
+  @override
+  String get matajirFilterAll => 'All';
+
+  @override
+  String get matajirCatElectronics => 'Electronics';
+
+  @override
+  String get matajirCatClothing => 'Clothing';
+
+  @override
+  String get matajirCatMobiles => 'Mobiles';
+
+  @override
+  String get matajirCatHome => 'Home';
+
+  @override
+  String get matajirCatSports => 'Sports';
+
+  @override
+  String get matajirCatFurniture => 'Furniture';
+
+  @override
+  String get matajirCatCars => 'Auto Parts';
+
+  @override
+  String get matajirCatBooks => 'Books';
+
+  @override
+  String get matajirCatPhones => 'Phones & Tablets';
+
+  @override
+  String get matajirCatLaptops => 'Laptops';
+
+  @override
+  String get matajirCatTVs => 'TVs';
+
+  @override
+  String get matajirCatAppliances => 'Home Appliances';
+
+  @override
+  String get matajirCatFashion => 'Fashion';
+
+  @override
+  String get matajirNoStores => 'No stores yet';
+
+  @override
+  String get matajirCartItems => 'items';
+
+  @override
+  String matajirStoreCount(int count) {
+    return '$count verified stores in Iraq';
+  }
 }

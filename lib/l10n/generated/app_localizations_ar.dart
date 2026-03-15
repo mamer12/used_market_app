@@ -919,6 +919,52 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mustamalNoTitle => 'بدون عنوان';
 
   @override
+  String get mustamalSellButton => 'بيع شيء +';
+
+  @override
+  String get mustamalLocationChange => 'تغيير';
+
+  @override
+  String get mustamalNearMe => 'قريب مني';
+
+  @override
+  String get mustamalNearbyTitle => 'أقرب إليك';
+
+  @override
+  String get mustamalAllCategories => 'كل الفئات';
+
+  @override
+  String get mustamalDetailTitle => 'تفاصيل الإعلان';
+
+  @override
+  String get mustamalNegotiable => 'قابل للتفاوض';
+
+  @override
+  String get mustamalSafetyBanner =>
+      'لا تدفع قبل الاستلام — استخدم أمانة لكطة للحماية';
+
+  @override
+  String get mustamalContactWhatsapp => 'تواصل مع البائع عبر واتساب';
+
+  @override
+  String get mustamalInAppChat => 'راسل في التطبيق';
+
+  @override
+  String get mustamalCallSeller => 'اتصال';
+
+  @override
+  String get mustamalSimilarListings => 'إعلانات مشابهة';
+
+  @override
+  String get mustamalLocationTitle => 'الموقع';
+
+  @override
+  String get mustamalDescriptionTitle => 'وصف الإعلان';
+
+  @override
+  String get mustamalSellerTitle => 'معلومات البائع';
+
+  @override
   String get carouselPromoSubtitle => 'عروض حصرية في انتظارك';
 
   @override
@@ -951,4 +997,114 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get checkoutFulfillmentMethod => 'طريقة الاستلام';
+
+  @override
+  String get matajirTrustBar => 'جميع المتاجر موثقة من لكطة ✓';
+
+  @override
+  String get matajirVerifiedStores => 'المتاجر الموثقة';
+
+  @override
+  String get matajirFeaturedProducts => 'منتجات مميزة';
+
+  @override
+  String get matajirSearchHint => 'ابحث عن منتج أو متجر...';
+
+  @override
+  String get matajirPromoToday => 'عروض اليوم';
+
+  @override
+  String get matajirViewAll => 'عرض الكل';
+
+  @override
+  String get matajirNavHome => 'الرئيسية';
+
+  @override
+  String get matajirNavStores => 'المتاجر';
+
+  @override
+  String get matajirNavCart => 'السلة';
+
+  @override
+  String get matajirNavOrders => 'الطلبات';
+
+  @override
+  String get matajirCategories => 'التصنيفات المميزة';
+
+  @override
+  String get matajirPopularStores => 'متاجر شهيرة';
+
+  @override
+  String get matajirAllCategories => 'كل التصنيفات';
+
+  @override
+  String get matajirVerifiedBadge => 'متجر موثق من لكطة';
+
+  @override
+  String get matajirAddToCart => 'أضف للسلة';
+
+  @override
+  String get matajirInCart => 'في السلة';
+
+  @override
+  String get matajirCompleteOrder => 'إتمام الطلب';
+
+  @override
+  String get matajirSalesCount => 'عملية بيع';
+
+  @override
+  String get matajirStoreProducts => 'منتجات المتجر';
+
+  @override
+  String get matajirFilterAll => 'الكل';
+
+  @override
+  String get matajirCatElectronics => 'إلكترونيات';
+
+  @override
+  String get matajirCatClothing => 'ملابس';
+
+  @override
+  String get matajirCatMobiles => 'موبايلات';
+
+  @override
+  String get matajirCatHome => 'منزل';
+
+  @override
+  String get matajirCatSports => 'رياضة';
+
+  @override
+  String get matajirCatFurniture => 'أثاث';
+
+  @override
+  String get matajirCatCars => 'قطع غيار سيارات';
+
+  @override
+  String get matajirCatBooks => 'كتب';
+
+  @override
+  String get matajirCatPhones => 'هواتف وأجهزة لوحية';
+
+  @override
+  String get matajirCatLaptops => 'لابتوب';
+
+  @override
+  String get matajirCatTVs => 'تلفزيونات';
+
+  @override
+  String get matajirCatAppliances => 'أجهزة منزلية';
+
+  @override
+  String get matajirCatFashion => 'أزياء';
+
+  @override
+  String get matajirNoStores => 'لا توجد متاجر بعد';
+
+  @override
+  String get matajirCartItems => 'منتجات';
+
+  @override
+  String matajirStoreCount(int count) {
+    return '$count متجر موثق في العراق';
+  }
 }

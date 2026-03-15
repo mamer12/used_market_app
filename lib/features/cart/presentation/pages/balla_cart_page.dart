@@ -481,7 +481,7 @@ class BallaCartPage extends StatelessWidget {
               ),
               SizedBox(width: 6.w),
               Text(
-                'تسوق آمن ومضمون عبر Luqta Balla',
+                'تسوق آمن ومضمون عبر مضمون Balla',
                 style: GoogleFonts.cairo(
                   fontSize: 12.sp,
                   color: AppTheme.textSecondary,

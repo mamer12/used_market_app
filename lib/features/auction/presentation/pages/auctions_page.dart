@@ -52,11 +52,11 @@ class _AuctionsPageState extends State<AuctionsPage>
       child: Scaffold(
         backgroundColor: AppTheme.background,
         body: NestedScrollView(
-          headerSliverBuilder: (_, __) => [_buildAppBar()],
+          headerSliverBuilder: (_, _) => [_buildAppBar()],
           body: BlocBuilder<AuctionsCubit, AuctionsState>(
             builder: (context, state) {
               if (state.isLoading && state.auctions.isEmpty) {
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(
                     color: AppTheme.mazadGreen,
                     strokeWidth: 2,
@@ -83,13 +83,13 @@ class _AuctionsPageState extends State<AuctionsPage>
                                   16.w, 12.h, 16.w, 100.h),
                               itemCount: auctions.length +
                                   (state.isLoading ? 1 : 0),
-                              separatorBuilder: (_, __) =>
+                              separatorBuilder: (_, _) =>
                                   SizedBox(height: 12.h),
                               itemBuilder: (_, i) {
                                 if (i == auctions.length) {
                                   return Padding(
                                     padding: EdgeInsets.symmetric(vertical: 16.h),
-                                    child: Center(
+                                    child: const Center(
                                       child: CircularProgressIndicator(
                                           color: AppTheme.mazadGreen,
                                           strokeWidth: 2),
@@ -171,7 +171,7 @@ class _AuctionsPageState extends State<AuctionsPage>
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 7.h),
         itemCount: options.length,
-        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        separatorBuilder: (_, _) => SizedBox(width: 8.w),
         itemBuilder: (_, i) {
           final selected = state.sortBy == options[i].$1;
           return GestureDetector(
@@ -320,7 +320,7 @@ class _AuctionCardState extends State<_AuctionCard> {
     final h = _secondsLeft ~/ 3600;
     final m = (_secondsLeft % 3600) ~/ 60;
     final s = _secondsLeft % 60;
-    if (h > 0) return '${h}س ${m}د';
+    if (h > 0) return '$hس $mد';
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
@@ -366,10 +366,10 @@ class _AuctionCardState extends State<_AuctionCard> {
                         ? item.images.first
                         : 'https://placehold.co/400x400/png',
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       color: AppTheme.shimmerBase,
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       color: AppTheme.shimmerBase,
                       child: Icon(Icons.image_outlined,
                           color: AppTheme.shimmerHighlight, size: 28.sp),

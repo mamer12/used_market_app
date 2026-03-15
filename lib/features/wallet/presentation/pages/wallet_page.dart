@@ -206,7 +206,7 @@ class _BalanceCard extends StatelessWidget {
                             size: 12.sp, color: Colors.white70),
                         SizedBox(width: 4.w),
                         Text(
-                          'محمي بأمانة لكطة',
+                          'محمي بأمانة مضمون',
                           style: GoogleFonts.cairo(
                             fontSize: 11.sp,
                             color: Colors.white70,
@@ -429,7 +429,7 @@ const _mockTransactions = [
     date: '١١ مارس',
   ),
   _TxData(
-    title: 'مبيعات لكطة',
+    title: 'مبيعات مضمون',
     subtitle: 'تحرير أمانة',
     amount: 320000,
     isCredit: true,

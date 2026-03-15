@@ -377,7 +377,7 @@ class _AuctionWonPageState extends State<AuctionWonPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'المبلغ محجوز في أمانة لكطة',
+                  'المبلغ محجوز في أمانة مضمون',
                   style: GoogleFonts.cairo(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.bold,

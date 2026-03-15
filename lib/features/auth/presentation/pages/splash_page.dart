@@ -38,7 +38,7 @@ class SplashPage extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
             Text(
-              'لكطة',
+              'مضمون',
               style: GoogleFonts.cairo(
                 fontSize: 28.sp,
                 fontWeight: FontWeight.w700,

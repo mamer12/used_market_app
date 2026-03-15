@@ -343,7 +343,7 @@ class MazadatAccountPage extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 120.h),
               child: Center(
                 child: Text(
-                  'Luqta Mazadat v2.4.0',
+                  'مضمون Mazadat v2.4.0',
                   style: GoogleFonts.cairo(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.bold,

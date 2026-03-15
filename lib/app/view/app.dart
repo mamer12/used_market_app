@@ -61,7 +61,7 @@ class _AppState extends State<App> {
           child: BlocBuilder<LocaleCubit, Locale>(
             builder: (context, locale) {
               return MaterialApp.router(
-                title: 'لكطة',
+                title: 'Madhmoon',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.lightTheme,
 

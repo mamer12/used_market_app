@@ -1862,6 +1862,96 @@ abstract class AppLocalizations {
   /// **'No Title'**
   String get mustamalNoTitle;
 
+  /// FAB / AppBar button to create a new Mustamal listing
+  ///
+  /// In en, this message translates to:
+  /// **'Sell +'**
+  String get mustamalSellButton;
+
+  /// Inline tap to change location in Mustamal page
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get mustamalLocationChange;
+
+  /// Location filter chip for listings near user
+  ///
+  /// In en, this message translates to:
+  /// **'Near Me'**
+  String get mustamalNearMe;
+
+  /// Section header for nearby listings
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest to You'**
+  String get mustamalNearbyTitle;
+
+  /// Section header for the full category list
+  ///
+  /// In en, this message translates to:
+  /// **'All Categories'**
+  String get mustamalAllCategories;
+
+  /// AppBar title on the detail screen
+  ///
+  /// In en, this message translates to:
+  /// **'Listing Details'**
+  String get mustamalDetailTitle;
+
+  /// Badge shown when price is negotiable
+  ///
+  /// In en, this message translates to:
+  /// **'Negotiable'**
+  String get mustamalNegotiable;
+
+  /// Safety reminder shown on listing detail
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t pay before receiving — use Luqta Escrow for protection'**
+  String get mustamalSafetyBanner;
+
+  /// Primary CTA on detail page — opens WhatsApp
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Seller via WhatsApp'**
+  String get mustamalContactWhatsapp;
+
+  /// Secondary action: open in-app chat with seller
+  ///
+  /// In en, this message translates to:
+  /// **'Message in App'**
+  String get mustamalInAppChat;
+
+  /// Secondary action: call seller directly
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get mustamalCallSeller;
+
+  /// Section header for similar items carousel
+  ///
+  /// In en, this message translates to:
+  /// **'Similar Listings'**
+  String get mustamalSimilarListings;
+
+  /// Section header on detail page for map/location
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get mustamalLocationTitle;
+
+  /// Section header for item description on detail page
+  ///
+  /// In en, this message translates to:
+  /// **'Listing Description'**
+  String get mustamalDescriptionTitle;
+
+  /// Section header for seller card on detail page
+  ///
+  /// In en, this message translates to:
+  /// **'Seller Info'**
+  String get mustamalSellerTitle;
+
   /// Fallback subtitle on announcement carousel banner
   ///
   /// In en, this message translates to:
@@ -1909,6 +1999,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fulfillment Method'**
   String get checkoutFulfillmentMethod;
+
+  /// Trust bar text in Matajir
+  ///
+  /// In en, this message translates to:
+  /// **'All stores verified by Luqta ✓'**
+  String get matajirTrustBar;
+
+  /// Section header for verified stores
+  ///
+  /// In en, this message translates to:
+  /// **'Verified Stores'**
+  String get matajirVerifiedStores;
+
+  /// Section header for featured products
+  ///
+  /// In en, this message translates to:
+  /// **'Featured Products'**
+  String get matajirFeaturedProducts;
+
+  /// Search bar placeholder in Matajir
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a product or store...'**
+  String get matajirSearchHint;
+
+  /// Promo banner title
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Deals'**
+  String get matajirPromoToday;
+
+  /// View all link
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get matajirViewAll;
+
+  /// Matajir bottom nav: Home
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get matajirNavHome;
+
+  /// Matajir bottom nav: Stores/Categories
+  ///
+  /// In en, this message translates to:
+  /// **'Stores'**
+  String get matajirNavStores;
+
+  /// Matajir bottom nav: Cart
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get matajirNavCart;
+
+  /// Matajir bottom nav: Orders
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get matajirNavOrders;
+
+  /// Categories page section header
+  ///
+  /// In en, this message translates to:
+  /// **'Featured Categories'**
+  String get matajirCategories;
+
+  /// Popular stores section header
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Stores'**
+  String get matajirPopularStores;
+
+  /// All categories section header
+  ///
+  /// In en, this message translates to:
+  /// **'All Categories'**
+  String get matajirAllCategories;
+
+  /// Verified store badge text
+  ///
+  /// In en, this message translates to:
+  /// **'Verified by Luqta'**
+  String get matajirVerifiedBadge;
+
+  /// Add to cart button
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Cart'**
+  String get matajirAddToCart;
+
+  /// Already in cart button state
+  ///
+  /// In en, this message translates to:
+  /// **'In Cart'**
+  String get matajirInCart;
+
+  /// Checkout button text
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Order'**
+  String get matajirCompleteOrder;
+
+  /// Sales count suffix
+  ///
+  /// In en, this message translates to:
+  /// **'sales'**
+  String get matajirSalesCount;
+
+  /// Store products section header
+  ///
+  /// In en, this message translates to:
+  /// **'Store Products'**
+  String get matajirStoreProducts;
+
+  /// Category filter: All
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get matajirFilterAll;
+
+  /// Category: Electronics
+  ///
+  /// In en, this message translates to:
+  /// **'Electronics'**
+  String get matajirCatElectronics;
+
+  /// Category: Clothing
+  ///
+  /// In en, this message translates to:
+  /// **'Clothing'**
+  String get matajirCatClothing;
+
+  /// Category: Mobiles
+  ///
+  /// In en, this message translates to:
+  /// **'Mobiles'**
+  String get matajirCatMobiles;
+
+  /// Category: Home
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get matajirCatHome;
+
+  /// Category: Sports
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get matajirCatSports;
+
+  /// Category: Furniture
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture'**
+  String get matajirCatFurniture;
+
+  /// Category: Auto Parts
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Parts'**
+  String get matajirCatCars;
+
+  /// Category: Books
+  ///
+  /// In en, this message translates to:
+  /// **'Books'**
+  String get matajirCatBooks;
+
+  /// Category: Phones & Tablets
+  ///
+  /// In en, this message translates to:
+  /// **'Phones & Tablets'**
+  String get matajirCatPhones;
+
+  /// Category: Laptops
+  ///
+  /// In en, this message translates to:
+  /// **'Laptops'**
+  String get matajirCatLaptops;
+
+  /// Category: TVs
+  ///
+  /// In en, this message translates to:
+  /// **'TVs'**
+  String get matajirCatTVs;
+
+  /// Category: Home Appliances
+  ///
+  /// In en, this message translates to:
+  /// **'Home Appliances'**
+  String get matajirCatAppliances;
+
+  /// Category: Fashion
+  ///
+  /// In en, this message translates to:
+  /// **'Fashion'**
+  String get matajirCatFashion;
+
+  /// Empty state for stores
+  ///
+  /// In en, this message translates to:
+  /// **'No stores yet'**
+  String get matajirNoStores;
+
+  /// Cart items count suffix
+  ///
+  /// In en, this message translates to:
+  /// **'items'**
+  String get matajirCartItems;
+
+  /// No description provided for @matajirStoreCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verified stores in Iraq'**
+  String matajirStoreCount(int count);
 }
 
 class _AppLocalizationsDelegate

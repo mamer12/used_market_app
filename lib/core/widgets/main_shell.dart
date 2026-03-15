@@ -197,11 +197,9 @@ class _GlassNavPill extends StatelessWidget {
               child: Container(
                 height: pillHeight,
                 decoration: BoxDecoration(
-                  // White @ 0.90 — visible on BOTH dark and light pages
                   color: Colors.white.withValues(alpha: 0.90),
                   borderRadius: BorderRadius.circular(pillHeight / 2),
                   border: Border.all(
-                    // Subtle dark border — readable on white pages
                     color: Colors.black.withValues(alpha: 0.08),
                     width: 1.0,
                   ),
@@ -314,8 +312,8 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = AppTheme.primary; // Yellow — pops on white pill
-    const inactiveColor = AppTheme.textTertiary; // Warm grey — soft on white
+    const activeColor = AppTheme.secondary;
+    const inactiveColor = AppTheme.textTertiary;
 
     return GestureDetector(
       onTap: onTap,
@@ -327,7 +325,6 @@ class _NavItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon with optional badge
             SizedBox(
               width: 28,
               height: 28,
@@ -383,14 +380,13 @@ class _NavItem extends StatelessWidget {
               child: Text(label),
             ),
             const SizedBox(height: 3),
-            // Active indicator dot
             AnimatedContainer(
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOutCubic,
               width: isActive ? 16 : 0,
               height: 3,
               decoration: BoxDecoration(
-                color: AppTheme.primary,
+                color: activeColor,
                 borderRadius: BorderRadius.circular(1.5),
               ),
             ),

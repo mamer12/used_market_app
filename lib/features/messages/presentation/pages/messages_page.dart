@@ -73,7 +73,7 @@ const _mockThreads = [
   ),
   _ChatThread(
     id: '5',
-    name: 'دعم لكطة',
+    name: 'دعم مضمون',
     avatarInitial: 'د',
     avatarColor: Color(0xFF00BFA5),
     lastMessage: 'نزاعك قيد المراجعة',

@@ -369,7 +369,7 @@ class SettlementConfirmReceiptPage extends StatelessWidget {
                     ),
                     children: [
                       const TextSpan(
-                        text: 'يتم حجز الأموال في نظام "لكطة" للوساطة. في حال عدم تأكيد الاستلام أو فتح نزاع خلال ',
+                        text: 'يتم حجز الأموال في نظام "مضمون" للوساطة. في حال عدم تأكيد الاستلام أو فتح نزاع خلال ',
                       ),
                       TextSpan(
                         text: '٤٨ ساعة',
@@ -391,7 +391,7 @@ class SettlementConfirmReceiptPage extends StatelessWidget {
                         color: AppTheme.textTertiary, size: 14.sp),
                     SizedBox(width: 6.w),
                     Text(
-                      'حماية كاملة تحت إشراف لكطة',
+                      'حماية كاملة تحت إشراف مضمون',
                       style: GoogleFonts.cairo(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.bold,

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// "Iraqi Bazaar Modernism" Design System
-/// Warm, Bold, Trust-Forward — Arabic-first RTL marketplace.
+/// "Madhmoon — Verified Trust Platform" Design System
+/// Clean, Modern, Trust-Forward — Arabic-first RTL marketplace.
 ///
 /// Key principles:
 /// • Cairo font everywhere (Arabic-optimised, 800 for prices, 600 headers, 400 body)
-/// • Warm off-white surface (#FAFAF7) — not sterile white
+/// • Ghost-mint surface (#F4FDFB) — fresh, trustworthy, not clinical white
 /// • 8-point grid, rounded-2xl cards (16r), stadium buttons
 /// • Per-sooq accent colours used only in their own context
 /// • Haptic feedback on every interactive touch
@@ -15,27 +15,28 @@ class AppTheme {
   AppTheme._();
 
   // ── Brand Palette ────────────────────────────────────
-  static const Color primary = Color(0xFFFFB703); // Vivid Yolk Yellow
-  static const Color secondary = Color(0xFFFB8500); // Deep Amber
-  static const Color background = Color(0xFFFAFAF7); // Warm Off-White
-  static const Color surface = Color(0xFFF5F0E8); // Warm Sand (cards)
+  static const Color primary = Color(0xFF0E4D30);    // Madhmoon Deep Green — dark emerald
+  static const Color primaryDark = Color(0xFF062518); // Gradient end — deepest green
+  static const Color secondary = Color(0xFF4ADE80);  // Lime Accent — bright highlight
+  static const Color background = Color(0xFFF7F7F7); // Neutral Light Grey
+  static const Color surface = Color(0xFFF0F0F0);    // Card Grey
   static const Color surfaceAlt = Color(0xFFFFFFFF); // Pure White (elevated)
   static const Color textPrimary = Color(0xFF1A1A1A); // Near-Black
   static const Color textSecondary = Color(0xFF6B7280); // Cool Grey 500
   static const Color textTertiary = Color(0xFF9CA3AF); // Cool Grey 400
-  static const Color divider = Color(0xFFE8E0D0); // Warm divider
-  static const Color buttonBg = Color(0xFF1A1A1A); // Near-Black buttons
-  static const Color buttonText = Color(0xFFFFFFFF); // White on dark
-  static const Color inactive = Color(0xFFBDBDBD); // Grey elements
-  static const Color error = Color(0xFFDC2626); // Red 600
-  static const Color success = Color(0xFF16A34A); // Green 600
-  static const Color liveBadge = Color(0xFFFF1744); // Pulsing red
-  static const Color accentRed = Color(0xFFFF3B30); // Live badge accent
+  static const Color divider = Color(0xFFE5E7EB);    // Neutral divider
+  static const Color buttonBg = Color(0xFF0E4D30);   // Deep green buttons
+  static const Color buttonText = Color(0xFFFFFFFF); // White on green
+  static const Color inactive = Color(0xFFBDBDBD);   // Grey elements
+  static const Color error = Color(0xFFDC2626);      // Red 600
+  static const Color success = Color(0xFF16A34A);    // Green 600
+  static const Color liveBadge = Color(0xFFFF1744);  // Pulsing red
+  static const Color accentRed = Color(0xFFFF3B30);  // Live badge accent
   static const Color accentYellow = Color(0xFFFFD700); // Gold / exclusive badge
 
   // ── Shimmer Placeholder Colours ──────────────────────
-  static const Color shimmerBase = Color(0xFFF5F0E8);
-  static const Color shimmerHighlight = Color(0xFFE8E0D0);
+  static const Color shimmerBase = Color(0xFFEEEEEE);
+  static const Color shimmerHighlight = Color(0xFFE0E0E0);
 
   // ── Mini-App Brand Colours ───────────────────────────
   /// Matajir — trustworthy blue
@@ -50,9 +51,9 @@ class AppTheme {
   static const Color mustamalOrange = Color(0xFFE65100);
   static const Color mustamalOrangeSurface = Color(0xFFFFF3E0);
 
-  /// Mazad — Stitch vibrant green
-  static const Color mazadGreen = Color(0xFF13EC6A);
-  static const Color mazadGreenSurface = Color(0xFFE7FDF0);
+  /// Mazadat — neon red + white (auction / live bidding)
+  static const Color mazadGreen = Color(0xFFFF3D5A);      // Neon Red (accent)
+  static const Color mazadGreenSurface = Color(0xFFFFF0F2); // Light red surface
 
   // ── Spacing Constants (8-point grid) ─────────────────
   static double get spacingXs => 4.w;
@@ -195,7 +196,7 @@ class AppTheme {
       secondary: secondary,
       surface: surface,
       error: error,
-      onPrimary: textPrimary,
+      onPrimary: buttonText,   // white text on green
       onSecondary: buttonText,
       onSurface: textPrimary,
       onError: buttonText,
@@ -217,7 +218,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
-        foregroundColor: textPrimary,
+        foregroundColor: buttonText,
         minimumSize: Size(double.infinity, 56.h),
         elevation: 0,
         shape: const StadiumBorder(),
