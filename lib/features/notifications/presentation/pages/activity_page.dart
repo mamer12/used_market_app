@@ -1,8 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
+
+// ── Mock notification model ───────────────────────────────────────────────────
+
+enum _NotifType { order, auction, escrow, dispute, message }
+
+class _Notif {
+  final String id;
+  final _NotifType type;
+  final String title;
+  final String subtitle;
+  final String relativeTime;
+  final String? routePath;
+  bool isRead;
+
+  _Notif({
+    required this.id,
+    required this.type,
+    required this.title,
+    required this.subtitle,
+    required this.relativeTime,
+    this.routePath,
+    this.isRead = false,
+  });
+}
+
+List<_Notif> _buildMockNotifs() => [
+      _Notif(
+        id: 'n1',
+        type: _NotifType.order,
+        title: 'تم شحن طلبك',
+        subtitle: 'طلب #LQ-4A2F — آيفون 13 برو في الطريق إليك',
+        relativeTime: 'منذ ساعتين',
+        routePath: '/orders/LQ-4A2F',
+      ),
+      _Notif(
+        id: 'n2',
+        type: _NotifType.auction,
+        title: 'فزت بالمزاد!',
+        subtitle: 'لابتوب ديل XPS — ٧٥٠,٠٠٠ د.ع',
+        relativeTime: 'منذ ٣ ساعات',
+        routePath: '/mazadat',
+      ),
+      _Notif(
+        id: 'n3',
+        type: _NotifType.escrow,
+        title: 'تم إفراج الضمان',
+        subtitle: 'تم تحويل ٤٥٠,٠٠٠ د.ع إلى محفظتك',
+        relativeTime: 'منذ ٥ ساعات',
+      ),
+      _Notif(
+        id: 'n4',
+        type: _NotifType.message,
+        title: 'رسالة جديدة من أبو محمد',
+        subtitle: 'هل المنتج لا يزال متاحاً؟',
+        relativeTime: 'منذ ٦ ساعات',
+        routePath: '/messages/1',
+        isRead: true,
+      ),
+      _Notif(
+        id: 'n5',
+        type: _NotifType.dispute,
+        title: 'تم حل النزاع',
+        subtitle: 'النزاع #LQ-8C3E — تم إغلاقه لصالحك',
+        relativeTime: 'أمس',
+        routePath: '/orders/LQ-8C3E',
+        isRead: true,
+      ),
+      _Notif(
+        id: 'n6',
+        type: _NotifType.order,
+        title: 'تم تسليم طلبك',
+        subtitle: 'طلب #LQ-3B1A — حذاء نايكي رياضي',
+        relativeTime: 'أمس',
+        routePath: '/orders/LQ-3B1A',
+        isRead: true,
+      ),
+      _Notif(
+        id: 'n7',
+        type: _NotifType.auction,
+        title: 'انتهت مزايدتك',
+        subtitle: 'ساعة أوميغا — تجاوزك أحد المزايدين',
+        relativeTime: 'منذ يومين',
+        routePath: '/mazadat',
+        isRead: true,
+      ),
+      _Notif(
+        id: 'n8',
+        type: _NotifType.escrow,
+        title: 'طلب تأكيد الاستلام',
+        subtitle: 'طلب #LQ-9F7C — يرجى تأكيد الاستلام',
+        relativeTime: 'منذ يومين',
+        isRead: true,
+      ),
+    ];
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 class ActivityPage extends StatefulWidget {
   const ActivityPage({super.key});
@@ -11,452 +108,144 @@ class ActivityPage extends StatefulWidget {
   State<ActivityPage> createState() => _ActivityPageState();
 }
 
-class _ActivityPageState extends State<ActivityPage>
-    with SingleTickerProviderStateMixin {
-  int _currentTabIndex = 0;
+class _ActivityPageState extends State<ActivityPage> {
+  late List<_Notif> _notifs;
+
+  @override
+  void initState() {
+    super.initState();
+    _notifs = _buildMockNotifs();
+  }
+
+  bool get _allRead => _notifs.every((n) => n.isRead);
+
+  void _markAllRead() {
+    setState(() {
+      for (final n in _notifs) {
+        n.isRead = true;
+      }
+    });
+  }
+
+  List<_Notif> get _today =>
+      _notifs.where((n) => n.relativeTime.contains('ساعات') || n.relativeTime == 'منذ ساعتين').toList();
+
+  List<_Notif> get _earlier =>
+      _notifs.where((n) => !_today.contains(n)).toList();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: Text(
-          'النشاطات والمحفظة',
-          style: GoogleFonts.cairo(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
-            fontSize: 18.sp,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white.withValues(alpha: 0.8),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
-        actions: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 40.w,
-                  height: 40.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.inactive.withValues(alpha: 0.1),
-                  ),
-                  child: Icon(
-                    Icons.notifications_none_rounded,
-                    color: AppTheme.textPrimary,
-                    size: 24.sp,
-                  ),
-                ),
-                Positioned(
-                  top: 8.h,
-                  right: 8.w,
-                  child: Container(
-                    width: 8.w,
-                    height: 8.w,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                  ),
-                ),
-              ],
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: AppTheme.background,
+        appBar: AppBar(
+          title: Text(
+            'الإشعارات',
+            style: GoogleFonts.cairo(
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimary,
+              fontSize: 18.sp,
             ),
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildWalletCard(),
-            _buildTabBar(),
-            Expanded(child: _buildTabView()),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+          actions: [
+            if (!_allRead)
+              TextButton(
+                onPressed: _markAllRead,
+                child: Text(
+                  'تحديد الكل كمقروء',
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primary,
+                  ),
+                ),
+              ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildWalletCard() {
-    return Container(
-      margin: EdgeInsets.all(16.w),
-      padding: EdgeInsets.all(24.w),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24.r),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF2E7D32).withValues(alpha: 0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            left: -32.w,
-            top: -32.w,
-            child: Container(
-              width: 120.w,
-              height: 120.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'رصيد المحفظة',
-                style: GoogleFonts.cairo(
-                  color: Colors.white.withValues(alpha: 0.9),
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
+        body: _allRead && _notifs.isEmpty
+            ? _buildEmpty()
+            : ListView(
+                padding: EdgeInsets.only(bottom: 100.h),
                 children: [
-                  Text(
-                    '١٥٠,٠٠٠',
-                    style: GoogleFonts.spaceGrotesk(
-                      color: Colors.white,
-                      fontSize: 36.sp,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -1,
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    'د.ع',
-                    style: GoogleFonts.cairo(
-                      color: Colors.white,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  if (_today.isNotEmpty) ...[
+                    _buildGroupHeader('اليوم'),
+                    ..._today.map((n) => _NotifTile(
+                          notif: n,
+                          onTap: () => _handleTap(context, n),
+                        )),
+                  ],
+                  if (_earlier.isNotEmpty) ...[
+                    _buildGroupHeader('سابقاً'),
+                    ..._earlier.map((n) => _NotifTile(
+                          notif: n,
+                          onTap: () => _handleTap(context, n),
+                        )),
+                  ],
                 ],
               ),
-              SizedBox(height: 32.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildWalletCTA(
-                      icon: Icons.upload_rounded,
-                      label: 'سحب الرصيد',
-                      isPrimary: false,
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: _buildWalletCTA(
-                      icon: Icons.download_rounded,
-                      label: 'إيداع',
-                      isPrimary: true,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildWalletCTA({
-    required IconData icon,
-    required String label,
-    required bool isPrimary,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.h),
-      decoration: BoxDecoration(
-        color: isPrimary
-            ? AppTheme.primary
-            : Colors.white.withValues(alpha: 0.1),
-        border: isPrimary
-            ? null
-            : Border.all(color: Colors.white.withValues(alpha: 0.2)),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isPrimary ? AppTheme.textPrimary : Colors.white,
-            size: 18.sp,
-          ),
-          SizedBox(width: 8.w),
-          Text(
-            label,
-            style: GoogleFonts.cairo(
-              color: isPrimary ? AppTheme.textPrimary : Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14.sp,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabBar() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(6.w),
-      decoration: BoxDecoration(
-        color: AppTheme.inactive.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(99.r),
-      ),
-      child: Row(
-        children: [
-          _buildTabItem(title: 'طلباتي', index: 0),
-          _buildTabItem(title: 'مزايداتي', index: 1),
-          _buildTabItem(title: 'مبيعاتي', index: 2),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabItem({required String title, required int index}) {
-    final isActive = _currentTabIndex == index;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _currentTabIndex = index;
-          });
-        },
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
-          decoration: BoxDecoration(
-            color: isActive ? AppTheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(99.r),
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : [],
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            title,
-            style: GoogleFonts.cairo(
-              fontWeight: FontWeight.bold,
-              fontSize: 14.sp,
-              color: isActive ? AppTheme.textPrimary : AppTheme.textSecondary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabView() {
-    switch (_currentTabIndex) {
-      case 0:
-        return _buildMyOrdersTab();
-      case 1:
-        return _buildMyBidsTab();
-      case 2:
-      default:
-        return _buildMySalesTab();
+  void _handleTap(BuildContext context, _Notif notif) {
+    setState(() => notif.isRead = true);
+    if (notif.routePath != null) {
+      context.push(notif.routePath!);
     }
   }
 
-  Widget _buildMyOrdersTab() {
-    return ListView(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
-      children: [
-        _buildOrderCard(
-          storeType: 'Matajir',
-          itemName: 'أيفون 14 برو',
-          status: 'تم الدفع',
-          statusColor: Colors.green,
-          price: '1,200,000 د.ع',
-          date: '12 مايو',
-          iconOrImage: Icons.phone_iphone_rounded,
+  Widget _buildGroupHeader(String label) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 6.h),
+      child: Text(
+        label,
+        style: GoogleFonts.cairo(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w700,
+          color: AppTheme.textSecondary,
+          letterSpacing: 0.3,
         ),
-        SizedBox(height: 16.h),
-        _buildOrderCard(
-          storeType: 'Balla',
-          itemName: 'استيراد أوروبي 50kg',
-          status: 'تم الشحن',
-          statusColor: Colors.blue,
-          price: '400,000 د.ع',
-          date: '10 مايو',
-          iconOrImage: Icons.inventory_2_outlined,
-        ),
-        SizedBox(height: 16.h),
-        _buildOrderCard(
-          storeType: 'Matajir',
-          itemName: 'حذاء نايكي رياضي',
-          status: 'تم التسليم',
-          statusColor: Colors.grey.shade700,
-          price: '85,000 د.ع',
-          date: '5 مايو',
-          iconOrImage: Icons.shopping_bag_outlined,
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildOrderCard({
-    required String storeType,
-    required String itemName,
-    required String status,
-    required Color statusColor,
-    required String price,
-    required String date,
-    required IconData iconOrImage,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildEmpty() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 80.w,
             height: 80.w,
             decoration: BoxDecoration(
-              color: AppTheme.background,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Icon(iconOrImage, size: 36.sp, color: AppTheme.inactive),
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      storeType.toUpperCase(),
-                      style: GoogleFonts.cairo(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primary,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 2.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      child: Text(
-                        status,
-                        style: GoogleFonts.cairo(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.bold,
-                          color: statusColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  itemName,
-                  style: GoogleFonts.cairo(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      price,
-                      style: GoogleFonts.cairo(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      date,
-                      style: GoogleFonts.cairo(
-                        fontSize: 11.sp,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState({
-    required String message,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(24.w),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: AppTheme.primary.withValues(alpha: 0.10),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color, size: 60.sp),
+            child: Icon(
+              Icons.notifications_none_rounded,
+              size: 36.sp,
+              color: AppTheme.primary,
+            ),
           ),
           SizedBox(height: 16.h),
           Text(
-            message,
+            'لا توجد إشعارات',
             style: GoogleFonts.cairo(
               fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            'ستظهر إشعاراتك هنا عند وصولها',
+            style: GoogleFonts.cairo(
+              fontSize: 13.sp,
               color: AppTheme.textSecondary,
             ),
           ),
@@ -464,20 +253,124 @@ class _ActivityPageState extends State<ActivityPage>
       ),
     );
   }
+}
 
-  Widget _buildMyBidsTab() {
-    return _buildEmptyState(
-      message: 'ليس لديك مزايدات حالية',
-      icon: Icons.gavel_rounded,
-      color: Colors.orangeAccent,
+// ── Notification tile ─────────────────────────────────────────────────────────
+
+class _NotifTile extends StatelessWidget {
+  final _Notif notif;
+  final VoidCallback onTap;
+
+  const _NotifTile({required this.notif, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final iconData = _iconFor(notif.type);
+    final iconColor = _colorFor(notif.type);
+
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        color: notif.isRead
+            ? Colors.transparent
+            : AppTheme.primary.withValues(alpha: 0.04),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44.w,
+              height: 44.w,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(iconData, size: 20.sp, color: iconColor),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notif.title,
+                          style: GoogleFonts.cairo(
+                            fontSize: 14.sp,
+                            fontWeight: notif.isRead
+                                ? FontWeight.w600
+                                : FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                      if (!notif.isRead)
+                        Container(
+                          width: 8.w,
+                          height: 8.w,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    notif.subtitle,
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.sp,
+                      color: AppTheme.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    notif.relativeTime,
+                    style: GoogleFonts.cairo(
+                      fontSize: 11.sp,
+                      color: AppTheme.inactive,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildMySalesTab() {
-    return _buildEmptyState(
-      message: 'لا توجد مبيعات في انتظار التسليم',
-      icon: Icons.store_mall_directory_outlined,
-      color: Colors.blueAccent,
-    );
+  IconData _iconFor(_NotifType type) {
+    switch (type) {
+      case _NotifType.order:
+        return Icons.local_shipping_outlined;
+      case _NotifType.auction:
+        return Icons.gavel_rounded;
+      case _NotifType.escrow:
+        return Icons.account_balance_wallet_outlined;
+      case _NotifType.dispute:
+        return Icons.shield_outlined;
+      case _NotifType.message:
+        return Icons.chat_bubble_outline_rounded;
+    }
+  }
+
+  Color _colorFor(_NotifType type) {
+    switch (type) {
+      case _NotifType.order:
+        return AppTheme.matajirBlue;
+      case _NotifType.auction:
+        return AppTheme.mustamalOrange;
+      case _NotifType.escrow:
+        return AppTheme.success;
+      case _NotifType.dispute:
+        return AppTheme.ballaPurple;
+      case _NotifType.message:
+        return AppTheme.primary;
+    }
   }
 }

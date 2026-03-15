@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 
-// ── Mock thread model (replace with API when messages endpoint is ready) ───────
+// ── Mock thread model ─────────────────────────────────────────────────────────
 
 class _ChatThread {
   final String id;
@@ -15,7 +16,7 @@ class _ChatThread {
   final String lastMessage;
   final String time;
   final int unreadCount;
-  final String relatedItem; // product/auction name
+  final String relatedItem;
 
   const _ChatThread({
     required this.id,
@@ -274,7 +275,10 @@ class _ThreadTile extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        // TODO: push to chat detail page when implemented
+        context.push(
+          '/messages/${thread.id}',
+          extra: {'sellerName': thread.name, 'relatedItem': thread.relatedItem},
+        );
       },
       child: Container(
         color: hasUnread
@@ -322,7 +326,7 @@ class _ThreadTile extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         '${thread.unreadCount}',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.cairo(
                           fontSize: 10.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
