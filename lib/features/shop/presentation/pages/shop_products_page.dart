@@ -1,12 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+import '../../../cart/presentation/bloc/cart_cubit.dart';
+import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../data/models/shop_models.dart';
 import '../bloc/shops_cubit.dart';
 
@@ -27,6 +32,15 @@ class ShopProductsPage extends StatefulWidget {
 class _ShopProductsPageState extends State<ShopProductsPage> {
   late final ShopProductsCubit _cubit;
   final _scrollController = ScrollController();
+  int _selectedCategoryIndex = 0;
+
+  static const _filterLabels = [
+    '\u0627\u0644\u0643\u0644',
+    '\u0647\u0648\u0627\u062a\u0641',
+    '\u0644\u0627\u0628\u062a\u0648\u0628',
+    '\u0625\u0643\u0633\u0633\u0648\u0627\u0631',
+    '\u062a\u0644\u0641\u0632\u064a\u0648\u0646\u0627\u062a',
+  ];
 
   @override
   void initState() {
@@ -51,302 +65,442 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return BlocProvider.value(
       value: _cubit,
       child: Scaffold(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: const Color(0xFFF6F6F8),
         body: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            _buildSliverAppBar(),
+            BlocBuilder<ShopProductsCubit, ShopProductsState>(
+              builder: (context, state) {
+                return _StoreHeaderSliver(
+                  shop: state.shop,
+                  fallbackName: widget.shopName,
+                );
+              },
+            ),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _FilterChipsDelegate(
+                selectedIndex: _selectedCategoryIndex,
+                labels: _filterLabels,
+                onSelected: (i) => setState(() => _selectedCategoryIndex = i),
+              ),
+            ),
             BlocBuilder<ShopProductsCubit, ShopProductsState>(
               builder: (context, state) {
                 if (state.isLoading && state.products.isEmpty) {
                   return const SliverProductGridSkeleton();
                 }
-
                 if (state.error != null && state.products.isEmpty) {
-                  return SliverFillRemaining(child: _buildError(state.error!));
+                  return SliverFillRemaining(
+                    child: _buildError(context, state.error!, l10n),
+                  );
                 }
-
                 if (state.products.isEmpty) {
-                  return SliverFillRemaining(child: _buildEmpty());
+                  return SliverFillRemaining(child: _buildEmpty(l10n));
                 }
-
-                return _buildProductsGrid(state);
+                return _buildProductsGrid(context, state, l10n);
               },
             ),
           ],
+        ),
+        bottomNavigationBar: BlocBuilder<MatajirCartCubit, CartState>(
+          builder: (context, cartState) {
+            if (cartState.cartCount == 0) return const SizedBox.shrink();
+            return _CartBar(
+              count: cartState.cartCount,
+              total: cartState.cartTotal,
+              l10n: l10n,
+              onTap: () => context.push('/matajir/cart'),
+            );
+          },
         ),
       ),
     );
   }
 
-  // ── SliverAppBar with shop info ──────────────────────────
-  Widget _buildSliverAppBar() {
-    return BlocBuilder<ShopProductsCubit, ShopProductsState>(
-      builder: (context, state) {
-        final shop = state.shop;
-        return SliverAppBar(
-          expandedHeight: 160.h,
-          pinned: true,
-          backgroundColor: AppTheme.background,
-          foregroundColor: AppTheme.textPrimary,
-          elevation: 0,
-          scrolledUnderElevation: 1,
-          leading: GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: Container(
-              margin: EdgeInsets.all(8.w),
-              decoration: const BoxDecoration(
-                color: AppTheme.surface,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.arrow_back,
-                size: 20.sp,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-          ),
-          flexibleSpace: FlexibleSpaceBar(background: _buildShopBanner(shop)),
-        );
-      },
+  Widget _buildProductsGrid(
+    BuildContext context,
+    ShopProductsState state,
+    AppLocalizations l10n,
+  ) {
+    return SliverPadding(
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+      sliver: SliverGrid(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 14.h,
+          crossAxisSpacing: 14.w,
+          childAspectRatio: 0.58,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            if (index == state.products.length) {
+              return const Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppTheme.matajirBlue),
+                ),
+              );
+            }
+            return _StoreProductCard(product: state.products[index]);
+          },
+          childCount: state.products.length + (state.isLoading ? 1 : 0),
+        ),
+      ),
     );
   }
 
-  Widget _buildShopBanner(ShopModel? shop) {
-    final name = shop?.name ?? widget.shopName;
-    return Container(
-      color: AppTheme.background,
+  Widget _buildEmpty(AppLocalizations l10n) {
+    return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(20.w, 60.h, 20.w, 16.h),
-            child: Row(
-              children: [
-                // Shop avatar
-                Container(
-                  width: 72.w,
-                  height: 72.w,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(18.r),
-                    border: Border.all(
-                      color: AppTheme.primary.withValues(alpha: 0.3),
-                      width: 2,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      name.isNotEmpty ? name[0].toUpperCase() : 'S',
-                      style: GoogleFonts.cairo(
-                        fontSize: 32.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        name,
-                        style: GoogleFonts.cairo(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (shop?.description != null &&
-                          shop!.description!.isNotEmpty) ...[
-                        SizedBox(height: 4.h),
-                        Text(
-                          shop.description!,
-                          style: GoogleFonts.cairo(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: AppTheme.textSecondary,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                      SizedBox(height: 4.h),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          '@${shop?.slug ?? widget.shopSlug}',
-                          style: GoogleFonts.cairo(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          Container(
+            width: 72.w,
+            height: 72.w,
+            decoration: const BoxDecoration(
+              color: AppTheme.surface,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.inventory_2_outlined,
+                size: 32.sp, color: AppTheme.inactive),
+          ),
+          SizedBox(height: 14.h),
+          Text(
+            '\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0646\u062a\u062c\u0627\u062a \u0628\u0639\u062f',
+            style: GoogleFonts.cairo(
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
             ),
           ),
-
-          if (shop != null) ...[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: shop.shopType == 'physical'
-                  ? _buildPhysicalInfo(shop)
-                  : _buildDigitalInfo(shop),
-            ),
-            SizedBox(height: 16.h),
-          ],
-
-          // Bottom border
-          Container(
-            height: 1,
-            color: AppTheme.inactive.withValues(alpha: 0.15),
+          SizedBox(height: 6.h),
+          Text(
+            '\u0644\u0645 \u064a\u064f\u0636\u0650\u0641 \u0647\u0630\u0627 \u0627\u0644\u0645\u062a\u062c\u0631 \u0645\u0646\u062a\u062c\u0627\u062a \u062d\u062a\u0649 \u0627\u0644\u0622\u0646',
+            style: GoogleFonts.cairo(
+                fontSize: 13.sp, color: AppTheme.textSecondary),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPhysicalInfo(ShopModel shop) {
-    return Row(
-      children: [
-        Icon(Icons.location_on_rounded, size: 16.sp, color: AppTheme.primary),
-        SizedBox(width: 4.w),
-        Text(
-          '${shop.locationDistrict ?? ''}, ${shop.locationCity ?? ''}',
-          style: GoogleFonts.cairo(
-            fontSize: 12.sp,
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(width: 12.w),
-        Icon(
-          Icons.access_time_rounded,
-          size: 16.sp,
-          color: AppTheme.textSecondary,
-        ),
-        SizedBox(width: 4.w),
-        Text(
-          'Open Daily', // Simplified, parse openingHours JSON in real app
-          style: GoogleFonts.cairo(
-            fontSize: 12.sp,
-            color: AppTheme.textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDigitalInfo(ShopModel shop) {
-    return Row(
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-          decoration: BoxDecoration(
-            color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(6.r),
-            border: Border.all(
-              color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+  Widget _buildError(
+      BuildContext context, String message, AppLocalizations l10n) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, size: 48.sp, color: AppTheme.error),
+          SizedBox(height: 12.h),
+          Text(message,
+              style: GoogleFonts.cairo(
+                  fontSize: 14.sp, color: AppTheme.textSecondary)),
+          SizedBox(height: 16.h),
+          GestureDetector(
+            onTap: () => _cubit.loadCatalog(widget.shopSlug, refresh: true),
+            child: Container(
+              padding:
+                  EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+              decoration: BoxDecoration(
+                color: AppTheme.matajirBlue,
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+              ),
+              child: Text(
+                '\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629',
+                style: GoogleFonts.cairo(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
-          child: Row(
+        ],
+      ),
+    );
+  }
+}
+
+// ── Store Header Sliver ────────────────────────────────────────────────────
+
+class _StoreHeaderSliver extends StatelessWidget {
+  final ShopModel? shop;
+  final String fallbackName;
+
+  const _StoreHeaderSliver({required this.shop, required this.fallbackName});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = shop?.name ?? fallbackName;
+
+    return SliverToBoxAdapter(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Column(
             children: [
-              Icon(
-                Icons.local_shipping_rounded,
-                size: 14.sp,
-                color: const Color(0xFF4CAF50),
+              // Cover image
+              SizedBox(
+                height: 130.h,
+                width: double.infinity,
+                child: shop?.storefrontUrl != null &&
+                        shop!.storefrontUrl!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: shop!.storefrontUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (_, url) =>
+                            Container(color: AppTheme.matajirBlueSurface),
+                        errorWidget: (_, url, err) =>
+                            Container(color: AppTheme.matajirBlueSurface),
+                      )
+                    : Container(
+                        color: AppTheme.matajirBlueSurface,
+                        child: Center(
+                          child: Icon(Icons.storefront_rounded,
+                              size: 48.sp,
+                              color: AppTheme.matajirBlue
+                                  .withValues(alpha: 0.3)),
+                        ),
+                      ),
               ),
-              SizedBox(width: 4.w),
-              Text(
-                'Fast Delivery',
-                style: GoogleFonts.cairo(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF4CAF50),
+              // White card below cover
+              Container(
+                color: Colors.white,
+                padding: EdgeInsets.fromLTRB(16.w, 40.h, 16.w, 14.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.cairo(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 6.h),
+                    if (shop?.verificationStatus == 'verified')
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: AppTheme.success.withValues(alpha: 0.08),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.radiusFull),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.verified_rounded,
+                                color: AppTheme.success, size: 13.sp),
+                            SizedBox(width: 4.w),
+                            Text(
+                              '\u0645\u062a\u062c\u0631 \u0645\u0648\u062b\u0642 \u0645\u0646 \u0644\u0643\u0637\u0629',
+                              style: GoogleFonts.cairo(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.success,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    SizedBox(height: 10.h),
+                    // Rating + sales
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.star_rounded,
+                            color: Colors.amber, size: 16.sp),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '4.8',
+                          style: GoogleFonts.cairo(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Container(
+                          width: 4.w,
+                          height: 4.w,
+                          decoration: BoxDecoration(
+                            color: AppTheme.divider,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Text(
+                          '\u0662\u066c\u0663\u0664\u0661 \u0639\u0645\u0644\u064a\u0629 \u0628\u064a\u0639',
+                          style: GoogleFonts.cairo(
+                            fontSize: 13.sp,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-        SizedBox(width: 12.w),
-        if (shop.instagramUrl != null)
-          GestureDetector(
-            onTap: () {}, // Launch URL
-            child: Row(
-              children: [
-                Icon(Icons.link_rounded, size: 16.sp, color: AppTheme.primary),
-                SizedBox(width: 4.w),
-                Text(
-                  'Instagram',
-                  style: GoogleFonts.cairo(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primary,
-                  ),
+          // Back button
+          Positioned(
+            top: 12.h,
+            right: 12.w,
+            child: GestureDetector(
+              onTap: () =>
+                  Navigator.canPop(context) ? Navigator.pop(context) : null,
+              child: Container(
+                width: 36.w,
+                height: 36.w,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  shape: BoxShape.circle,
                 ),
-              ],
+                child: Icon(Icons.arrow_forward_rounded,
+                    size: 18.sp, color: AppTheme.textPrimary),
+              ),
             ),
           ),
-      ],
+          // Overlapping logo circle
+          Positioned(
+            bottom: 68.h,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 76.w,
+                height: 76.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  border: Border.all(color: Colors.white, width: 3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: shop?.imageUrl != null && shop!.imageUrl!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: shop!.imageUrl!,
+                        fit: BoxFit.cover,
+                      )
+                    : Center(
+                        child: Text(
+                          (shop?.name ?? fallbackName).isNotEmpty
+                              ? (shop?.name ?? fallbackName)[0].toUpperCase()
+                              : 'S',
+                          style: GoogleFonts.cairo(
+                            fontSize: 28.sp,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.matajirBlue,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
 
-  // ── Products Grid ────────────────────────────────────────
-  Widget _buildProductsGrid(ShopProductsState state) {
-    return SliverPadding(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
-      sliver: SliverGrid(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 14.h,
-          crossAxisSpacing: 14.w,
-          childAspectRatio: 0.65,
-        ),
-        delegate: SliverChildBuilderDelegate((context, index) {
-          if (index == state.products.length) {
-            return const Padding(
-              padding: EdgeInsets.all(20),
-              child: Center(
-                child: CircularProgressIndicator(color: AppTheme.primary),
+// ── Pinned Filter Chips Delegate ───────────────────────────────────────────
+
+class _FilterChipsDelegate extends SliverPersistentHeaderDelegate {
+  final int selectedIndex;
+  final List<String> labels;
+  final ValueChanged<int> onSelected;
+
+  const _FilterChipsDelegate({
+    required this.selectedIndex,
+    required this.labels,
+    required this.onSelected,
+  });
+
+  @override
+  double get minExtent => 48;
+  @override
+  double get maxExtent => 48;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: Colors.white,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        itemCount: labels.length,
+        separatorBuilder: (_, i2) => SizedBox(width: 8.w),
+        itemBuilder: (context, i) {
+          final selected = selectedIndex == i;
+          return GestureDetector(
+            onTap: () => onSelected(i),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              decoration: BoxDecoration(
+                color: selected ? AppTheme.matajirBlue : Colors.white,
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                border: Border.all(
+                  color:
+                      selected ? AppTheme.matajirBlue : AppTheme.divider,
+                ),
               ),
-            );
-          }
-          return _buildProductCard(state.products[index]);
-        }, childCount: state.products.length + (state.isLoading ? 1 : 0)),
+              child: Center(
+                child: Text(
+                  labels[i],
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildProductCard(ProductModel product) {
-    final priceText = IqdFormatter.format(product.price);
+  @override
+  bool shouldRebuild(_FilterChipsDelegate old) =>
+      old.selectedIndex != selectedIndex;
+}
 
-    return GestureDetector(
-      onTap: () {
-        // TODO: Navigate to product detail
-      },
+// ── Store Product Card ─────────────────────────────────────────────────────
+
+class _StoreProductCard extends StatelessWidget {
+  final ProductModel product;
+  const _StoreProductCard({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () =>
+          context.push('/matajir/product/${product.id}', extra: product),
+      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.background,
-          borderRadius: BorderRadius.circular(14.r),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: AppTheme.divider),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -357,7 +511,7 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Image
             Expanded(
@@ -366,71 +520,42 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
                 fit: StackFit.expand,
                 children: [
                   product.images.isNotEmpty
-                      ? Image.network(
-                          product.images.first,
+                      ? CachedNetworkImage(
+                          imageUrl: product.images.first,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => _placeholderImage(),
+                          placeholder: (_, url) =>
+                              Container(color: AppTheme.shimmerBase),
                         )
-                      : _placeholderImage(),
-                  // Favourite
+                      : Container(color: AppTheme.shimmerBase),
                   Positioned(
                     top: 8.h,
                     left: 8.w,
                     child: Container(
-                      width: 32.w,
-                      height: 32.w,
+                      width: 30.w,
+                      height: 30.w,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withValues(alpha: 0.85),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.favorite_border,
-                        size: 16.sp,
-                        color: AppTheme.textSecondary,
-                      ),
+                      child: Icon(Icons.favorite_border_rounded,
+                          size: 15.sp, color: AppTheme.textSecondary),
                     ),
                   ),
-                  // Stock badge
-                  if (product.inStock <= 3 && product.inStock > 0)
-                    Positioned(
-                      bottom: 8.h,
-                      right: 8.w,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.secondary,
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          'Only ${product.inStock} left',
-                          style: GoogleFonts.cairo(
-                            fontSize: 9.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   if (!product.isActive)
                     Container(
-                      color: Colors.black.withValues(alpha: 0.5),
+                      color: Colors.black.withValues(alpha: 0.45),
                       child: Center(
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 4.h,
-                          ),
+                              horizontal: 8.w, vertical: 4.h),
                           decoration: BoxDecoration(
                             color: AppTheme.inactive,
                             borderRadius: BorderRadius.circular(6.r),
                           ),
                           child: Text(
-                            'Sold Out',
+                            '\u0646\u0641\u062f \u0627\u0644\u0645\u062e\u0632\u0648\u0646',
                             style: GoogleFonts.cairo(
-                              fontSize: 12.sp,
+                              fontSize: 11.sp,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
@@ -443,52 +568,106 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
             ),
             // Info
             Expanded(
-              flex: 3,
+              flex: 5,
               child: Padding(
                 padding: EdgeInsets.all(10.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Row(
+                      children: [
+                        Icon(Icons.verified_rounded,
+                            color: AppTheme.success, size: 10.sp),
+                        SizedBox(width: 3.w),
+                        Text(
+                          '\u0645\u062a\u062c\u0631 \u0645\u0648\u062b\u0642',
+                          style: GoogleFonts.cairo(
+                            fontSize: 10.sp,
+                            color: AppTheme.success,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
                     Text(
                       product.name,
                       style: GoogleFonts.cairo(
                         fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         color: AppTheme.textPrimary,
+                        height: 1.2,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(
                           child: Text(
-                            priceText,
+                            IqdFormatter.format(product.price),
                             style: GoogleFonts.cairo(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.matajirBlue,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Container(
-                          width: 30.w,
-                          height: 30.w,
-                          decoration: BoxDecoration(
-                            color: AppTheme.primary,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Icon(
-                            Icons.add_shopping_cart_outlined,
-                            size: 15.sp,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
+                        Icon(Icons.lock_rounded,
+                            color: AppTheme.success, size: 15.sp),
                       ],
+                    ),
+                    SizedBox(height: 8.h),
+                    BlocBuilder<MatajirCartCubit, CartState>(
+                      builder: (ctx, cartState) {
+                        final inCart = cartState.isInCart(product.id);
+                        return GestureDetector(
+                          onTap: () => ctx
+                              .read<MatajirCartCubit>()
+                              .addToCart(product),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            height: 34.h,
+                            decoration: BoxDecoration(
+                              color: inCart
+                                  ? AppTheme.divider
+                                  : AppTheme.matajirBlue,
+                              borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusFull),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  inCart
+                                      ? Icons.check_rounded
+                                      : Icons.add_shopping_cart_rounded,
+                                  size: 14.sp,
+                                  color: inCart
+                                      ? AppTheme.textPrimary
+                                      : Colors.white,
+                                ),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  inCart
+                                      ? '\u0641\u064a \u0627\u0644\u0633\u0644\u0629'
+                                      : '\u0623\u0636\u0641 \u0644\u0644\u0633\u0644\u0629',
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: inCart
+                                        ? AppTheme.textPrimary
+                                        : Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -499,95 +678,83 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
       ),
     );
   }
+}
 
-  Widget _placeholderImage() {
-    return Container(
-      color: AppTheme.surface,
-      child: Center(
-        child: Icon(
-          Icons.image_outlined,
-          size: 36.sp,
-          color: AppTheme.inactive,
+// ── Cart Bar ───────────────────────────────────────────────────────────────
+
+class _CartBar extends StatelessWidget {
+  final int count;
+  final double total;
+  final AppLocalizations l10n;
+  final VoidCallback onTap;
+
+  const _CartBar({
+    required this.count,
+    required this.total,
+    required this.l10n,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            color: AppTheme.textPrimary,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.18),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$count \u0645\u0646\u062a\u062c\u0627\u062a',
+                    style: GoogleFonts.cairo(
+                        fontSize: 11.sp, color: Colors.white60),
+                  ),
+                  Text(
+                    IqdFormatter.format(total),
+                    style: GoogleFonts.cairo(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  Text(
+                    l10n.matajirCompleteOrder,
+                    style: GoogleFonts.cairo(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.matajirBlue,
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  Icon(Icons.arrow_back_ios_new_rounded,
+                      size: 13.sp, color: AppTheme.matajirBlue),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmpty() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 80.w,
-            height: 80.w,
-            decoration: const BoxDecoration(
-              color: AppTheme.surface,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.inventory_2_outlined,
-              size: 36.sp,
-              color: AppTheme.inactive,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'No products yet',
-            style: GoogleFonts.cairo(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            'This shop has not listed any products',
-            style: GoogleFonts.cairo(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildError(String message) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.error_outline, size: 48.sp, color: AppTheme.error),
-          SizedBox(height: 12.h),
-          Text(
-            message,
-            style: GoogleFonts.cairo(
-              fontSize: 14.sp,
-              color: AppTheme.textSecondary,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          GestureDetector(
-            onTap: () => _cubit.loadCatalog(widget.shopSlug, refresh: true),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                color: AppTheme.primary,
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-              child: Text(
-                'Retry',
-                style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

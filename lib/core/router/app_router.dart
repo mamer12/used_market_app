@@ -35,7 +35,7 @@ import '../../features/home/data/models/portal_models.dart';
 import '../../features/shop/data/models/shop_models.dart';
 import '../../features/shop/presentation/pages/balla_page.dart';
 import '../../features/shop/presentation/pages/balla_product_details_page.dart';
-import '../../features/shop/presentation/pages/matajir_page.dart';
+import '../../features/shop/presentation/pages/matajir_shell_page.dart';
 import '../../features/shop/presentation/pages/dispute_page.dart';
 import '../../features/shop/presentation/pages/favorites_page.dart';
 import '../../features/shop/presentation/pages/mustamal_detail_page.dart';
@@ -157,7 +157,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
         routes: [
           GoRoute(
             path: '/matajir',
-            builder: (context, state) => const MatajirPage(),
+            builder: (context, state) => const MatajirShellPage(),
             routes: [
               GoRoute(
                 path: 'cart',
