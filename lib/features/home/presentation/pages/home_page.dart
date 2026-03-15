@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,41 +70,35 @@ class _HomePageState extends State<HomePage> {
             }
 
             return RefreshIndicator(
-              color: AppTheme.primary,
-              backgroundColor: AppTheme.surfaceAlt,
+              color: Colors.white,
+              backgroundColor: AppTheme.primary,
+              strokeWidth: 2.5,
+              displacement: 60,
               onRefresh: () async {
+                unawaited(HapticFeedback.mediumImpact());
                 await _cubit.loadFeed();
                 await _walletCubit.loadBalance();
               },
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  // ── Hero Zone: header + search + wallet (unified bg) ───
-                  SliverToBoxAdapter(
-                    child: _HeroZone(
-                      l10n: l10n,
-                      onSearchTap: () => context.push('/search'),
-                      onDeposit: () => context.push('/wallet/deposit'),
-                      onWithdraw: () => context.push('/wallet/withdraw'),
-                      onTransfer: () => context.push('/wallet/transfer'),
-                    ),
-                  ),
-
-                  // ── Quick utilities ────────────────────────────────────
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
-                      child: QuickUtilitiesRow(
-                        onTap: (id) => _onUtilityTap(context, id),
+                      // ── Hero Zone: header + search + wallet (unified bg) ───
+                      SliverToBoxAdapter(
+                        child: _HeroZone(
+                          l10n: l10n,
+                          onSearchTap: () => context.push('/search'),
+                          onDeposit: () => context.push('/wallet/deposit'),
+                          onWithdraw: () => context.push('/wallet/withdraw'),
+                          onTransfer: () => context.push('/wallet/transfer'),
+                        ),
                       ),
-                    ),
-                  ),
+
 
                   // ── Promo carousel ─────────────────────────────────────
                   if (state.announcements.isNotEmpty)
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.only(bottom: 8.h),
+                        padding: EdgeInsets.only(top: 14.h),
                         child: AnnouncementsCarousel(
                           items: state.announcements,
                           onTap: (ann) {
@@ -112,10 +108,23 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
 
+                  // ── Quick utilities ────────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: state.announcements.isNotEmpty ? 16.h : 16.h,
+                      ),
+                      child: QuickUtilitiesRow(
+                        onTap: (id) => _onUtilityTap(context, id),
+                      ),
+                    ),
+                  ),
+
                   // ── Sooq Bento Grid ────────────────────────────────────
                   SliverToBoxAdapter(
                     child: HomeSection(
                       title: l10n.homeMarkets,
+                      padding: EdgeInsets.only(top: 16.h, bottom: 20.h),
                       trailing: _SeeAllLink(
                         label: l10n.homeSeeAll,
                         onTap: () {},
@@ -146,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                         title: l10n.homeSectionAuctions,
                         trailing: _SeeAllLink(
                           label: l10n.homeSeeAll,
-                          onTap: () => context.push('/mazadat'),
+                          onTap: () => context.go('/mazadat'),
                         ),
                         child: CuratedCarousel(
                           products: state.liveAuctions
@@ -200,7 +209,7 @@ class _HomePageState extends State<HomePage> {
                         title: l10n.homeSectionMustamal,
                         trailing: _SeeAllLink(
                           label: l10n.homeSeeAll,
-                          onTap: () => context.push('/mustamal'),
+                          onTap: () => context.go('/mustamal'),
                         ),
                         child: CuratedCarousel(
                           products: state.portal.mustamal
@@ -343,8 +352,8 @@ class _HeroZone extends StatelessWidget {
     required this.onTransfer,
   });
 
-  static const _bgTop    = Color(0xFF0E4D30);
-  static const _bgBottom = Color(0xFF062518);
+  static const _bgTop    = AppTheme.primaryMid;   // #1A3660
+  static const _bgBottom = AppTheme.primaryDark;  // #060F1E
 
   @override
   Widget build(BuildContext context) {
@@ -352,12 +361,9 @@ class _HeroZone extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [_bgTop, _bgBottom],
+          colors: [_bgBottom, _bgTop],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-        ),
-        borderRadius: const BorderRadius.vertical(
-          bottom: Radius.circular(32),
         ),
         // glass border on bottom edge
         border: Border.all(
@@ -394,9 +400,22 @@ class _HeroZone extends StatelessWidget {
               ),
             ),
           ),
+          // ── White rounded cap at bottom ─────────────────────────────
+          Positioned(
+            bottom: 0, left: 0, right: 0,
+            child: Container(
+              height: 32.h,
+              decoration: BoxDecoration(
+                color: AppTheme.background,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(32.r),
+                ),
+              ),
+            ),
+          ),
           Padding(
             padding: EdgeInsetsDirectional.fromSTEB(
-                16.w, topPadding + 12.h, 16.w, 16.h),
+                16.w, topPadding + 12.h, 16.w, 48.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -405,10 +424,10 @@ class _HeroZone extends StatelessWidget {
                   children: [
                     Text(
                       'مضمون',
-                      style: GoogleFonts.cairo(
+                      style: GoogleFonts.tajawal(
                         fontSize: 26.sp,
                         fontWeight: FontWeight.w900,
-                        color: const Color(0xFF4ADE80),
+                        color: Colors.white,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -454,16 +473,16 @@ class _HeroZone extends StatelessWidget {
                         SizedBox(width: 10.w),
                         Expanded(
                           child: Text(
-                            l10n.homeSearch,
-                            style: GoogleFonts.cairo(
+                            l10n.omniboxHint,
+                            style: GoogleFonts.tajawal(
                               fontSize: 14.sp,
                               color: Colors.white.withValues(alpha: 0.45),
                             ),
                           ),
                         ),
-                        Icon(Icons.mic_outlined,
-                            color: Colors.white.withValues(alpha: 0.45),
-                            size: 18.sp),
+                        Icon(Icons.mic_rounded,
+                            color: Colors.white.withValues(alpha: 0.75),
+                            size: 20.sp),
                         SizedBox(width: 10.w),
                         Container(
                             width: 1,
@@ -516,7 +535,7 @@ class _SeeAllLink extends StatelessWidget {
       onTap: onTap,
       child: Text(
         label,
-        style: GoogleFonts.cairo(
+        style: GoogleFonts.tajawal(
           fontSize: 14.sp,
           fontWeight: FontWeight.w700,
           color: AppTheme.primary,
@@ -546,7 +565,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: GoogleFonts.cairo(
+              style: GoogleFonts.tajawal(
                 fontSize: 15.sp,
                 color: AppTheme.textSecondary,
               ),
@@ -556,7 +575,7 @@ class _ErrorView extends StatelessWidget {
               onPressed: onRetry,
               child: Text(
                 'إعادة المحاولة',
-                style: GoogleFonts.cairo(fontWeight: FontWeight.w700),
+                style: GoogleFonts.tajawal(fontWeight: FontWeight.w700),
               ),
             ),
           ],

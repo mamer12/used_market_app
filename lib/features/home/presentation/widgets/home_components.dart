@@ -40,7 +40,7 @@ class HomeSection extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title!,
-                        style: GoogleFonts.cairo(
+                        style: GoogleFonts.tajawal(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.w800,
                           color: AppTheme.textPrimary,
@@ -87,7 +87,7 @@ class OmniboxWidget extends StatelessWidget {
             Expanded(
               child: Text(
                 hintText,
-                style: GoogleFonts.cairo(fontSize: 14.sp, color: AppTheme.textTertiary),
+                style: GoogleFonts.tajawal(fontSize: 14.sp, color: AppTheme.textTertiary),
               ),
             ),
             Icon(Icons.mic_outlined, color: AppTheme.textTertiary, size: 20.sp),
@@ -129,9 +129,8 @@ class WalletCard extends StatefulWidget {
 class _WalletCardState extends State<WalletCard> {
   bool _hidden = false;
 
-  static const _cardTop     = Color(0xFF0E4D30);
-  static const _cardBottom  = Color(0xFF062518);
-  static const _accentGreen = Color(0xFF4ADE80);
+  static const _cardTop    = AppTheme.primaryMid;   // #1A3660
+  static const _cardBottom = AppTheme.primaryDark;  // #060F1E
 
   String get _balanceText {
     if (widget.balanceIqd == -1) return '-- د.ع';
@@ -141,7 +140,7 @@ class _WalletCardState extends State<WalletCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      margin: EdgeInsets.symmetric(horizontal: 0.w),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [_cardTop, _cardBottom],
@@ -202,52 +201,83 @@ class _WalletCardState extends State<WalletCard> {
           ),
           // ── Content ──────────────────────────────────
           Padding(
-            padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 18.h),
+            padding: EdgeInsets.fromLTRB(18.w, 14.h, 18.w, 16.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ── Top row: title / eye / escrow badge ─
+                // ── Top row: "محفظتي" + eye toggle │ currency badge ─
                 Row(
                   children: [
-                    // Escrow badge (start = RTL right visual left)
-                    if (widget.lockedEscrowCount > 0)
+                    // Currency badge
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8.w, vertical: 3.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.radiusFull),
+                        border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.22)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'د.ع',
+                            style: GoogleFonts.tajawal(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
+                          ),
+                          SizedBox(width: 2.w),
+                          Icon(Icons.keyboard_arrow_down_rounded,
+                              color: Colors.white.withValues(alpha: 0.7),
+                              size: 14.sp),
+                        ],
+                      ),
+                    ),
+                    // Escrow badge
+                    if (widget.lockedEscrowCount > 0) ...[
+                      SizedBox(width: 8.w),
                       Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 10.w, vertical: 4.h),
+                            horizontal: 8.w, vertical: 3.h),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.18),
+                          color: Colors.white.withValues(alpha: 0.15),
                           borderRadius:
                               BorderRadius.circular(AppTheme.radiusFull),
                           border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.30)),
+                              color: Colors.white.withValues(alpha: 0.22)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.lock_outline,
-                                color: Colors.white, size: 12),
-                            SizedBox(width: 4.w),
+                            Icon(Icons.lock_outline,
+                                color: Colors.white, size: 11.sp),
+                            SizedBox(width: 3.w),
                             Text(
-                              '${widget.lockedEscrowCount} أمانة نشطة',
-                              style: GoogleFonts.cairo(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w700,
+                              '${widget.lockedEscrowCount} أمانة',
+                              style: GoogleFonts.tajawal(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600,
                                 color: Colors.white,
                               ),
                             ),
                           ],
                         ),
                       ),
+                    ],
                     const Spacer(),
-                    // "محفظتي" label + eye toggle
+                    // "محفظتي" + eye toggle
                     GestureDetector(
                       onTap: () => setState(() => _hidden = !_hidden),
                       child: Row(
                         children: [
                           Text(
                             'محفظتي',
-                            style: GoogleFonts.cairo(
-                              fontSize: 14.sp,
+                            style: GoogleFonts.tajawal(
+                              fontSize: 13.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.white.withValues(alpha: 0.85),
                             ),
@@ -261,7 +291,7 @@ class _WalletCardState extends State<WalletCard> {
                                   : Icons.visibility_outlined,
                               key: ValueKey(_hidden),
                               color: Colors.white.withValues(alpha: 0.70),
-                              size: 17.sp,
+                              size: 16.sp,
                             ),
                           ),
                         ],
@@ -269,13 +299,13 @@ class _WalletCardState extends State<WalletCard> {
                     ),
                   ],
                 ),
-                SizedBox(height: 12.h),
-                // ── Balance (animated show/hide) ─────────
+                SizedBox(height: 10.h),
+                // ── Balance ─────────────────────────────
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
                   child: widget.balanceIqd == null
                       ? SkeletonBox(
-                          width: 180.w, height: 42.h, borderRadius: 8.r)
+                          width: 150.w, height: 34.h, borderRadius: 8.r)
                       : AnimatedSwitcher(
                           duration: const Duration(milliseconds: 320),
                           transitionBuilder: (child, anim) =>
@@ -292,8 +322,8 @@ class _WalletCardState extends State<WalletCard> {
                           child: Text(
                             _hidden ? '•••••• د.ع' : _balanceText,
                             key: ValueKey(_hidden),
-                            style: GoogleFonts.cairo(
-                              fontSize: 36.sp,
+                            style: GoogleFonts.tajawal(
+                              fontSize: 28.sp,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
                               height: 1.1,
@@ -302,43 +332,47 @@ class _WalletCardState extends State<WalletCard> {
                           ),
                         ),
                 ),
-                SizedBox(height: 4.h),
-                // ── Available sub-label ──────────────────
-                if (widget.balanceIqd != null && widget.balanceIqd! > 0)
-                  Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: Text(
-                      _hidden
-                          ? 'متاح للسحب: •••••• د.ع'
-                          : 'متاح للسحب: ${IqdFormatter.format((widget.balanceIqd! * 0.64).toInt())} د.ع',
-                      style: GoogleFonts.cairo(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w500,
-                        color: _accentGreen.withValues(alpha: 0.80),
-                      ),
-                      textAlign: TextAlign.end,
-                    ),
-                  ),
-                SizedBox(height: 22.h),
-                // ── 3 Circular action buttons ────────────
+                SizedBox(height: 16.h),
+                // ── Pill action buttons ──────────────────
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _CircleAction(
-                      icon: Icons.add_rounded,
-                      label: 'إيداع',
+                    // سحب — outlined pill
+                    Expanded(
+                      child: _PillAction(
+                        icon: Icons.south_west_rounded,
+                        label: 'سحب',
+                        onTap: widget.onWithdraw,
+                        filled: false,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    // إيداع — filled green pill
+                    Expanded(
+                      child: _PillAction(
+                        icon: Icons.north_east_rounded,
+                        label: 'تحويل',
+                        onTap: widget.onTransfer,
+                        filled: true,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    // 3-dot menu
+                    GestureDetector(
                       onTap: widget.onDeposit,
-                    ),
-                    _CircleAction(
-                      icon: Icons.account_balance_wallet_outlined,
-                      label: 'سحب',
-                      onTap: widget.onWithdraw,
-                    ),
-                    _CircleAction(
-                      icon: Icons.swap_horiz_rounded,
-                      label: 'تحويل',
-                      onTap: widget.onTransfer,
-                      highlight: true,
+                      child: Container(
+                        width: 40.w,
+                        height: 40.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.20),
+                          ),
+                        ),
+                        child: Icon(Icons.more_vert_rounded,
+                            color: Colors.white.withValues(alpha: 0.85),
+                            size: 18.sp),
+                      ),
                     ),
                   ],
                 ),
@@ -351,18 +385,21 @@ class _WalletCardState extends State<WalletCard> {
   }
 }
 
-class _CircleAction extends StatelessWidget {
+class _PillAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  final bool highlight;
+  final bool filled;
 
-  const _CircleAction({
+  const _PillAction({
     required this.icon,
     required this.label,
     required this.onTap,
-    this.highlight = false,
+    this.filled = false,
   });
+
+  // Ice blue — harmonizes with Tigris Deep navy background
+  static const _accentBlue = Color(0xFF93C5FD);
 
   @override
   Widget build(BuildContext context) {
@@ -371,34 +408,39 @@ class _CircleAction extends StatelessWidget {
         HapticFeedback.selectionClick();
         onTap();
       },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 56.w,
-            height: 56.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: highlight
-                  ? Colors.white.withValues(alpha: 0.28)
-                  : Colors.white.withValues(alpha: 0.15),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: highlight ? 0.40 : 0.22),
-                width: 1.2,
+      child: Container(
+        height: 40.h,
+        decoration: BoxDecoration(
+          color: filled
+              ? _accentBlue.withValues(alpha: 0.22)
+              : Colors.white.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: filled
+                ? _accentBlue.withValues(alpha: 0.45)
+                : Colors.white.withValues(alpha: 0.20),
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon,
+                color: filled ? _accentBlue : Colors.white,
+                size: 16.sp),
+            SizedBox(width: 6.w),
+            Text(
+              label,
+              style: GoogleFonts.tajawal(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: filled
+                    ? _accentBlue
+                    : Colors.white.withValues(alpha: 0.90),
               ),
             ),
-            child: Icon(icon, color: Colors.white, size: 22.sp),
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            label,
-            style: GoogleFonts.cairo(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.white.withValues(alpha: 0.90),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -422,53 +464,47 @@ class QuickUtilitiesRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          crossAxisSpacing: 10.w,
-          mainAxisSpacing: 0,
-          childAspectRatio: 0.82,
-        ),
-        itemCount: _items.length,
-        itemBuilder: (context, i) {
-          final item = _items[i];
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: _items.map((item) {
           final color = item.color ?? AppTheme.primary;
           return GestureDetector(
             onTap: () {
               HapticFeedback.selectionClick();
               onTap(item.id);
             },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 54.w,
-                  height: 54.w,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.10),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: color.withValues(alpha: 0.18)),
+            child: SizedBox(
+              width: 72.w,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 52.w,
+                    height: 52.w,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.10),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: color.withValues(alpha: 0.18)),
+                    ),
+                    child: Icon(item.icon, color: color, size: 22.sp),
                   ),
-                  child: Icon(item.icon, color: color, size: 24.sp),
-                ),
-                SizedBox(height: 6.h),
-                Text(
-                  item.label,
-                  style: GoogleFonts.cairo(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary,
+                  SizedBox(height: 6.h),
+                  Text(
+                    item.label,
+                    style: GoogleFonts.tajawal(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
           );
-        },
+        }).toList(),
       ),
     );
   }
@@ -550,7 +586,7 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                                 ),
                                 child: Text(
                                   item.badgeText!,
-                                  style: GoogleFonts.cairo(
+                                  style: GoogleFonts.tajawal(
                                     fontSize: 10.sp,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -560,7 +596,7 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                             const Spacer(),
                             Text(
                               item.title,
-                              style: GoogleFonts.cairo(
+                              style: GoogleFonts.tajawal(
                                 fontSize: 20.sp,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
@@ -570,7 +606,7 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
                             SizedBox(height: 4.h),
                             Text(
                               item.subtitle,
-                              style: GoogleFonts.cairo(
+                              style: GoogleFonts.tajawal(
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white.withValues(alpha: 0.8),
@@ -586,7 +622,7 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
             },
           ),
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 8.h),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
@@ -594,8 +630,8 @@ class _AnnouncementsCarouselState extends State<AnnouncementsCarousel> {
             (i) => AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               margin: EdgeInsets.symmetric(horizontal: 3.w),
-              height: 6.h,
-              width: _currentIndex == i ? 20.w : 6.w,
+              height: 5.h,
+              width: _currentIndex == i ? 18.w : 5.w,
               decoration: BoxDecoration(
                 color: _currentIndex == i
                     ? AppTheme.primary
@@ -752,11 +788,11 @@ class _MazadatTile extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _PulseDot(color: red),
+                          const _PulseDot(color: red),
                           SizedBox(width: 4.w),
                           Text(
                             '$liveCount مباشر',
-                            style: GoogleFonts.cairo(
+                            style: GoogleFonts.tajawal(
                               fontSize: 9.sp,
                               fontWeight: FontWeight.w700,
                               color: red,
@@ -770,7 +806,7 @@ class _MazadatTile extends StatelessWidget {
               const Spacer(),
               Text(
                 label,
-                style: GoogleFonts.cairo(
+                style: GoogleFonts.tajawal(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -780,7 +816,7 @@ class _MazadatTile extends StatelessWidget {
               SizedBox(height: 2.h),
               Text(
                 tagline,
-                style: GoogleFonts.cairo(
+                style: GoogleFonts.tajawal(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                   color: Colors.white.withValues(alpha: 0.5),
@@ -841,7 +877,7 @@ class _MatajirTile extends StatelessWidget {
                     ),
                     child: Text(
                       '١٢٠+ متجر',
-                      style: GoogleFonts.cairo(
+                      style: GoogleFonts.tajawal(
                         fontSize: 9.sp,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.textSecondary,
@@ -855,7 +891,7 @@ class _MatajirTile extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w800,
                       color: AppTheme.textPrimary,
@@ -869,7 +905,7 @@ class _MatajirTile extends StatelessWidget {
               SizedBox(height: 2.h),
               Text(
                 tagline,
-                style: GoogleFonts.cairo(
+                style: GoogleFonts.tajawal(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                   color: AppTheme.textTertiary,
@@ -921,7 +957,7 @@ class _BallaTile extends StatelessWidget {
                     children: [
                       Text(
                         label,
-                        style: GoogleFonts.cairo(
+                        style: GoogleFonts.tajawal(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF4A1D96),
@@ -936,7 +972,7 @@ class _BallaTile extends StatelessWidget {
                         ),
                         child: Text(
                           'HOT',
-                          style: GoogleFonts.cairo(
+                          style: GoogleFonts.tajawal(
                             fontSize: 8.sp,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.textPrimary,
@@ -949,7 +985,7 @@ class _BallaTile extends StatelessWidget {
                   SizedBox(height: 2.h),
                   Text(
                     tagline,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 11.sp,
                       color: purple.withValues(alpha: 0.7),
                     ),
@@ -963,7 +999,7 @@ class _BallaTile extends StatelessWidget {
                     ),
                     child: Text(
                       'تصفح العروض',
-                      style: GoogleFonts.cairo(
+                      style: GoogleFonts.tajawal(
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -1023,7 +1059,7 @@ class _MustamalTile extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w800,
                       color: const Color(0xFF7C2D12),
@@ -1032,7 +1068,7 @@ class _MustamalTile extends StatelessWidget {
                   SizedBox(height: 2.h),
                   Text(
                     tagline,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 11.sp,
                       color: orange.withValues(alpha: 0.7),
                     ),
@@ -1050,7 +1086,7 @@ class _MustamalTile extends StatelessWidget {
                         ),
                         child: Text(
                           cat,
-                          style: GoogleFonts.cairo(
+                          style: GoogleFonts.tajawal(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF7C2D12),
