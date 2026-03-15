@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/locale/locale_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -13,9 +15,81 @@ import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../shop/presentation/pages/order_history_page.dart';
 import '../../data/models/auth_models.dart';
 
+// ── Mock order data ───────────────────────────────────────────────────────────
+
+class _MockOrder {
+  final String id;
+  final String itemName;
+  final String status;
+  final Color statusColor;
+  final int priceIqd;
+  final String date;
+
+  const _MockOrder({
+    required this.id,
+    required this.itemName,
+    required this.status,
+    required this.statusColor,
+    required this.priceIqd,
+    required this.date,
+  });
+}
+
+const _mockOrders = [
+  _MockOrder(
+    id: 'LQ-4A2F',
+    itemName: 'آيفون 14 برو',
+    status: 'تم الشحن',
+    statusColor: Color(0xFF1B4FD8),
+    priceIqd: 1200000,
+    date: '١٢ مايو',
+  ),
+  _MockOrder(
+    id: 'LQ-3B1A',
+    itemName: 'استيراد أوروبي 50kg',
+    status: 'تم الدفع',
+    statusColor: Color(0xFF16A34A),
+    priceIqd: 400000,
+    date: '١٠ مايو',
+  ),
+  _MockOrder(
+    id: 'LQ-2C9D',
+    itemName: 'حذاء نايكي رياضي',
+    status: 'تم التسليم',
+    statusColor: Color(0xFF6B7280),
+    priceIqd: 85000,
+    date: '٥ مايو',
+  ),
+];
+
+final _iqFormat = NumberFormat('#,###', 'ar_IQ');
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 /// Me tab — user profile from local auth state + /users/me endpoint.
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  bool _isEditing = false;
+  late TextEditingController _nameController;
+  String _localName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +99,6 @@ class ProfilePage extends StatelessWidget {
         bottom: false,
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            // Router guard ensures only authenticated users reach this page.
             return _buildProfile(context, state);
           },
         ),
@@ -36,9 +109,11 @@ class ProfilePage extends StatelessWidget {
   // ── Authenticated ────────────────────────────────────────
   Widget _buildProfile(BuildContext context, AuthState state) {
     final l10n = AppLocalizations.of(context);
-    final displayName = state.displayName ?? 'User';
+    final displayName =
+        _localName.isNotEmpty ? _localName : (state.displayName ?? 'User');
     final phone = state.phoneNumber ?? '';
     final initials = _getInitials(displayName);
+    final isSeller = state.user?.role == 'seller';
 
     return CustomScrollView(
       slivers: [
@@ -48,9 +123,17 @@ class ProfilePage extends StatelessWidget {
             child: _buildStrikesBanner(context, state.user!, l10n),
           ),
         SliverToBoxAdapter(
-          child: _buildAvatar(initials, displayName, phone, l10n),
+          child: _buildAvatar(context, initials, displayName, phone, l10n, state),
         ),
-        SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+        if (_isEditing)
+          SliverToBoxAdapter(child: _buildEditForm(context, l10n)),
+        SliverToBoxAdapter(child: SizedBox(height: 20.h)),
+        SliverToBoxAdapter(child: _buildOrdersSection(context)),
+        SliverToBoxAdapter(child: SizedBox(height: 12.h)),
+        if (isSeller)
+          SliverToBoxAdapter(child: _buildSellerDashboard(context)),
+        if (isSeller)
+          SliverToBoxAdapter(child: SizedBox(height: 12.h)),
         SliverToBoxAdapter(
           child: _buildSection(
             context,
@@ -164,10 +247,12 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildAvatar(
+    BuildContext context,
     String initials,
     String displayName,
     String phone,
     AppLocalizations l10n,
+    AuthState state,
   ) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 0),
@@ -232,7 +317,17 @@ class ProfilePage extends StatelessWidget {
                         color: AppTheme.textSecondary,
                       ),
                     ),
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 4.h),
+                  if (state.user?.walletBalance != null)
+                    Text(
+                      '${_iqFormat.format(int.tryParse(state.user!.walletBalance) ?? 0)} د.ع',
+                      style: GoogleFonts.cairo(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.success,
+                      ),
+                    ),
+                  SizedBox(height: 4.h),
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 8.w,
@@ -254,8 +349,321 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
             ),
+            GestureDetector(
+              onTap: () => setState(() {
+                if (_isEditing) {
+                  _isEditing = false;
+                } else {
+                  _nameController.text =
+                      _localName.isNotEmpty ? _localName : (state.displayName ?? '');
+                  _isEditing = true;
+                }
+              }),
+              child: Container(
+                padding: EdgeInsets.all(8.w),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(
+                  _isEditing ? Icons.close_rounded : Icons.edit_outlined,
+                  size: 16.sp,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEditForm(BuildContext context, AppLocalizations l10n) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: AppTheme.primary.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'تعديل الملف الشخصي',
+              style: GoogleFonts.cairo(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            TextField(
+              controller: _nameController,
+              style: GoogleFonts.cairo(
+                fontSize: 14.sp,
+                color: AppTheme.textPrimary,
+              ),
+              decoration: InputDecoration(
+                labelText: 'الاسم الكامل',
+                labelStyle: GoogleFonts.cairo(
+                  fontSize: 13.sp,
+                  color: AppTheme.textSecondary,
+                ),
+                filled: true,
+                fillColor: AppTheme.background,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            SizedBox(height: 12.h),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: AppTheme.textPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                ),
+                onPressed: () {
+                  final newName = _nameController.text.trim();
+                  if (newName.isNotEmpty) {
+                    setState(() {
+                      _localName = newName;
+                      _isEditing = false;
+                    });
+                  }
+                },
+                child: Text(
+                  'حفظ التغييرات',
+                  style: GoogleFonts.cairo(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrdersSection(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'طلباتي',
+                style: GoogleFonts.cairo(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const OrderHistoryPage()),
+                ),
+                child: Text(
+                  'عرض الكل',
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          ..._mockOrders.map((order) => _buildOrderRow(order)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderRow(_MockOrder order) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  order.itemName,
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  '#${order.id} — ${order.date}',
+                  style: GoogleFonts.cairo(
+                    fontSize: 11.sp,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding:
+                    EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                decoration: BoxDecoration(
+                  color: order.statusColor.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                child: Text(
+                  order.status,
+                  style: GoogleFonts.cairo(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: order.statusColor,
+                  ),
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                '${_iqFormat.format(order.priceIqd)} د.ع',
+                style: GoogleFonts.cairo(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSellerDashboard(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'لوحة تحكم البائع',
+            style: GoogleFonts.cairo(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  label: 'إجمالي المبيعات',
+                  value: '42',
+                  icon: Icons.receipt_long_outlined,
+                  color: AppTheme.matajirBlue,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _buildStatCard(
+                  label: 'الإيرادات',
+                  value: '${_iqFormat.format(1250000)} د.ع',
+                  icon: Icons.account_balance_wallet_outlined,
+                  color: AppTheme.success,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36.w,
+            height: 36.w,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(icon, size: 18.sp, color: color),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            value,
+            style: GoogleFonts.cairo(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          Text(
+            label,
+            style: GoogleFonts.cairo(
+              fontSize: 11.sp,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -405,7 +813,12 @@ class ProfilePage extends StatelessWidget {
       _MenuItem(
         icon: Icons.person_outline,
         label: l10n.profileEditProfile,
-        onTap: (_) {},
+        onTap: (_) => setState(() {
+          final authState = context.read<AuthBloc>().state;
+          _nameController.text =
+              _localName.isNotEmpty ? _localName : (authState.displayName ?? '');
+          _isEditing = !_isEditing;
+        }),
       ),
       _MenuItem(
         icon: Icons.store_outlined,
@@ -416,18 +829,18 @@ class ProfilePage extends StatelessWidget {
         icon: Icons.receipt_long_outlined,
         label: l10n.profileOrderHistory,
         onTap: (_) {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const OrderHistoryPage()));
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const OrderHistoryPage()),
+          );
         },
       ),
       _MenuItem(
         icon: Icons.gavel_outlined,
         label: l10n.profileActiveBids,
         onTap: (_) {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const ActiveBidsPage()));
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ActiveBidsPage()),
+          );
         },
       ),
       _MenuItem(

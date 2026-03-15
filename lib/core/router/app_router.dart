@@ -25,6 +25,7 @@ import '../../features/cart/presentation/pages/checkout_page.dart';
 import '../../features/home/presentation/pages/add_balla_page.dart';
 import '../../features/home/presentation/pages/create_mustamal_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/messages/presentation/pages/chat_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
 import '../../features/notifications/presentation/pages/activity_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
@@ -345,6 +346,18 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
               GoRoute(
                 path: '/messages',
                 builder: (context, state) => const MessagesPage(),
+                routes: [
+                  GoRoute(
+                    path: ':sellerId',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>? ?? {};
+                      return ChatPage(
+                        sellerId: state.pathParameters['sellerId'] ?? '',
+                        sellerName: extra['sellerName'] as String? ?? '',
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),

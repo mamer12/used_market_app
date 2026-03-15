@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:mustamal/core/services/log_service.dart';
 
 import '../../../../core/network/api_constants.dart';
 import '../models/auth_models.dart';
@@ -31,8 +30,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ApiConstants.register,
       data: request.toJson(),
     );
-    LogService().info('DEBUG: Registration response: ${response.data}');
-    return AuthResponse.fromJson(response.data as Map<String, dynamic>);
+return AuthResponse.fromJson(response.data as Map<String, dynamic>);
   }
 
   @override
