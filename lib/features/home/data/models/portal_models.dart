@@ -29,11 +29,12 @@ class Announcement {
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
-      imageUrl: json['imageUrl'] as String?,
+      // Backend sends snake_case; support both for backwards compat
+      imageUrl: (json['image_url'] ?? json['imageUrl']) as String?,
       actionUrl: json['actionUrl'] as String?,
-      deepLink: json['deepLink'] as String?,
-      badgeText: json['badgeText'] as String?,
-      colorHex: json['colorHex'] as int?,
+      deepLink: (json['deep_link'] ?? json['deepLink']) as String?,
+      badgeText: (json['badge_text'] ?? json['badgeText']) as String?,
+      colorHex: ((json['color_hex'] ?? json['colorHex']) as num?)?.toInt(),
     );
   }
 }
@@ -65,33 +66,39 @@ class ProductPreview {
   }
 }
 
-/// Dummy ItemModel for Mustamal items since not explicitly defined yet
+/// Mustamal fixed-price used item from /mobile/home
 class ItemModel {
   final String id;
   final String title;
+  final String category;
   final List<String> images;
   final num price;
   final String? condition;
+  final String? city;
 
   const ItemModel({
     required this.id,
     required this.title,
+    required this.category,
     required this.images,
     required this.price,
     this.condition,
+    this.city,
   });
 
   factory ItemModel.fromJson(Map<String, dynamic> json) {
     return ItemModel(
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
+      category: json['category'] as String? ?? '',
       images:
           (json['images'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
-      price: json['price'] as num? ?? 0,
+      price: (json['price'] as num?) ?? 0,
       condition: json['condition'] as String?,
+      city: json['city'] as String?,
     );
   }
 }
