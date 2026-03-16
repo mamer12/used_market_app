@@ -1,59 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
-
-// ── Mock message model ────────────────────────────────────────────────────────
-
-class _Message {
-  final String id;
-  final String text;
-  final bool isMe;
-  final String time;
-
-  const _Message({
-    required this.id,
-    required this.text,
-    required this.isMe,
-    required this.time,
-  });
-}
-
-final Map<String, List<_Message>> _mockMessages = {
-  '1': [
-    const _Message(id: 'm1', text: 'السلام عليكم، هل الآيفون متاح؟', isMe: false, time: '١٠:٠٠ ص'),
-    const _Message(id: 'm2', text: 'وعليكم السلام، نعم لا يزال متاحاً', isMe: true, time: '١٠:٠٢ ص'),
-    const _Message(id: 'm3', text: 'ما هو السعر الأدنى؟', isMe: false, time: '١٠:٠٣ ص'),
-    const _Message(id: 'm4', text: 'السعر ثابت ٩٥٠,٠٠٠ د.ع', isMe: true, time: '١٠:٠٥ ص'),
-    const _Message(id: 'm5', text: 'هل المنتج لا يزال متاحاً؟', isMe: false, time: 'الآن'),
-  ],
-  '2': [
-    const _Message(id: 'm1', text: 'مرحباً، تم استلام طلبك', isMe: false, time: '٩:٠٠ ص'),
-    const _Message(id: 'm2', text: 'شكراً جزيلاً', isMe: true, time: '٩:٠٥ ص'),
-    const _Message(id: 'm3', text: 'تم شحن الطلب وسيصلك خلال يومين', isMe: false, time: '١١:٠٠ ص'),
-    const _Message(id: 'm4', text: 'شكراً، تم تأكيد طلبك', isMe: false, time: 'منذ ٢ س'),
-  ],
-  '3': [
-    const _Message(id: 'm1', text: 'اهلاً، هل اللابتوب يعمل بشكل جيد؟', isMe: false, time: 'أمس'),
-    const _Message(id: 'm2', text: 'نعم، يعمل بشكل ممتاز', isMe: true, time: 'أمس'),
-    const _Message(id: 'm3', text: 'ما هو السعر الأدنى؟', isMe: false, time: 'أمس'),
-  ],
-  '4': [
-    const _Message(id: 'm1', text: 'هل العباءة مقاس L؟', isMe: false, time: 'أمس'),
-    const _Message(id: 'm2', text: 'نعم مقاس L', isMe: true, time: 'أمس'),
-    const _Message(id: 'm3', text: 'سأتصل بك لاحقاً', isMe: false, time: 'أمس'),
-  ],
-  '5': [
-    const _Message(id: 'm1', text: 'مرحباً، فتحنا نزاعاً بخصوص طلبك', isMe: false, time: 'منذ ٣ أيام'),
-    const _Message(id: 'm2', text: 'متى سيتم الحل؟', isMe: true, time: 'منذ ٣ أيام'),
-    const _Message(id: 'm3', text: 'نزاعك قيد المراجعة', isMe: false, time: 'منذ ٣ أيام'),
-  ],
-};
+import '../../../chat/data/models/chat_models.dart';
+import '../../../chat/presentation/bloc/chat_cubit.dart';
 
 // ── ChatPage ─────────────────────────────────────────────────────────────────
 
-class ChatPage extends StatefulWidget {
+class ChatPage extends StatelessWidget {
   final String sellerId;
   final String sellerName;
 
@@ -64,21 +22,35 @@ class ChatPage extends StatefulWidget {
   });
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
-  final _inputController = TextEditingController();
-  final _scrollController = ScrollController();
-  late List<_Message> _messages;
-
-  @override
-  void initState() {
-    super.initState();
-    _messages = List.from(
-      _mockMessages[widget.sellerId] ?? [],
+  Widget build(BuildContext context) {
+    return BlocProvider<ChatCubit>(
+      create: (_) => getIt<ChatCubit>()..loadMessages(sellerId),
+      child: _ChatView(
+        conversationId: sellerId,
+        sellerName: sellerName,
+      ),
     );
   }
+}
+
+// ── Inner view ────────────────────────────────────────────────────────────────
+
+class _ChatView extends StatefulWidget {
+  final String conversationId;
+  final String sellerName;
+
+  const _ChatView({
+    required this.conversationId,
+    required this.sellerName,
+  });
+
+  @override
+  State<_ChatView> createState() => _ChatViewState();
+}
+
+class _ChatViewState extends State<_ChatView> {
+  final _inputController = TextEditingController();
+  final _scrollController = ScrollController();
 
   @override
   void dispose() {
@@ -87,21 +59,11 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  void _sendMessage() {
+  void _sendMessage(ChatCubit cubit) {
     final text = _inputController.text.trim();
     if (text.isEmpty) return;
-
-    setState(() {
-      _messages.add(
-        _Message(
-          id: 'local_${DateTime.now().millisecondsSinceEpoch}',
-          text: text,
-          isMe: true,
-          time: 'الآن',
-        ),
-      );
-      _inputController.clear();
-    });
+    _inputController.clear();
+    cubit.sendMessage(widget.conversationId, text);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -116,6 +78,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<ChatCubit>();
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -191,21 +155,72 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             // ── Messages list ──────────────────────────────────────────────
             Expanded(
-              child: _messages.isEmpty
-                  ? _buildEmptyChat()
-                  : ListView.builder(
+              child: BlocBuilder<ChatCubit, ChatState>(
+                builder: (context, state) {
+                  if (state is ChatLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (state is ChatError) {
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32.w),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.cloud_off_rounded,
+                              size: 40.sp,
+                              color: AppTheme.inactive,
+                            ),
+                            SizedBox(height: 12.h),
+                            Text(
+                              state.message,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.cairo(
+                                fontSize: 14.sp,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                            SizedBox(height: 12.h),
+                            ElevatedButton(
+                              onPressed: () =>
+                                  cubit.loadMessages(widget.conversationId),
+                              child: Text(
+                                'إعادة المحاولة',
+                                style: GoogleFonts.cairo(
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (state is MessagesLoaded) {
+                    if (state.messages.isEmpty) {
+                      return _buildEmptyChat();
+                    }
+                    return ListView.builder(
                       controller: _scrollController,
                       padding: EdgeInsets.symmetric(
                         horizontal: 16.w,
                         vertical: 12.h,
                       ),
-                      itemCount: _messages.length,
-                      itemBuilder: (_, i) => _BubbleTile(msg: _messages[i]),
-                    ),
+                      itemCount: state.messages.length,
+                      itemBuilder: (_, i) =>
+                          _BubbleTile(msg: state.messages[i]),
+                    );
+                  }
+
+                  return _buildEmptyChat();
+                },
+              ),
             ),
 
             // ── Input bar ──────────────────────────────────────────────────
-            _buildInputBar(),
+            _buildInputBar(cubit),
           ],
         ),
       ),
@@ -236,7 +251,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildInputBar() {
+  Widget _buildInputBar(ChatCubit cubit) {
     return Container(
       color: Colors.white,
       padding: EdgeInsets.fromLTRB(
@@ -252,7 +267,7 @@ class _ChatPageState extends State<ChatPage> {
               controller: _inputController,
               textDirection: TextDirection.rtl,
               textInputAction: TextInputAction.send,
-              onSubmitted: (_) => _sendMessage(),
+              onSubmitted: (_) => _sendMessage(cubit),
               style: GoogleFonts.cairo(
                 fontSize: 14.sp,
                 color: AppTheme.textPrimary,
@@ -278,7 +293,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
           SizedBox(width: 8.w),
           GestureDetector(
-            onTap: _sendMessage,
+            onTap: () => _sendMessage(cubit),
             child: Container(
               width: 44.w,
               height: 44.w,
@@ -302,9 +317,13 @@ class _ChatPageState extends State<ChatPage> {
 // ── Bubble tile ───────────────────────────────────────────────────────────────
 
 class _BubbleTile extends StatelessWidget {
-  final _Message msg;
+  final MessageModel msg;
 
   const _BubbleTile({required this.msg});
+
+  String _formatTime(DateTime dt) {
+    return DateFormat('hh:mm a', 'ar').format(dt);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -322,8 +341,10 @@ class _BubbleTile extends StatelessWidget {
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(16.r),
             topRight: Radius.circular(16.r),
-            bottomLeft: msg.isMe ? Radius.circular(16.r) : Radius.circular(4.r),
-            bottomRight: msg.isMe ? Radius.circular(4.r) : Radius.circular(16.r),
+            bottomLeft:
+                msg.isMe ? Radius.circular(16.r) : Radius.circular(4.r),
+            bottomRight:
+                msg.isMe ? Radius.circular(4.r) : Radius.circular(16.r),
           ),
           boxShadow: [
             BoxShadow(
@@ -338,7 +359,7 @@ class _BubbleTile extends StatelessWidget {
               msg.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Text(
-              msg.text,
+              msg.body,
               textDirection: TextDirection.rtl,
               style: GoogleFonts.cairo(
                 fontSize: 14.sp,
@@ -348,7 +369,7 @@ class _BubbleTile extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              msg.time,
+              _formatTime(msg.createdAt),
               style: GoogleFonts.cairo(
                 fontSize: 10.sp,
                 color: msg.isMe

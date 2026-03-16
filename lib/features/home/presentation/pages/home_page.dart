@@ -19,6 +19,8 @@ import '../../data/models/portal_models.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/curated_carousel.dart';
 import '../widgets/home_components.dart';
+import '../../../flash_drops/presentation/widgets/har_w_maksab_strip.dart';
+import '../../../stories/presentation/widgets/story_ring_row.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -93,6 +95,16 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
 
+
+                  // ── Stories ────────────────────────────────────────────
+                  const SliverToBoxAdapter(
+                    child: StoryRingRow(),
+                  ),
+
+                  // ── Flash Drops ────────────────────────────────────────
+                  const SliverToBoxAdapter(
+                    child: HarWaMaksabStrip(),
+                  ),
 
                   // ── Promo carousel ─────────────────────────────────────
                   if (state.announcements.isNotEmpty)

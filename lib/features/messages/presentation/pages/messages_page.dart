@@ -1,109 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../chat/data/models/chat_models.dart';
+import '../../../chat/presentation/bloc/chat_cubit.dart';
 
-// ── Mock thread model ─────────────────────────────────────────────────────────
+// ── Avatar colors ─────────────────────────────────────────────────────────────
 
-class _ChatThread {
-  final String id;
-  final String name;
-  final String avatarInitial;
-  final Color avatarColor;
-  final String lastMessage;
-  final String time;
-  final int unreadCount;
-  final String relatedItem;
-
-  const _ChatThread({
-    required this.id,
-    required this.name,
-    required this.avatarInitial,
-    required this.avatarColor,
-    required this.lastMessage,
-    required this.time,
-    required this.unreadCount,
-    required this.relatedItem,
-  });
-}
-
-const _mockThreads = [
-  _ChatThread(
-    id: '1',
-    name: 'أبو محمد',
-    avatarInitial: 'أ',
-    avatarColor: Color(0xFF1B4FD8),
-    lastMessage: 'هل المنتج لا يزال متاحاً؟',
-    time: 'الآن',
-    unreadCount: 3,
-    relatedItem: 'آيفون 13 برو - مستعمل',
-  ),
-  _ChatThread(
-    id: '2',
-    name: 'متجر الأمل',
-    avatarInitial: 'م',
-    avatarColor: Color(0xFF00BFA5),
-    lastMessage: 'شكراً، تم تأكيد طلبك',
-    time: 'منذ ٢ س',
-    unreadCount: 0,
-    relatedItem: 'طلب #LQ-4A2F',
-  ),
-  _ChatThread(
-    id: '3',
-    name: 'علي حسين',
-    avatarInitial: 'ع',
-    avatarColor: Color(0xFF7C3AED),
-    lastMessage: 'ما هو السعر الأدنى؟',
-    time: 'أمس',
-    unreadCount: 1,
-    relatedItem: 'لابتوب ديل - بالة',
-  ),
-  _ChatThread(
-    id: '4',
-    name: 'فاطمة الزهراء',
-    avatarInitial: 'ف',
-    avatarColor: Color(0xFFEA580C),
-    lastMessage: 'سأتصل بك لاحقاً',
-    time: 'أمس',
-    unreadCount: 0,
-    relatedItem: 'عباءة بغدادية',
-  ),
-  _ChatThread(
-    id: '5',
-    name: 'دعم مضمون',
-    avatarInitial: 'د',
-    avatarColor: Color(0xFF00BFA5),
-    lastMessage: 'نزاعك قيد المراجعة',
-    time: 'منذ ٣ أيام',
-    unreadCount: 0,
-    relatedItem: 'طلب #LQ-8C3E',
-  ),
+const _kAvatarColors = [
+  Color(0xFF1B4FD8),
+  Color(0xFF00BFA5),
+  Color(0xFF7C3AED),
+  Color(0xFFEA580C),
+  Color(0xFFFF3D5A),
+  Color(0xFF059669),
+  Color(0xFF0891B2),
 ];
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ── Page wrapper with BlocProvider ────────────────────────────────────────────
 
-class MessagesPage extends StatefulWidget {
+class MessagesPage extends StatelessWidget {
   const MessagesPage({super.key});
 
   @override
-  State<MessagesPage> createState() => _MessagesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider<ChatCubit>(
+      create: (_) => getIt<ChatCubit>()..loadConversations(),
+      child: const _MessagesView(),
+    );
+  }
 }
 
-class _MessagesPageState extends State<MessagesPage> {
+// ── Inner view ────────────────────────────────────────────────────────────────
+
+class _MessagesView extends StatefulWidget {
+  const _MessagesView();
+
+  @override
+  State<_MessagesView> createState() => _MessagesViewState();
+}
+
+class _MessagesViewState extends State<_MessagesView> {
   final _searchController = TextEditingController();
   String _query = '';
-
-  List<_ChatThread> get _filtered => _query.isEmpty
-      ? _mockThreads
-      : _mockThreads
-          .where((t) =>
-              t.name.contains(_query) ||
-              t.lastMessage.contains(_query) ||
-              t.relatedItem.contains(_query))
-          .toList();
 
   @override
   void dispose() {
@@ -121,7 +66,7 @@ class _MessagesPageState extends State<MessagesPage> {
         bottom: false,
         child: Column(
           children: [
-            // ── Header ──────────────────────────────────────────────────────
+            // ── Header ──────────────────────────────────────────────────
             Padding(
               padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 12.h),
               child: Row(
@@ -194,21 +139,48 @@ class _MessagesPageState extends State<MessagesPage> {
 
             const Divider(height: 1),
 
-            // ── Thread list / empty state ────────────────────────────────────
+            // ── Thread list / states ────────────────────────────────────────
             Expanded(
-              child: _filtered.isEmpty
-                  ? _buildEmpty(l10n)
-                  : ListView.separated(
+              child: BlocBuilder<ChatCubit, ChatState>(
+                builder: (context, state) {
+                  if (state is ChatLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (state is ChatError) {
+                    return _buildError(state.message, context);
+                  }
+
+                  if (state is ConversationsLoaded) {
+                    final filtered = _query.isEmpty
+                        ? state.conversations
+                        : state.conversations
+                            .where((c) =>
+                                (c.otherUserName ?? '').contains(_query) ||
+                                (c.lastMessage ?? '').contains(_query) ||
+                                c.contextType.contains(_query))
+                            .toList();
+
+                    if (filtered.isEmpty) return _buildEmpty(l10n);
+
+                    return ListView.separated(
                       padding: EdgeInsets.only(bottom: 100.h),
-                      itemCount: _filtered.length,
-                      separatorBuilder: (_, __) => Divider(
+                      itemCount: filtered.length,
+                      separatorBuilder: (context, i) => Divider(
                         height: 1,
                         indent: 76.w,
                         endIndent: 16.w,
                       ),
-                      itemBuilder: (_, i) =>
-                          _ThreadTile(thread: _filtered[i]),
-                    ),
+                      itemBuilder: (_, i) => _ConversationTile(
+                        conv: filtered[i],
+                        colorIndex: i % _kAvatarColors.length,
+                      ),
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
           ],
         ),
@@ -260,24 +232,80 @@ class _MessagesPageState extends State<MessagesPage> {
       ),
     );
   }
+
+  Widget _buildError(String message, BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 40.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 48.sp,
+              color: AppTheme.inactive,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: 14.sp,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+            SizedBox(height: 20.h),
+            ElevatedButton(
+              onPressed: () => context.read<ChatCubit>().loadConversations(),
+              child: Text(
+                'إعادة المحاولة',
+                style: GoogleFonts.cairo(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-// ── Thread tile ───────────────────────────────────────────────────────────────
+// ── Conversation tile ─────────────────────────────────────────────────────────
 
-class _ThreadTile extends StatelessWidget {
-  final _ChatThread thread;
+class _ConversationTile extends StatelessWidget {
+  final ConversationModel conv;
+  final int colorIndex;
 
-  const _ThreadTile({required this.thread});
+  const _ConversationTile({required this.conv, required this.colorIndex});
+
+  String _formatTime(DateTime? dt) {
+    if (dt == null) return '';
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+
+    if (diff.inMinutes < 1) return 'الآن';
+    if (diff.inHours < 1) return 'منذ ${diff.inMinutes} د';
+    if (diff.inHours < 24) return 'منذ ${diff.inHours} س';
+    if (diff.inDays == 1) return 'أمس';
+    if (diff.inDays < 7) return 'منذ ${diff.inDays} أيام';
+
+    return DateFormat('dd/MM', 'ar').format(dt);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final hasUnread = thread.unreadCount > 0;
+    final hasUnread = conv.unreadCount > 0;
+    final avatarColor = _kAvatarColors[colorIndex];
+    final name = conv.otherUserName ?? '';
+    final initial = name.isNotEmpty ? name[0] : 'م';
 
     return InkWell(
       onTap: () {
         context.push(
-          '/messages/${thread.id}',
-          extra: {'sellerName': thread.name, 'relatedItem': thread.relatedItem},
+          '/messages/${conv.id}',
+          extra: {
+            'sellerName': conv.otherUserName ?? '',
+            'relatedItem': conv.contextType,
+          },
         );
       },
       child: Container(
@@ -295,12 +323,12 @@ class _ThreadTile extends StatelessWidget {
                   width: 48.w,
                   height: 48.w,
                   decoration: BoxDecoration(
-                    color: thread.avatarColor,
+                    color: avatarColor,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    thread.avatarInitial,
+                    initial,
                     style: GoogleFonts.cairo(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
@@ -325,7 +353,7 @@ class _ThreadTile extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        '${thread.unreadCount}',
+                        '${conv.unreadCount}',
                         style: GoogleFonts.cairo(
                           fontSize: 10.sp,
                           fontWeight: FontWeight.w700,
@@ -347,7 +375,7 @@ class _ThreadTile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        thread.name,
+                        name,
                         style: GoogleFonts.cairo(
                           fontSize: 15.sp,
                           fontWeight: hasUnread
@@ -357,7 +385,7 @@ class _ThreadTile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        thread.time,
+                        _formatTime(conv.lastMessageAt),
                         style: GoogleFonts.cairo(
                           fontSize: 11.sp,
                           color: hasUnread
@@ -372,7 +400,7 @@ class _ThreadTile extends StatelessWidget {
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    thread.relatedItem,
+                    conv.contextType,
                     style: GoogleFonts.cairo(
                       fontSize: 11.sp,
                       color: AppTheme.primary,
@@ -381,7 +409,7 @@ class _ThreadTile extends StatelessWidget {
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    thread.lastMessage,
+                    conv.lastMessage ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.cairo(
