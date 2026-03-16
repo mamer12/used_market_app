@@ -47,6 +47,9 @@ import '../../features/shop/presentation/pages/product_details_page.dart';
 import '../../features/shop/presentation/pages/shipping_address_page.dart';
 import '../../features/shop/presentation/pages/shop_products_page.dart';
 import '../../features/shop/presentation/pages/zaincash_payment_page.dart';
+import '../../features/group_buy/presentation/pages/group_buy_page.dart';
+import '../../features/negotiation/presentation/pages/my_negotiations_page.dart';
+import '../../features/seller/presentation/pages/seller_dashboard_page.dart';
 import '../../features/wallet/presentation/pages/wallet_page.dart';
 import '../di/injection.dart';
 import '../widgets/main_shell.dart';
@@ -131,6 +134,26 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       // ── Protected routes ────────────────────────────────────────────────
       GoRoute(path: '/favorites', builder: (_, _) => const FavoritesPage()),
       GoRoute(path: '/shipping-address', builder: (_, _) => const ShippingAddressPage()),
+
+      // ── Group Buy (deep link) ──────────────────────────────────────────
+      GoRoute(
+        path: '/group/:id',
+        builder: (context, state) => GroupBuyPage(
+          groupBuyId: state.pathParameters['id'] ?? '',
+        ),
+      ),
+
+      // ── My Negotiations ────────────────────────────────────────────────
+      GoRoute(
+        path: '/negotiations',
+        builder: (_, _) => const MyNegotiationsPage(),
+      ),
+
+      // ── Seller Dashboard ───────────────────────────────────────────────
+      GoRoute(
+        path: '/seller-dashboard',
+        builder: (_, _) => const SellerDashboardPage(),
+      ),
       GoRoute(
         path: '/orders/:id/dispute',
         builder: (context, state) =>

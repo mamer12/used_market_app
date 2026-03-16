@@ -506,6 +506,38 @@ class _PostActionSheet extends StatelessWidget {
               ).push(MaterialPageRoute(builder: (_) => const AddBallaPage()));
             },
           ),
+          SizedBox(height: 10.h),
+
+          // 5. نشر ستوري — Post Story
+          _PostOption(
+            icon: Icons.camera_alt_rounded,
+            title: 'نشر ستوري',
+            subtitle: 'صورة أو فيديو قصير لمتابعيك',
+            accentColor: const Color(0xFFEA580C),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to CreateStoryPage when available
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('ستتوفر قريباً', style: GoogleFonts.cairo())),
+              );
+            },
+          ),
+          SizedBox(height: 10.h),
+
+          // 6. فعّل حار ومكسب — Activate Flash Deal
+          _PostOption(
+            icon: Icons.local_fire_department_rounded,
+            title: 'فعّل حار ومكسب',
+            subtitle: 'عرض خاطف لمدة محدودة',
+            accentColor: Colors.red,
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to ActivateFlashDropPage when available
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('ستتوفر قريباً', style: GoogleFonts.cairo())),
+              );
+            },
+          ),
         ],
       ),
     );

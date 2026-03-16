@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../map/presentation/pages/mahallati_page.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../../l10n/generated/app_localizations.dart';
@@ -30,6 +31,7 @@ class MatajirPage extends StatefulWidget {
 class _MatajirPageState extends State<MatajirPage> {
   late final HomeCubit _cubit;
   late final CategoryCubit _categoryCubit;
+  bool _mapMode = false;
 
   @override
   void initState() {
@@ -141,7 +143,33 @@ class _MatajirPageState extends State<MatajirPage> {
                       ),
                     ),
 
+                    // ── Map / List Toggle ────────────────────────────────
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ChoiceChip(
+                              label: Text('☰ قائمة', style: GoogleFonts.cairo(fontSize: 12.sp)),
+                              selected: !_mapMode,
+                              onSelected: (_) => setState(() => _mapMode = false),
+                              selectedColor: AppTheme.matajirBlue.withValues(alpha: 0.15),
+                            ),
+                            SizedBox(width: 8.w),
+                            ChoiceChip(
+                              label: Text('🗺 محلتي', style: GoogleFonts.cairo(fontSize: 12.sp)),
+                              selected: _mapMode,
+                              onSelected: (_) => setState(() => _mapMode = true),
+                              selectedColor: AppTheme.matajirBlue.withValues(alpha: 0.15),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
                     // ── Category Filter Chips ────────────────────────────
+                    if (!_mapMode)
                     SliverToBoxAdapter(
                       child: SizedBox(
                         height: 48.h,
@@ -156,6 +184,12 @@ class _MatajirPageState extends State<MatajirPage> {
                           },
                         ),
                       ),
+                    ),
+
+                    // ── Map View (when toggle active) ────────────────────
+                    if (_mapMode)
+                    SliverFillRemaining(
+                      child: MahallatiPage(contextFilter: 'matajir'),
                     ),
 
                     // ── Promo Banner ─────────────────────────────────────

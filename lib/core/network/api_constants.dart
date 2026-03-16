@@ -13,7 +13,7 @@ class ApiConstants {
   ///
   /// Override at any time with --dart-define=DEV_HOST=YOUR_IP.
   static const String _devHost =
-      '192.168.68.104'; // <-- localhost for iOS Simulator
+      '192.168.68.105'; // <-- localhost for iOS Simulator
   static const String _prodHost =
       'luqta-api-production.up.railway.app'; // Railway deployment
 

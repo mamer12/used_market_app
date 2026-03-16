@@ -12,6 +12,8 @@ import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
+import 'package:http/http.dart' as http;
+import '../../../../core/storage/token_storage.dart';
 import '../../data/models/shop_models.dart';
 import '../bloc/shops_cubit.dart';
 
@@ -229,11 +231,39 @@ class _ShopProductsPageState extends State<ShopProductsPage> {
 
 // ── Store Header Sliver ────────────────────────────────────────────────────
 
-class _StoreHeaderSliver extends StatelessWidget {
+class _StoreHeaderSliver extends StatefulWidget {
   final ShopModel? shop;
   final String fallbackName;
 
   const _StoreHeaderSliver({required this.shop, required this.fallbackName});
+
+  @override
+  State<_StoreHeaderSliver> createState() => _StoreHeaderSliverState();
+}
+
+class _StoreHeaderSliverState extends State<_StoreHeaderSliver> {
+  bool _isFollowing = false;
+  bool _followLoading = false;
+
+  ShopModel? get shop => widget.shop;
+  String get fallbackName => widget.fallbackName;
+
+  Future<void> _toggleFollow() async {
+    if (_followLoading || shop == null) return;
+    setState(() => _followLoading = true);
+    try {
+      final token = await getIt<TokenStorage>().getToken();
+      final headers = {'Authorization': 'Bearer ${token ?? ''}'};
+      final url = Uri.parse('https://api.madhmoon.iq/api/v1/shops/${shop!.id}/follow');
+      final res = _isFollowing
+          ? await http.delete(url, headers: headers)
+          : await http.post(url, headers: headers);
+      if (res.statusCode == 200 || res.statusCode == 201 || res.statusCode == 204) {
+        if (mounted) setState(() => _isFollowing = !_isFollowing);
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _followLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -347,6 +377,37 @@ class _StoreHeaderSliver extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
+                    SizedBox(height: 12.h),
+                    // Follow button
+                    SizedBox(
+                      height: 36.h,
+                      child: ElevatedButton.icon(
+                        onPressed: _followLoading ? null : _toggleFollow,
+                        icon: Icon(
+                          _isFollowing ? Icons.notifications_active : Icons.add_alert_outlined,
+                          size: 16.sp,
+                        ),
+                        label: Text(
+                          _isFollowing ? 'متابَع ✓' : 'متابعة',
+                          style: GoogleFonts.cairo(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isFollowing
+                              ? Colors.grey.shade200
+                              : AppTheme.matajirBlue,
+                          foregroundColor: _isFollowing
+                              ? Colors.black87
+                              : Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        ),
+                      ),
                     ),
                   ],
                 ),
