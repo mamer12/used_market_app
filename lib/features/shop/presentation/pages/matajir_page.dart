@@ -21,6 +21,68 @@ import '../../../category/presentation/cubit/category_state.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
 import '../../data/models/shop_models.dart';
 
+// ── Constants ───────────────────────────────────────────────────────────────
+
+const _kMatajirBlue  = AppTheme.matajirBlue;         // #1B4FD8
+const _kMatajirGreen = Color(0xFF00B37E);             // #00B37E
+const _kGold         = Color(0xFFFFD700);
+const _kBg           = Color(0xFFFAFAFA);
+
+// ── Story ring mock data ─────────────────────────────────────────────────────
+
+const _kStoryShops = [
+  'عالم الحد',
+  'أزياء النور',
+  'تيكو سنور',
+  'جمالك',
+  'بوتيك',
+];
+
+// ── Flash deal mock data ─────────────────────────────────────────────────────
+
+class _FlashDeal {
+  final String name;
+  final int price;
+  final int originalPrice;
+  final int discountPct;
+  const _FlashDeal({
+    required this.name,
+    required this.price,
+    required this.originalPrice,
+    required this.discountPct,
+  });
+}
+
+const _kFlashDeals = [
+  _FlashDeal(name: 'سماعات بلوتوث', price: 45000, originalPrice: 56250, discountPct: 20),
+  _FlashDeal(name: 'حقيبة جلدية', price: 85000, originalPrice: 100000, discountPct: 15),
+  _FlashDeal(name: 'ساعة ذكية', price: 120000, originalPrice: 200000, discountPct: 40),
+  _FlashDeal(name: 'عطر فاخر', price: 35000, originalPrice: 58333, discountPct: 40),
+];
+
+// ── Category mock data ───────────────────────────────────────────────────────
+
+class _Category {
+  final IconData icon;
+  final String label;
+  const _Category(this.icon, this.label);
+}
+
+const _kCategories = [
+  _Category(Icons.devices_rounded,       'إلكترونيات'),
+  _Category(Icons.man_rounded,           'أزياء رجالي'),
+  _Category(Icons.woman_rounded,         'أزياء نسائي'),
+  _Category(Icons.hiking_rounded,        'أحذية'),
+  _Category(Icons.work_outline_rounded,  'حقائب'),
+  _Category(Icons.spa_rounded,           'مستحضرات'),
+  _Category(Icons.child_care_rounded,    'أطفال'),
+  _Category(Icons.more_horiz_rounded,    'المزيد'),
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MatajirPage
+// ═══════════════════════════════════════════════════════════════════════════
+
 class MatajirPage extends StatefulWidget {
   const MatajirPage({super.key});
 
@@ -64,7 +126,7 @@ class _MatajirPageState extends State<MatajirPage> {
           CartConflictSheet.show(context, context.read<MatajirCartCubit>());
         },
         child: Scaffold(
-          backgroundColor: const Color(0xFFF6F6F8),
+          backgroundColor: _kBg,
           body: SafeArea(
             bottom: false,
             child: Stack(
@@ -72,248 +134,168 @@ class _MatajirPageState extends State<MatajirPage> {
                 CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    // ── App Bar ─────────────────────────────────────────
+                    // ── AppBar ─────────────────────────────────────────────
                     SliverToBoxAdapter(
                       child: _MatajirAppBar(l10n: l10n),
                     ),
 
-                    // ── Trust Bar ────────────────────────────────────────
+                    // ── Search Bar ─────────────────────────────────────────
                     SliverToBoxAdapter(
-                      child: Container(
-                        color: AppTheme.success.withValues(alpha: 0.08),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 16.w, vertical: 8.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.verified_rounded,
-                                color: AppTheme.success, size: 15.sp),
-                            SizedBox(width: 6.w),
-                            Text(
-                              l10n.matajirTrustBar,
-                              style: GoogleFonts.cairo(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.success,
-                              ),
-                            ),
-                          ],
-                        ),
+                      child: _SearchBar(
+                        onTap: () => context.push('/search'),
                       ),
                     ),
 
-                    // ── Search Bar ───────────────────────────────────────
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
-                        child: GestureDetector(
-                          onTap: () => context.push('/search'),
-                          child: Container(
-                            height: 46.h,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.circular(AppTheme.radiusFull),
-                              border: Border.all(color: AppTheme.divider),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                SizedBox(width: 14.w),
-                                Icon(Icons.search_rounded,
-                                    color: AppTheme.textSecondary, size: 20.sp),
-                                SizedBox(width: 8.w),
-                                Text(
-                                  l10n.matajirSearchHint,
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 14.sp,
-                                    color: AppTheme.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // ── Story Rings ────────────────────────────────────────
+                    const SliverToBoxAdapter(child: _StoryRingsRow()),
 
-                    // ── Map / List Toggle ────────────────────────────────
+                    // ── حار ومكسب Flash Deals ──────────────────────────────
+                    const SliverToBoxAdapter(child: _HarWaMaksabStrip()),
+
+                    // ── Map / List Toggle ──────────────────────────────────
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
+                        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ChoiceChip(
-                              label: Text('☰ قائمة', style: GoogleFonts.cairo(fontSize: 12.sp)),
+                              label: Text('☰ قائمة',
+                                  style: GoogleFonts.cairo(fontSize: 12.sp)),
                               selected: !_mapMode,
-                              onSelected: (_) => setState(() => _mapMode = false),
-                              selectedColor: AppTheme.matajirBlue.withValues(alpha: 0.15),
+                              onSelected: (_) =>
+                                  setState(() => _mapMode = false),
+                              selectedColor:
+                                  _kMatajirBlue.withValues(alpha: 0.15),
                             ),
                             SizedBox(width: 8.w),
                             ChoiceChip(
-                              label: Text('🗺 محلتي', style: GoogleFonts.cairo(fontSize: 12.sp)),
+                              label: Text('🗺 محلتي',
+                                  style: GoogleFonts.cairo(fontSize: 12.sp)),
                               selected: _mapMode,
-                              onSelected: (_) => setState(() => _mapMode = true),
-                              selectedColor: AppTheme.matajirBlue.withValues(alpha: 0.15),
+                              onSelected: (_) =>
+                                  setState(() => _mapMode = true),
+                              selectedColor:
+                                  _kMatajirBlue.withValues(alpha: 0.15),
                             ),
                           ],
                         ),
                       ),
                     ),
 
-                    // ── Category Filter Chips ────────────────────────────
+                    // ── Category Chips ─────────────────────────────────────
                     if (!_mapMode)
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 48.h,
-                        child: BlocBuilder<CategoryCubit, CategoryState>(
-                          builder: (context, state) {
-                            return state.maybeWhen(
-                              loaded: (categories, p2, p3) =>
-                                  _CategoryChips(categories: categories),
-                              orElse: () =>
-                                  const _CategoryChips(categories: []),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-
-                    // ── Map View (when toggle active) ────────────────────
-                    if (_mapMode)
-                    const SliverFillRemaining(
-                      child: MahallatiPage(contextFilter: 'matajir'),
-                    ),
-
-                    // ── Promo Banner ─────────────────────────────────────
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 0),
-                        child: const _PromoBanner(),
-                      ),
-                    ),
-
-                    // ── Verified Stores Row ──────────────────────────────
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 10.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              l10n.matajirVerifiedStores,
-                              style: GoogleFonts.cairo(
-                                fontSize: 17.sp,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {},
-                              child: Text(
-                                l10n.matajirViewAll,
-                                style: GoogleFonts.cairo(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.matajirBlue,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: BlocBuilder<HomeCubit, HomeState>(
-                        builder: (context, state) {
-                          final shops = state.shopCatalogs
-                              .map((c) => c.shop)
-                              .toList();
-                          if (state.isLoading && shops.isEmpty) {
-                            return _VerifiedStoresSkeleton();
-                          }
-                          return _VerifiedStoresRow(shops: shops);
-                        },
-                      ),
-                    ),
-
-                    // ── Featured Products ────────────────────────────────
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 10.h),
-                        child: Text(
-                          l10n.matajirFeaturedProducts,
-                          style: GoogleFonts.cairo(
-                            fontSize: 17.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 52.h,
+                          child: BlocBuilder<CategoryCubit, CategoryState>(
+                            builder: (context, state) {
+                              return state.maybeWhen(
+                                loaded: (categories, p2, p3) =>
+                                    _CategoryChips(categories: categories),
+                                orElse: () =>
+                                    const _CategoryChips(categories: []),
+                              );
+                            },
                           ),
                         ),
                       ),
-                    ),
-                    BlocBuilder<HomeCubit, HomeState>(
-                      builder: (context, state) {
-                        final products = state.shopCatalogs
-                            .expand((c) => c.products)
-                            .toList();
 
-                        if (state.isLoading && products.isEmpty) {
-                          return const SliverProductGridSkeleton();
-                        }
+                    // ── Map View ───────────────────────────────────────────
+                    if (_mapMode)
+                      const SliverFillRemaining(
+                        child: MahallatiPage(contextFilter: 'matajir'),
+                      ),
 
-                        if (products.isEmpty) {
-                          return SliverToBoxAdapter(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 48.h, horizontal: 32.w),
-                              child: Center(
-                                child: Text(
-                                  l10n.matajirShopEmpty,
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 14.sp,
-                                    color: AppTheme.textSecondary,
+                    // ── Section: منتجات مميزة ──────────────────────────────
+                    if (!_mapMode) ...[
+                      SliverToBoxAdapter(
+                        child: _SectionHeader(
+                          title: l10n.matajirFeaturedProducts,
+                          actionLabel: l10n.matajirViewAll,
+                          onAction: () {},
+                        ),
+                      ),
+                      BlocBuilder<HomeCubit, HomeState>(
+                        builder: (context, state) {
+                          final products = state.shopCatalogs
+                              .expand((c) => c.products)
+                              .toList();
+
+                          if (state.isLoading && products.isEmpty) {
+                            return const SliverProductGridSkeleton();
+                          }
+
+                          if (products.isEmpty) {
+                            return SliverToBoxAdapter(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 48.h, horizontal: 32.w),
+                                child: Center(
+                                  child: Text(
+                                    l10n.matajirShopEmpty,
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 14.sp,
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
+                              ),
+                            );
+                          }
+
+                          return SliverPadding(
+                            padding:
+                                EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+                            sliver: SliverGrid(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 14.h,
+                                crossAxisSpacing: 14.w,
+                                childAspectRatio: 0.58,
+                              ),
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) => _ProductCard(
+                                    item: products[index]),
+                                childCount: products.length,
                               ),
                             ),
                           );
-                        }
+                        },
+                      ),
 
-                        return SliverPadding(
-                          padding: EdgeInsets.fromLTRB(
-                              16.w, 0, 16.w, 120.h),
-                          sliver: SliverGrid(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 14.h,
-                              crossAxisSpacing: 14.w,
-                              childAspectRatio: 0.58,
-                            ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => _MatajirProductCard(
-                                  item: products[index]),
-                              childCount: products.length,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                      // ── Section: متاجر رائجة ─────────────────────────────
+                      SliverToBoxAdapter(
+                        child: _SectionHeader(
+                          title: l10n.matajirVerifiedStores,
+                          actionLabel: l10n.matajirViewAll,
+                          onAction: () {},
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: BlocBuilder<HomeCubit, HomeState>(
+                          builder: (context, state) {
+                            final shops = state.shopCatalogs
+                                .map((c) => c.shop)
+                                .toList();
+                            if (state.isLoading && shops.isEmpty) {
+                              return _VerifiedStoresSkeleton();
+                            }
+                            return _TrendingShopsRow(shops: shops);
+                          },
+                        ),
+                      ),
+
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: 120.h),
+                      ),
+                    ],
                   ],
                 ),
 
-                // ── Floating Cart Peek Bar ───────────────────────────────
+                // ── Floating Cart Peek Bar ─────────────────────────────────
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -341,7 +323,9 @@ class _MatajirPageState extends State<MatajirPage> {
   }
 }
 
-// ── App Bar ────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// _MatajirAppBar
+// ═══════════════════════════════════════════════════════════════════════════
 
 class _MatajirAppBar extends StatelessWidget {
   final AppLocalizations l10n;
@@ -354,29 +338,33 @@ class _MatajirAppBar extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
+          // Avatar circle (left per RTL)
           GestureDetector(
             onTap: () => context.go('/'),
             child: Container(
               width: 36.w,
               height: 36.w,
-              margin: EdgeInsetsDirectional.only(end: 8.w),
               decoration: const BoxDecoration(
-                color: AppTheme.surface,
+                color: AppTheme.matajirBlueSurface,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.home_rounded, size: 20.sp, color: AppTheme.matajirBlue),
+              child: Icon(Icons.person_rounded,
+                  size: 20.sp, color: _kMatajirBlue),
             ),
           ),
+          SizedBox(width: 8.w),
+          // Title
           Expanded(
             child: Text(
               l10n.matajirTitle,
               style: GoogleFonts.cairo(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.matajirBlue,
+                color: _kMatajirBlue,
               ),
             ),
           ),
+          // Cart icon with badge
           BlocBuilder<MatajirCartCubit, CartState>(
             builder: (context, cartState) {
               return Stack(
@@ -388,11 +376,11 @@ class _MatajirAppBar extends StatelessWidget {
                       width: 40.w,
                       height: 40.w,
                       decoration: const BoxDecoration(
-                        color: AppTheme.surface,
+                        color: AppTheme.matajirBlueSurface,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.shopping_cart_rounded,
-                          size: 20.sp, color: AppTheme.textPrimary),
+                          size: 20.sp, color: _kMatajirBlue),
                     ),
                   ),
                   if (cartState.cartCount > 0)
@@ -430,7 +418,7 @@ class _MatajirAppBar extends StatelessWidget {
               width: 40.w,
               height: 40.w,
               decoration: const BoxDecoration(
-                color: AppTheme.surface,
+                color: AppTheme.matajirBlueSurface,
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.favorite_border_rounded,
@@ -443,86 +431,205 @@ class _MatajirAppBar extends StatelessWidget {
   }
 }
 
-// ── Category Filter Chips ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// _SearchBar
+// ═══════════════════════════════════════════════════════════════════════════
 
-class _CategoryChips extends StatefulWidget {
-  final List categories;
-  const _CategoryChips({required this.categories});
-
-  @override
-  State<_CategoryChips> createState() => _CategoryChipsState();
-}
-
-class _CategoryChipsState extends State<_CategoryChips> {
-  int _selected = 0;
+class _SearchBar extends StatelessWidget {
+  final VoidCallback onTap;
+  const _SearchBar({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final labels = widget.categories.isEmpty
-        ? [
-            l10n.matajirFilterAll,
-            l10n.matajirCatMobiles,
-            l10n.matajirCatLaptops,
-            l10n.matajirCatElectronics,
-            l10n.matajirCatTVs,
-          ]
-        : [l10n.matajirFilterAll, ...widget.categories.map((c) => c.nameAr)];
-
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      itemCount: labels.length,
-      separatorBuilder: (_, i2) => SizedBox(width: 8.w),
-      itemBuilder: (context, i) {
-        final selected = _selected == i;
-        return GestureDetector(
-          onTap: () => setState(() => _selected = i),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            decoration: BoxDecoration(
-              color: selected ? AppTheme.matajirBlue : Colors.white,
-              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-              border: Border.all(
-                color: selected ? AppTheme.matajirBlue : AppTheme.divider,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 48.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+            border: Border.all(color: const Color(0xFFE3D8D1)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
-            ),
-            child: Center(
-              child: Text(
-                labels[i],
-                style: GoogleFonts.cairo(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: selected ? Colors.white : AppTheme.textSecondary,
+            ],
+          ),
+          child: Row(
+            children: [
+              SizedBox(width: 14.w),
+              Icon(Icons.camera_alt_outlined,
+                  color: AppTheme.textSecondary, size: 20.sp),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Text(
+                  'ابحث عن منتج أو متجر...',
+                  style: GoogleFonts.cairo(
+                    fontSize: 14.sp,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
               ),
-            ),
+              Icon(Icons.search_rounded,
+                  color: _kMatajirBlue, size: 22.sp),
+              SizedBox(width: 14.w),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
 
-// ── Promo Banner with countdown ────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// _StoryRingsRow
+// ═══════════════════════════════════════════════════════════════════════════
 
-class _PromoBanner extends StatefulWidget {
-  const _PromoBanner();
+class _StoryRingsRow extends StatelessWidget {
+  const _StoryRingsRow();
 
   @override
-  State<_PromoBanner> createState() => _PromoBannerState();
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 96.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+        itemCount: _kStoryShops.length + 1, // +1 for "+" button
+        separatorBuilder: (context, index) => SizedBox(width: 14.w),
+        itemBuilder: (context, i) {
+          if (i == _kStoryShops.length) {
+            return const _AddStoryButton();
+          }
+          return _StoryRing(label: _kStoryShops[i]);
+        },
+      ),
+    );
+  }
 }
 
-class _PromoBannerState extends State<_PromoBanner> {
+class _StoryRing extends StatelessWidget {
+  final String label;
+  const _StoryRing({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {},
+      child: SizedBox(
+        width: 62.w,
+        child: Column(
+          children: [
+            Container(
+              width: 58.w,
+              height: 58.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: _kMatajirBlue, width: 2.5),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(2.5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.matajirBlueSurface,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      label.isNotEmpty ? label[0] : 'م',
+                      style: GoogleFonts.cairo(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: _kMatajirBlue,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 5.h),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddStoryButton extends StatelessWidget {
+  const _AddStoryButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 62.w,
+      child: Column(
+        children: [
+          Container(
+            width: 58.w,
+            height: 58.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: _kMatajirBlue,
+                width: 2,
+                style: BorderStyle.solid,
+              ),
+            ),
+            child: Center(
+              child: Icon(Icons.add_rounded,
+                  color: _kMatajirBlue, size: 26.sp),
+            ),
+          ),
+          SizedBox(height: 5.h),
+          Text(
+            'إضافة',
+            style: GoogleFonts.cairo(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// _HarWaMaksabStrip  (حار ومكسب flash deals)
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _HarWaMaksabStrip extends StatefulWidget {
+  const _HarWaMaksabStrip();
+
+  @override
+  State<_HarWaMaksabStrip> createState() => _HarWaMaksabStripState();
+}
+
+class _HarWaMaksabStripState extends State<_HarWaMaksabStrip> {
   late Duration _remaining;
   late Timer _timer;
 
   @override
   void initState() {
     super.initState();
-    // Promo ends in ~4h 23m from now (illustrative)
-    _remaining = const Duration(hours: 4, minutes: 23, seconds: 10);
+    _remaining = const Duration(hours: 3, minutes: 22);
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() {
@@ -543,235 +650,76 @@ class _PromoBannerState extends State<_PromoBanner> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final h = _pad(_remaining.inHours);
     final m = _pad(_remaining.inMinutes.remainder(60));
     final s = _pad(_remaining.inSeconds.remainder(60));
 
-    return Container(
-      height: 88.h,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1B4FD8), Color(0xFF60A5FA)],
-          begin: Alignment.centerRight,
-          end: Alignment.centerLeft,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
+      child: Container(
+        decoration: BoxDecoration(
+          color: _kMatajirBlue,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          boxShadow: [
+            BoxShadow(
+              color: _kMatajirBlue.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.matajirBlue.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          // Decorative circles
-          Positioned(
-            right: -20,
-            bottom: -20,
-            child: Container(
-              width: 80.w,
-              height: 80.w,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          Positioned(
-            left: -12,
-            top: -12,
-            child: Container(
-              width: 60.w,
-              height: 60.w,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          // Content
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        l10n.matajirPromoToday,
-                        style: GoogleFonts.cairo(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8.w, vertical: 3.h),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          borderRadius:
-                              BorderRadius.circular(AppTheme.radiusFull),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.timer_outlined,
-                                color: Colors.white, size: 13.sp),
-                            SizedBox(width: 4.w),
-                            Text(
-                              '${l10n.matajirPromoEndsIn} $h:$m:$s',
-                              style: GoogleFonts.cairo(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 6,
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    '٪٣٠',
-                    style: GoogleFonts.cairo(
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.matajirBlue,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Verified Stores Row ────────────────────────────────────────────────────
-
-class _VerifiedStoresRow extends StatelessWidget {
-  final List<ShopModel> shops;
-  const _VerifiedStoresRow({required this.shops});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100.h,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: shops.isEmpty ? 5 : shops.length,
-        separatorBuilder: (_, i2) => SizedBox(width: 16.w),
-        itemBuilder: (context, i) {
-          if (shops.isEmpty) {
-            return _VerifiedStoreAvatar(shop: null, onTap: () {});
-          }
-          final shop = shops[i];
-          return _VerifiedStoreAvatar(
-            shop: shop,
-            onTap: () => context.push(
-              '/matajir/shop/${shop.slug}?name=${Uri.encodeComponent(shop.name)}',
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _VerifiedStoreAvatar extends StatelessWidget {
-  final ShopModel? shop;
-  final VoidCallback onTap;
-  const _VerifiedStoreAvatar({required this.shop, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final name = shop?.name ?? '';
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 70.w,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 62.w,
-                  height: 62.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.surface,
-                    border: Border.all(color: AppTheme.divider, width: 1.5),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: shop?.imageUrl != null && shop!.imageUrl!.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: shop!.imageUrl!,
-                          fit: BoxFit.cover,
-                        )
-                      : Center(
-                          child: Text(
-                            name.isNotEmpty ? name[0].toUpperCase() : 'S',
-                            style: GoogleFonts.cairo(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.matajirBlue,
-                            ),
-                          ),
+            // Header row
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Countdown
+                  Row(
+                    children: [
+                      Icon(Icons.timer_outlined,
+                          color: _kGold, size: 16.sp),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'بنتهي خلال $h:$m:$s',
+                        style: GoogleFonts.cairo(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: _kGold,
                         ),
-                ),
-                Positioned(
-                  bottom: -1,
-                  left: -1,
-                  child: Container(
-                    width: 18.w,
-                    height: 18.w,
-                    decoration: BoxDecoration(
-                      color: AppTheme.success,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 1.5),
-                    ),
-                    child:
-                        Icon(Icons.check_rounded, size: 10.sp, color: Colors.white),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  // Title right-aligned
+                  Text(
+                    'حار ومكسب 🔥',
+                    style: GoogleFonts.cairo(
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 6.h),
-            Text(
-              name.isEmpty ? '—' : name,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.cairo(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
+            // Product cards 2-col grid
+            Padding(
+              padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10.h,
+                  crossAxisSpacing: 10.w,
+                  childAspectRatio: 1.7,
+                ),
+                itemCount: _kFlashDeals.length,
+                itemBuilder: (_, i) => _FlashDealCard(deal: _kFlashDeals[i]),
               ),
             ),
           ],
@@ -781,15 +729,190 @@ class _VerifiedStoreAvatar extends StatelessWidget {
   }
 }
 
-// ── Product Card ───────────────────────────────────────────────────────────
-
-class _MatajirProductCard extends StatelessWidget {
-  final ProductModel item;
-  const _MatajirProductCard({required this.item});
+class _FlashDealCard extends StatelessWidget {
+  final _FlashDeal deal;
+  const _FlashDealCard({required this.deal});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      ),
+      padding: EdgeInsets.all(8.w),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Discount badge
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+            decoration: BoxDecoration(
+              color: AppTheme.error,
+              borderRadius: BorderRadius.circular(6.r),
+            ),
+            child: Text(
+              '-%${deal.discountPct}',
+              style: GoogleFonts.cairo(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          SizedBox(width: 6.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  deal.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.cairo(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  IqdFormatter.format(deal.price),
+                  style: GoogleFonts.cairo(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w800,
+                    color: _kMatajirGreen,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// _CategoryChips
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _CategoryChips extends StatefulWidget {
+  final List categories;
+  const _CategoryChips({required this.categories});
+
+  @override
+  State<_CategoryChips> createState() => _CategoryChipsState();
+}
+
+class _CategoryChipsState extends State<_CategoryChips> {
+  int _selected = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      itemCount: _kCategories.length,
+      separatorBuilder: (context, index) => SizedBox(width: 8.w),
+      itemBuilder: (context, i) {
+        final cat = _kCategories[i];
+        final selected = _selected == i;
+        return GestureDetector(
+          onTap: () => setState(() => _selected = i),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            decoration: BoxDecoration(
+              color: selected ? _kMatajirBlue : Colors.white,
+              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+              border: Border.all(
+                color: selected ? _kMatajirBlue : AppTheme.divider,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  cat.icon,
+                  size: 14.sp,
+                  color: selected ? Colors.white : AppTheme.textSecondary,
+                ),
+                SizedBox(width: 4.w),
+                Text(
+                  cat.label,
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// _SectionHeader
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String actionLabel;
+  final VoidCallback onAction;
+  const _SectionHeader({
+    required this.title,
+    required this.actionLabel,
+    required this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 10.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.cairo(
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          GestureDetector(
+            onTap: onAction,
+            child: Text(
+              actionLabel,
+              style: GoogleFonts.cairo(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: _kMatajirBlue,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// _ProductCard  (منتجات مميزة)
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _ProductCard extends StatelessWidget {
+  final ProductModel item;
+  const _ProductCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: () => context.push('/matajir/product/${item.id}', extra: item),
       borderRadius: BorderRadius.circular(AppTheme.radiusLg),
@@ -810,7 +933,7 @@ class _MatajirProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image
+            // Image area
             Expanded(
               flex: 5,
               child: Stack(
@@ -820,12 +943,12 @@ class _MatajirProductCard extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: item.images.first,
                       fit: BoxFit.cover,
-                      placeholder: (_, i2) =>
+                      placeholder: (context, url) =>
                           Container(color: AppTheme.shimmerBase),
                     )
                   else
                     Container(color: AppTheme.shimmerBase),
-                  // Favourite button
+                  // Favorite heart
                   Positioned(
                     top: 8.h,
                     left: 8.w,
@@ -840,10 +963,31 @@ class _MatajirProductCard extends StatelessWidget {
                           size: 15.sp, color: AppTheme.textSecondary),
                     ),
                   ),
+                  // مضمون ✓ badge
+                  Positioned(
+                    top: 8.h,
+                    right: 8.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 6.w, vertical: 3.h),
+                      decoration: BoxDecoration(
+                        color: _kMatajirGreen,
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        'مضمون ✓',
+                        style: GoogleFonts.cairo(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            // Info
+            // Info area
             Expanded(
               flex: 5,
               child: Padding(
@@ -851,23 +995,6 @@ class _MatajirProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Verified store badge
-                    Row(
-                      children: [
-                        Icon(Icons.verified_rounded,
-                            color: AppTheme.success, size: 10.sp),
-                        SizedBox(width: 3.w),
-                        Text(
-                          l10n.matajirVerifiedBadge,
-                          style: GoogleFonts.cairo(
-                            fontSize: 10.sp,
-                            color: AppTheme.success,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4.h),
                     Text(
                       item.name,
                       style: GoogleFonts.cairo(
@@ -880,25 +1007,17 @@ class _MatajirProductCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const Spacer(),
-                    // Price + lock icon
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            IqdFormatter.format(item.price),
-                            style: GoogleFonts.cairo(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.matajirBlue,
-                            ),
-                          ),
-                        ),
-                        Icon(Icons.lock_rounded,
-                            color: AppTheme.success, size: 16.sp),
-                      ],
+                    // Price
+                    Text(
+                      IqdFormatter.format(item.price),
+                      style: GoogleFonts.cairo(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w800,
+                        color: _kMatajirBlue,
+                      ),
                     ),
                     SizedBox(height: 8.h),
-                    // Add to cart button
+                    // Add to cart
                     BlocBuilder<MatajirCartCubit, CartState>(
                       builder: (ctx, cartState) {
                         final inCart = cartState.isInCart(item.id);
@@ -909,11 +1028,10 @@ class _MatajirProductCard extends StatelessWidget {
                             duration: const Duration(milliseconds: 250),
                             height: 34.h,
                             decoration: BoxDecoration(
-                              color: inCart
-                                  ? AppTheme.divider
-                                  : AppTheme.matajirBlue,
-                              borderRadius:
-                                  BorderRadius.circular(AppTheme.radiusFull),
+                              color:
+                                  inCart ? AppTheme.divider : _kMatajirBlue,
+                              borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusFull),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -930,8 +1048,10 @@ class _MatajirProductCard extends StatelessWidget {
                                 SizedBox(width: 6.w),
                                 Text(
                                   inCart
-                                      ? l10n.matajirInCart
-                                      : l10n.matajirAddToCart,
+                                      ? AppLocalizations.of(ctx)
+                                          .matajirInCart
+                                      : AppLocalizations.of(ctx)
+                                          .matajirAddToCart,
                                   style: GoogleFonts.cairo(
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w700,
@@ -957,7 +1077,135 @@ class _MatajirProductCard extends StatelessWidget {
   }
 }
 
-// ── Floating Cart Peek Bar ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// _TrendingShopsRow  (متاجر رائجة)
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _TrendingShopsRow extends StatelessWidget {
+  final List<ShopModel> shops;
+  const _TrendingShopsRow({required this.shops});
+
+  @override
+  Widget build(BuildContext context) {
+    final count = shops.isEmpty ? 5 : shops.length;
+    return SizedBox(
+      height: 130.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        itemCount: count,
+        separatorBuilder: (context, index) => SizedBox(width: 12.w),
+        itemBuilder: (context, i) {
+          if (shops.isEmpty) {
+            return _TrendingShopCard(shop: null, onTap: () {});
+          }
+          final shop = shops[i];
+          return _TrendingShopCard(
+            shop: shop,
+            onTap: () => context.push(
+              '/matajir/shop/${shop.slug}?name=${Uri.encodeComponent(shop.name)}',
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _TrendingShopCard extends StatelessWidget {
+  final ShopModel? shop;
+  final VoidCallback onTap;
+  const _TrendingShopCard({required this.shop, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = shop?.name ?? '—';
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 120.w,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: AppTheme.divider),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.all(10.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Avatar with ring
+            Container(
+              width: 54.w,
+              height: 54.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: _kMatajirBlue, width: 2),
+                color: AppTheme.matajirBlueSurface,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: shop?.imageUrl != null && shop!.imageUrl!.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: shop!.imageUrl!,
+                      fit: BoxFit.cover,
+                    )
+                  : Center(
+                      child: Text(
+                        name.isNotEmpty ? name[0] : 'م',
+                        style: GoogleFonts.cairo(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          color: _kMatajirBlue,
+                        ),
+                      ),
+                    ),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            SizedBox(height: 6.h),
+            // Follow button
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: AppTheme.matajirBlueSurface,
+                borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                border: Border.all(color: _kMatajirBlue),
+              ),
+              child: Text(
+                'متابعة',
+                style: GoogleFonts.cairo(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w700,
+                  color: _kMatajirBlue,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// _CartPeekBar
+// ═══════════════════════════════════════════════════════════════════════════
 
 class _CartPeekBar extends StatelessWidget {
   final int count;
@@ -1006,7 +1254,7 @@ class _CartPeekBar extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Icon(Icons.shopping_bag_rounded,
-                          size: 20.sp, color: AppTheme.matajirBlue),
+                          size: 20.sp, color: _kMatajirBlue),
                     ),
                     Positioned(
                       top: -4,
@@ -1015,10 +1263,9 @@ class _CartPeekBar extends StatelessWidget {
                         width: 18.w,
                         height: 18.w,
                         decoration: BoxDecoration(
-                          color: AppTheme.matajirBlue,
+                          color: _kMatajirBlue,
                           shape: BoxShape.circle,
-                          border:
-                              Border.all(color: Colors.white, width: 1.5),
+                          border: Border.all(color: Colors.white, width: 1.5),
                         ),
                         child: Center(
                           child: Text(
@@ -1065,12 +1312,12 @@ class _CartPeekBar extends StatelessWidget {
                       style: GoogleFonts.cairo(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.matajirBlue,
+                        color: _kMatajirBlue,
                       ),
                     ),
                     SizedBox(width: 4.w),
                     Icon(Icons.arrow_back_ios_new_rounded,
-                        size: 14.sp, color: AppTheme.matajirBlue),
+                        size: 14.sp, color: _kMatajirBlue),
                   ],
                 ),
               ],
@@ -1082,38 +1329,26 @@ class _CartPeekBar extends StatelessWidget {
   }
 }
 
-// ── Skeletons ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// _VerifiedStoresSkeleton
+// ═══════════════════════════════════════════════════════════════════════════
 
 class _VerifiedStoresSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100.h,
+      height: 130.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: 5,
-        separatorBuilder: (_, i2) => SizedBox(width: 16.w),
-        itemBuilder: (_, i2) => Column(
-          children: [
-            Container(
-              width: 62.w,
-              height: 62.w,
-              decoration: const BoxDecoration(
-                color: AppTheme.shimmerBase,
-                shape: BoxShape.circle,
-              ),
-            ),
-            SizedBox(height: 6.h),
-            Container(
-              width: 50.w,
-              height: 10.h,
-              decoration: BoxDecoration(
-                color: AppTheme.shimmerBase,
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-            ),
-          ],
+        separatorBuilder: (context, index) => SizedBox(width: 12.w),
+        itemBuilder: (context, index) => Container(
+          width: 120.w,
+          decoration: BoxDecoration(
+            color: AppTheme.shimmerBase,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          ),
         ),
       ),
     );

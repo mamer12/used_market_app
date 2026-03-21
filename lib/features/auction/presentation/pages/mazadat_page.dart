@@ -20,15 +20,19 @@ import '../bloc/auctions_cubit.dart';
 import 'auction_live_page.dart';
 import 'mazadat_account_page.dart';
 import 'mazadat_watchlist_page.dart';
-import '../../../home/data/models/portal_models.dart';
-import '../../../home/presentation/widgets/home_components.dart';
+
+// ── Mazadat design tokens ─────────────────────────────────────────────────
+const _kBg         = Color(0xFF0A0A0F);
+const _kSurface    = Color(0xFF12121A);
+const _kBorder     = Color(0xFF1E1E2A);
+const _kCyan       = Color(0xFF00F5FF);
+const _kGold       = Color(0xFFFFD700);
+const _kPrimary    = AppTheme.accentRed;   // 0xFFFF3B30 — close enough to FF3D5A
 
 /// مزادات — Auctions marketplace hub.
 ///
-/// Warm "Iraqi Bazaar Modernism" design with featured banner,
-/// category chips, and large auction cards.
-///
-/// Based on Stitch Screen 8 (953e87ff).
+/// Stitch "Mazadat Home Page Redesign" — dark neon theme.
+/// bg=#0A0A0F, cyan=#00F5FF, primary=#FF3B30, gold=#FFD700.
 class MazadatPage extends StatefulWidget {
   /// When true, hides the built-in bottom nav (shell provides it instead).
   final bool embeddedInShell;
@@ -43,7 +47,7 @@ class _MazadatPageState extends State<MazadatPage> {
   late final AuctionsCubit _cubit;
   late final CategoryCubit _categoryCubit;
   int _selectedNavIndex = 0;
-  bool _isGridView = false;
+  bool _isGridView = true;
 
   @override
   void initState() {
@@ -117,7 +121,7 @@ class _MazadatPageState extends State<MazadatPage> {
         BlocProvider.value(value: _categoryCubit),
       ],
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: _kBg,
         body: Stack(
           children: [
             // ── Body Switcher ────────────────────────
@@ -129,456 +133,287 @@ class _MazadatPageState extends State<MazadatPage> {
                   child: CustomScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
-              // ── App Bar ────────────────────────────────
-              SliverAppBar(
-                backgroundColor: AppTheme.background,
-                elevation: 0,
-                pinned: true,
-                centerTitle: false,
-                leading: IconButton(
-                  icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp),
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go('/');
-                    }
-                  },
-                ),
-                title: Text(
-                  'سوق المزادات',
-                  style: GoogleFonts.cairo(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                actions: [
-                  // Wallet badge (from Stitch Screen 8)
-                  Container(
-                    margin: EdgeInsets.only(left: 16.w),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                    decoration: BoxDecoration(
-                      color: AppTheme.mazadGreen.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-                      border: Border.all(
-                        color: AppTheme.mazadGreen.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.account_balance_wallet_rounded,
-                            color: AppTheme.mazadGreen, size: 18.sp),
-                        SizedBox(width: 6.w),
-                        Text(
-                          '٠ د.ع',
+                      // ── App Bar ──────────────────────────────────────────
+                      SliverAppBar(
+                        backgroundColor: _kBg,
+                        elevation: 0,
+                        pinned: true,
+                        centerTitle: true,
+                        automaticallyImplyLeading: false,
+                        // Right: notifications
+                        leading: IconButton(
+                          icon: Icon(
+                            Icons.notifications_none_rounded,
+                            color: Colors.white,
+                            size: 24.sp,
+                          ),
+                          onPressed: () {},
+                        ),
+                        title: Text(
+                          'مزادات',
                           style: GoogleFonts.cairo(
-                            fontSize: 12.sp,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
+                            color: Colors.white,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 4.w),
-                ],
-              ),
+                        // Left: wallet chip
+                        actions: [
+                          _WalletChip(),
+                          SizedBox(width: 8.w),
+                        ],
+                      ),
 
-              // ── Featured Banner Hero ───────────────────
-              BlocBuilder<AuctionsCubit, AuctionsState>(
-                builder: (context, state) {
-                  if (state.auctions.isEmpty) {
-                    return const SliverToBoxAdapter(child: SizedBox.shrink());
-                  }
-                  final banners = state.auctions.take(3).map((a) => Announcement(
-                    id: a.id ?? '',
-                    title: a.title,
-                    subtitle: 'مزاد ينتهي قريباً',
-                    imageUrl: a.images.isNotEmpty ? a.images.first : 'https://placehold.co/800x800/png',
-                    colorHex: 0xFF2B3A67,
-                    actionUrl: 'زايد الآن',
-                  )).toList();
-                  
-                  return SliverToBoxAdapter(
-                    child: AnnouncementsCarousel(
-                      items: banners,
-                      onTap: (item) {
-                        final original = state.auctions.firstWhere((a) => a.id == item.id);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => AuctionLivePage(
-                              auctionId: original.id ?? '',
-                              title: original.title,
-                              currentPrice: '${original.currentPrice ?? 0}',
-                              currency: 'د.ع',
-                              imageUrl: original.images.isNotEmpty
-                                  ? original.images.first
-                                  : 'https://placehold.co/800x800/png',
+                      // ── Search Bar ───────────────────────────────────────
+                      SliverToBoxAdapter(
+                        child: _SearchBar(),
+                      ),
+
+                      // ── Featured Banner ──────────────────────────────────
+                      BlocBuilder<AuctionsCubit, AuctionsState>(
+                        builder: (context, state) {
+                          if (state.auctions.isEmpty) {
+                            return const SliverToBoxAdapter(
+                                child: SizedBox.shrink());
+                          }
+                          return SliverToBoxAdapter(
+                            child: _FeaturedBanner(
+                              auctions: state.auctions.take(3).toList(),
+                              onTap: (auction) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AuctionLivePage(
+                                      auctionId: auction.id ?? '',
+                                      title: auction.title,
+                                      currentPrice:
+                                          '${auction.currentPrice ?? 0}',
+                                      currency: 'د.ع',
+                                      imageUrl: auction.images.isNotEmpty
+                                          ? auction.images.first
+                                          : 'https://placehold.co/800x800/png',
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-
-              // ── Sponsored Content (Stitch Screen 2) ────
-              SliverToBoxAdapter(
-                child: _SponsoredSection(cubit: _cubit),
-              ),
-
-              // ── View Toggle + Filter (Stitch Screen 2) ─
-              SliverToBoxAdapter(
-                child: _ViewToggleAndFilter(
-                  isGridView: _isGridView,
-                  onViewChanged: (isGrid) {
-                    setState(() => _isGridView = isGrid);
-                  },
-                  onSortFilterTap: _showSortFilterSheet,
-                ),
-              ),
-
-              // ── Category Chips ─────────────────────────
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 48.h,
-                  child: BlocBuilder<CategoryCubit, CategoryState>(
-                    builder: (context, state) {
-                      return state.map(
-                        initial: (_) => const SizedBox.shrink(),
-                        loading: (_) => const CategoryChipsSkeleton(),
-                        error: (e) => Center(
-                          child: Text(
-                            e.message,
-                            style:
-                                GoogleFonts.cairo(color: AppTheme.textSecondary),
-                          ),
-                        ),
-                        loaded: (loaded) {
-                          final cats = loaded.categories;
-                          final hasBack = loaded.parentIdStack.isNotEmpty;
-                          return ListView.separated(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: cats.length + (hasBack ? 1 : 0) + 1,
-                            separatorBuilder: (_, _) => SizedBox(width: 8.w),
-                            itemBuilder: (context, index) {
-                              // "All" chip
-                              if (index == 0 && !hasBack) {
-                                return _CategoryChip(
-                                  label: 'الكل',
-                                  isSelected: true,
-                                  onTap: () {},
-                                );
-                              }
-                              if (hasBack && index == 0) {
-                                return _CategoryChip(
-                                  label: 'رجوع',
-                                  isBack: true,
-                                  onTap: () => context
-                                      .read<CategoryCubit>()
-                                      .navigateBack(),
-                                );
-                              }
-                              final catIndex =
-                                  hasBack ? index - 1 : index - 1;
-                              if (catIndex < 0 || catIndex >= cats.length) {
-                                return const SizedBox.shrink();
-                              }
-                              final cat = cats[catIndex];
-                              return _CategoryChip(
-                                label: cat.nameAr,
-                                onTap: () => context
-                                    .read<CategoryCubit>()
-                                    .drillDown(cat.id),
-                              );
-                            },
                           );
                         },
-                      );
-                    },
-                  ),
-                ),
-              ),
+                      ),
 
-              // ── "Hot Auctions Now" Header ──────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding:
-                      EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 12.h),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8.w,
-                        height: 8.w,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.mazadGreen,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        child: Text(
-                          'مزادات ساخنة الآن',
-                          style: GoogleFonts.cairo(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.textPrimary,
+                      // ── Category Chips ───────────────────────────────────
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 48.h,
+                          child: BlocBuilder<CategoryCubit, CategoryState>(
+                            builder: (context, state) {
+                              return state.map(
+                                initial: (_) => const SizedBox.shrink(),
+                                loading: (_) => const CategoryChipsSkeleton(),
+                                error: (e) => Center(
+                                  child: Text(
+                                    e.message,
+                                    style: GoogleFonts.cairo(
+                                        color: Colors.white54),
+                                  ),
+                                ),
+                                loaded: (loaded) {
+                                  final cats = loaded.categories;
+                                  final hasBack =
+                                      loaded.parentIdStack.isNotEmpty;
+                                  return ListView.separated(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16.w),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: cats.length +
+                                        (hasBack ? 1 : 0) +
+                                        1,
+                                    separatorBuilder: (_, _) =>
+                                        SizedBox(width: 8.w),
+                                    itemBuilder: (context, index) {
+                                      if (index == 0 && !hasBack) {
+                                        return _CategoryChip(
+                                          label: 'الكل',
+                                          isSelected: true,
+                                          onTap: () {},
+                                        );
+                                      }
+                                      if (hasBack && index == 0) {
+                                        return _CategoryChip(
+                                          label: 'رجوع',
+                                          isBack: true,
+                                          onTap: () => context
+                                              .read<CategoryCubit>()
+                                              .navigateBack(),
+                                        );
+                                      }
+                                      final catIndex =
+                                          hasBack ? index - 1 : index - 1;
+                                      if (catIndex < 0 ||
+                                          catIndex >= cats.length) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      final cat = cats[catIndex];
+                                      return _CategoryChip(
+                                        label: cat.nameAr,
+                                        onTap: () => context
+                                            .read<CategoryCubit>()
+                                            .drillDown(cat.id),
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Text(
-                          'عرض الكل',
-                          style: GoogleFonts.cairo(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.mazadGreen,
+
+                      // ── Filter / View Row ────────────────────────────────
+                      SliverToBoxAdapter(
+                        child: _FilterViewRow(
+                          isGridView: _isGridView,
+                          onViewChanged: (isGrid) =>
+                              setState(() => _isGridView = isGrid),
+                          onSortFilterTap: _showSortFilterSheet,
+                        ),
+                      ),
+
+                      // ── "مزادات ساخنة" Header ────────────────────────────
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding:
+                              EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 12.h),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 8.w,
+                                height: 8.w,
+                                decoration: const BoxDecoration(
+                                  color: _kPrimary,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  'مزادات ساخنة الآن',
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 20.sp,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {},
+                                child: Text(
+                                  'عرض الكل',
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: _kCyan,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                      ),
+
+                      // ── Auction Cards ────────────────────────────────────
+                      BlocBuilder<AuctionsCubit, AuctionsState>(
+                        builder: (context, state) {
+                          if (state.isLoading && state.auctions.isEmpty) {
+                            return const AuctionListSkeleton();
+                          }
+                          if (state.auctions.isEmpty) {
+                            return SliverFillRemaining(
+                                child: _EmptyAuctions());
+                          }
+                          return SliverPadding(
+                            padding: EdgeInsets.fromLTRB(
+                                16.w, 0, 16.w, 100.h),
+                            sliver: _isGridView
+                                ? SliverGrid(
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 16.h,
+                                      crossAxisSpacing: 16.w,
+                                      childAspectRatio: 0.55,
+                                    ),
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) => _AuctionGridCard(
+                                          auction: state.auctions[index]),
+                                      childCount: state.auctions.length,
+                                    ),
+                                  )
+                                : SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) => Padding(
+                                        padding:
+                                            EdgeInsets.only(bottom: 16.h),
+                                        child: _AuctionCard(
+                                            auction:
+                                                state.auctions[index]),
+                                      ),
+                                      childCount: state.auctions.length,
+                                    ),
+                                  ),
+                          );
+                        },
+                      ),
+
+                      // ── "مزادات منتهية قريباً" Section ──────────────────
+                      SliverToBoxAdapter(
+                        child: _EndingSoonSection(cubit: _cubit),
                       ),
                     ],
                   ),
                 ),
-              ),
-
-              // ── Auction Cards ──────────────────────────
-              BlocBuilder<AuctionsCubit, AuctionsState>(
-                builder: (context, state) {
-                  if (state.isLoading && state.auctions.isEmpty) {
-                    return const AuctionListSkeleton();
-                  }
-                  if (state.auctions.isEmpty) {
-                    return SliverFillRemaining(child: _EmptyAuctions());
-                  }
-                  return SliverPadding(
-                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
-                    sliver: _isGridView
-                        ? SliverGrid(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 16.h,
-                              crossAxisSpacing: 16.w,
-                              childAspectRatio: 0.55,
-                            ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) =>
-                                  _AuctionGridCard(auction: state.auctions[index]),
-                              childCount: state.auctions.length,
-                            ),
-                          )
-                        : SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => Padding(
-                                padding: EdgeInsets.only(bottom: 16.h),
-                                child: _AuctionCard(auction: state.auctions[index]),
-                              ),
-                              childCount: state.auctions.length,
-                            ),
-                          ),
-                  );
-                },
-              ),
-                ],
-              ),
+                // Tab 1: Watchlist
+                const MazadatWatchlistPage(),
+                // Tab 4: Account (mapped to index 2 in IndexedStack)
+                const MazadatAccountPage(),
+              ],
             ),
-            // Tab 1: Watchlist
-            const MazadatWatchlistPage(),
-            // Tab 4: Account (mapped to index 2 in IndexedStack)
-            const MazadatAccountPage(),
+            // Bottom nav hidden when hosted inside MazadatShellPage
+            if (!widget.embeddedInShell)
+              _MazadatBottomNav(
+                currentIndex: _selectedNavIndex,
+                onTap: _onNavTap,
+              ),
           ],
         ),
-        // Bottom nav hidden when hosted inside MazadatShellPage
-        if (!widget.embeddedInShell)
-          _MazadatBottomNav(
-            currentIndex: _selectedNavIndex,
-            onTap: _onNavTap,
-          ),
-      ],
-    ),
       ),
     );
   }
 }
 
-
-// ── Sponsored Content Section (Stitch Screen 2) ────────────────────────────
-class _SponsoredSection extends StatelessWidget {
-  final AuctionsCubit cubit;
-  const _SponsoredSection({required this.cubit});
-
+// ── Wallet Chip ──────────────────────────────────────────────────────────────
+class _WalletChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 24.h),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            children: [
-              Icon(Icons.stars_rounded,
-                  color: AppTheme.mazadGreen, size: 14.sp),
-              SizedBox(width: 6.w),
-              Text(
-                'محتوى ممول',
-                style: GoogleFonts.cairo(
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textTertiary,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 10.h),
-        SizedBox(
-          height: 100.h,
-          child: BlocBuilder<AuctionsCubit, AuctionsState>(
-            bloc: cubit,
-            builder: (context, state) {
-              final items = state.auctions.take(4).toList();
-              if (items.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              return ListView.separated(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                scrollDirection: Axis.horizontal,
-                itemCount: items.length,
-                separatorBuilder: (_, _) => SizedBox(width: 12.w),
-                itemBuilder: (_, index) =>
-                    _SponsoredCard(auction: items[index]),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SponsoredCard extends StatelessWidget {
-  final AuctionModel auction;
-  const _SponsoredCard({required this.auction});
-
-  @override
-  Widget build(BuildContext context) {
-    final hasImage = auction.images.isNotEmpty;
     return Container(
-      width: 240.w,
-      padding: EdgeInsets.all(8.r),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        border: Border.all(color: AppTheme.divider),
+        color: _kCyan.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999.r),
+        border: Border.all(color: _kCyan.withValues(alpha: 0.35)),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Thumbnail
-          Container(
-            width: 76.w,
-            height: double.infinity,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              color: AppTheme.shimmerBase,
-            ),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (hasImage)
-                  CachedNetworkImage(
-                    imageUrl: auction.images.first,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) =>
-                        Container(color: AppTheme.shimmerBase),
-                    errorWidget: (_, _, _) =>
-                        Container(color: AppTheme.shimmerBase),
-                  )
-                else
-                  Icon(Icons.gavel_rounded,
-                      size: 24.sp, color: AppTheme.shimmerHighlight),
-                // Time overlay
-                Positioned(
-                  top: 4.h,
-                  right: 4.w,
-                  child: auction.endTime != null
-                      ? _CountdownPill(endTime: auction.endTime!)
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 10.w),
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 6.w, vertical: 2.h),
-                      decoration: BoxDecoration(
-                        color: AppTheme.mazadGreen.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      child: Text(
-                        auction.category ?? 'إلكترونيات',
-                        style: GoogleFonts.cairo(
-                          fontSize: 9.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.mazadGreen,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      auction.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.cairo(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'يبدأ من',
-                      style: GoogleFonts.cairo(
-                        fontSize: 8.sp,
-                        color: AppTheme.textTertiary,
-                      ),
-                    ),
-                    Text(
-                      IqdFormatter.format(
-                        (auction.startPrice ?? auction.currentPrice ?? 0)
-                            .toDouble(),
-                      ),
-                      style: GoogleFonts.cairo(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w900,
-                        color: AppTheme.success,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          Icon(Icons.account_balance_wallet_rounded,
+              color: _kCyan, size: 16.sp),
+          SizedBox(width: 5.w),
+          Text(
+            '٠ د.ع',
+            style: GoogleFonts.cairo(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.bold,
+              color: _kCyan,
             ),
           ),
         ],
@@ -587,13 +422,214 @@ class _SponsoredCard extends StatelessWidget {
   }
 }
 
-// ── View Toggle + Filter (Stitch Screen 2) ──────────────────────────────────
-class _ViewToggleAndFilter extends StatelessWidget {
+// ── Search Bar ───────────────────────────────────────────────────────────────
+class _SearchBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+      child: Container(
+        height: 48.h,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        decoration: BoxDecoration(
+          color: _kSurface,
+          borderRadius: BorderRadius.circular(999.r),
+          border: Border.all(color: Colors.white12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.search_rounded, color: _kCyan, size: 20.sp),
+            SizedBox(width: 10.w),
+            Text(
+              'ابحث عن مزاد...',
+              style: GoogleFonts.cairo(
+                fontSize: 14.sp,
+                color: Colors.white38,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Featured Banner ──────────────────────────────────────────────────────────
+class _FeaturedBanner extends StatefulWidget {
+  final List<AuctionModel> auctions;
+  final ValueChanged<AuctionModel> onTap;
+
+  const _FeaturedBanner({
+    required this.auctions,
+    required this.onTap,
+  });
+
+  @override
+  State<_FeaturedBanner> createState() => _FeaturedBannerState();
+}
+
+class _FeaturedBannerState extends State<_FeaturedBanner> {
+  int _currentPage = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.auctions.isEmpty) return const SizedBox.shrink();
+    final auction = widget.auctions[_currentPage];
+    final hasImage = auction.images.isNotEmpty;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+      child: GestureDetector(
+        onTap: () => widget.onTap(auction),
+        child: Container(
+          height: 180.h,
+          decoration: BoxDecoration(
+            color: _kSurface,
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: _kBorder),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Background image
+              if (hasImage)
+                CachedNetworkImage(
+                  imageUrl: auction.images.first,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => Container(color: _kSurface),
+                  errorWidget: (_, _, _) => Container(color: _kSurface),
+                )
+              else
+                Container(
+                  color: _kSurface,
+                  child: Icon(Icons.gavel_rounded,
+                      size: 48.sp, color: Colors.white12),
+                ),
+
+              // Dark gradient overlay
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.2),
+                      Colors.black.withValues(alpha: 0.85),
+                    ],
+                  ),
+                ),
+              ),
+
+              // "مميز" badge top-right (RTL leading)
+              Positioned(
+                top: 12.h,
+                right: 12.w,
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: _kGold,
+                    borderRadius: BorderRadius.circular(999.r),
+                  ),
+                  child: Text(
+                    'مميز',
+                    style: GoogleFonts.cairo(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Bottom content
+              Positioned(
+                bottom: 14.h,
+                left: 14.w,
+                right: 14.w,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'أعلى مزايدة حالية',
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            IqdFormatter.format(
+                              (auction.currentPrice ??
+                                      auction.startPrice ??
+                                      0)
+                                  .toDouble(),
+                            ),
+                            style: GoogleFonts.cairo(
+                              fontSize: 22.sp,
+                              fontWeight: FontWeight.bold,
+                              color: _kCyan,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                        if (auction.endTime != null)
+                          _CountdownPill(endTime: auction.endTime!),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Page dots (if multiple)
+              if (widget.auctions.length > 1)
+                Positioned(
+                  top: 12.h,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      widget.auctions.length,
+                      (i) => GestureDetector(
+                        onTap: () => setState(() => _currentPage = i),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          margin: EdgeInsets.symmetric(horizontal: 3.w),
+                          width: _currentPage == i ? 16.w : 6.w,
+                          height: 4.h,
+                          decoration: BoxDecoration(
+                            color: _currentPage == i
+                                ? _kCyan
+                                : Colors.white38,
+                            borderRadius: BorderRadius.circular(2.r),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Filter / View Row ────────────────────────────────────────────────────────
+class _FilterViewRow extends StatelessWidget {
   final bool isGridView;
   final ValueChanged<bool> onViewChanged;
   final VoidCallback onSortFilterTap;
 
-  const _ViewToggleAndFilter({
+  const _FilterViewRow({
     required this.isGridView,
     required this.onViewChanged,
     required this.onSortFilterTap,
@@ -602,89 +638,64 @@ class _ViewToggleAndFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 4.h),
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
       child: Row(
         children: [
-          // View toggle
-          Container(
-            padding: EdgeInsets.all(4.r),
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: () => onViewChanged(false),
-                  child: Container(
-                    width: 32.w,
-                    height: 32.w,
-                    decoration: BoxDecoration(
-                      color: !isGridView ? AppTheme.surfaceAlt : Colors.transparent,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                      boxShadow: !isGridView ? [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 4,
-                        ),
-                      ] : null,
-                    ),
-                    child: Icon(Icons.view_agenda_rounded,
-                        size: 16.sp, color: !isGridView ? AppTheme.textPrimary : AppTheme.textTertiary),
-                  ),
-                ),
-                SizedBox(width: 2.w),
-                GestureDetector(
-                  onTap: () => onViewChanged(true),
-                  child: Container(
-                    width: 32.w,
-                    height: 32.w,
-                    decoration: BoxDecoration(
-                      color: isGridView ? AppTheme.surfaceAlt : Colors.transparent,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                      boxShadow: isGridView ? [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 4,
-                        ),
-                      ] : null,
-                    ),
-                    child: Icon(Icons.grid_view_rounded,
-                        size: 16.sp, color: isGridView ? AppTheme.textPrimary : AppTheme.textTertiary),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Spacer(),
-          // Sort & Filter button
+          // Sort dropdown-style button (right side in RTL)
           GestureDetector(
             onTap: onSortFilterTap,
             child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 14.w, vertical: 8.h),
+              padding:
+                  EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
               decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.divider),
+                color: _kSurface,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: _kBorder),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Icon(Icons.sort_rounded, color: Colors.white54, size: 16.sp),
+                  SizedBox(width: 6.w),
                   Text(
-                    'ترتيب وتصفية',
+                    'مرتب بـ: الأحدث',
                     style: GoogleFonts.cairo(
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white70,
                     ),
                   ),
-                  SizedBox(width: 6.w),
-                  Icon(Icons.tune_rounded,
-                      size: 16.sp, color: AppTheme.textSecondary),
+                  SizedBox(width: 4.w),
+                  Icon(Icons.keyboard_arrow_down_rounded,
+                      color: Colors.white38, size: 16.sp),
                 ],
               ),
+            ),
+          ),
+          const Spacer(),
+          // Grid / List toggle icons
+          Container(
+            padding: EdgeInsets.all(3.r),
+            decoration: BoxDecoration(
+              color: _kSurface,
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: _kBorder),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _ToggleIcon(
+                  icon: Icons.grid_view_rounded,
+                  isActive: isGridView,
+                  onTap: () => onViewChanged(true),
+                ),
+                SizedBox(width: 2.w),
+                _ToggleIcon(
+                  icon: Icons.view_agenda_rounded,
+                  isActive: !isGridView,
+                  onTap: () => onViewChanged(false),
+                ),
+              ],
             ),
           ),
         ],
@@ -693,7 +704,43 @@ class _ViewToggleAndFilter extends StatelessWidget {
   }
 }
 
-// ── Category Chip ───────────────────────────────────────────────────────────
+class _ToggleIcon extends StatelessWidget {
+  final IconData icon;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _ToggleIcon({
+    required this.icon,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: 30.w,
+        height: 30.w,
+        decoration: BoxDecoration(
+          color: isActive ? _kPrimary : Colors.transparent,
+          borderRadius: BorderRadius.circular(6.r),
+        ),
+        child: Icon(
+          icon,
+          size: 16.sp,
+          color: isActive ? Colors.white : Colors.white38,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Category Chip ────────────────────────────────────────────────────────────
 class _CategoryChip extends StatelessWidget {
   final String label;
   final bool isBack;
@@ -716,13 +763,13 @@ class _CategoryChip extends StatelessWidget {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        padding: EdgeInsets.symmetric(horizontal: 18.w),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.textPrimary : AppTheme.surfaceAlt,
-          borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+          color: isSelected ? _kPrimary : _kSurface,
+          borderRadius: BorderRadius.circular(999.r),
           border: Border.all(
-            color: isSelected ? AppTheme.textPrimary : AppTheme.divider,
+            color: isSelected ? _kPrimary : Colors.white24,
           ),
         ),
         child: Row(
@@ -730,14 +777,15 @@ class _CategoryChip extends StatelessWidget {
           children: [
             if (isBack) ...[
               Icon(Icons.arrow_back_rounded,
-                  color: AppTheme.textPrimary, size: 14.sp),
+                  color: Colors.white, size: 14.sp),
               SizedBox(width: 4.w),
             ],
             Text(
               label,
               style: GoogleFonts.cairo(
-                color: isSelected ? Colors.white : AppTheme.textSecondary,
-                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : Colors.white70,
+                fontWeight:
+                    isSelected ? FontWeight.bold : FontWeight.w500,
                 fontSize: 13.sp,
               ),
             ),
@@ -748,7 +796,7 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
-// ── Empty State ─────────────────────────────────────────────────────────────
+// ── Empty State ──────────────────────────────────────────────────────────────
 class _EmptyAuctions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -762,20 +810,20 @@ class _EmptyAuctions extends StatelessWidget {
               width: 80.w,
               height: 80.w,
               decoration: BoxDecoration(
-                color: AppTheme.mazadGreen.withValues(alpha: 0.12),
+                color: _kPrimary.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.gavel_rounded,
                 size: 40.sp,
-                color: AppTheme.mazadGreen.withValues(alpha: 0.5),
+                color: _kPrimary.withValues(alpha: 0.5),
               ),
             ),
             SizedBox(height: 20.h),
             Text(
               'لا توجد مزادات نشطة حالياً',
               style: GoogleFonts.cairo(
-                color: AppTheme.textSecondary,
+                color: Colors.white70,
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -785,7 +833,7 @@ class _EmptyAuctions extends StatelessWidget {
               'تابعنا لتكون أول من يعرف عن المزادات الجديدة',
               textAlign: TextAlign.center,
               style: GoogleFonts.cairo(
-                color: AppTheme.textTertiary,
+                color: Colors.white38,
                 fontSize: 13.sp,
               ),
             ),
@@ -796,7 +844,176 @@ class _EmptyAuctions extends StatelessWidget {
   }
 }
 
-// ── Auction Card (Stitch Screen 8 style) ────────────────────────────────────
+// ── "مزادات منتهية قريباً" Section ──────────────────────────────────────────
+class _EndingSoonSection extends StatelessWidget {
+  final AuctionsCubit cubit;
+  const _EndingSoonSection({required this.cubit});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuctionsCubit, AuctionsState>(
+      bloc: cubit,
+      builder: (context, state) {
+        if (state.auctions.isEmpty) return const SizedBox.shrink();
+        final items = state.auctions
+            .where((a) =>
+                a.endTime != null &&
+                a.endTime!.difference(DateTime.now()).inHours < 24)
+            .take(6)
+            .toList();
+        if (items.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 12.h),
+              child: Row(
+                children: [
+                  Container(
+                    width: 8.w,
+                    height: 8.w,
+                    decoration: const BoxDecoration(
+                      color: _kPrimary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'مزادات منتهية قريباً',
+                    style: GoogleFonts.cairo(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 200.h,
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                scrollDirection: Axis.horizontal,
+                itemCount: items.length,
+                separatorBuilder: (_, _) => SizedBox(width: 12.w),
+                itemBuilder: (_, index) =>
+                    _EndingSoonCard(auction: items[index]),
+              ),
+            ),
+            SizedBox(height: 16.h),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _EndingSoonCard extends StatelessWidget {
+  final AuctionModel auction;
+  const _EndingSoonCard({required this.auction});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = auction.images.isNotEmpty;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AuctionLivePage(
+              auctionId: auction.id ?? '',
+              title: auction.title,
+              currentPrice: '${auction.currentPrice ?? 0}',
+              currency: 'د.ع',
+              imageUrl: hasImage
+                  ? auction.images.first
+                  : 'https://placehold.co/800x800/png',
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: 140.w,
+        decoration: BoxDecoration(
+          color: _kSurface,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: _kBorder),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (hasImage)
+                    CachedNetworkImage(
+                      imageUrl: auction.images.first,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) => Container(color: _kBorder),
+                      errorWidget: (_, _, _) => Container(color: _kBorder),
+                    )
+                  else
+                    Container(
+                      color: _kBorder,
+                      child: Icon(Icons.gavel_rounded,
+                          size: 28.sp, color: Colors.white24),
+                    ),
+                  if (auction.endTime != null)
+                    Positioned(
+                      bottom: 6.h,
+                      left: 6.w,
+                      right: 6.w,
+                      child: _CountdownPill(endTime: auction.endTime!),
+                    ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: EdgeInsets.all(8.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      auction.title,
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      IqdFormatter.format(
+                        (auction.currentPrice ?? auction.startPrice ?? 0)
+                            .toDouble(),
+                      ),
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w900,
+                        color: _kCyan,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Auction Card (list view) ─────────────────────────────────────────────────
 class _AuctionCard extends StatelessWidget {
   final AuctionModel auction;
 
@@ -826,17 +1043,17 @@ class _AuctionCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.surfaceAlt,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          border: Border.all(color: AppTheme.divider, width: 2),
+          color: _kSurface,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: _kBorder),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Image Section (taller: 240h) ──
+            // ── Image Section ────────────────────────
             SizedBox(
-              height: 240.h,
+              height: 200.h,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -844,40 +1061,46 @@ class _AuctionCard extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: auction.images.first,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) =>
-                          Container(color: AppTheme.shimmerBase),
-                      errorWidget: (_, _, _) =>
-                          Container(color: AppTheme.shimmerBase),
+                      placeholder: (_, _) => Container(color: _kBorder),
+                      errorWidget: (_, _, _) => Container(color: _kBorder),
                     )
                   else
                     Container(
-                      color: AppTheme.shimmerBase,
+                      color: _kBorder,
                       child: Icon(Icons.gavel_rounded,
-                          size: 48.sp, color: AppTheme.shimmerHighlight),
+                          size: 48.sp, color: Colors.white12),
                     ),
-                  // Timer badge (top-right, dark pill with gold timer icon)
+                  // Timer badge
                   Positioned(
-                    top: 16.h,
-                    right: 16.w,
+                    top: 12.h,
+                    right: 12.w,
                     child: _CountdownPill(
                         endTime: auction.endTime ?? DateTime.now()),
                   ),
-                  // Favorite button (top-left, Stitch Screen 2)
+                  // Status badge
                   Positioned(
-                    top: 16.h,
-                    left: 16.w,
+                    top: 12.h,
+                    left: 12.w,
+                    child: _StatusBadge(status: auction.status),
+                  ),
+                  // Favourite button
+                  Positioned(
+                    bottom: 12.h,
+                    left: 12.w,
                     child: GestureDetector(
                       onTap: () => HapticFeedback.lightImpact(),
                       child: Container(
                         width: 34.w,
                         height: 34.w,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.black.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white24),
                         ),
                         child: ClipOval(
                           child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                            filter:
+                                ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                             child: Icon(
                               Icons.favorite_border_rounded,
                               color: Colors.white,
@@ -891,485 +1114,112 @@ class _AuctionCard extends StatelessWidget {
                 ],
               ),
             ),
-            // ── Info Section ──
+            // ── Info Section ─────────────────────────
             Padding(
-              padding: EdgeInsets.all(20.w),
+              padding: EdgeInsets.all(16.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              auction.title,
-                              style: GoogleFonts.cairo(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.textPrimary,
-                                height: 1.2,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (auction.condition != null) ...[
-                              SizedBox(height: 4.h),
-                              Text(
-                                'الحالة: ${auction.condition}',
-                                style: GoogleFonts.cairo(
-                                  fontSize: 12.sp,
-                                  color: AppTheme.textTertiary,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
+                  Text(
+                    auction.title,
+                    style: GoogleFonts.cairo(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (auction.condition != null) ...[
+                    SizedBox(height: 4.h),
+                    Text(
+                      'الحالة: ${auction.condition}',
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        color: Colors.white38,
                       ),
+                    ),
+                  ],
+                  SizedBox(height: 12.h),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'أعلى عطاء',
                             style: GoogleFonts.cairo(
                               fontSize: 10.sp,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textTertiary,
+                              color: Colors.white38,
                             ),
                           ),
                           Text(
                             IqdFormatter.format(
-                              (auction.currentPrice ?? auction.startPrice ?? 0)
+                              (auction.currentPrice ??
+                                      auction.startPrice ??
+                                      0)
                                   .toDouble(),
                             ),
-                            style: AppTheme.priceStyle(
+                            style: GoogleFonts.cairo(
                               fontSize: 20.sp,
-                              color: AppTheme.success,
+                              fontWeight: FontWeight.w900,
+                              color: _kCyan,
+                              height: 1.1,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 16.h),
-                  // Full-width bid button (Stitch pattern)
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
-                    decoration: BoxDecoration(
-                      color: AppTheme.mazadGreen,
-                      borderRadius:
-                          BorderRadius.circular(AppTheme.radiusLg),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.mazadGreen.withValues(alpha: 0.25),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'زايد الآن',
-                          style: GoogleFonts.cairo(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Icon(Icons.trending_up_rounded,
-                            color: AppTheme.textPrimary, size: 20.sp),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Countdown Pill ──────────────────────────────────────────────────────────
-class _CountdownPill extends StatefulWidget {
-  final DateTime endTime;
-  const _CountdownPill({required this.endTime});
-
-  @override
-  State<_CountdownPill> createState() => _CountdownPillState();
-}
-
-class _CountdownPillState extends State<_CountdownPill> {
-  late Timer _timer;
-  Duration _timeLeft = Duration.zero;
-
-  @override
-  void initState() {
-    super.initState();
-    _updateTime();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateTime());
-  }
-
-  void _updateTime() {
-    if (!mounted) return;
-    setState(() {
-      _timeLeft = widget.endTime.difference(DateTime.now());
-      if (_timeLeft.isNegative) _timeLeft = Duration.zero;
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isExpired = _timeLeft == Duration.zero;
-    final h = _timeLeft.inHours.toString().padLeft(2, '0');
-    final m = _timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final s = _timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0');
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.timer_rounded,
-              color: AppTheme.accentYellow, size: 14.sp),
-          SizedBox(width: 6.w),
-          Text(
-            isExpired ? 'انتهى' : '$h:$m:$s',
-            style: GoogleFonts.cairo(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 12.sp,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Mazadat Bottom Nav (Stitch Screen 8 pattern) ────────────────────────────
-class _MazadatBottomNav extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-
-  const _MazadatBottomNav({
-    required this.currentIndex,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.95),
-              border: Border(
-                top: BorderSide(
-                  color: AppTheme.divider.withValues(alpha: 0.4),
-                ),
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    _MazadatNavItem(
-                      icon: Icons.home_rounded,
-                      filledIcon: Icons.home_rounded,
-                      label: 'الرئيسية',
-                      isActive: currentIndex == 0,
-                      onTap: () => onTap(0),
-                    ),
-                    _MazadatNavItem(
-                      icon: Icons.visibility_outlined,
-                      filledIcon: Icons.visibility_rounded,
-                      label: 'المراقبة',
-                      isActive: currentIndex == 1,
-                      onTap: () => onTap(1),
-                    ),
-                    // ── Center FAB (Stitch: black circle + primary icon) ──
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 18.h),
-                      child: GestureDetector(
-                        onTap: () => onTap(2),
-                        child: Container(
-                          width: 60.w,
-                          height: 60.w,
-                          decoration: BoxDecoration(
-                            color: AppTheme.textPrimary,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 4,
+                      const Spacer(),
+                      // Bid button
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AuctionLivePage(
+                                auctionId: auction.id ?? '',
+                                title: auction.title,
+                                currentPrice:
+                                    '${auction.currentPrice ?? 0}',
+                                currency: 'د.ع',
+                                imageUrl: hasImage
+                                    ? auction.images.first
+                                    : 'https://placehold.co/800x800/png',
+                              ),
                             ),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20.w, vertical: 10.h),
+                          decoration: BoxDecoration(
+                            color: _kPrimary,
+                            borderRadius: BorderRadius.circular(999.r),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
+                                color: _kPrimary.withValues(alpha: 0.35),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                          child: Icon(
-                            Icons.add_rounded,
-                            color: AppTheme.mazadGreen,
-                            size: 30.sp,
+                          child: Text(
+                            'زايد الآن',
+                            style: GoogleFonts.cairo(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    _MazadatNavItem(
-                      icon: Icons.history_rounded,
-                      filledIcon: Icons.history_rounded,
-                      label: 'نشاطي',
-                      isActive: currentIndex == 3,
-                      onTap: () => onTap(3),
-                    ),
-                    _MazadatNavItem(
-                      icon: Icons.person_outline_rounded,
-                      filledIcon: Icons.person_rounded,
-                      label: 'حسابي',
-                      isActive: currentIndex == 4,
-                      onTap: () => onTap(4),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Mazadat Nav Item ────────────────────────────────────────────────────────
-class _MazadatNavItem extends StatelessWidget {
-  final IconData icon;
-  final IconData filledIcon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _MazadatNavItem({
-    required this.icon,
-    required this.filledIcon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isActive ? AppTheme.mazadGreen : AppTheme.inactive;
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 56.w,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(isActive ? filledIcon : icon, color: color, size: 24.sp),
-            SizedBox(height: 2.h),
-            Text(
-              label,
-              style: GoogleFonts.cairo(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Create Action Bottom Sheet (Stitch Screen 8) ───────────────────────────
-class _MazadatCreateSheet extends StatelessWidget {
-  final VoidCallback onLiveAuction;
-  final VoidCallback onFixedProduct;
-
-  const _MazadatCreateSheet({
-    required this.onLiveAuction,
-    required this.onFixedProduct,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 80.h),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(32.r),
-        ),
-        border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 48.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle
-              Container(
-                margin: EdgeInsets.only(top: 12.h, bottom: 28.h),
-                width: 48.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: AppTheme.inactive,
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-              // Title
-              Text(
-                'ماذا تود أن تضيف؟',
-                style: GoogleFonts.cairo(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              SizedBox(height: 24.h),
-              // Options grid
-              Row(
-                children: [
-                  Expanded(
-                    child: _CreateOption(
-                      icon: Icons.bolt_rounded,
-                      label: 'إضافة مزاد مباشر',
-                      iconBgColor: AppTheme.mazadGreen.withValues(alpha: 0.12),
-                      iconColor: AppTheme.mazadGreen,
-                      onTap: onLiveAuction,
-                    ),
-                  ),
-                  SizedBox(width: 16.w),
-                  Expanded(
-                    child: _CreateOption(
-                      icon: Icons.inventory_2_rounded,
-                      label: 'إضافة منتج ثابت',
-                      iconBgColor: AppTheme.surface,
-                      iconColor: AppTheme.textSecondary,
-                      onTap: onFixedProduct,
-                    ),
+                    ],
                   ),
                 ],
               ),
-              SizedBox(height: 28.h),
-              // Cancel
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'إلغاء',
-                    style: GoogleFonts.cairo(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Create Option Card ──────────────────────────────────────────────────────
-class _CreateOption extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color iconBgColor;
-  final Color iconColor;
-  final VoidCallback onTap;
-
-  const _CreateOption({
-    required this.icon,
-    required this.label,
-    required this.iconBgColor,
-    required this.iconColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        padding: EdgeInsets.all(24.w),
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceAlt,
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          border: Border.all(color: AppTheme.divider),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 60.w,
-              height: 60.w,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: iconColor, size: 28.sp),
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.cairo(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
             ),
           ],
         ),
@@ -1378,7 +1228,7 @@ class _CreateOption extends StatelessWidget {
   }
 }
 
-// ── Auction Grid Card ───────────────────────────────────────────────────────
+// ── Auction Grid Card ────────────────────────────────────────────────────────
 class _AuctionGridCard extends StatelessWidget {
   final AuctionModel auction;
 
@@ -1408,15 +1258,15 @@ class _AuctionGridCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.surfaceAlt,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-          border: Border.all(color: AppTheme.divider),
+          color: _kSurface,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: _kBorder),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image Section
+            // Image
             Expanded(
               flex: 5,
               child: Stack(
@@ -1426,33 +1276,37 @@ class _AuctionGridCard extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: auction.images.first,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) =>
-                          Container(color: AppTheme.shimmerBase),
-                      errorWidget: (_, _, _) =>
-                          Container(color: AppTheme.shimmerBase),
+                      placeholder: (_, _) => Container(color: _kBorder),
+                      errorWidget: (_, _, _) => Container(color: _kBorder),
                     )
                   else
                     Container(
-                      color: AppTheme.shimmerBase,
+                      color: _kBorder,
                       child: Icon(Icons.gavel_rounded,
-                          size: 32.sp, color: AppTheme.shimmerHighlight),
+                          size: 32.sp, color: Colors.white12),
                     ),
-                  // Timer badge
+                  // Status badge
                   Positioned(
-                    top: 8.h,
-                    right: 8.w,
-                    child: auction.endTime != null
-                        ? _CountdownPill(endTime: auction.endTime!)
-                        : const SizedBox.shrink(),
+                    top: 6.h,
+                    right: 6.w,
+                    child: _StatusBadge(status: auction.status),
                   ),
+                  // Timer
+                  if (auction.endTime != null)
+                    Positioned(
+                      bottom: 6.h,
+                      left: 4.w,
+                      right: 4.w,
+                      child: _CountdownPill(endTime: auction.endTime!),
+                    ),
                 ],
               ),
             ),
-            // Info Section
+            // Info
             Expanded(
               flex: 4,
               child: Padding(
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.all(10.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1460,9 +1314,9 @@ class _AuctionGridCard extends StatelessWidget {
                     Text(
                       auction.title,
                       style: GoogleFonts.cairo(
-                        fontSize: 14.sp,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                        color: Colors.white,
                         height: 1.2,
                       ),
                       maxLines: 2,
@@ -1474,19 +1328,21 @@ class _AuctionGridCard extends StatelessWidget {
                         Text(
                           'أعلى عطاء',
                           style: GoogleFonts.cairo(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textTertiary,
+                            fontSize: 9.sp,
+                            color: Colors.white38,
                           ),
                         ),
                         Text(
                           IqdFormatter.format(
-                            (auction.currentPrice ?? auction.startPrice ?? 0)
+                            (auction.currentPrice ??
+                                    auction.startPrice ??
+                                    0)
                                 .toDouble(),
                           ),
-                          style: AppTheme.priceStyle(
-                            fontSize: 16.sp,
-                            color: AppTheme.success,
+                          style: GoogleFonts.cairo(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w900,
+                            color: _kCyan,
                           ),
                         ),
                       ],
@@ -1502,7 +1358,437 @@ class _AuctionGridCard extends StatelessWidget {
   }
 }
 
-// ── Sort & Filter Sheet ─────────────────────────────────────────────────────
+// ── Status Badge ─────────────────────────────────────────────────────────────
+class _StatusBadge extends StatelessWidget {
+  final String status;
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final isLive = status == 'active' || status == 'live';
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+      decoration: BoxDecoration(
+        color: isLive
+            ? _kPrimary.withValues(alpha: 0.9)
+            : Colors.black.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(999.r),
+        border: Border.all(
+          color: isLive ? _kPrimary : Colors.white24,
+        ),
+      ),
+      child: Text(
+        isLive ? 'مباشر' : 'قادم',
+        style: GoogleFonts.cairo(
+          fontSize: 9.sp,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Countdown Pill ───────────────────────────────────────────────────────────
+class _CountdownPill extends StatefulWidget {
+  final DateTime endTime;
+  const _CountdownPill({required this.endTime});
+
+  @override
+  State<_CountdownPill> createState() => _CountdownPillState();
+}
+
+class _CountdownPillState extends State<_CountdownPill>
+    with SingleTickerProviderStateMixin {
+  late Timer _timer;
+  Duration _timeLeft = Duration.zero;
+  late final AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _updateTime();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateTime());
+  }
+
+  void _updateTime() {
+    if (!mounted) return;
+    final remaining = widget.endTime.difference(DateTime.now());
+    setState(() {
+      _timeLeft = remaining.isNegative ? Duration.zero : remaining;
+    });
+    if (_timeLeft.inSeconds <= 10 && _timeLeft.inSeconds > 0) {
+      _pulseController.repeat(reverse: true);
+    } else {
+      _pulseController.stop();
+      _pulseController.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isExpired = _timeLeft == Duration.zero;
+    final isPulsing = _timeLeft.inSeconds <= 10 && !isExpired;
+    final h = _timeLeft.inHours.toString().padLeft(2, '0');
+    final m = _timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = _timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0');
+
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (_, _) {
+        final pulseAlpha = isPulsing
+            ? 0.7 + (_pulseController.value * 0.3)
+            : 0.85;
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: pulseAlpha),
+            borderRadius: BorderRadius.circular(999.r),
+            border: Border.all(
+              color: isPulsing
+                  ? _kPrimary.withValues(alpha: 0.8)
+                  : Colors.white.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.timer_rounded,
+                color: isPulsing ? _kPrimary : Colors.white70,
+                size: 12.sp,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                isExpired ? 'انتهى' : '$h:$m:$s',
+                style: GoogleFonts.cairo(
+                  color: isPulsing ? _kPrimary : Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11.sp,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ── Mazadat Bottom Nav ───────────────────────────────────────────────────────
+class _MazadatBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const _MazadatBottomNav({
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: Container(
+            decoration: BoxDecoration(
+              color: _kSurface.withValues(alpha: 0.95),
+              border: const Border(
+                top: BorderSide(color: _kBorder),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 8.w, vertical: 10.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _MazadatNavItem(
+                      icon: Icons.home_outlined,
+                      filledIcon: Icons.home_rounded,
+                      label: 'الرئيسية',
+                      isActive: currentIndex == 0,
+                      onTap: () => onTap(0),
+                    ),
+                    _MazadatNavItem(
+                      icon: Icons.visibility_outlined,
+                      filledIcon: Icons.visibility_rounded,
+                      label: 'المراقبة',
+                      isActive: currentIndex == 1,
+                      onTap: () => onTap(1),
+                    ),
+                    // Center FAB
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 14.h),
+                      child: GestureDetector(
+                        onTap: () => onTap(2),
+                        child: Container(
+                          width: 56.w,
+                          height: 56.w,
+                          decoration: BoxDecoration(
+                            color: _kPrimary,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: _kPrimary.withValues(alpha: 0.4),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.add_rounded,
+                            color: Colors.white,
+                            size: 28.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                    _MazadatNavItem(
+                      icon: Icons.history_rounded,
+                      filledIcon: Icons.history_rounded,
+                      label: 'نشاطي',
+                      isActive: currentIndex == 3,
+                      onTap: () => onTap(3),
+                    ),
+                    _MazadatNavItem(
+                      icon: Icons.person_outline_rounded,
+                      filledIcon: Icons.person_rounded,
+                      label: 'حسابي',
+                      isActive: currentIndex == 4,
+                      onTap: () => onTap(4),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Nav Item ─────────────────────────────────────────────────────────────────
+class _MazadatNavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData filledIcon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _MazadatNavItem({
+    required this.icon,
+    required this.filledIcon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isActive ? _kCyan : Colors.white38;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 56.w,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(isActive ? filledIcon : icon, color: color, size: 24.sp),
+            SizedBox(height: 2.h),
+            Text(
+              label,
+              style: GoogleFonts.cairo(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Create Action Bottom Sheet ───────────────────────────────────────────────
+class _MazadatCreateSheet extends StatelessWidget {
+  final VoidCallback onLiveAuction;
+  final VoidCallback onFixedProduct;
+
+  const _MazadatCreateSheet({
+    required this.onLiveAuction,
+    required this.onFixedProduct,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 80.h),
+      decoration: BoxDecoration(
+        color: _kSurface,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(32.r),
+        ),
+        border: const Border(
+          top: BorderSide(color: _kBorder),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 48.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Container(
+              margin: EdgeInsets.only(top: 12.h, bottom: 28.h),
+              width: 48.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+            Text(
+              'ماذا تود أن تضيف؟',
+              style: GoogleFonts.cairo(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              children: [
+                Expanded(
+                  child: _CreateOption(
+                    icon: Icons.bolt_rounded,
+                    label: 'إضافة مزاد مباشر',
+                    iconBgColor: _kPrimary.withValues(alpha: 0.15),
+                    iconColor: _kPrimary,
+                    onTap: onLiveAuction,
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: _CreateOption(
+                    icon: Icons.inventory_2_rounded,
+                    label: 'إضافة منتج ثابت',
+                    iconBgColor: _kBorder,
+                    iconColor: Colors.white54,
+                    onTap: onFixedProduct,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 28.h),
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 14.h),
+                decoration: BoxDecoration(
+                  color: _kBorder,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'إلغاء',
+                  style: GoogleFonts.cairo(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white70,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Create Option Card ───────────────────────────────────────────────────────
+class _CreateOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color iconBgColor;
+  final Color iconColor;
+  final VoidCallback onTap;
+
+  const _CreateOption({
+    required this.icon,
+    required this.label,
+    required this.iconBgColor,
+    required this.iconColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        padding: EdgeInsets.all(24.w),
+        decoration: BoxDecoration(
+          color: _kBg,
+          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+          border: Border.all(color: _kBorder),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 60.w,
+              height: 60.w,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 28.sp),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Sort & Filter Sheet ──────────────────────────────────────────────────────
 class _SortFilterSheet extends StatefulWidget {
   final AuctionsCubit cubit;
 
@@ -1535,8 +1821,9 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
       margin: EdgeInsets.only(top: 80.h),
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: _kSurface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
+        border: const Border(top: BorderSide(color: _kBorder)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1548,7 +1835,7 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
               width: 48.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: AppTheme.inactive,
+                color: Colors.white24,
                 borderRadius: BorderRadius.circular(2.r),
               ),
             ),
@@ -1558,7 +1845,7 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
             style: GoogleFonts.cairo(
               fontSize: 20.sp,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+              color: Colors.white,
             ),
           ),
           SizedBox(height: 24.h),
@@ -1567,7 +1854,7 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textSecondary,
+              color: Colors.white60,
             ),
           ),
           SizedBox(height: 12.h),
@@ -1577,17 +1864,18 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
               _FilterChip(
                 label: 'الكل',
                 isSelected: _filterStatus == 'all',
-                onSelected: (val) => setState(() => _filterStatus = 'all'),
+                onSelected: (_) => setState(() => _filterStatus = 'all'),
               ),
               _FilterChip(
                 label: 'نشط',
                 isSelected: _filterStatus == 'live',
-                onSelected: (val) => setState(() => _filterStatus = 'live'),
+                onSelected: (_) => setState(() => _filterStatus = 'live'),
               ),
               _FilterChip(
                 label: 'قادم',
                 isSelected: _filterStatus == 'upcoming',
-                onSelected: (val) => setState(() => _filterStatus = 'upcoming'),
+                onSelected: (_) =>
+                    setState(() => _filterStatus = 'upcoming'),
               ),
             ],
           ),
@@ -1597,7 +1885,7 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textSecondary,
+              color: Colors.white60,
             ),
           ),
           SizedBox(height: 12.h),
@@ -1610,16 +1898,16 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
                   item['label']!,
                   style: GoogleFonts.cairo(
                     fontSize: 14.sp,
-                    color: AppTheme.textPrimary,
+                    color: Colors.white,
                   ),
                 ),
                 leading: Icon(
-                  _sortBy == item['value']! 
-                      ? Icons.radio_button_checked_rounded 
+                  _sortBy == item['value']!
+                      ? Icons.radio_button_checked_rounded
                       : Icons.radio_button_unchecked_rounded,
-                  color: _sortBy == item['value']! 
-                      ? AppTheme.primary 
-                      : AppTheme.textSecondary.withValues(alpha: 0.5),
+                  color: _sortBy == item['value']!
+                      ? _kCyan
+                      : Colors.white24,
                 ),
                 onTap: () => setState(() => _sortBy = item['value']!),
                 contentPadding: EdgeInsets.zero,
@@ -1630,7 +1918,7 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
             child: ElevatedButton(
               onPressed: _applyFilter,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
+                backgroundColor: _kPrimary,
                 padding: EdgeInsets.symmetric(vertical: 14.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
@@ -1672,13 +1960,16 @@ class _FilterChip extends StatelessWidget {
         style: GoogleFonts.cairo(
           fontSize: 13.sp,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.white : AppTheme.textSecondary,
+          color: isSelected ? Colors.white : Colors.white60,
         ),
       ),
       selected: isSelected,
       onSelected: onSelected,
-      selectedColor: AppTheme.primary,
-      backgroundColor: AppTheme.surfaceAlt,
+      selectedColor: _kPrimary,
+      backgroundColor: _kBorder,
+      side: BorderSide(
+        color: isSelected ? _kPrimary : Colors.white24,
+      ),
     );
   }
 }

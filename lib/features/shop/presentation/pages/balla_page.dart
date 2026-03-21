@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,15 +8,108 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/center_fab_bottom_nav.dart';
-import '../../../../core/widgets/promoted_carousel.dart';
-import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/balla_cart_cubit.dart';
 import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
 import '../../../category/presentation/cubit/category_cubit.dart';
-import '../../../category/presentation/cubit/category_state.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
 
+// ── Constants ──────────────────────────────────────────────────────
+const _kBg           = Color(0xFFF5F0FF);
+const _kPurple       = AppTheme.ballaPurple;       // 0xFF7C3AED
+const _kPurpleSurf   = AppTheme.ballaPurpleSurface; // 0xFFEDE7F6
+const _kBorder       = Color(0xFFD2BBFF);
+const _kGold         = Color(0xFFFFB800);
+const _kText         = Color(0xFF201B16);
+
+// ── Mock balla data ────────────────────────────────────────────────
+class _BallaItem {
+  final String id;
+  final String name;
+  final String shop;
+  final double stars;
+  final int weightKg;
+  final int totalPrice;
+  final String category;
+  final bool isFeatured;
+
+  const _BallaItem({
+    required this.id,
+    required this.name,
+    required this.shop,
+    required this.stars,
+    required this.weightKg,
+    required this.totalPrice,
+    required this.category,
+    this.isFeatured = false,
+  });
+
+  int get pricePerKg    => (totalPrice / weightKg).round();
+  int get pricePerPiece => (totalPrice / (weightKg * 4)).round();
+  int get pricePerBundle => (totalPrice / (weightKg ~/ 5)).round();
+}
+
+const _kMockItems = [
+  _BallaItem(
+    id: 'b1',
+    name: 'بالة ملابس نسائية',
+    shop: 'متجر الأمانة',
+    stars: 4.8,
+    weightKg: 25,
+    totalPrice: 120000,
+    category: 'ملابس',
+    isFeatured: true,
+  ),
+  _BallaItem(
+    id: 'b2',
+    name: 'بالة أحذية مستوردة',
+    shop: 'بيت البالة',
+    stars: 4.5,
+    weightKg: 30,
+    totalPrice: 185000,
+    category: 'أحذية',
+  ),
+  _BallaItem(
+    id: 'b3',
+    name: 'بالة ملابس أطفال',
+    shop: 'الصفا للجملة',
+    stars: 4.7,
+    weightKg: 20,
+    totalPrice: 95000,
+    category: 'ملابس',
+  ),
+  _BallaItem(
+    id: 'b4',
+    name: 'بالة حقائب نسائية',
+    shop: 'جملة الرشيد',
+    stars: 4.3,
+    weightKg: 15,
+    totalPrice: 145000,
+    category: 'حقائب',
+  ),
+  _BallaItem(
+    id: 'b5',
+    name: 'بالة إكسسوارات مشكلة',
+    shop: 'متجر النجمة',
+    stars: 4.6,
+    weightKg: 10,
+    totalPrice: 68000,
+    category: 'إكسسوارات',
+  ),
+  _BallaItem(
+    id: 'b6',
+    name: 'بالة أقمشة تركية',
+    shop: 'دار الأقمشة',
+    stars: 4.9,
+    weightKg: 40,
+    totalPrice: 210000,
+    category: 'أقمشة',
+  ),
+];
+
+const _kCategories = ['الكل', 'ملابس', 'أحذية', 'حقائب', 'إكسسوارات', 'أقمشة'];
+
+// ── Page ──────────────────────────────────────────────────────────
 class BallaPage extends StatefulWidget {
   const BallaPage({super.key});
 
@@ -28,13 +120,29 @@ class BallaPage extends StatefulWidget {
 class _BallaPageState extends State<BallaPage> {
   late final HomeCubit _cubit;
   late final CategoryCubit _categoryCubit;
-  int _selectedUnit = 0; // 0=بالكيلو, 1=بالقطعة, 2=بالحزمة
+  int _selectedUnit = 0;      // 0=بالكيلو, 1=بالقطعة, 2=بالحزمة
+  int _selectedCategory = 0;  // index in _kCategories
+  bool _isGridView = true;
 
   @override
   void initState() {
     super.initState();
     _cubit = getIt<HomeCubit>()..loadFeed();
     _categoryCubit = getIt<CategoryCubit>(param1: 'balla')..fetchCategories();
+  }
+
+  List<_BallaItem> get _filteredItems {
+    if (_selectedCategory == 0) return _kMockItems;
+    final cat = _kCategories[_selectedCategory];
+    return _kMockItems.where((i) => i.category == cat).toList();
+  }
+
+  String _pricePerUnitLabel(_BallaItem item) {
+    switch (_selectedUnit) {
+      case 1:  return '${IqdFormatter.format(item.pricePerPiece)}/قطعة';
+      case 2:  return '${IqdFormatter.format(item.pricePerBundle)}/حزمة';
+      default: return '${IqdFormatter.format(item.pricePerKg)}/كغم';
+    }
   }
 
   @override
@@ -52,7 +160,7 @@ class _BallaPageState extends State<BallaPage> {
           CartConflictSheet.show(context, context.read<BallaCartCubit>());
         },
         child: Scaffold(
-          backgroundColor: const Color(0xFFF5F0FF),
+          backgroundColor: _kBg,
           bottomNavigationBar: BlocBuilder<BallaCartCubit, CartState>(
             builder: (context, cartState) {
               return CenterFabBottomNav(
@@ -65,7 +173,7 @@ class _BallaPageState extends State<BallaPage> {
                 currentIndex: 0,
                 onTap: (_) {},
                 fabIcon: Icons.add_rounded,
-                fabColor: AppTheme.ballaPurple,
+                fabColor: _kPurple,
                 fabLabel: 'أضف بالة',
                 onFabTap: () => context.push('/balla/create'),
                 darkMode: false,
@@ -77,39 +185,14 @@ class _BallaPageState extends State<BallaPage> {
           body: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              _buildSliverAppBar(context),
+              _buildAppBar(context),
               SliverToBoxAdapter(child: _buildSearchBar()),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-                  child: PromotedCarousel(
-                    primaryColor: AppTheme.ballaPurple,
-                    items: const [
-                      PromotedItem(
-                        badge: 'عروض حصرية',
-                        title: 'وفّر حتى ٤٠٪ على بالات الجملة',
-                        price: 'تسوّق الآن',
-                      ),
-                      PromotedItem(
-                        badge: 'جديد',
-                        title: 'بالات ملابس مستوردة',
-                        subtitle: 'جودة عالية بأسعار الجملة',
-                      ),
-                      PromotedItem(
-                        badge: 'الأكثر مبيعاً',
-                        title: 'بالات إلكترونيات',
-                        subtitle: 'هواتف وأجهزة بكميات كبيرة',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              SliverToBoxAdapter(child: _buildHeroCard()),
               SliverToBoxAdapter(child: _buildUnitToggle()),
-              SliverToBoxAdapter(child: _buildCategoriesGrid()),
-              SliverToBoxAdapter(child: _buildSectionHeader('أكثر الصفقات رواجاً', 'عرض الكل')),
-              SliverToBoxAdapter(child: _buildTrendingDeals()),
-              SliverToBoxAdapter(child: _buildSectionHeader('عروض البالة', 'عرض الكل')),
-              _buildProductsList(),
+              SliverToBoxAdapter(child: _buildCategoryChips()),
+              SliverToBoxAdapter(child: _buildFilterRow()),
+              SliverToBoxAdapter(child: _buildBallaGrid()),
+              SliverToBoxAdapter(child: _buildFeaturedSection()),
               SliverToBoxAdapter(child: SizedBox(height: 100.h)),
             ],
           ),
@@ -118,9 +201,10 @@ class _BallaPageState extends State<BallaPage> {
     );
   }
 
-  Widget _buildSliverAppBar(BuildContext context) {
+  // ── AppBar ────────────────────────────────────────────────────────
+  Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
-      backgroundColor: const Color(0xFFF5F0FF),
+      backgroundColor: _kBg,
       elevation: 0,
       pinned: true,
       automaticallyImplyLeading: false,
@@ -129,44 +213,56 @@ class _BallaPageState extends State<BallaPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
           children: [
-            // Back to home
-            _AppBarBtn(
-              icon: Icons.home_rounded,
-              onTap: () => context.go('/'),
+            // Left: inventory icon
+            Container(
+              width: 40.w,
+              height: 40.w,
+              decoration: BoxDecoration(
+                color: _kPurpleSurf,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              alignment: Alignment.center,
+              child: Icon(Icons.inventory_2_rounded, color: _kPurple, size: 20.sp),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 10.w),
             Expanded(
               child: Text(
-                'سوق البالة',
+                'بالة',
                 style: GoogleFonts.cairo(
-                  fontSize: 20.sp,
+                  fontSize: 22.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  color: _kPurple,
                 ),
               ),
             ),
-            _AppBarBtn(
-              icon: Icons.filter_list_rounded,
-              onTap: () {},
-            ),
-            SizedBox(width: 8.w),
+            // Notifications icon
             BlocBuilder<BallaCartCubit, CartState>(
               builder: (ctx, cartState) => Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  _AppBarBtn(
-                    icon: Icons.shopping_bag_outlined,
+                  GestureDetector(
                     onTap: () => context.push('/balla/cart'),
+                    child: Container(
+                      width: 40.w,
+                      height: 40.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                        border: Border.all(color: _kBorder.withValues(alpha: 0.5)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(Icons.notifications_outlined, color: _kPurple, size: 20.sp),
+                    ),
                   ),
                   if (cartState.cartCount > 0)
                     Positioned(
-                      top: 0,
-                      right: 0,
+                      top: -2,
+                      right: -2,
                       child: Container(
                         width: 16.w,
                         height: 16.w,
                         decoration: const BoxDecoration(
-                          color: AppTheme.ballaPurple,
+                          color: _kPurple,
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
@@ -189,36 +285,26 @@ class _BallaPageState extends State<BallaPage> {
     );
   }
 
+  // ── Search Bar ────────────────────────────────────────────────────
   Widget _buildSearchBar() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
       child: Container(
-        height: 48.h,
+        height: 50.h,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppTheme.ballaPurple.withValues(alpha: 0.15)),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.ballaPurple.withValues(alpha: 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(999.r),
+          border: Border.all(color: _kBorder),
         ),
         child: TextField(
           textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
-            hintText: 'البحث عن بالات، شحنات، أو مخازن...',
+            hintText: 'ابحث عن بالة...',
             hintStyle: GoogleFonts.cairo(
-              color: AppTheme.textSecondary,
+              color: const Color(0xFFA89585),
               fontSize: 14.sp,
             ),
-            prefixIcon: Icon(
-              Icons.search_rounded,
-              color: AppTheme.ballaPurple,
-              size: 20.sp,
-            ),
+            prefixIcon: Icon(Icons.search_rounded, color: _kPurple, size: 20.sp),
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
           ),
@@ -227,16 +313,138 @@ class _BallaPageState extends State<BallaPage> {
     );
   }
 
+  // ── Hero Promoted Card ────────────────────────────────────────────
+  Widget _buildHeroCard() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+      child: Container(
+        height: 200.h,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.r),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF7C3AED), Color(0xFF1E0A3C)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Background pattern
+            Positioned(
+              right: -20,
+              top: -20,
+              child: Container(
+                width: 150.w,
+                height: 150.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 20,
+              bottom: -30,
+              child: Container(
+                width: 100.w,
+                height: 100.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.04),
+                ),
+              ),
+            ),
+            // Content
+            Padding(
+              padding: EdgeInsets.all(20.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Badge
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: _kGold,
+                      borderRadius: BorderRadius.circular(999.r),
+                    ),
+                    child: Text(
+                      'جديدة',
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    '٢٥ كغم',
+                    style: GoogleFonts.cairo(
+                      fontSize: 26.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    'بالة ملابس نسائية — نخب أول',
+                    style: GoogleFonts.cairo(
+                      fontSize: 13.sp,
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '١٢٠,٠٠٠ د.ع',
+                        style: GoogleFonts.cairo(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.bold,
+                          color: _kGold,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.push('/balla/b1'),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20.w, vertical: 10.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Text(
+                            'تسوق',
+                            style: GoogleFonts.cairo(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              color: _kPurple,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Unit Toggle ───────────────────────────────────────────────────
   Widget _buildUnitToggle() {
     final units = ['بالكيلو', 'بالقطعة', 'بالحزمة'];
     return Padding(
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
       child: Container(
-        height: 44.h,
+        height: 46.h,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppTheme.ballaPurple.withValues(alpha: 0.12)),
+          border: Border.all(color: _kBorder),
         ),
         child: Row(
           children: List.generate(units.length, (i) {
@@ -248,8 +456,11 @@ class _BallaPageState extends State<BallaPage> {
                   duration: const Duration(milliseconds: 200),
                   margin: EdgeInsets.all(4.w),
                   decoration: BoxDecoration(
-                    color: selected ? AppTheme.ballaPurple : Colors.transparent,
+                    color: selected ? _kPurple : Colors.transparent,
                     borderRadius: BorderRadius.circular(8.r),
+                    border: selected
+                        ? null
+                        : Border.all(color: _kPurple.withValues(alpha: 0.25)),
                   ),
                   alignment: Alignment.center,
                   child: Text(
@@ -257,7 +468,7 @@ class _BallaPageState extends State<BallaPage> {
                     style: GoogleFonts.cairo(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.bold,
-                      color: selected ? Colors.white : AppTheme.textSecondary,
+                      color: selected ? Colors.white : _kPurple,
                     ),
                   ),
                 ),
@@ -269,21 +480,187 @@ class _BallaPageState extends State<BallaPage> {
     );
   }
 
-  Widget _buildCategoriesGrid() {
+  // ── Category Chips ────────────────────────────────────────────────
+  Widget _buildCategoryChips() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: EdgeInsets.only(top: 14.h),
+      child: SizedBox(
+        height: 38.h,
+        child: ListView.separated(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          scrollDirection: Axis.horizontal,
+          itemCount: _kCategories.length,
+          separatorBuilder: (_, _) => SizedBox(width: 8.w),
+          itemBuilder: (context, i) {
+            final selected = _selectedCategory == i;
+            return GestureDetector(
+              onTap: () => setState(() => _selectedCategory = i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                decoration: BoxDecoration(
+                  color: selected ? _kPurple : Colors.white,
+                  borderRadius: BorderRadius.circular(999.r),
+                  border: Border.all(
+                    color: selected ? _kPurple : _kBorder,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  _kCategories[i],
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : _kPurple,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // ── Filter / View Row ─────────────────────────────────────────────
+  Widget _buildFilterRow() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+      child: Row(
         children: [
-          Row(
+          // Filter dropdown
+          Container(
+            height: 36.h,
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: _kBorder),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.tune_rounded, color: _kPurple, size: 16.sp),
+                SizedBox(width: 6.w),
+                Text(
+                  'فلترة',
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _kPurple,
+                  ),
+                ),
+                SizedBox(width: 4.w),
+                Icon(Icons.keyboard_arrow_down_rounded, color: _kPurple, size: 16.sp),
+              ],
+            ),
+          ),
+          const Spacer(),
+          // Grid / list toggle
+          GestureDetector(
+            onTap: () => setState(() => _isGridView = !_isGridView),
+            child: Container(
+              width: 36.w,
+              height: 36.h,
+              decoration: BoxDecoration(
+                color: _isGridView ? _kPurple : Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: _kBorder),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.grid_view_rounded,
+                color: _isGridView ? Colors.white : _kPurple,
+                size: 18.sp,
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: () => setState(() => _isGridView = !_isGridView),
+            child: Container(
+              width: 36.w,
+              height: 36.h,
+              decoration: BoxDecoration(
+                color: !_isGridView ? _kPurple : Colors.white,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: _kBorder),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.view_list_rounded,
+                color: !_isGridView ? Colors.white : _kPurple,
+                size: 18.sp,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Balla Grid ────────────────────────────────────────────────────
+  Widget _buildBallaGrid() {
+    final items = _filteredItems;
+    if (items.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 40.h),
+        child: Center(
+          child: Text(
+            'لا توجد بالات في هذا القسم',
+            style: GoogleFonts.cairo(fontSize: 15.sp, color: AppTheme.textSecondary),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+      child: _isGridView
+          ? GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12.h,
+                crossAxisSpacing: 12.w,
+                childAspectRatio: 0.62,
+              ),
+              itemCount: items.length,
+              itemBuilder: (context, index) => _BallaCard(
+                item: items[index],
+                pricePerUnit: _pricePerUnitLabel(items[index]),
+              ),
+            )
+          : ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: items.length,
+              separatorBuilder: (_, _) => SizedBox(height: 12.h),
+              itemBuilder: (context, index) => _BallaListCard(
+                item: items[index],
+                pricePerUnit: _pricePerUnitLabel(items[index]),
+              ),
+            ),
+    );
+  }
+
+  // ── "بالات مميزة" section ─────────────────────────────────────────
+  Widget _buildFeaturedSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 12.h),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'الأقسام',
+                'بالات مميزة',
                 style: GoogleFonts.cairo(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  color: _kText,
                 ),
               ),
               Text(
@@ -291,461 +668,408 @@ class _BallaPageState extends State<BallaPage> {
                 style: GoogleFonts.cairo(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.ballaPurple,
+                  color: _kPurple,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 12.h),
-          BlocBuilder<CategoryCubit, CategoryState>(
-            builder: (context, state) {
-              return state.map(
-                initial: (_) => const CategoryChipsSkeleton(),
-                loading: (_) => const CategoryChipsSkeleton(),
-                error: (e) => Center(child: Text(e.message)),
-                loaded: (loaded) {
-                  final cats = loaded.categories.take(6).toList();
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 12.h,
-                      crossAxisSpacing: 12.w,
-                      childAspectRatio: 0.85,
-                    ),
-                    itemCount: cats.length,
-                    itemBuilder: (context, index) {
-                      final cat = cats[index];
-                      return GestureDetector(
-                        onTap: () => context.read<CategoryCubit>().drillDown(cat.id),
-                        child: _CategoryCell(
-                          label: cat.nameAr,
-                          count: 0,
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, String action) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 12.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.cairo(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          Text(
-            action,
-            style: GoogleFonts.cairo(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.ballaPurple,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrendingDeals() {
-    final deals = [
-      _TrendingDeal(label: 'ملابس شتوية', subtitle: 'نخب أول', price: 45000),
-      _TrendingDeal(label: 'أحذية جلدية', subtitle: 'استيراد أوروبي', price: 62000),
-      _TrendingDeal(label: 'ملابس أطفال', subtitle: 'مختلطة', price: 28000),
-    ];
-
-    return SizedBox(
-      height: 180.h,
-      child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        scrollDirection: Axis.horizontal,
-        itemCount: deals.length,
-        separatorBuilder: (ctx, i) => SizedBox(width: 12.w),
-        itemBuilder: (context, index) => _TrendingCard(deal: deals[index]),
-      ),
-    );
-  }
-
-  Widget _buildProductsList() {
-    return BlocBuilder<HomeCubit, HomeState>(
-      builder: (context, state) {
-        if (state.isLoading && state.portal.balla.isEmpty) {
-          return const BallaListSkeleton();
-        }
-
-        final items = state.portal.balla;
-        if (items.isEmpty) {
-          return SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 40.h),
-                child: Text(
-                  'لا يوجد عروض حصرية حالياً',
-                  style: GoogleFonts.cairo(
-                    fontSize: 16.sp,
-                    color: AppTheme.inactive,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-
-        return SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          sliver: SliverList.separated(
-            itemCount: items.length,
-            separatorBuilder: (context, index) => SizedBox(height: 16.h),
-            itemBuilder: (context, index) {
-              return _BulkItemCard(item: items[index]);
-            },
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ── App Bar Button ─────────────────────────────────────────────────
-class _AppBarBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _AppBarBtn({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40.w,
-        height: 40.w,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.15)),
         ),
-        alignment: Alignment.center,
-        child: Icon(icon, color: AppTheme.textPrimary, size: 20.sp),
-      ),
+        SizedBox(
+          height: 220.h,
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            scrollDirection: Axis.horizontal,
+            itemCount: _kMockItems.length,
+            separatorBuilder: (_, _) => SizedBox(width: 12.w),
+            itemBuilder: (context, index) => _FeaturedCard(
+              item: _kMockItems[index],
+              pricePerUnit: _pricePerUnitLabel(_kMockItems[index]),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
-// ── Category Cell ──────────────────────────────────────────────────
-class _CategoryCell extends StatelessWidget {
-  final String label;
-  final int count;
+// ── Balla Grid Card ────────────────────────────────────────────────
+class _BallaCard extends StatelessWidget {
+  final _BallaItem item;
+  final String pricePerUnit;
 
-  const _CategoryCell({required this.label, required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.ballaPurple.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 48.w,
-            height: 48.w,
-            decoration: BoxDecoration(
-              color: AppTheme.ballaPurple.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.category_rounded,
-              color: AppTheme.ballaPurple,
-              size: 24.sp,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            label,
-            style: GoogleFonts.cairo(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (count > 0)
-            Text(
-              '$count منتج',
-              style: GoogleFonts.cairo(
-                fontSize: 10.sp,
-                color: AppTheme.textSecondary,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Trending Deal model & card ─────────────────────────────────────
-class _TrendingDeal {
-  final String label;
-  final String subtitle;
-  final int price;
-  _TrendingDeal({required this.label, required this.subtitle, required this.price});
-}
-
-class _TrendingCard extends StatelessWidget {
-  final _TrendingDeal deal;
-  const _TrendingCard({required this.deal});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150.w,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.ballaPurple.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.ballaPurple.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 100.h,
-            color: AppTheme.ballaPurple.withValues(alpha: 0.08),
-            child: Center(
-              child: Icon(
-                Icons.inventory_2_rounded,
-                color: AppTheme.ballaPurple,
-                size: 40.sp,
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  deal.label,
-                  style: GoogleFonts.cairo(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  deal.subtitle,
-                  style: GoogleFonts.cairo(
-                    fontSize: 11.sp,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  IqdFormatter.format(deal.price),
-                  style: GoogleFonts.cairo(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.ballaPurple,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Bulk Item Card ─────────────────────────────────────────────────
-class _BulkItemCard extends StatelessWidget {
-  final dynamic item;
-  const _BulkItemCard({required this.item});
+  const _BallaCard({required this.item, required this.pricePerUnit});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/balla/product', extra: item),
+      onTap: () => context.push('/balla/${item.id}'),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: AppTheme.ballaPurple.withValues(alpha: 0.08)),
+          border: Border.all(color: const Color(0xFFD2BBFF)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.06),
               blurRadius: 10,
-              offset: const Offset(0, 2),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
-            SizedBox(
-              height: 180.h,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (item.images.isNotEmpty)
-                    CachedNetworkImage(
-                      imageUrl: item.images.first,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
-                        color: AppTheme.ballaPurple.withValues(alpha: 0.06),
+            // Image area
+            Stack(
+              children: [
+                Container(
+                  height: 130.h,
+                  width: double.infinity,
+                  color: const Color(0xFFEDE7F6),
+                  child: const Center(
+                    child: Icon(Icons.inventory_2_rounded,
+                        color: Color(0xFF7C3AED), size: 40),
+                  ),
+                ),
+                // Weight badge
+                Positioned(
+                  top: 8.h,
+                  right: 8.w,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF7C3AED),
+                      borderRadius: BorderRadius.circular(999.r),
+                    ),
+                    child: Text(
+                      '${item.weightKg} كغم',
+                      style: GoogleFonts.cairo(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                    )
-                  else
-                    Container(color: AppTheme.ballaPurple.withValues(alpha: 0.06)),
-                  // Grade badge
-                  Positioned(
-                    top: 12.h,
-                    right: 12.w,
+                    ),
+                  ),
+                ),
+                // Verified badge
+                Positioned(
+                    top: 8.h,
+                    left: 8.w,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF7C3AED),
-                        borderRadius: BorderRadius.circular(99.r),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(999.r),
+                        border: Border.all(color: const Color(0xFFD2BBFF)),
                       ),
-                      child: Text(
-                        'نخب أول',
-                        style: GoogleFonts.cairo(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 12.h,
-                    left: 12.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(99.r),
-                      ),
-                      child: Text(
-                        '🇪🇺 استيراد',
-                        style: GoogleFonts.cairo(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Info
-            Padding(
-              padding: EdgeInsets.all(14.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: GoogleFonts.cairo(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4.h),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on_rounded, size: 12.sp, color: AppTheme.textSecondary),
-                      SizedBox(width: 2.w),
-                      Text(
-                        'البصرة، العراق',
-                        style: GoogleFonts.cairo(fontSize: 11.sp, color: AppTheme.textSecondary),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 12.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
+                          Icon(Icons.verified_rounded,
+                              color: const Color(0xFF7C3AED), size: 10.sp),
+                          SizedBox(width: 2.w),
                           Text(
-                            'سعر الكيلو',
-                            style: GoogleFonts.cairo(fontSize: 11.sp, color: AppTheme.textSecondary),
-                          ),
-                          Text(
-                            IqdFormatter.format(item.price),
+                            'موثق',
                             style: GoogleFonts.cairo(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.ballaPurple,
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF7C3AED),
                             ),
                           ),
                         ],
                       ),
-                      BlocBuilder<BallaCartCubit, CartState>(
-                        builder: (ctx, cartState) {
-                          final inCart = cartState.isInCart(item.id);
-                          return GestureDetector(
-                            onTap: () => ctx.read<BallaCartCubit>().addToCart(item),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                              decoration: BoxDecoration(
-                                color: inCart ? AppTheme.ballaPurpleSurface : AppTheme.ballaPurple,
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              child: Text(
-                                inCart ? 'في السلة ✓' : 'أضف للسلة',
-                                style: GoogleFonts.cairo(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: inCart ? AppTheme.ballaPurple : Colors.white,
-                                ),
+                    ),
+                  ),
+              ],
+            ),
+            // Info
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(10.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.bold,
+                        color: _kText,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      IqdFormatter.format(item.totalPrice),
+                      style: GoogleFonts.cairo(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w800,
+                        color: _kGold,
+                      ),
+                    ),
+                    Text(
+                      pricePerUnit,
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF7C3AED),
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.shop,
+                            style: GoogleFonts.cairo(
+                              fontSize: 10.sp,
+                              color: AppTheme.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Icon(Icons.star_rounded, color: _kGold, size: 12.sp),
+                        SizedBox(width: 2.w),
+                        Text(
+                          item.stars.toString(),
+                          style: GoogleFonts.cairo(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.bold,
+                            color: _kText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Balla List Card ────────────────────────────────────────────────
+class _BallaListCard extends StatelessWidget {
+  final _BallaItem item;
+  final String pricePerUnit;
+
+  const _BallaListCard({required this.item, required this.pricePerUnit});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/balla/${item.id}'),
+      child: Container(
+        height: 110.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: const Color(0xFFD2BBFF)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          children: [
+            // Image
+            Container(
+              width: 110.w,
+              color: const Color(0xFFEDE7F6),
+              child: const Center(
+                child: Icon(Icons.inventory_2_rounded,
+                    color: Color(0xFF7C3AED), size: 36),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.name,
+                            style: GoogleFonts.cairo(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.bold,
+                              color: _kText,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Icon(Icons.verified_rounded,
+                            color: const Color(0xFF7C3AED), size: 14.sp),
+                      ],
+                    ),
+                    Text(
+                      '${item.weightKg} كغم — ${item.category}',
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              IqdFormatter.format(item.totalPrice),
+                              style: GoogleFonts.cairo(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w800,
+                                color: _kGold,
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ],
+                            Text(
+                              pricePerUnit,
+                              style: GoogleFonts.cairo(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF7C3AED),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Icon(Icons.star_rounded, color: _kGold, size: 12.sp),
+                            SizedBox(width: 2.w),
+                            Text(
+                              item.stars.toString(),
+                              style: GoogleFonts.cairo(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.bold,
+                                color: _kText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Featured Horizontal Card ───────────────────────────────────────
+class _FeaturedCard extends StatelessWidget {
+  final _BallaItem item;
+  final String pricePerUnit;
+
+  const _FeaturedCard({required this.item, required this.pricePerUnit});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/balla/${item.id}'),
+      child: Container(
+        width: 160.w,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: const Color(0xFFD2BBFF)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.07),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                Container(
+                  height: 120.h,
+                  width: double.infinity,
+                  color: const Color(0xFFEDE7F6),
+                  child: const Center(
+                    child: Icon(Icons.inventory_2_rounded,
+                        color: Color(0xFF7C3AED), size: 44),
                   ),
-                ],
+                ),
+                Positioned(
+                  top: 8.h,
+                  right: 8.w,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                    decoration: BoxDecoration(
+                      color: _kGold,
+                      borderRadius: BorderRadius.circular(999.r),
+                    ),
+                    child: Text(
+                      '${item.weightKg} كغم',
+                      style: GoogleFonts.cairo(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(10.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.bold,
+                        color: _kText,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    Text(
+                      IqdFormatter.format(item.totalPrice),
+                      style: GoogleFonts.cairo(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w800,
+                        color: _kGold,
+                      ),
+                    ),
+                    Text(
+                      pricePerUnit,
+                      style: GoogleFonts.cairo(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF7C3AED),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
