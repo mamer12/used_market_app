@@ -444,7 +444,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
             ),
           ),
           const Spacer(),
-          // Viewer count
+          // Viewer + bidder counts
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -457,6 +457,18 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                   fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textTertiary,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Icon(Icons.gavel_rounded,
+                  size: 14.sp, color: AppTheme.accentRed),
+              SizedBox(width: 4.w),
+              Text(
+                '${(viewers ~/ 6)} مزايد',
+                style: GoogleFonts.cairo(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.accentRed,
                 ),
               ),
             ],
@@ -761,22 +773,22 @@ class _AuctionLivePageState extends State<AuctionLivePage>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Quick bid rail (Stitch: +٥,٠٠٠ / +١٠,٠٠٠ / +٢٥,٠٠٠)
+                  // Quick bid rail (Stitch v2: +٥٠,٠٠٠ / +١٠٠,٠٠٠ / +٢٥٠,٠٠٠)
                   Row(
                     children: [
                       _QuickBidBtn(
-                        label: '+٥,٠٠٠',
-                        onTap: () => _handleBidTap(currentHigh + 5000),
+                        label: '+٥٠,٠٠٠',
+                        onTap: () => _handleBidTap(currentHigh + 50000),
                       ),
                       SizedBox(width: 10.w),
                       _QuickBidBtn(
-                        label: '+١٠,٠٠٠',
-                        onTap: () => _handleBidTap(currentHigh + 10000),
+                        label: '+١٠٠,٠٠٠',
+                        onTap: () => _handleBidTap(currentHigh + 100000),
                       ),
                       SizedBox(width: 10.w),
                       _QuickBidBtn(
-                        label: '+٢٥,٠٠٠',
-                        onTap: () => _handleBidTap(currentHigh + 25000),
+                        label: '+٢٥٠,٠٠٠',
+                        onTap: () => _handleBidTap(currentHigh + 250000),
                       ),
                     ],
                   ),

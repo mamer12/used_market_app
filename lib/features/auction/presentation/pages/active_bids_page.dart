@@ -27,7 +27,7 @@ class _ActiveBidsPageState extends State<ActiveBidsPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
-  static const _tabs = ['جارية', 'منتهية', 'فائزة', 'الكل'];
+  static const _tabs = ['نشطة', 'مكتملة', 'مسودات', 'الكل'];
 
   @override
   void initState() {
@@ -99,37 +99,37 @@ class _ActiveBidsPageState extends State<ActiveBidsPage>
             body: TabBarView(
               controller: _tabController,
               children: [
-                // جارية — Active bids (mocked as first half)
+                // نشطة — Active auctions
                 _BidsList(
                   bids: bids.take(activeCount).toList(),
                   isLoading: state.isLoadingMyBids,
-                  emptyLabel: 'لا توجد مزايدات جارية',
-                  statusLabel: 'جارية',
-                  statusColor: const Color(0xFF00F5FF),
+                  emptyLabel: 'لا توجد مزادات نشطة',
+                  statusLabel: 'نشط',
+                  statusColor: AppTheme.mazadGreen,
                 ),
-                // منتهية — Ended bids
+                // مكتملة — Completed auctions
                 _BidsList(
                   bids: bids.skip(activeCount).take(wonCount).toList(),
                   isLoading: state.isLoadingMyBids,
-                  emptyLabel: 'لا توجد مزايدات منتهية',
-                  statusLabel: 'منتهية',
-                  statusColor: Colors.white38,
+                  emptyLabel: 'لا توجد مزادات مكتملة',
+                  statusLabel: 'مكتمل',
+                  statusColor: const Color(0xFF00F5FF),
                 ),
-                // فائزة — Won bids
+                // مسودات — Draft auctions
                 _BidsList(
                   bids: bids.skip(bids.length - wonCount).toList(),
                   isLoading: state.isLoadingMyBids,
-                  emptyLabel: 'لا توجد مزايدات فائزة',
-                  statusLabel: 'فائزة',
-                  statusColor: AppTheme.mazadGreen,
+                  emptyLabel: 'لا توجد مسودات',
+                  statusLabel: 'مسودة',
+                  statusColor: Colors.white38,
                 ),
-                // الكل — All bids
+                // الكل — All
                 _BidsList(
                   bids: bids,
                   isLoading: state.isLoadingMyBids,
-                  emptyLabel: 'لا توجد مزايدات',
-                  statusLabel: 'قيد الانتظار',
-                  statusColor: Colors.white38,
+                  emptyLabel: 'لا توجد مزادات',
+                  statusLabel: 'نشط',
+                  statusColor: AppTheme.mazadGreen,
                 ),
               ],
             ),
@@ -332,7 +332,7 @@ class _BidsList extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              'ابدأ بالمزايدة على عناصر جديدة',
+              'أنشئ مزادك الأول أو تصفح المزادات',
               style: GoogleFonts.cairo(
                 fontSize: 13.sp,
                 color: Colors.white38,
@@ -342,7 +342,7 @@ class _BidsList extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 HapticFeedback.selectionClick();
-                context.go('/mazadat');
+                context.push('/mazadat/create');
               },
               child: Container(
                 padding:
@@ -352,7 +352,7 @@ class _BidsList extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                 ),
                 child: Text(
-                  'تصفح المزادات',
+                  'أنشئ مزاداً',
                   style: GoogleFonts.cairo(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,

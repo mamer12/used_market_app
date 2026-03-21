@@ -399,10 +399,82 @@ class _MustamalPageState extends State<MustamalPage> {
                 ),
               ),
 
+              // ── Trending Searches ─────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 12.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'أكثر بحثاً 🔥',
+                        style: GoogleFonts.tajawal(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      Wrap(
+                        spacing: 8.w,
+                        runSpacing: 8.h,
+                        children: [
+                          'آيفون ١٥',
+                          'بلايستيشن ٥',
+                          'لابتوب',
+                          'دراجة هوائية',
+                          'سامسونج',
+                          'تلفزيون',
+                        ].map((term) {
+                          return GestureDetector(
+                            onTap: () => HapticFeedback.selectionClick(),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14.w, vertical: 8.h),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusFull),
+                                border: Border.all(
+                                    color: _orange.withValues(alpha: 0.15)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.search_rounded,
+                                      color: _orange, size: 14.sp),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    term,
+                                    style: GoogleFonts.tajawal(
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.textPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
               // ── All Categories List ───────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 8.h),
+                  padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
                   child: Text(
                     l10n.mustamalAllCategories,
                     style: GoogleFonts.tajawal(

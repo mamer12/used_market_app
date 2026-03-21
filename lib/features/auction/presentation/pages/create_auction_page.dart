@@ -36,13 +36,19 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
 
   String _selectedCategory = 'electronics';
   String _selectedCondition = 'new';
-  int _selectedDurationIndex = 0; // 0=24h, 1=3d, 2=7d
+  int _selectedDurationIndex = 1; // 0=1d, 1=3d, 2=5d, 3=7d
 
   static const _durationOptions = [
-    {'label': '٢٤ ساعة', 'hours': 24},
+    {'label': 'يوم', 'hours': 24},
     {'label': '٣ أيام', 'hours': 72},
+    {'label': '٥ أيام', 'hours': 120},
     {'label': '٧ أيام', 'hours': 168},
   ];
+
+  final _buyNowController = TextEditingController();
+
+  bool _deliveryEnabled = false;
+  bool _buyNowEnabled = false;
 
   final List<File> _selectedImages = [];
   static const _maxImages = 6;
@@ -79,6 +85,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     _startPriceController.dispose();
     _minBidController.dispose();
     _cityController.dispose();
+    _buyNowController.dispose();
     super.dispose();
   }
 
@@ -272,9 +279,48 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                 ),
                 SizedBox(height: 20.h),
 
-                // ── Duration Chips (Stitch Screen 6) ─────────────────
+                // ── Duration Chips (Stitch v2: يوم/٣/٥/٧) ───────────
                 _buildDurationChips(),
-                SizedBox(height: 16.h),
+                SizedBox(height: 20.h),
+
+                // ── Delivery Toggle ───────────────────────────────────
+                _buildToggleRow(
+                  icon: Icons.local_shipping_rounded,
+                  label: 'التوصيل متاح',
+                  subtitle: 'هل يمكنك توصيل المنتج للمشتري؟',
+                  value: _deliveryEnabled,
+                  onChanged: (v) => setState(() => _deliveryEnabled = v),
+                ),
+                SizedBox(height: 12.h),
+
+                // ── Buy-Now Toggle + Price ────────────────────────────
+                _buildToggleRow(
+                  icon: Icons.bolt_rounded,
+                  label: 'سعر الشراء الفوري',
+                  subtitle: 'اسمح للمشترين بشراء المنتج مباشرة',
+                  value: _buyNowEnabled,
+                  onChanged: (v) => setState(() => _buyNowEnabled = v),
+                ),
+                if (_buyNowEnabled) ...[
+                  SizedBox(height: 12.h),
+                  _buildTextField(
+                    controller: _buyNowController,
+                    label: 'سعر الشراء الفوري (د.ع)',
+                    icon: Icons.bolt_rounded,
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      if (_buyNowEnabled && (v == null || v.isEmpty)) {
+                        return 'يرجى إدخال السعر';
+                      }
+                      if (v != null && v.isNotEmpty) {
+                        final n = int.tryParse(v);
+                        if (n == null) return 'أرقام فقط';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+                SizedBox(height: 20.h),
 
                 _buildTextField(
                   controller: _cityController,
@@ -284,7 +330,7 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
                 ),
                 SizedBox(height: 24.h),
 
-                // ── Escrow Guarantee Card (Stitch Screen 6) ──────────
+                // ── Escrow Guarantee Card ──────────────────────────────
                 _buildEscrowGuaranteeCard(),
                 SizedBox(height: 24.h),
 
@@ -600,6 +646,78 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
           }),
         ),
       ],
+    );
+  }
+
+  // ── Toggle Row (delivery / buy-now) ──────────────────────────────────────
+  Widget _buildToggleRow({
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceAlt,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(
+          color: value
+              ? AppTheme.mazadGreen.withValues(alpha: 0.4)
+              : AppTheme.divider,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40.w,
+            height: 40.w,
+            decoration: BoxDecoration(
+              color: value
+                  ? AppTheme.mazadGreen.withValues(alpha: 0.12)
+                  : AppTheme.shimmerBase,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Icon(
+              icon,
+              color: value ? AppTheme.mazadGreen : AppTheme.inactive,
+              size: 20.sp,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.cairo(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.cairo(
+                    fontSize: 11.sp,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            onChanged: (v) {
+              HapticFeedback.selectionClick();
+              onChanged(v);
+            },
+            activeTrackColor: AppTheme.mazadGreen,
+          ),
+        ],
+      ),
     );
   }
 
