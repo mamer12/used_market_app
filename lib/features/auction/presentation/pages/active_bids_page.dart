@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -233,147 +232,114 @@ class _ActiveBidsPageState extends State<ActiveBidsPage> {
   // ── Bid Cards ─────────────────────────────────────────────────────────────
   List<Widget> _buildBidCards(List<dynamic> bids) {
     return bids.map((bid) {
-      final isWon = false; // BidModel needs robust status parsing depending on real API
-      final isLost = false;
-
+      // TODO: parse real bid status from API when BidModel supports it
       return Padding(
         padding: EdgeInsets.only(bottom: 12.h),
-        child: Opacity(
-          opacity: isLost ? 0.8 : 1.0,
-          child: Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: const Color(0xFF12121A),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: Colors.white12),
-            ),
-            child: Row(
-              children: [
-                // Image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  child: CachedNetworkImage(
-                    imageUrl: 'https://placehold.co/400x400',
-                    width: 80.w,
-                    height: 80.w,
-                    fit: BoxFit.cover,
-                    color: isLost ? Colors.grey : null,
-                    colorBlendMode: isLost ? BlendMode.saturation : null,
-                    placeholder: (_, _) => Container(color: Colors.white10),
-                    errorWidget: (_, _, _) => Container(color: Colors.white10),
-                  ),
+        child: Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFF12121A),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: Row(
+            children: [
+              // Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                child: CachedNetworkImage(
+                  imageUrl: 'https://placehold.co/400x400',
+                  width: 80.w,
+                  height: 80.w,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => Container(color: Colors.white10),
+                  errorWidget: (_, _, _) => Container(color: Colors.white10),
                 ),
-                SizedBox(width: 12.w),
-                // Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  bid.auctionId ?? 'عنصر',
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    height: 1.2,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 2.h),
-                                Text(
-                                  'الان',
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 11.sp,
-                                    color: Colors.white54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Status badge
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                            decoration: BoxDecoration(
-                              color: isWon
-                                  ? AppTheme.mazadGreen.withValues(alpha: 0.15)
-                                  : Colors.white10,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-                            ),
-                            child: Text(
-                              isWon ? 'فائز' : 'قيد الانتظار',
-                              style: GoogleFonts.cairo(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.bold,
-                                color: isWon ? AppTheme.mazadGreen : Colors.white54,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                      // Bottom row: price + action
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
+              ),
+              SizedBox(width: 12.w),
+              // Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'مزايدتك الأخيرة',
+                                bid.auctionId ?? 'عنصر',
                                 style: GoogleFonts.cairo(
-                                  fontSize: 10.sp,
-                                  color: Colors.white54,
-                                ),
-                              ),
-                              Text(
-                                IqdFormatter.format(bid.amount.toDouble()),
-                                style: AppTheme.priceStyle(
                                   fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.white,
+                                  height: 1.2,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                'الان',
+                                style: GoogleFonts.cairo(
+                                  fontSize: 11.sp,
+                                  color: Colors.white54,
                                 ),
                               ),
                             ],
                           ),
-                          if (isWon)
-                            GestureDetector(
-                              onTap: () {
-                                HapticFeedback.lightImpact();
-                                context.push('/mazadat/payment/${bid.auctionId}', extra: {
-                                  'winningBid': bid.amount,
-                                  'itemTitle': bid.auctionId ?? '',
-                                });
-                              },
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'التفاصيل',
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.mazadGreen,
-                                    ),
-                                  ),
-                                  Icon(Icons.chevron_left_rounded,
-                                      color: AppTheme.mazadGreen, size: 18.sp),
-                                ],
+                        ),
+                        // Status badge — always pending until API provides real status
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                          ),
+                          child: Text(
+                            'قيد الانتظار',
+                            style: GoogleFonts.cairo(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    // Bottom row: price
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'مزايدتك الأخيرة',
+                              style: GoogleFonts.cairo(
+                                fontSize: 10.sp,
+                                color: Colors.white54,
                               ),
-                            )
-                        ],
-                      ),
-                    ],
-                  ),
+                            ),
+                            Text(
+                              IqdFormatter.format(bid.amount.toDouble()),
+                              style: AppTheme.priceStyle(
+                                fontSize: 14.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );

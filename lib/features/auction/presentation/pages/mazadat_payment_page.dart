@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,29 +45,27 @@ class _MazadatPaymentPageState extends State<MazadatPaymentPage> {
     setState(() => _isProcessing = false);
 
     if (success) {
-      HapticFeedback.heavyImpact();
-      if (mounted) {
-        context.pushReplacement('/mazadat/payment-success', extra: {
-          'auctionId': widget.auctionId,
-          'itemTitle': widget.itemTitle,
-          'finalPrice': widget.winningBid.toDouble(),
-          'imageUrl': widget.imageUrl,
-          'transactionId': 'TXN-${DateTime.now().millisecondsSinceEpoch}',
-        });
-      }
+      unawaited(HapticFeedback.heavyImpact());
+      // ignore: use_build_context_synchronously
+      context.pushReplacement('/mazadat/payment-success', extra: {
+        'auctionId': widget.auctionId,
+        'itemTitle': widget.itemTitle,
+        'finalPrice': widget.winningBid.toDouble(),
+        'imageUrl': widget.imageUrl,
+        'transactionId': 'TXN-${DateTime.now().millisecondsSinceEpoch}',
+      });
     } else {
-      HapticFeedback.vibrate();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'حدث خطأ أثناء الدفع، تأكد من رصيدك',
-              style: GoogleFonts.cairo(),
-            ),
-            backgroundColor: AppTheme.error,
+      unawaited(HapticFeedback.vibrate());
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'حدث خطأ أثناء الدفع، تأكد من رصيدك',
+            style: GoogleFonts.cairo(),
           ),
-        );
-      }
+          backgroundColor: AppTheme.error,
+        ),
+      );
     }
   }
 
@@ -199,7 +199,7 @@ class _MazadatPaymentPageState extends State<MazadatPaymentPage> {
                               ),
                             )
                           else
-                            Icon(Icons.check_circle_rounded, color: AppTheme.success),
+                            const Icon(Icons.check_circle_rounded, color: AppTheme.success),
                         ],
                       ),
                     ),
