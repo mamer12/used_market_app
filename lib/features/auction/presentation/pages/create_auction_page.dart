@@ -13,11 +13,19 @@ import '../../../auction/data/datasources/auction_remote_data_source.dart';
 import '../../../auction/data/models/auction_models.dart';
 import '../../../media/data/datasources/media_remote_data_source.dart';
 
-/// Create Auction form — "أطلق مزادك".
+// ── Mazadat dark palette ────────────────────────────────────────────────────
+const Color _kBg      = Color(0xFF0A0A0F);
+const Color _kSurface = Color(0xFF12121A);
+const Color _kBorder  = Color(0xFF1E1E2A);
+const Color _kPrimary = Color(0xFFFF3D5A); // red
+const Color _kCyan    = Color(0xFF00F5FF); // cyan
+const Color _kTextPri = Color(0xFFFFFFFF);
+const Color _kTextSec = Color(0xFF9CA3AF);
+
+/// Create Auction form — "مزاد جديد".
 ///
-/// Image grid (1 main + thumbnails), duration chips, escrow guarantee card.
-///
-/// Based on Stitch Screen 6 (bce228b7).
+/// Full dark Mazadat design (Stitch screen). Image upload grid (3-col),
+/// condition chips, duration chips (cyan selected), delivery toggle, submit.
 class CreateAuctionPage extends StatefulWidget {
   const CreateAuctionPage({super.key});
 
@@ -28,71 +36,82 @@ class CreateAuctionPage extends StatefulWidget {
 class _CreateAuctionPageState extends State<CreateAuctionPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final _titleController = TextEditingController();
-  final _descController = TextEditingController();
+  final _titleController      = TextEditingController();
+  final _descController       = TextEditingController();
   final _startPriceController = TextEditingController();
-  final _minBidController = TextEditingController();
+  final _minBidController     = TextEditingController();
+  final _buyNowController     = TextEditingController();
+
+  // kept from original — city not shown in Stitch but preserved for submit
   final _cityController = TextEditingController(text: 'بغداد');
 
-  String _selectedCategory = 'electronics';
-  String _selectedCondition = 'new';
-  int _selectedDurationIndex = 1; // 0=1d, 1=3d, 2=5d, 3=7d
+  String _selectedCategory    = 'ساعات';
+  String _selectedCondition   = 'new';
+  int    _selectedDurationIndex = 1; // 0=1d, 1=3d, 2=5d, 3=7d
+  bool   _deliveryEnabled     = false;
+  bool   _startNow            = true; // true = "الآن", false = date picker
+  DateTime? _scheduledDate;
 
   static const _durationOptions = [
-    {'label': 'يوم', 'hours': 24},
+    {'label': 'يوم',    'hours': 24},
     {'label': '٣ أيام', 'hours': 72},
     {'label': '٥ أيام', 'hours': 120},
     {'label': '٧ أيام', 'hours': 168},
   ];
 
-  final _buyNowController = TextEditingController();
+  static const _categoryOptions = ['ساعات', 'إلكترونيات', 'سيارات', 'عقارات'];
 
-  bool _deliveryEnabled = false;
-  bool _buyNowEnabled = false;
+  static const _conditionOptions = [
+    {'label': 'جديد',             'value': 'new'},
+    {'label': 'مستعمل - ممتاز',  'value': 'used_excellent'},
+    {'label': 'مستعمل - جيد',    'value': 'used_good'},
+    {'label': 'مستعمل',          'value': 'used_fair'},
+  ];
 
+  static const _maxImages = 10;
   final List<File> _selectedImages = [];
-  static const _maxImages = 6;
 
-  bool _isLoading = false;
+  bool    _isLoading   = false;
   String? _loadingStep;
 
-  final _picker = ImagePicker();
+  final _picker    = ImagePicker();
   late final MediaRemoteDataSource _mediaDs;
   late final AuctionRemoteDataSource _auctionDs;
 
-  static const _categories = [
-    'electronics',
-    'cars',
-    'furniture',
-    'fashion',
-    'real_estate',
-    'other',
-  ];
-
-  static const _conditions = ['new', 'used_good', 'used_fair'];
+  // derived: publish button enabled only when title + start price are filled
+  bool get _canPublish =>
+      _titleController.text.trim().isNotEmpty &&
+      _startPriceController.text.trim().isNotEmpty;
 
   @override
   void initState() {
     super.initState();
-    _mediaDs = getIt<MediaRemoteDataSource>();
+    _mediaDs  = getIt<MediaRemoteDataSource>();
     _auctionDs = getIt<AuctionRemoteDataSource>();
+    _titleController.addListener(_onFieldChanged);
+    _startPriceController.addListener(_onFieldChanged);
   }
+
+  void _onFieldChanged() => setState(() {});
 
   @override
   void dispose() {
+    _titleController.removeListener(_onFieldChanged);
+    _startPriceController.removeListener(_onFieldChanged);
     _titleController.dispose();
     _descController.dispose();
     _startPriceController.dispose();
     _minBidController.dispose();
-    _cityController.dispose();
     _buyNowController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
+  // ── Image picking ──────────────────────────────────────────────────────────
   Future<void> _pickImages() async {
     if (_selectedImages.length >= _maxImages) return;
     final remaining = _maxImages - _selectedImages.length;
-    final picked = await _picker.pickMultiImage(limit: remaining);
+    final picked    = await _picker.pickMultiImage(limit: remaining);
     if (picked.isEmpty) return;
     setState(() {
       for (final xf in picked) {
@@ -103,15 +122,15 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     });
   }
 
-  void _removeImage(int index) {
-    setState(() => _selectedImages.removeAt(index));
-  }
+  void _removeImage(int index) =>
+      setState(() => _selectedImages.removeAt(index));
 
+  // ── Submit ─────────────────────────────────────────────────────────────────
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
-      _isLoading = true;
+      _isLoading   = true;
       _loadingStep = 'جاري رفع الصور…';
     });
 
@@ -128,11 +147,11 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
           _durationOptions[_selectedDurationIndex]['hours'] as int;
 
       final request = CreateAuctionRequest(
-        title: _titleController.text.trim(),
-        description: _descController.text.trim(),
-        category: _selectedCategory,
-        condition: _selectedCondition,
-        startPrice: int.parse(_startPriceController.text.trim()),
+        title:           _titleController.text.trim(),
+        description:     _descController.text.trim(),
+        category:        _selectedCategory,
+        condition:       _selectedCondition,
+        startPrice:      int.parse(_startPriceController.text.trim()),
         minBidIncrement: _minBidController.text.trim().isEmpty
             ? 1000
             : int.parse(_minBidController.text.trim()),
@@ -169,222 +188,321 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     }
   }
 
+  // ── Build ──────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: Text(
-          l10n.auctionCreateTitle,
-          style: GoogleFonts.cairo(
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
-        ),
-        backgroundColor: AppTheme.background,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
-      ),
+      backgroundColor: _kBg,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(l10n),
-                SizedBox(height: 24.h),
-
-                // ── Image Grid (Stitch Screen 6) ────────────────────
-                _buildImageGrid(l10n),
-                SizedBox(height: 24.h),
-
-                // ── Title ────────────────────────────────────────────
-                _buildTextField(
-                  controller: _titleController,
-                  label: l10n.auctionFieldTitle,
-                  icon: Icons.gavel_rounded,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return l10n.auctionFieldRequired;
-                    if (v.trim().length < 5) {
-                      return 'العنوان يجب أن يكون 5 أحرف على الأقل';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16.h),
-
-                // ── Description ──────────────────────────────────────
-                _buildTextField(
-                  controller: _descController,
-                  label: l10n.auctionFieldDescription,
-                  icon: Icons.description_outlined,
-                  maxLines: 4,
-                  validator: (v) =>
-                      v!.isEmpty ? l10n.auctionFieldRequired : null,
-                ),
-                SizedBox(height: 16.h),
-
-                // ── Category + Condition ─────────────────────────────
-                Row(
-                  children: [
-                    Expanded(child: _buildCategoryPicker(l10n)),
-                    SizedBox(width: 12.w),
-                    Expanded(child: _buildConditionPicker(l10n)),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-
-                // ── Price fields ─────────────────────────────────────
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTextField(
-                        controller: _startPriceController,
-                        label: l10n.auctionFieldStartPrice,
-                        icon: Icons.attach_money_rounded,
-                        keyboardType: TextInputType.number,
-                        validator: (v) {
-                          if (v == null || v.isEmpty) {
-                            return l10n.auctionFieldRequired;
-                          }
-                          final n = int.tryParse(v);
-                          if (n == null) return 'أرقام فقط';
-                          if (n < 1000) return 'الحد الأدنى 1,000';
-                          return null;
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: _buildTextField(
-                        controller: _minBidController,
-                        label: l10n.auctionFieldReservePrice,
-                        icon: Icons.trending_up_rounded,
-                        keyboardType: TextInputType.number,
-                        validator: (v) {
-                          if (v != null && v.isNotEmpty) {
+        child: Column(
+          children: [
+            _buildAppBar(context),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: 16.h),
+                      _buildImageGrid(),
+                      SizedBox(height: 20.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('عنوان المزاد'),
+                        SizedBox(height: 10.h),
+                        _buildDarkTextField(
+                          controller: _titleController,
+                          hint: 'مثال: ساعة رولكس أصلية',
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return 'العنوان مطلوب';
+                            }
+                            if (v.trim().length < 5) {
+                              return 'العنوان يجب أن يكون 5 أحرف على الأقل';
+                            }
+                            return null;
+                          },
+                        ),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('الوصف'),
+                        SizedBox(height: 10.h),
+                        _buildDarkTextField(
+                          controller: _descController,
+                          hint: 'اكتب وصفاً تفصيلياً للمنتج…',
+                          maxLines: 4,
+                          validator: (v) =>
+                              (v == null || v.isEmpty) ? 'الوصف مطلوب' : null,
+                        ),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('القسم'),
+                        SizedBox(height: 10.h),
+                        _buildCategoryRow(),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('الحالة'),
+                        SizedBox(height: 10.h),
+                        _buildConditionChips(),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('سعر البداية'),
+                        SizedBox(height: 10.h),
+                        _buildDarkTextField(
+                          controller: _startPriceController,
+                          hint: '0',
+                          suffix: 'د.ع',
+                          keyboardType: TextInputType.number,
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'مطلوب';
                             final n = int.tryParse(v);
                             if (n == null) return 'أرقام فقط';
                             if (n < 1000) return 'الحد الأدنى 1,000';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20.h),
-
-                // ── Duration Chips (Stitch v2: يوم/٣/٥/٧) ───────────
-                _buildDurationChips(),
-                SizedBox(height: 20.h),
-
-                // ── Delivery Toggle ───────────────────────────────────
-                _buildToggleRow(
-                  icon: Icons.local_shipping_rounded,
-                  label: 'التوصيل متاح',
-                  subtitle: 'هل يمكنك توصيل المنتج للمشتري؟',
-                  value: _deliveryEnabled,
-                  onChanged: (v) => setState(() => _deliveryEnabled = v),
-                ),
-                SizedBox(height: 12.h),
-
-                // ── Buy-Now Toggle + Price ────────────────────────────
-                _buildToggleRow(
-                  icon: Icons.bolt_rounded,
-                  label: 'سعر الشراء الفوري',
-                  subtitle: 'اسمح للمشترين بشراء المنتج مباشرة',
-                  value: _buyNowEnabled,
-                  onChanged: (v) => setState(() => _buyNowEnabled = v),
-                ),
-                if (_buyNowEnabled) ...[
-                  SizedBox(height: 12.h),
-                  _buildTextField(
-                    controller: _buyNowController,
-                    label: 'سعر الشراء الفوري (د.ع)',
-                    icon: Icons.bolt_rounded,
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      if (_buyNowEnabled && (v == null || v.isEmpty)) {
-                        return 'يرجى إدخال السعر';
-                      }
-                      if (v != null && v.isNotEmpty) {
-                        final n = int.tryParse(v);
-                        if (n == null) return 'أرقام فقط';
-                      }
-                      return null;
-                    },
+                            return null;
+                          },
+                        ),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('الحد الأدنى للمزايدة'),
+                        SizedBox(height: 10.h),
+                        _buildDarkTextField(
+                          controller: _minBidController,
+                          hint: '0',
+                          suffix: 'د.ع',
+                          keyboardType: TextInputType.number,
+                          validator: (v) {
+                            if (v != null && v.isNotEmpty) {
+                              final n = int.tryParse(v);
+                              if (n == null) return 'أرقام فقط';
+                              if (n < 1000) return 'الحد الأدنى 1,000';
+                            }
+                            return null;
+                          },
+                        ),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('سعر الشراء الفوري (اختياري)'),
+                        SizedBox(height: 10.h),
+                        _buildDarkTextField(
+                          controller: _buyNowController,
+                          hint: '0',
+                          suffix: 'د.ع',
+                          keyboardType: TextInputType.number,
+                          validator: (v) {
+                            if (v != null && v.isNotEmpty) {
+                              final n = int.tryParse(v);
+                              if (n == null) return 'أرقام فقط';
+                            }
+                            return null;
+                          },
+                        ),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('مدة المزاد'),
+                        SizedBox(height: 10.h),
+                        _buildDurationChips(),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildCard(children: [
+                        _buildSectionLabel('تاريخ البدء'),
+                        SizedBox(height: 10.h),
+                        _buildStartDateSection(context),
+                      ]),
+                      SizedBox(height: 12.h),
+                      _buildDeliveryToggle(),
+                      if (_deliveryEnabled) ...[
+                        SizedBox(height: 12.h),
+                        _buildCard(children: [
+                          _buildSectionLabel('تكلفة التوصيل'),
+                          SizedBox(height: 10.h),
+                          _buildDarkTextField(
+                            controller: _cityController,
+                            hint: '0',
+                            suffix: 'د.ع',
+                            keyboardType: TextInputType.number,
+                          ),
+                        ]),
+                      ],
+                      SizedBox(height: 24.h),
+                      _buildPublishButton(),
+                      SizedBox(height: 32.h),
+                    ],
                   ),
-                ],
-                SizedBox(height: 20.h),
-
-                _buildTextField(
-                  controller: _cityController,
-                  label: 'المدينة',
-                  icon: Icons.location_on_outlined,
-                  validator: (v) => v!.isEmpty ? 'يرجى إدخال المدينة' : null,
                 ),
-                SizedBox(height: 24.h),
-
-                // ── Escrow Guarantee Card ──────────────────────────────
-                _buildEscrowGuaranteeCard(),
-                SizedBox(height: 24.h),
-
-                _buildSubmitButton(l10n),
-                SizedBox(height: 32.h),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  // ── Header ────────────────────────────────────────────────────────────────
-  Widget _buildHeader(AppLocalizations l10n) {
+  // ── AppBar ─────────────────────────────────────────────────────────────────
+  Widget _buildAppBar(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppTheme.mazadGreen.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-        border: Border.all(color: AppTheme.mazadGreen.withValues(alpha: 0.15)),
+      height: 56.h,
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      decoration: const BoxDecoration(
+        color: _kBg,
+        border: Border(bottom: BorderSide(color: _kBorder)),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Container(
-            width: 64.w,
-            height: 64.w,
-            decoration: BoxDecoration(
-              color: AppTheme.mazadGreen.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.campaign_rounded,
-              size: 32.sp,
-              color: AppTheme.mazadGreen,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            l10n.auctionHostTitle,
-            style: GoogleFonts.cairo(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary,
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: 36.w,
+              height: 36.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _kSurface,
+                border: Border.all(color: _kBorder),
+              ),
+              child: Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: _kTextPri,
+                size: 16.sp,
+              ),
             ),
           ),
-          SizedBox(height: 4.h),
-          Text(
-            l10n.auctionHostSub,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.cairo(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textSecondary,
+          Expanded(
+            child: Text(
+              'مزاد جديد',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: _kTextPri,
+              ),
+            ),
+          ),
+          SizedBox(width: 36.w),
+        ],
+      ),
+    );
+  }
+
+  // ── Image upload grid (3-column, dashed cyan first cell) ───────────────────
+  Widget _buildImageGrid() {
+    final total     = _maxImages;
+    final filled    = _selectedImages.length;
+    // show up to (filled + 1) cells capped at total, minimum 3
+    final cellCount = (filled + 1).clamp(3, total);
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8.w,
+        mainAxisSpacing: 8.h,
+        childAspectRatio: 1.0,
+      ),
+      itemCount: cellCount,
+      itemBuilder: (context, index) {
+        if (index == 0 && filled == 0) {
+          // First cell — upload CTA (dashed cyan)
+          return GestureDetector(
+            onTap: _pickImages,
+            child: DashedBorderBox(
+              color: _kCyan,
+              borderRadius: 10.r,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.camera_alt_outlined,
+                      color: _kCyan, size: 24.sp),
+                  SizedBox(height: 4.h),
+                  Text(
+                    'أضف صور',
+                    style: GoogleFonts.cairo(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.bold,
+                      color: _kCyan,
+                    ),
+                  ),
+                  Text(
+                    '${_selectedImages.length}/$total صور',
+                    style: GoogleFonts.cairo(
+                      fontSize: 9.sp,
+                      color: _kTextSec,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // If we have an image at this index, show it
+        if (index < filled) {
+          return _buildImageThumbnail(index);
+        }
+
+        // "Add more" cell
+        return GestureDetector(
+          onTap: _pickImages,
+          child: DashedBorderBox(
+            color: _kCyan,
+            borderRadius: 10.r,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.camera_alt_outlined, color: _kCyan, size: 24.sp),
+                SizedBox(height: 4.h),
+                Text(
+                  'أضف صور',
+                  style: GoogleFonts.cairo(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.bold,
+                    color: _kCyan,
+                  ),
+                ),
+                Text(
+                  '${_selectedImages.length}/$total صور',
+                  style: GoogleFonts.cairo(
+                    fontSize: 9.sp,
+                    color: _kTextSec,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildImageThumbnail(int index) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10.r),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.file(_selectedImages[index], fit: BoxFit.cover),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: () => _removeImage(index),
+              child: Container(
+                width: 22.w,
+                height: 22.w,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.65),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.close, size: 12.sp, color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -392,280 +510,383 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
     );
   }
 
-  // ── Image Grid (Stitch: 1 main + 5 thumbs in 4-col arrangement) ──────────
-  Widget _buildImageGrid(AppLocalizations l10n) {
+  // ── Card wrapper ───────────────────────────────────────────────────────────
+  Widget _buildCard({required List<Widget> children}) {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: _kBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    return Text(
+      label,
+      style: GoogleFonts.cairo(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.bold,
+        color: _kTextPri,
+      ),
+    );
+  }
+
+  // ── Dark TextField ─────────────────────────────────────────────────────────
+  Widget _buildDarkTextField({
+    required TextEditingController controller,
+    String? hint,
+    String? suffix,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      validator: validator,
+      style: GoogleFonts.cairo(fontSize: 14.sp, color: _kTextPri),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: GoogleFonts.cairo(fontSize: 13.sp, color: _kTextSec),
+        suffixText: suffix,
+        suffixStyle:
+            GoogleFonts.cairo(fontSize: 13.sp, color: _kTextSec),
+        filled: true,
+        fillColor: _kBg,
+        contentPadding:
+            EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
+          borderSide: const BorderSide(color: _kBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
+          borderSide: const BorderSide(color: _kBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
+          borderSide: const BorderSide(color: _kCyan, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
+          borderSide: const BorderSide(color: _kPrimary),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.r),
+          borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+        ),
+        errorStyle: GoogleFonts.cairo(fontSize: 11.sp, color: _kPrimary),
+      ),
+    );
+  }
+
+  // ── Category row (tap to show bottom sheet) ────────────────────────────────
+  Widget _buildCategoryRow() {
+    return GestureDetector(
+      onTap: () => _showCategorySheet(),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: _kBg,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(color: _kBorder),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                _selectedCategory,
+                style: GoogleFonts.cairo(
+                  fontSize: 14.sp,
+                  color: _kTextPri,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_left_rounded,
+                color: _kTextSec, size: 20.sp),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCategorySheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: _kSurface,
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (_) => Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: _kBorder,
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            ..._categoryOptions.map(
+              (cat) => ListTile(
+                title: Text(
+                  cat,
+                  style: GoogleFonts.cairo(
+                    fontSize: 15.sp,
+                    color: cat == _selectedCategory
+                        ? _kCyan
+                        : _kTextPri,
+                    fontWeight: cat == _selectedCategory
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+                trailing: cat == _selectedCategory
+                    ? Icon(Icons.check_rounded,
+                        color: _kCyan, size: 18.sp)
+                    : null,
+                onTap: () {
+                  setState(() => _selectedCategory = cat);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+            SizedBox(height: 8.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Condition chips ────────────────────────────────────────────────────────
+  Widget _buildConditionChips() {
+    return Wrap(
+      spacing: 8.w,
+      runSpacing: 8.h,
+      children: _conditionOptions.map((opt) {
+        final value    = opt['value'] as String;
+        final label    = opt['label'] as String;
+        final selected = _selectedCondition == value;
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            setState(() => _selectedCondition = value);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding:
+                EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: selected ? _kPrimary : _kSurface,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: selected ? _kPrimary : _kBorder,
+              ),
+            ),
+            child: Text(
+              label,
+              style: GoogleFonts.cairo(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.bold,
+                color: selected ? Colors.white : _kTextSec,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ── Duration chips (cyan selected) ────────────────────────────────────────
+  Widget _buildDurationChips() {
+    return Row(
+      children: List.generate(_durationOptions.length, (index) {
+        final isSelected = _selectedDurationIndex == index;
+        return Expanded(
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              setState(() => _selectedDurationIndex = index);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              margin: EdgeInsets.symmetric(horizontal: 3.w),
+              padding: EdgeInsets.symmetric(vertical: 10.h),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? _kCyan.withValues(alpha: 0.2)
+                    : _kBg,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(
+                  color: isSelected ? _kCyan : _kBorder,
+                  width: isSelected ? 1.5 : 1,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                _durationOptions[index]['label'] as String,
+                style: GoogleFonts.cairo(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? _kCyan : _kTextSec,
+                ),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  // ── Start date section ─────────────────────────────────────────────────────
+  Widget _buildStartDateSection(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'صور المنتج (حتى $_maxImages صور)',
-          style: GoogleFonts.cairo(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
+        // Option 1: Immediate
+        GestureDetector(
+          onTap: () => setState(() => _startNow = true),
+          child: Row(
+            children: [
+              Container(
+                width: 20.w,
+                height: 20.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: _startNow ? _kCyan : _kBorder,
+                    width: 2,
+                  ),
+                ),
+                child: _startNow
+                    ? Center(
+                        child: Container(
+                          width: 10.w,
+                          height: 10.w,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _kCyan,
+                          ),
+                        ),
+                      )
+                    : null,
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Text(
+                  'الآن (مباشرة بعد النشر)',
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    color: _startNow ? _kTextPri : _kTextSec,
+                    fontWeight: _startNow
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         SizedBox(height: 12.h),
-        // Main large image area
+        // Option 2: Date picker
         GestureDetector(
-          onTap: _selectedImages.isEmpty ? _pickImages : null,
-          child: Container(
-            height: 180.h,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: _selectedImages.isEmpty
-                  ? AppTheme.mazadGreen.withValues(alpha: 0.04)
-                  : null,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(
-                color: _selectedImages.isEmpty
-                    ? AppTheme.mazadGreen.withValues(alpha: 0.3)
-                    : AppTheme.divider,
-                width: _selectedImages.isEmpty ? 2 : 1,
-              ),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: _selectedImages.isEmpty
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.add_photo_alternate_outlined,
-                        color: AppTheme.mazadGreen,
-                        size: 40.sp,
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        'أضف صورة رئيسية',
-                        style: GoogleFonts.cairo(
-                          fontSize: 14.sp,
-                          color: AppTheme.mazadGreen,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        'اسحب أو اضغط لرفع الصور',
-                        style: GoogleFonts.cairo(
-                          fontSize: 11.sp,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
-                    ],
-                  )
-                : Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.file(
-                        _selectedImages.first,
-                        fit: BoxFit.cover,
-                      ),
-                      // Delete button
-                      Positioned(
-                        top: 8.h,
-                        left: 8.w,
-                        child: GestureDetector(
-                          onTap: () => _removeImage(0),
-                          child: Container(
-                            width: 28.w,
-                            height: 28.w,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.5),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(Icons.close, size: 16.sp,
-                                color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      // "Main" badge
-                      Positioned(
-                        bottom: 8.h,
-                        right: 8.w,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 8.w, vertical: 3.h),
-                          decoration: BoxDecoration(
-                            color: AppTheme.mazadGreen,
-                            borderRadius:
-                                BorderRadius.circular(AppTheme.radiusFull),
-                          ),
-                          child: Text(
-                            'الرئيسية',
-                            style: GoogleFonts.cairo(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ),
-        SizedBox(height: 8.h),
-        // Thumbnail grid (5 slots)
-        SizedBox(
-          height: 72.h,
-          child: Row(
-            children: List.generate(5, (index) {
-              final imgIndex = index + 1; // offset by 1 (main is at 0)
-              final hasImage = imgIndex < _selectedImages.length;
-              final isAddButton =
-                  !hasImage && _selectedImages.length < _maxImages;
-
-              return Expanded(
-                child: GestureDetector(
-                  onTap:
-                      isAddButton ? _pickImages : null,
-                  child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 3.w),
-                    decoration: BoxDecoration(
-                      color: isAddButton
-                          ? AppTheme.surface
-                          : AppTheme.shimmerBase,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      border: Border.all(
-                        color: isAddButton
-                            ? AppTheme.divider
-                            : Colors.transparent,
-                      ),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: hasImage
-                        ? Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Image.file(
-                                _selectedImages[imgIndex],
-                                fit: BoxFit.cover,
-                              ),
-                              Positioned(
-                                top: 2,
-                                left: 2,
-                                child: GestureDetector(
-                                  onTap: () => _removeImage(imgIndex),
-                                  child: Container(
-                                    width: 18.w,
-                                    height: 18.w,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(Icons.close,
-                                        size: 10.sp, color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : isAddButton
-                            ? Center(
-                                child: Icon(
-                                  Icons.add_rounded,
-                                  color: AppTheme.textTertiary,
-                                  size: 20.sp,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
+          onTap: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate:
+                  _scheduledDate ?? DateTime.now().add(const Duration(days: 1)),
+              firstDate: DateTime.now(),
+              lastDate:
+                  DateTime.now().add(const Duration(days: 30)),
+              builder: (ctx, child) => Theme(
+                data: ThemeData.dark().copyWith(
+                  colorScheme: const ColorScheme.dark(
+                    primary: _kCyan,
+                    surface: _kSurface,
                   ),
                 ),
-              );
-            }),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── Duration Chips (Stitch Screen 6) ──────────────────────────────────────
-  Widget _buildDurationChips() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'مدة المزاد',
-          style: GoogleFonts.cairo(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
-        ),
-        SizedBox(height: 10.h),
-        Row(
-          children: List.generate(_durationOptions.length, (index) {
-            final isSelected = _selectedDurationIndex == index;
-            return Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  setState(() => _selectedDurationIndex = index);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppTheme.mazadGreen
-                        : AppTheme.surfaceAlt,
-                    borderRadius:
-                        BorderRadius.circular(AppTheme.radiusFull),
-                    border: Border.all(
-                      color: isSelected
-                          ? AppTheme.mazadGreen
-                          : AppTheme.divider,
-                      width: isSelected ? 2 : 1,
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color:
-                                  AppTheme.mazadGreen.withValues(alpha: 0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    _durationOptions[index]['label'] as String,
-                    style: GoogleFonts.cairo(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected
-                          ? AppTheme.textPrimary
-                          : AppTheme.textSecondary,
-                    ),
-                  ),
-                ),
+                child: child!,
               ),
             );
-          }),
+            if (picked != null) {
+              setState(() {
+                _scheduledDate = picked;
+                _startNow      = false;
+              });
+            }
+          },
+          child: Row(
+            children: [
+              Container(
+                width: 20.w,
+                height: 20.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: !_startNow ? _kCyan : _kBorder,
+                    width: 2,
+                  ),
+                ),
+                child: !_startNow
+                    ? Center(
+                        child: Container(
+                          width: 10.w,
+                          height: 10.w,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _kCyan,
+                          ),
+                        ),
+                      )
+                    : null,
+              ),
+              SizedBox(width: 10.w),
+              Icon(Icons.calendar_today_rounded,
+                  color: _kCyan, size: 16.sp),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Text(
+                  _scheduledDate != null
+                      ? '${_scheduledDate!.year}/${_scheduledDate!.month.toString().padLeft(2, '0')}/${_scheduledDate!.day.toString().padLeft(2, '0')}'
+                      : 'اختر تاريخاً',
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.sp,
+                    color: !_startNow ? _kTextPri : _kTextSec,
+                    fontWeight: !_startNow
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  // ── Toggle Row (delivery / buy-now) ──────────────────────────────────────
-  Widget _buildToggleRow({
-    required IconData icon,
-    required String label,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
+  // ── Delivery toggle ────────────────────────────────────────────────────────
+  Widget _buildDeliveryToggle() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceAlt,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: value
-              ? AppTheme.mazadGreen.withValues(alpha: 0.4)
-              : AppTheme.divider,
+          color: _deliveryEnabled
+              ? _kCyan.withValues(alpha: 0.4)
+              : _kBorder,
         ),
       ),
       child: Row(
@@ -674,14 +895,14 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
             width: 40.w,
             height: 40.w,
             decoration: BoxDecoration(
-              color: value
-                  ? AppTheme.mazadGreen.withValues(alpha: 0.12)
-                  : AppTheme.shimmerBase,
+              color: _deliveryEnabled
+                  ? _kCyan.withValues(alpha: 0.12)
+                  : _kBg,
               borderRadius: BorderRadius.circular(10.r),
             ),
             child: Icon(
-              icon,
-              color: value ? AppTheme.mazadGreen : AppTheme.inactive,
+              Icons.local_shipping_rounded,
+              color: _deliveryEnabled ? _kCyan : _kTextSec,
               size: 20.sp,
             ),
           ),
@@ -691,255 +912,168 @@ class _CreateAuctionPageState extends State<CreateAuctionPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  label,
+                  'التوصيل متاح',
                   style: GoogleFonts.cairo(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
+                    fontWeight: FontWeight.bold,
+                    color: _kTextPri,
                   ),
                 ),
                 Text(
-                  subtitle,
+                  'هل يمكنك توصيل المنتج للمشتري؟',
                   style: GoogleFonts.cairo(
                     fontSize: 11.sp,
-                    color: AppTheme.textSecondary,
+                    color: _kTextSec,
                   ),
                 ),
               ],
             ),
           ),
           Switch.adaptive(
-            value: value,
+            value: _deliveryEnabled,
             onChanged: (v) {
               HapticFeedback.selectionClick();
-              onChanged(v);
+              setState(() => _deliveryEnabled = v);
             },
-            activeTrackColor: AppTheme.mazadGreen,
+            activeTrackColor: _kCyan,
+            activeThumbColor: Colors.white,
           ),
         ],
       ),
     );
   }
 
-  // ── Escrow Guarantee Card (Stitch Screen 6: "ضمان الأمانة") ───────────────
-  Widget _buildEscrowGuaranteeCard() {
-    return Container(
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppTheme.mazadGreen.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        border: Border.all(color: AppTheme.mazadGreen.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48.w,
-            height: 48.w,
-            decoration: BoxDecoration(
-              color: AppTheme.mazadGreen.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.verified_user_rounded,
-              color: AppTheme.mazadGreen,
-              size: 26.sp,
-            ),
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ضمان الأمانة',
-                  style: GoogleFonts.cairo(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  'مزادك محمي بنظام الضمان — المبلغ يُحجز حتى تسليم المنتج بأمان.',
-                  style: GoogleFonts.cairo(
-                    fontSize: 12.sp,
-                    color: AppTheme.textSecondary,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryPicker(AppLocalizations l10n) {
-    return DropdownButtonFormField<String>(
-      initialValue: _selectedCategory,
-      dropdownColor: AppTheme.background,
-      style: GoogleFonts.cairo(fontSize: 14.sp, color: AppTheme.textPrimary),
-      decoration: _inputDecoration('الفئة', Icons.category_outlined),
-      onChanged: (v) => setState(() => _selectedCategory = v!),
-      items: _categories
-          .map(
-            (c) => DropdownMenuItem(
-              value: c,
-              child: Text(c, style: GoogleFonts.cairo(fontSize: 13.sp)),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget _buildConditionPicker(AppLocalizations l10n) {
-    return DropdownButtonFormField<String>(
-      initialValue: _selectedCondition,
-      dropdownColor: AppTheme.background,
-      style: GoogleFonts.cairo(fontSize: 14.sp, color: AppTheme.textPrimary),
-      decoration: _inputDecoration('الحالة', Icons.star_outline_rounded),
-      onChanged: (v) => setState(() => _selectedCondition = v!),
-      items: _conditions
-          .map(
-            (c) => DropdownMenuItem(
-              value: c,
-              child: Text(c, style: GoogleFonts.cairo(fontSize: 13.sp)),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: GoogleFonts.cairo(fontSize: 13.sp, color: AppTheme.inactive),
-      prefixIcon: Icon(icon, color: AppTheme.inactive, size: 20.sp),
-      filled: true,
-      fillColor: AppTheme.surfaceAlt,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        borderSide: const BorderSide(color: AppTheme.divider),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        borderSide: const BorderSide(color: AppTheme.divider),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        borderSide: const BorderSide(color: AppTheme.mazadGreen),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    int maxLines = 1,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      style: GoogleFonts.cairo(
-        fontSize: 15.sp,
-        fontWeight: FontWeight.w500,
-        color: AppTheme.textPrimary,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.cairo(
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w500,
-          color: AppTheme.inactive,
-        ),
-        prefixIcon: Padding(
-          padding: EdgeInsets.only(bottom: maxLines > 1 ? 70.h : 0),
-          child: Icon(icon, color: AppTheme.inactive, size: 22.sp),
-        ),
-        filled: true,
-        fillColor: AppTheme.surfaceAlt,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          borderSide: const BorderSide(color: AppTheme.divider),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          borderSide: const BorderSide(color: AppTheme.divider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          borderSide: const BorderSide(color: AppTheme.mazadGreen),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton(AppLocalizations l10n) {
+  // ── Publish button ─────────────────────────────────────────────────────────
+  Widget _buildPublishButton() {
+    final enabled = _canPublish && !_isLoading;
     return GestureDetector(
-      onTap: _isLoading ? null : _submit,
+      onTap: enabled ? _submit : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        height: 56.h,
+        height: 52.h,
         decoration: BoxDecoration(
-          color: _isLoading ? AppTheme.inactive : AppTheme.mazadGreen,
-          borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-          boxShadow: _isLoading
-              ? []
-              : [
+          color: enabled ? _kPrimary : _kPrimary.withValues(alpha: 0.4),
+          borderRadius: BorderRadius.circular(999.r),
+          boxShadow: enabled
+              ? [
                   BoxShadow(
-                    color: AppTheme.mazadGreen.withValues(alpha: 0.3),
+                    color: _kPrimary.withValues(alpha: 0.35),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
-                ],
+                ]
+              : null,
         ),
-        child: Center(
-          child: _isLoading
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 18.w,
-                      height: 18.w,
-                      child: const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
+        alignment: Alignment.center,
+        child: _isLoading
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 18.w,
+                    height: 18.w,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
                     ),
-                    SizedBox(width: 10.w),
-                    Text(
-                      _loadingStep ?? 'جاري التحميل…',
-                      style: GoogleFonts.cairo(
-                        fontSize: 14.sp,
-                        color: Colors.white,
-                      ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Text(
+                    _loadingStep ?? 'جاري التحميل…',
+                    style: GoogleFonts.cairo(
+                      fontSize: 14.sp,
+                      color: Colors.white,
                     ),
-                  ],
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      l10n.auctionLaunchBtn,
-                      style: GoogleFonts.cairo(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Icon(Icons.rocket_launch_rounded,
-                        color: AppTheme.textPrimary, size: 20.sp),
-                  ],
+                  ),
+                ],
+              )
+            : Text(
+                'نشر المزاد',
+                style: GoogleFonts.cairo(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
                 ),
+              ),
+      ),
+    );
+  }
+}
+
+// ── Dashed border helper widget ────────────────────────────────────────────────
+class DashedBorderBox extends StatelessWidget {
+  const DashedBorderBox({
+    super.key,
+    required this.child,
+    required this.color,
+    required this.borderRadius,
+  });
+
+  final Widget child;
+  final Color  color;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _DashedBorderPainter(
+        color: color,
+        borderRadius: borderRadius,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: Container(
+          color: color.withValues(alpha: 0.05),
+          child: child,
         ),
       ),
     );
   }
+}
+
+class _DashedBorderPainter extends CustomPainter {
+  const _DashedBorderPainter({
+    required this.color,
+    required this.borderRadius,
+  });
+
+  final Color  color;
+  final double borderRadius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color       = color
+      ..strokeWidth = 1.5
+      ..style       = PaintingStyle.stroke;
+
+    const dashLen  = 6.0;
+    const gapLen   = 4.0;
+    final rrect    = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(borderRadius),
+    );
+
+    final path     = Path()..addRRect(rrect);
+    final metrics  = path.computeMetrics();
+
+    for (final metric in metrics) {
+      double distance = 0;
+      bool   drawing  = true;
+      while (distance < metric.length) {
+        final len = drawing ? dashLen : gapLen;
+        if (drawing) {
+          final extracted = metric.extractPath(distance,
+              (distance + len).clamp(0, metric.length));
+          canvas.drawPath(extracted, paint);
+        }
+        distance += len;
+        drawing   = !drawing;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedBorderPainter old) =>
+      old.color != color || old.borderRadius != borderRadius;
 }

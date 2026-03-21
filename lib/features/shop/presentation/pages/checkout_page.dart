@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,12 +8,22 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../core/utils/iqd_formatter.dart';
 import '../../../cart/presentation/bloc/cart_context.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../data/models/order_models.dart';
 import '../../data/models/shop_models.dart';
 import '../bloc/order_cubit.dart';
+
+// ── Matajir design tokens ──────────────────────────────────────────────────
+const _kBg = Color(0xFFFAFAFA);
+const _kSurface = Colors.white;
+const _kBorder = Color(0xFFEDE6DC);
+const _kPrimary = Color(0xFF1B4FD8);
+const _kGreen = Color(0xFF00B37E);
+const _kEscrow = Color(0xFF059669);
+const _kTextPrimary = Color(0xFF1C1713);
+const _kTextSecondary = Color(0xFF6B5E52);
 
 class CheckoutPage extends StatefulWidget {
   final List<ProductModel> products;
@@ -25,16 +36,27 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
+  // ── Address fields ────────────────────────────────────────────────────
   final _formKey = GlobalKey<FormState>();
-
   final _cityCtrl = TextEditingController();
   final _districtCtrl = TextEditingController();
   final _streetCtrl = TextEditingController();
   final _buildingCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
 
+  // ── Local state ───────────────────────────────────────────────────────
   String _selectedPayment = 'ZAIN_CASH';
-  String _fulfillmentType = 'delivery'; // 'delivery' or 'pickup'
+  String _fulfillmentType = 'delivery';
+  final _promoCtrl = TextEditingController();
+
+  // ── Cart quantities (product.id → qty) ───────────────────────────────
+  late final Map<String, int> _quantities;
+
+  @override
+  void initState() {
+    super.initState();
+    _quantities = {for (final p in widget.products) p.id: 1};
+  }
 
   @override
   void dispose() {
@@ -43,10 +65,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _streetCtrl.dispose();
     _buildingCtrl.dispose();
     _phoneCtrl.dispose();
+    _promoCtrl.dispose();
     super.dispose();
   }
 
-  void _processPayment() async {
+  // ── Computed totals ───────────────────────────────────────────────────
+
+  double get _subtotal => widget.products.fold(
+        0,
+        (sum, p) => sum + p.price * (_quantities[p.id] ?? 1),
+      );
+
+  double get _deliveryFee => _fulfillmentType == 'delivery' ? 5000 : 0;
+
+  double get _escrowFee => _subtotal * 0.02;
+
+  double get _total => _subtotal + _deliveryFee + _escrowFee;
+
+  // ── Order submission ──────────────────────────────────────────────────
+
+  void _processPayment() {
     if (_fulfillmentType == 'delivery' && !_formKey.currentState!.validate()) {
       return;
     }
@@ -66,7 +104,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     final request = BuyProductRequest(
       productId: widget.products.first.id,
-      quantity: 1,
+      quantity: _quantities[widget.products.first.id] ?? 1,
       shippingAddress: shippingAddress,
       fulfillmentType: _fulfillmentType,
       appContext: appContext,
@@ -74,18 +112,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     unawaited(
       context.read<OrderCubit>().buyProduct(
-        request,
-        isCOD: _selectedPayment == 'COD',
-      ),
+            request,
+            isCOD: _selectedPayment == 'COD',
+          ),
     );
   }
 
+  // ── Build ─────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    final num total = widget.products.fold(0, (sum, p) => sum + p.price);
+    final cartCount = widget.products.length;
 
     return BlocProvider(
-      create: (context) => getIt<OrderCubit>(),
+      create: (_) => getIt<OrderCubit>(),
       child: BlocListener<OrderCubit, OrderState>(
         listener: (context, state) {
           if (state.status == OrderProcessStatus.success) {
@@ -95,17 +135,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Order placed successfully!',
+                  'تم تقديم الطلب بنجاح!',
                   style: GoogleFonts.cairo(),
                 ),
-                backgroundColor: Colors.green,
+                backgroundColor: _kGreen,
               ),
             );
           } else if (state.status == OrderProcessStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  state.error ?? 'Order failed',
+                  state.error ?? 'فشل إتمام الطلب',
                   style: GoogleFonts.cairo(),
                 ),
                 backgroundColor: AppTheme.error,
@@ -116,205 +156,52 @@ class _CheckoutPageState extends State<CheckoutPage> {
         child: BlocBuilder<OrderCubit, OrderState>(
           builder: (context, state) {
             final isLoading = state.status == OrderProcessStatus.loading;
+
+            if (widget.products.isEmpty) {
+              return Scaffold(
+                backgroundColor: _kBg,
+                appBar: _buildAppBar(cartCount),
+                body: _buildEmptyCart(context),
+              );
+            }
+
             return Scaffold(
-              backgroundColor: AppTheme.surface,
-              appBar: AppBar(
-                title: Text(
-                  'Checkout',
-                  style: GoogleFonts.cairo(
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                backgroundColor: AppTheme.surface,
-                elevation: 0,
-                centerTitle: true,
-                iconTheme: const IconThemeData(color: AppTheme.textPrimary),
-              ),
+              backgroundColor: _kBg,
+              appBar: _buildAppBar(cartCount),
               body: SafeArea(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 24.w,
-                    vertical: 16.h,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildOrderSummary(total),
-                        SizedBox(height: 32.h),
-                        Builder(
-                          builder: (ctx) {
-                            final l10n = AppLocalizations.of(ctx);
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.checkoutFulfillmentMethod,
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.textPrimary,
-                                  ),
-                                ),
-                                SizedBox(height: 16.h),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _buildFulfillmentOption(
-                                        'delivery',
-                                        l10n.checkoutDeliveryOption,
-                                        Icons.local_shipping_outlined,
-                                      ),
-                                    ),
-                                    SizedBox(width: 16.w),
-                                    Expanded(
-                                      child: _buildFulfillmentOption(
-                                        'pickup',
-                                        l10n.checkoutPickupOption,
-                                        Icons.storefront_outlined,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        SizedBox(height: 32.h),
-                        AnimatedCrossFade(
-                          duration: const Duration(milliseconds: 300),
-                          crossFadeState: _fulfillmentType == 'delivery'
-                              ? CrossFadeState.showFirst
-                              : CrossFadeState.showSecond,
-                          secondChild: Container(
-                            padding: EdgeInsets.all(20.w),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(16.r),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.qr_code_scanner_rounded,
-                                  color: AppTheme.primary,
-                                  size: 28.sp,
-                                ),
-                                SizedBox(width: 16.w),
-                                Expanded(
-                                  child: Text(
-                                    'Your money will be held in Escrow until you scan the shop\'s QR code upon pickup.',
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 13.sp,
-                                      color: AppTheme.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          firstChild: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                'Shipping details',
-                                style: GoogleFonts.cairo(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                              SizedBox(height: 16.h),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildTextField(
-                                      controller: _cityCtrl,
-                                      label: 'City',
-                                      icon: Icons.location_city,
-                                    ),
-                                  ),
-                                  SizedBox(width: 16.w),
-                                  Expanded(
-                                    child: _buildTextField(
-                                      controller: _districtCtrl,
-                                      label: 'District',
-                                      icon: Icons.map_outlined,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 16.h),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: _buildTextField(
-                                      controller: _streetCtrl,
-                                      label: 'Street',
-                                      icon: Icons.add_road_outlined,
-                                    ),
-                                  ),
-                                  SizedBox(width: 16.w),
-                                  Expanded(
-                                    flex: 1,
-                                    child: _buildTextField(
-                                      controller: _buildingCtrl,
-                                      label: 'Bldg.',
-                                      icon: Icons.apartment_outlined,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 16.h),
-                              _buildTextField(
-                                controller: _phoneCtrl,
-                                label: 'Phone number',
-                                icon: Icons.phone_android_rounded,
-                                keyboardType: TextInputType.phone,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 32.h),
-                        Text(
-                          'Payment method',
-                          style: GoogleFonts.cairo(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: 16.h),
-                        _buildPaymentOption(
-                          'ZAIN_CASH',
-                          'ZainCash',
-                          Icons.account_balance_wallet_rounded,
-                          const Color(0xFFD81B60),
-                        ),
-                        SizedBox(height: 12.h),
-                        _buildPaymentOption(
-                          'FIB',
-                          'First Iraqi Bank',
-                          Icons.account_balance_rounded,
-                          const Color(0xFF1976D2),
-                        ),
-                        SizedBox(height: 12.h),
-                        // COD only available for Matajir / Balla — not for auction invoices
-                        _buildPaymentOption(
-                          'COD',
-                          'الدفع عند الاستلام (COD)',
-                          Icons.local_shipping_outlined,
-                          const Color(0xFF388E3C),
-                        ),
-                        SizedBox(height: 48.h),
-                        _buildSubmitButton(isLoading),
-                      ],
-                    ),
+                bottom: false,
+                child: Form(
+                  key: _formKey,
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
+                    children: [
+                      // Cart items list
+                      _buildCartItemsList(),
+                      SizedBox(height: 16.h),
+
+                      // Promo code
+                      _buildPromoSection(),
+                      SizedBox(height: 16.h),
+
+                      // Order summary
+                      _buildOrderSummaryCard(),
+                      SizedBox(height: 16.h),
+
+                      // Escrow notice
+                      _buildEscrowBanner(),
+                      SizedBox(height: 16.h),
+
+                      // Delivery address
+                      _buildDeliverySection(),
+                      SizedBox(height: 16.h),
+
+                      // Payment method
+                      _buildPaymentSection(),
+                    ],
                   ),
                 ),
               ),
+              bottomNavigationBar: _buildStickyCheckoutButton(isLoading),
             );
           },
         ),
@@ -322,137 +209,456 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildOrderSummary(num total) {
-    final hasBalla = widget.products.any((p) => p.isBalla);
-    return Container(
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+  // ── AppBar ────────────────────────────────────────────────────────────
+
+  AppBar _buildAppBar(int cartCount) {
+    return AppBar(
+      backgroundColor: _kSurface,
+      elevation: 0,
+      scrolledUnderElevation: 0.5,
+      centerTitle: true,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+            color: _kTextPrimary, size: 20),
+        onPressed: () => Navigator.maybePop(context),
       ),
+      title: Text(
+        'سلة التسوق ($cartCount)',
+        style: GoogleFonts.cairo(
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w700,
+          color: _kTextPrimary,
+        ),
+      ),
+    );
+  }
+
+  // ── Empty state ───────────────────────────────────────────────────────
+
+  Widget _buildEmptyCart(BuildContext context) {
+    return Center(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Show individual Balla line items with unit format
-          if (hasBalla)
-            ...widget.products
-                .where((p) => p.isBalla)
-                .map(
-                  (p) => Padding(
-                    padding: EdgeInsets.only(bottom: 6.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            p.name,
-                            style: GoogleFonts.cairo(
-                              fontSize: 13.sp,
-                              color: AppTheme.textSecondary,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Text(
-                          '${p.price.toInt()} دينار (1 ${_unitLabel(p.salesUnit)})',
-                          style: GoogleFonts.inter(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-          if (hasBalla)
-            Container(
-              height: 1,
-              color: Colors.white.withValues(alpha: 0.05),
-              margin: EdgeInsets.only(bottom: 12.h),
-            ),
+          Icon(
+            Icons.shopping_bag_outlined,
+            size: 72.sp,
+            color: _kTextSecondary.withValues(alpha: 0.4),
+          ),
+          SizedBox(height: 16.h),
           Text(
-            'إجمالي الطلب',
+            'سلتك فارغة',
+            style: GoogleFonts.cairo(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w700,
+              color: _kTextPrimary,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'أضف منتجات من المتاجر',
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textSecondary,
+              color: _kTextSecondary,
             ),
           ),
-          SizedBox(height: 4.h),
-          Text(
-            '${total.toInt() + (_fulfillmentType == 'delivery' ? 5000 : 0)} دينار',
-            style: GoogleFonts.inter(
-              fontSize: 28.sp,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.primary,
-            ),
-          ),
-          if (_selectedPayment == 'COD')
-            Padding(
-              padding: EdgeInsets.only(top: 8.h),
+          SizedBox(height: 24.h),
+          GestureDetector(
+            onTap: () => Navigator.maybePop(context),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
+              decoration: BoxDecoration(
+                color: _kPrimary,
+                borderRadius: BorderRadius.circular(999.r),
+              ),
               child: Text(
-                'الدفع عند الاستلام — ادفع للسائق',
+                'تصفح المنتجات',
                 style: GoogleFonts.cairo(
-                  fontSize: 12.sp,
-                  color: const Color(0xFF388E3C),
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
                 ),
               ),
             ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildFulfillmentOption(String value, String title, IconData icon) {
-    final isSelected = _fulfillmentType == value;
-    return GestureDetector(
-      onTap: () => setState(() => _fulfillmentType = value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
-        decoration: BoxDecoration(
-          color: AppTheme.background,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: isSelected
-                ? AppTheme.primary
-                : AppTheme.inactive.withValues(alpha: 0.2),
-            width: isSelected ? 2 : 1,
+  // ── Cart items list ───────────────────────────────────────────────────
+
+  Widget _buildCartItemsList() {
+    return Column(
+      children: widget.products.map((product) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: 12.h),
+          child: _CartItemRow(
+            product: product,
+            quantity: _quantities[product.id] ?? 1,
+            onQuantityChanged: (qty) {
+              setState(() => _quantities[product.id] = qty);
+            },
+            onDelete: () {
+              setState(() {
+                _quantities.remove(product.id);
+                widget.products.remove(product);
+              });
+            },
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primary.withValues(alpha: 0.15),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [],
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 28.sp,
-              color: isSelected ? AppTheme.primary : AppTheme.inactive,
+        );
+      }).toList(),
+    );
+  }
+
+  // ── Promo code ────────────────────────────────────────────────────────
+
+  Widget _buildPromoSection() {
+    return Container(
+      decoration: BoxDecoration(
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: _kBorder),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _promoCtrl,
+              style: GoogleFonts.cairo(fontSize: 14.sp, color: _kTextPrimary),
+              textDirection: TextDirection.rtl,
+              decoration: InputDecoration(
+                hintText: 'كود الخصم',
+                hintStyle: GoogleFonts.cairo(
+                    fontSize: 14.sp, color: _kTextSecondary),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              title,
-              textAlign: TextAlign.center,
+          ),
+          SizedBox(width: 8.w),
+          GestureDetector(
+            onTap: () {
+              if (_promoCtrl.text.isNotEmpty) {
+                setState(() {});
+              }
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: _kPrimary,
+                borderRadius: BorderRadius.circular(999.r),
+              ),
+              child: Text(
+                'تطبيق',
+                style: GoogleFonts.cairo(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Order summary card ────────────────────────────────────────────────
+
+  Widget _buildOrderSummaryCard() {
+    final deliveryText = _deliveryFee == 0
+        ? 'مجاني'
+        : IqdFormatter.format(_deliveryFee);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: _kBorder),
+      ),
+      padding: EdgeInsets.all(16.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'ملخص الطلب',
+            style: GoogleFonts.cairo(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: _kTextPrimary,
+            ),
+          ),
+          SizedBox(height: 14.h),
+          _SummaryRow(
+            label: 'المجموع الفرعي',
+            value: IqdFormatter.format(_subtotal),
+          ),
+          SizedBox(height: 10.h),
+          _SummaryRow(
+            label: 'رسوم التوصيل',
+            value: deliveryText,
+          ),
+          SizedBox(height: 10.h),
+          _SummaryRow(
+            label: 'رسوم ضمان مضمون ٢٪',
+            value: IqdFormatter.format(_escrowFee),
+            valueColor: _kGreen,
+          ),
+          SizedBox(height: 14.h),
+          const Divider(color: _kBorder, height: 1),
+          SizedBox(height: 14.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'الإجمالي',
+                style: GoogleFonts.cairo(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w700,
+                  color: _kTextPrimary,
+                ),
+              ),
+              Text(
+                IqdFormatter.format(_total),
+                style: GoogleFonts.cairo(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w800,
+                  color: _kPrimary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Escrow notice ─────────────────────────────────────────────────────
+
+  Widget _buildEscrowBanner() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: _kEscrow.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: _kEscrow.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.lock_rounded, color: _kEscrow, size: 20.sp),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              'مبلغك محجوز في أمانة مضمون حتى تستلم طلبك',
               style: GoogleFonts.cairo(
-                fontSize: 14.sp,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? AppTheme.textPrimary
-                    : AppTheme.textSecondary,
-                height: 1.3,
+                fontSize: 13.sp,
+                color: _kEscrow,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Delivery section ──────────────────────────────────────────────────
+
+  Widget _buildDeliverySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Fulfillment toggle
+        Row(
+          children: [
+            Expanded(
+              child: _FulfillmentOption(
+                value: 'delivery',
+                label: 'توصيل للمنزل',
+                icon: Icons.local_shipping_outlined,
+                selected: _fulfillmentType == 'delivery',
+                onTap: () => setState(() => _fulfillmentType = 'delivery'),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: _FulfillmentOption(
+                value: 'pickup',
+                label: 'استلام من المتجر',
+                icon: Icons.storefront_outlined,
+                selected: _fulfillmentType == 'pickup',
+                onTap: () => setState(() => _fulfillmentType = 'pickup'),
               ),
             ),
           ],
         ),
-      ),
+
+        if (_fulfillmentType == 'delivery') ...[
+          SizedBox(height: 14.h),
+          // Address card
+          Container(
+            decoration: BoxDecoration(
+              color: _kSurface,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: _kBorder),
+            ),
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.location_on_outlined,
+                        color: _kPrimary, size: 18.sp),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'عنوان التوصيل',
+                      style: GoogleFonts.cairo(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: _kTextPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'تغيير',
+                        style: GoogleFonts.cairo(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          color: _kPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 14.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _cityCtrl,
+                        label: 'المدينة',
+                        icon: Icons.location_city_outlined,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _districtCtrl,
+                        label: 'الحي',
+                        icon: Icons.map_outlined,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: _buildTextField(
+                        controller: _streetCtrl,
+                        label: 'الشارع',
+                        icon: Icons.add_road_outlined,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _buildingCtrl,
+                        label: 'البناية',
+                        icon: Icons.apartment_outlined,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                _buildTextField(
+                  controller: _phoneCtrl,
+                  label: 'رقم الهاتف',
+                  icon: Icons.phone_android_rounded,
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
+          ),
+        ] else ...[
+          SizedBox(height: 14.h),
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: _kPrimary.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(color: _kPrimary.withValues(alpha: 0.15)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.qr_code_scanner_rounded,
+                    color: _kPrimary, size: 24.sp),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    'سيتم حجز مبلغك في الأمانة حتى تمسح QR المتجر عند الاستلام.',
+                    style: GoogleFonts.cairo(
+                      fontSize: 13.sp,
+                      color: _kTextPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ── Payment section ───────────────────────────────────────────────────
+
+  Widget _buildPaymentSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'طريقة الدفع',
+          style: GoogleFonts.cairo(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+            color: _kTextPrimary,
+          ),
+        ),
+        SizedBox(height: 12.h),
+        _buildPaymentOption(
+          'ZAIN_CASH',
+          'ZainCash',
+          Icons.account_balance_wallet_rounded,
+          const Color(0xFFD81B60),
+        ),
+        SizedBox(height: 10.h),
+        _buildPaymentOption(
+          'FIB',
+          'First Iraqi Bank',
+          Icons.account_balance_rounded,
+          _kPrimary,
+        ),
+        SizedBox(height: 10.h),
+        _buildPaymentOption(
+          'COD',
+          'الدفع عند الاستلام',
+          Icons.local_shipping_outlined,
+          _kGreen,
+        ),
+      ],
     );
   }
 
@@ -465,50 +671,47 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final isSelected = _selectedPayment == value;
     return GestureDetector(
       onTap: () => setState(() => _selectedPayment = value),
-      child: Container(
-        padding: EdgeInsets.all(16.w),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
-          color: AppTheme.background,
+          color: _kSurface,
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: isSelected
-                ? AppTheme.primary
-                : Colors.white.withValues(alpha: 0.05),
+            color: isSelected ? _kPrimary : _kBorder,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(10.w),
+              padding: EdgeInsets.all(9.w),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 24.sp),
+              child: Icon(icon, color: color, size: 20.sp),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: 14.w),
             Expanded(
               child: Text(
                 title,
                 style: GoogleFonts.cairo(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: _kTextPrimary,
                 ),
               ),
             ),
             if (isSelected)
-              Icon(
-                Icons.check_circle_rounded,
-                color: AppTheme.primary,
-                size: 22.sp,
-              ),
+              Icon(Icons.check_circle_rounded, color: _kPrimary, size: 20.sp),
           ],
         ),
       ),
     );
   }
+
+  // ── Text field ────────────────────────────────────────────────────────
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -518,83 +721,403 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }) {
     return TextFormField(
       controller: controller,
-      validator: (v) => v!.isEmpty ? 'Required' : null,
+      validator: (v) => (v == null || v.isEmpty) ? 'مطلوب' : null,
       keyboardType: keyboardType,
-      style: GoogleFonts.inter(
-        fontSize: 15.sp,
-        fontWeight: FontWeight.w500,
-        color: AppTheme.textPrimary,
-      ),
+      textDirection: TextDirection.rtl,
+      style: GoogleFonts.cairo(fontSize: 14.sp, color: _kTextPrimary),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.cairo(
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w500,
-          color: AppTheme.inactive,
-        ),
-        prefixIcon: Icon(icon, color: AppTheme.inactive, size: 22.sp),
+        labelStyle:
+            GoogleFonts.cairo(fontSize: 13.sp, color: _kTextSecondary),
+        prefixIcon: Icon(icon, color: _kTextSecondary, size: 18.sp),
         filled: true,
-        fillColor: AppTheme.background,
+        fillColor: _kBg,
+        contentPadding:
+            EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: const BorderSide(color: _kBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: const BorderSide(color: _kBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14.r),
-          borderSide: const BorderSide(color: AppTheme.primary),
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: const BorderSide(color: _kPrimary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: const BorderSide(color: AppTheme.error),
         ),
       ),
     );
   }
 
-  Widget _buildSubmitButton(bool isLoading) {
-    return GestureDetector(
-      onTap: isLoading ? null : _processPayment,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        height: 56.h,
+  // ── Sticky checkout button ────────────────────────────────────────────
+
+  Widget _buildStickyCheckoutButton(bool isLoading) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        color: _kSurface,
+        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
+        child: GestureDetector(
+          onTap: isLoading ? null : _processPayment,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            height: 52.h,
+            decoration: BoxDecoration(
+              color: isLoading
+                  ? _kPrimary.withValues(alpha: 0.5)
+                  : _kPrimary,
+              borderRadius: BorderRadius.circular(999.r),
+              boxShadow: isLoading
+                  ? []
+                  : [
+                      BoxShadow(
+                        color: _kPrimary.withValues(alpha: 0.28),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+            ),
+            child: Center(
+              child: isLoading
+                  ? SizedBox(
+                      width: 22.w,
+                      height: 22.w,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      'إتمام الطلب',
+                      style: GoogleFonts.cairo(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Cart Item Row ─────────────────────────────────────────────────────────────
+
+class _CartItemRow extends StatelessWidget {
+  final ProductModel product;
+  final int quantity;
+  final ValueChanged<int> onQuantityChanged;
+  final VoidCallback onDelete;
+
+  const _CartItemRow({
+    required this.product,
+    required this.quantity,
+    required this.onQuantityChanged,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: ValueKey(product.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: AlignmentDirectional.centerStart,
+        padding: EdgeInsetsDirectional.only(start: 20.w),
         decoration: BoxDecoration(
-          color: isLoading ? AppTheme.inactive : AppTheme.primary,
+          color: AppTheme.error.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(16.r),
-          boxShadow: isLoading
-              ? []
-              : [
-                  BoxShadow(
-                    color: AppTheme.primary.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+        ),
+        child: Icon(Icons.delete_outline_rounded,
+            color: AppTheme.error, size: 24.sp),
+      ),
+      onDismissed: (_) => onDelete(),
+      child: Container(
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: _kSurface,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: _kBorder),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10.r),
+              child: SizedBox(
+                width: 80.w,
+                height: 80.w,
+                child: product.images.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: product.images.first,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: AppTheme.shimmerBase,
+                        ),
+                        errorWidget: (context, url, err) => Container(
+                          color: AppTheme.shimmerBase,
+                          child: Icon(Icons.image_outlined,
+                              color: _kTextSecondary, size: 24.sp),
+                        ),
+                      )
+                    : Container(
+                        color: AppTheme.shimmerBase,
+                        child: Icon(Icons.image_outlined,
+                            color: _kTextSecondary, size: 24.sp),
+                      ),
+              ),
+            ),
+            SizedBox(width: 12.w),
+
+            // Info & controls
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Name
+                  Text(
+                    product.name,
+                    style: GoogleFonts.cairo(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: _kTextPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 2.h),
+                  // Variant subtitle
+                  Text(
+                    product.salesUnit == 'piece' ? 'قطعة' : product.salesUnit,
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.sp,
+                      color: _kTextSecondary,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  // Madhmoon badge
+                  Row(
+                    children: [
+                      Icon(Icons.verified_rounded,
+                          color: _kGreen, size: 11.sp),
+                      SizedBox(width: 3.w),
+                      Text(
+                        'مضمون ✓',
+                        style: GoogleFonts.cairo(
+                          fontSize: 10.sp,
+                          color: _kGreen,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Price
+                      Text(
+                        IqdFormatter.format(product.price),
+                        style: GoogleFonts.cairo(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w800,
+                          color: _kPrimary,
+                        ),
+                      ),
+                      // Quantity stepper
+                      _QuantityStepper(
+                        quantity: quantity,
+                        onDecrement: () {
+                          if (quantity > 1) onQuantityChanged(quantity - 1);
+                        },
+                        onIncrement: () => onQuantityChanged(quantity + 1),
+                      ),
+                    ],
                   ),
                 ],
-        ),
-        child: Center(
-          child: isLoading
-              ? SizedBox(
-                  width: 24.w,
-                  height: 24.w,
-                  child: const CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppTheme.textPrimary,
-                  ),
-                )
-              : Text(
-                  'Confirm & Pay',
-                  style: GoogleFonts.cairo(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
+              ),
+            ),
+
+            // Delete button
+            IconButton(
+              onPressed: onDelete,
+              icon: Icon(Icons.delete_outline_rounded,
+                  color: _kTextSecondary, size: 20.sp),
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(minWidth: 32.w, minHeight: 32.w),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  String _unitLabel(String unit) {
-    const labels = {'piece': 'قطعة', 'kg': 'كيلو', 'bundle': 'بندل'};
-    return labels[unit] ?? unit;
+// ── Quantity Stepper ──────────────────────────────────────────────────────────
+
+class _QuantityStepper extends StatelessWidget {
+  final int quantity;
+  final VoidCallback onDecrement;
+  final VoidCallback onIncrement;
+
+  const _QuantityStepper({
+    required this.quantity,
+    required this.onDecrement,
+    required this.onIncrement,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 32.h,
+      decoration: BoxDecoration(
+        color: _kBg,
+        borderRadius: BorderRadius.circular(999.r),
+        border: Border.all(color: _kBorder),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _StepperBtn(icon: Icons.remove, onTap: onDecrement),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
+            child: Text(
+              '$quantity',
+              style: GoogleFonts.cairo(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: _kTextPrimary,
+              ),
+            ),
+          ),
+          _StepperBtn(icon: Icons.add, onTap: onIncrement),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepperBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _StepperBtn({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32.w,
+        height: 32.h,
+        decoration: const BoxDecoration(
+          color: _kSurface,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 16.sp, color: _kPrimary),
+      ),
+    );
+  }
+}
+
+// ── Summary Row ───────────────────────────────────────────────────────────────
+
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.cairo(
+            fontSize: 14.sp,
+            color: _kTextSecondary,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.cairo(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: valueColor ?? _kTextPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Fulfillment Option ────────────────────────────────────────────────────────
+
+class _FulfillmentOption extends StatelessWidget {
+  final String value;
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _FulfillmentOption({
+    required this.value,
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 8.w),
+        decoration: BoxDecoration(
+          color: _kSurface,
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: selected ? _kPrimary : _kBorder,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 24.sp,
+              color: selected ? _kPrimary : _kTextSecondary,
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: 12.sp,
+                fontWeight:
+                    selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? _kTextPrimary : _kTextSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -361,11 +361,9 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                 builder: (context, state) {
                   final extra = state.extra as Map<String, dynamic>? ?? {};
                   return SettlementConfirmPage(
-                    auctionId: extra['auctionId'] as String? ?? '',
-                    itemTitle: extra['itemTitle'] as String? ?? '',
-                    finalPrice: extra['finalPrice'] as double? ?? 0,
-                    imageUrl: extra['imageUrl'] as String? ?? 'https://placehold.co/400x400/png',
-                    transactionId: extra['transactionId'] as String? ?? '',
+                    orderId: extra['orderId'] as String? ?? extra['auctionId'] as String?,
+                    amount: extra['amount'] as int? ?? (extra['finalPrice'] as double? ?? 0).toInt(),
+                    sellerName: extra['sellerName'] as String?,
                   );
                 },
               ),

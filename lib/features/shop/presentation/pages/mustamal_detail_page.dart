@@ -13,7 +13,12 @@ import '../../../home/data/models/portal_models.dart';
 
 // ── Mustamal colour tokens ─────────────────────────────────────────────────
 const _orange = AppTheme.mustamalOrange;
-const _orangeSurface = Color(0xFFFFF8F0);
+const _bg = Color(0xFFFFF8F5);
+const _surface = Color(0xFFFFFFFF);
+const _border = Color(0xFFEDE6DC);
+const _textPrimary = Color(0xFF1C1713);
+const _textSecondary = Color(0xFF6B5E52);
+const _textTertiary = Color(0xFFA89585);
 const _whatsappGreen = Color(0xFF25D366);
 
 // ── Page ───────────────────────────────────────────────────────────────────
@@ -29,6 +34,7 @@ class MustamalDetailPage extends StatefulWidget {
 class _MustamalDetailPageState extends State<MustamalDetailPage> {
   int _currentImage = 0;
   bool _isFavorite = false;
+  bool _descExpanded = false;
   final PageController _pageCtrl = PageController();
 
   @override
@@ -39,7 +45,7 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
 
   Future<void> _openWhatsApp(String phone) async {
     final message = Uri.encodeComponent(
-      'مرحبًا، رأيت إعلانك على لقطة بخصوص "${widget.item.title}"، هل لا يزال متاحًا؟',
+      'مرحبًا، رأيت إعلانك على مضمون بخصوص "${widget.item.title}"، هل لا يزال متاحًا؟',
     );
     final cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
     final uri = Uri.parse('https://wa.me/$cleanPhone?text=$message');
@@ -77,11 +83,11 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: _orangeSurface,
+        backgroundColor: _bg,
+        appBar: _buildAppBar(context, l10n),
         body: Stack(
           children: [
             _buildScrollContent(l10n),
-            _buildTopBar(context),
             _buildStickyFooter(l10n),
           ],
         ),
@@ -89,67 +95,48 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
     );
   }
 
-  // ── Top Bar (floats over image) ──────────────────────────────────────────
+  // ── AppBar ────────────────────────────────────────────────────────────────
 
-  Widget _buildTopBar(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + 8.h,
-          bottom: 8.h,
-          right: 16.w,
-          left: 16.w,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.black.withValues(alpha: 0.40), Colors.transparent],
-          ),
-        ),
-        child: Row(
-          children: [
-            _TopBarButton(
-              icon: Icons.arrow_forward_ios_rounded,
-              onTap: () => context.pop(),
-            ),
-            Expanded(
-              child: Text(
-                l10n.mustamalDetailTitle,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.tajawal(
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      blurRadius: 4,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            _TopBarButton(
-              icon: Icons.share_outlined,
-              onTap: () {},
-            ),
-            SizedBox(width: 8.w),
-            _TopBarButton(
-              icon: _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-              iconColor: _isFavorite ? Colors.red : Colors.white,
-              onTap: () {
-                HapticFeedback.selectionClick();
-                setState(() => _isFavorite = !_isFavorite);
-              },
-            ),
-          ],
+  PreferredSizeWidget _buildAppBar(BuildContext context, AppLocalizations l10n) {
+    return AppBar(
+      backgroundColor: _bg,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: true,
+      leading: IconButton(
+        onPressed: () => context.pop(),
+        icon: Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: _textPrimary,
+          size: 20.sp,
         ),
       ),
+      title: Text(
+        l10n.mustamalDetailTitle,
+        style: GoogleFonts.tajawal(
+          fontSize: 17.sp,
+          fontWeight: FontWeight.w700,
+          color: _textPrimary,
+        ),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.share_outlined, color: _textPrimary, size: 22.sp),
+        ),
+        IconButton(
+          onPressed: () {
+            HapticFeedback.selectionClick();
+            setState(() => _isFavorite = !_isFavorite);
+          },
+          icon: Icon(
+            _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            color: _isFavorite ? Colors.red : _textPrimary,
+            size: 22.sp,
+          ),
+        ),
+        SizedBox(width: 4.w),
+      ],
     );
   }
 
@@ -165,91 +152,37 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildCarousel(images, l10n),
-          // White card with rounded top
+          _buildCarousel(images),
+          // White content card
           Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-            ),
+            color: _surface,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(20.w, 22.h, 20.w, 0),
+                  padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Price + negotiable badge
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              IqdFormatter.format(widget.item.price),
-                              style: GoogleFonts.tajawal(
-                                fontSize: 30.sp,
-                                fontWeight: FontWeight.w900,
-                                color: _orange,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 5.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _orange.withValues(alpha: 0.10),
-                              borderRadius:
-                                  BorderRadius.circular(AppTheme.radiusFull),
-                              border: Border.all(
-                                color: _orange.withValues(alpha: 0.25),
-                              ),
-                            ),
-                            child: Text(
-                              l10n.mustamalNegotiable,
-                              style: GoogleFonts.tajawal(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w700,
-                                color: _orange,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      _buildPriceRow(),
                       SizedBox(height: 10.h),
-                      // Title
-                      Text(
-                        widget.item.title,
-                        style: GoogleFonts.tajawal(
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.textPrimary,
-                          height: 1.3,
-                        ),
-                      ),
+                      _buildTitle(),
                       SizedBox(height: 12.h),
-                      // Info chips
-                      _buildInfoChips(),
-                      SizedBox(height: 14.h),
-                      // Safety banner
-                      _buildSafetyBanner(l10n),
+                      _buildMetaRow(),
+                      SizedBox(height: 12.h),
+                      _buildConditionChips(),
                     ],
                   ),
                 ),
                 _buildDivider(),
-                // Seller card
                 _buildSellerCard(l10n),
                 _buildDivider(),
-                // Description
                 _buildDescriptionSection(l10n),
                 _buildDivider(),
-                // Location / Map
-                _buildLocationSection(l10n),
+                _buildSafetyTips(),
                 _buildDivider(),
-                // Similar listings
                 _buildSimilarListings(l10n),
-                SizedBox(height: 130.h),
+                SizedBox(height: 100.h),
               ],
             ),
           ),
@@ -260,75 +193,67 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
 
   // ── Carousel ──────────────────────────────────────────────────────────────
 
-  Widget _buildCarousel(List<String> images, AppLocalizations l10n) {
+  Widget _buildCarousel(List<String> images) {
     return SizedBox(
-      height: 360.h,
+      height: 260.h,
       child: Stack(
         children: [
-          PageView.builder(
-            controller: _pageCtrl,
-            itemCount: images.length,
-            onPageChanged: (i) => setState(() => _currentImage = i),
-            itemBuilder: (_, index) => CachedNetworkImage(
-              imageUrl: images[index],
-              fit: BoxFit.cover,
-              width: double.infinity,
-              placeholder: (context, url) =>
-                  Container(color: AppTheme.inactive.withValues(alpha: 0.15)),
-              errorWidget: (context, url, err) => Container(
-                color: AppTheme.inactive.withValues(alpha: 0.15),
-                child: Icon(
-                  Icons.image_not_supported_outlined,
-                  size: 40.sp,
-                  color: AppTheme.inactive,
-                ),
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.r),
+              bottomRight: Radius.circular(20.r),
             ),
-          ),
-          // Report flag
-          PositionedDirectional(
-            top: MediaQuery.of(context).padding.top + 58.h,
-            start: 16.w,
-            child: GestureDetector(
-              onTap: () {},
-              child: Container(
-                width: 36.w,
-                height: 36.w,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.40),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.flag_outlined, color: Colors.white, size: 18.sp),
-              ),
-            ),
-          ),
-          // Image counter pill
-          Positioned(
-            bottom: 14.h,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-                ),
-                child: Text(
-                  '${_currentImage + 1}/${images.length} صور',
-                  style: GoogleFonts.tajawal(
-                    fontSize: 12.sp,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+            child: PageView.builder(
+              controller: _pageCtrl,
+              itemCount: images.length,
+              onPageChanged: (i) => setState(() => _currentImage = i),
+              itemBuilder: (_, index) => CachedNetworkImage(
+                imageUrl: images[index],
+                fit: BoxFit.cover,
+                width: double.infinity,
+                placeholder: (context, url) =>
+                    Container(color: AppTheme.inactive.withValues(alpha: 0.15)),
+                errorWidget: (context, url, err) => Container(
+                  color: AppTheme.inactive.withValues(alpha: 0.15),
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    size: 40.sp,
+                    color: AppTheme.inactive,
                   ),
                 ),
               ),
             ),
           ),
-          // Dot indicators
+          // Favorite heart overlay top-right — white circle 40px
+          PositionedDirectional(
+            top: 12.h,
+            end: 16.w,
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() => _isFavorite = !_isFavorite);
+              },
+              child: Container(
+                width: 40.w,
+                height: 40.w,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  _isFavorite
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  color: _isFavorite ? Colors.red : _textSecondary,
+                  size: 20.sp,
+                ),
+              ),
+            ),
+          ),
+          // Dot indicators bottom-center
           if (images.length > 1)
             Positioned(
-              bottom: 46.h,
+              bottom: 14.h,
               left: 0,
               right: 0,
               child: Row(
@@ -337,11 +262,13 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
                   final active = i == _currentImage;
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    width: active ? 22.w : 6.w,
+                    width: active ? 20.w : 6.w,
                     height: 6.w,
                     margin: EdgeInsets.symmetric(horizontal: 3.w),
                     decoration: BoxDecoration(
-                      color: active ? _orange : Colors.white.withValues(alpha: 0.6),
+                      color: active
+                          ? _orange
+                          : Colors.white.withValues(alpha: 0.7),
                       borderRadius: BorderRadius.circular(3.r),
                     ),
                   );
@@ -353,48 +280,87 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
     );
   }
 
-  // ── Info Chips ────────────────────────────────────────────────────────────
+  // ── Price Row ─────────────────────────────────────────────────────────────
 
-  Widget _buildInfoChips() {
+  Widget _buildPriceRow() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          IqdFormatter.format(widget.item.price),
+          style: GoogleFonts.tajawal(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.w900,
+            color: _orange,
+          ),
+        ),
+        SizedBox(width: 10.w),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: _orange.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+            border: Border.all(color: _orange.withValues(alpha: 0.30)),
+          ),
+          child: Text(
+            l10n.mustamalNegotiable,
+            style: GoogleFonts.tajawal(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              color: _orange,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+
+  Widget _buildTitle() {
+    return Text(
+      widget.item.title,
+      style: GoogleFonts.tajawal(
+        fontSize: 18.sp,
+        fontWeight: FontWeight.w700,
+        color: _textPrimary,
+        height: 1.35,
+      ),
+    );
+  }
+
+  // ── Meta Row (time, location, views) ──────────────────────────────────────
+
+  Widget _buildMetaRow() {
+    return Wrap(
+      spacing: 14.w,
+      runSpacing: 6.h,
+      children: [
+        _MetaItem(icon: Icons.schedule_rounded, label: 'منذ ٣ ساعات'),
+        _MetaItem(
+          icon: Icons.location_on_outlined,
+          label: widget.item.city ?? 'المنصور، بغداد',
+        ),
+        _MetaItem(icon: Icons.remove_red_eye_outlined, label: '١٤٢ مشاهدة'),
+      ],
+    );
+  }
+
+  // ── Condition + Category Chips ────────────────────────────────────────────
+
+  Widget _buildConditionChips() {
     final condition = widget.item.condition;
     return Wrap(
       spacing: 8.w,
       runSpacing: 6.h,
       children: [
-        _InfoChip(label: l10n.mustamalUsedBadge),
-        if (condition != null) _InfoChip(label: _conditionLabel(condition)),
+        // Condition badge — green
+        if (condition != null)
+          _ConditionBadge(label: _conditionLabel(condition)),
+        // Category chip
+        if (widget.item.category.isNotEmpty)
+          _InfoChip(label: widget.item.category),
       ],
-    );
-  }
-
-  // ── Safety Banner ─────────────────────────────────────────────────────────
-
-  Widget _buildSafetyBanner(AppLocalizations l10n) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFFDE68A)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.security_rounded, color: const Color(0xFFD97706), size: 20.sp),
-          SizedBox(width: 10.w),
-          Expanded(
-            child: Text(
-              l10n.mustamalSafetyBanner,
-              style: GoogleFonts.tajawal(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF92400E),
-                height: 1.5,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -411,98 +377,82 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
           Container(
             padding: EdgeInsets.all(14.w),
             decoration: BoxDecoration(
-              color: _orangeSurface,
+              color: _bg,
               borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: _orange.withValues(alpha: 0.10)),
+              border: Border.all(color: _border),
             ),
             child: Row(
               children: [
-                // Avatar with online dot
-                Stack(
-                  children: [
-                    Container(
-                      width: 56.w,
-                      height: 56.w,
-                      decoration: BoxDecoration(
-                        color: _orange.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(Icons.person_rounded, color: _orange, size: 28.sp),
-                    ),
-                    Positioned(
-                      bottom: 1.h,
-                      right: 1.w,
-                      child: Container(
-                        width: 14.w,
-                        height: 14.w,
-                        decoration: BoxDecoration(
-                          color: AppTheme.success,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                      ),
-                    ),
-                  ],
+                // Avatar circle
+                Container(
+                  width: 52.w,
+                  height: 52.w,
+                  decoration: BoxDecoration(
+                    color: _orange.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.person_rounded, color: _orange, size: 26.sp),
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        'أحمد محمد الجبوري',
+                        style: GoogleFonts.tajawal(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w700,
+                          color: _textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      // Stars + rating + member since
                       Row(
                         children: [
-                          Text(
-                            'بائع خاص',
-                            style: GoogleFonts.tajawal(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
+                          ...List.generate(
+                            5,
+                            (i) => Icon(
+                              Icons.star_rounded,
+                              color: const Color(0xFFFBBF24),
+                              size: 13.sp,
                             ),
                           ),
                           SizedBox(width: 4.w),
-                          Icon(Icons.verified_rounded,
-                              color: Colors.blue, size: 16.sp),
-                        ],
-                      ),
-                      SizedBox(height: 3.h),
-                      Row(
-                        children: [
-                          Icon(Icons.star_rounded,
-                              color: const Color(0xFFFBBF24), size: 15.sp),
-                          SizedBox(width: 3.w),
                           Text(
-                            '4.8',
-                            style: GoogleFonts.tajawal(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            '  •  عضو منذ 2022',
-                            style: GoogleFonts.tajawal(
-                              fontSize: 12.sp,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 3.h),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on_outlined,
-                              color: AppTheme.textSecondary, size: 13.sp),
-                          SizedBox(width: 2.w),
-                          Text(
-                            'بغداد — الكرادة  •  آخر ظهور: منذ ساعة',
+                            '(٤.٨)  •  عضو منذ ٢٠٢١',
                             style: GoogleFonts.tajawal(
                               fontSize: 11.sp,
-                              color: AppTheme.textSecondary,
+                              color: _textSecondary,
                             ),
                           ),
                         ],
                       ),
                     ],
+                  ),
+                ),
+                // Listings button
+                OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _orange,
+                    side: BorderSide(color: _orange.withValues(alpha: 0.4)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 6.h,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'إعلانات (١٢)',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -516,6 +466,11 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
   // ── Description ───────────────────────────────────────────────────────────
 
   Widget _buildDescriptionSection(AppLocalizations l10n) {
+    const fullDesc =
+        'ايفون ١٥ برو ماكس ٢٥٦ جيجابايت بحالة ممتازة، تم استخدامه باعتدال. '
+        'الشاشة سليمة تمامًا بدون خدوش، البطارية تعمل بكفاءة عالية. '
+        'يأتي مع الكرتون الأصلي وكابل الشحن. للاستفسار يرجى التواصل عبر واتساب.';
+
     return Padding(
       padding: EdgeInsets.all(20.w),
       child: Column(
@@ -524,100 +479,22 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
           _SectionHeader(title: l10n.mustamalDescriptionTitle, accent: _orange),
           SizedBox(height: 10.h),
           Text(
-            'قطعة مستعملة بحالة جيدة، تم استخدامها باعتدال. للاستفسار يرجى التواصل عبر واتساب.',
+            _descExpanded ? fullDesc : '${fullDesc.substring(0, 100)}...',
             style: GoogleFonts.tajawal(
               fontSize: 14.sp,
-              color: AppTheme.textSecondary,
+              color: _textSecondary,
               height: 1.7,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  // ── Location / Map ────────────────────────────────────────────────────────
-
-  Widget _buildLocationSection(AppLocalizations l10n) {
-    return Padding(
-      padding: EdgeInsets.all(20.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SectionHeader(title: l10n.mustamalLocationTitle, accent: _orange),
-          SizedBox(height: 12.h),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14.r),
-            child: SizedBox(
-              height: 120.h,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Blurred map placeholder
-                  const DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFD1E8FF),
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          'https://placehold.co/800x300/D1E8FF/94A3B8?text=Map',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  // Overlay
-                  Container(color: Colors.white.withValues(alpha: 0.15)),
-                  // Pin + label
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 40.w,
-                          height: 40.w,
-                          decoration: BoxDecoration(
-                            color: _orange,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: _orange.withValues(alpha: 0.4),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Icon(Icons.location_on_rounded,
-                              color: Colors.white, size: 22.sp),
-                        ),
-                        SizedBox(height: 6.h),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 5.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.92),
-                            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.06),
-                                blurRadius: 6,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            'الكرادة، بغداد',
-                            style: GoogleFonts.tajawal(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          SizedBox(height: 6.h),
+          GestureDetector(
+            onTap: () => setState(() => _descExpanded = !_descExpanded),
+            child: Text(
+              _descExpanded ? 'عرض أقل' : 'عرض المزيد',
+              style: GoogleFonts.tajawal(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: _orange,
               ),
             ),
           ),
@@ -626,10 +503,81 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
     );
   }
 
+  // ── Safety Tips ───────────────────────────────────────────────────────────
+
+  Widget _buildSafetyTips() {
+    const tips = [
+      'التقِ بالبائع في مكان عام ومضاء جيدًا',
+      'تحقق من الرقم التسلسلي للجهاز قبل الشراء',
+      'لا تحوّل الأموال مسبقًا دون تسلّم البضاعة',
+    ];
+
+    return Padding(
+      padding: EdgeInsets.all(20.w),
+      child: Container(
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF8F5),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: _orange.withValues(alpha: 0.20)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.shield_outlined, color: _orange, size: 20.sp),
+                SizedBox(width: 8.w),
+                Text(
+                  'نصائح الأمان والتعامل',
+                  style: GoogleFonts.tajawal(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: _textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10.h),
+            ...tips.map(
+              (tip) => Padding(
+                padding: EdgeInsets.only(bottom: 6.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(top: 6.h),
+                      width: 5.w,
+                      height: 5.w,
+                      decoration: const BoxDecoration(
+                        color: _orange,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        tip,
+                        style: GoogleFonts.tajawal(
+                          fontSize: 13.sp,
+                          color: _textSecondary,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── Similar Listings ──────────────────────────────────────────────────────
 
   Widget _buildSimilarListings(AppLocalizations l10n) {
-    // Placeholder cards using the same item as fallback
     final mockImages = [
       'https://placehold.co/400x400/FED7AA/9A3412?text=1',
       'https://placehold.co/400x400/FED7AA/9A3412?text=2',
@@ -646,12 +594,14 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
             child: Row(
               children: [
                 _SectionHeader(
-                    title: l10n.mustamalSimilarListings, accent: _orange),
+                  title: l10n.mustamalSimilarListings,
+                  accent: _orange,
+                ),
                 const Spacer(),
                 GestureDetector(
                   onTap: () {},
                   child: Text(
-                    l10n.homeSeeAll,
+                    'عرض الكل',
                     style: GoogleFonts.tajawal(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
@@ -668,15 +618,15 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: mockImages.length,
-              separatorBuilder: (context, index) => SizedBox(width: 12.w),
-              itemBuilder: (context, index) => _SimilarCard(
+              separatorBuilder: (_, _x) => SizedBox(width: 12.w),
+              itemBuilder: (_, index) => _SimilarCard(
                 imageUrl: mockImages[index],
                 title: widget.item.title,
                 price: widget.item.price,
               ),
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 16.h),
         ],
       ),
     );
@@ -692,10 +642,14 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
       left: 0,
       right: 0,
       child: Container(
-        padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w,
-            MediaQuery.of(context).padding.bottom + 14.h),
+        padding: EdgeInsets.fromLTRB(
+          16.w,
+          14.h,
+          16.w,
+          MediaQuery.of(context).padding.bottom + 14.h,
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
           boxShadow: [
             BoxShadow(
@@ -705,61 +659,68 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
             ),
           ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
-            // Primary: WhatsApp
-            SizedBox(
-              height: 52.h,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  _openWhatsApp(sellerPhone);
-                },
-                icon: Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 20.sp),
-                label: Text(
-                  l10n.mustamalContactWhatsapp,
-                  style: GoogleFonts.tajawal(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
+            // WhatsApp button
+            Expanded(
+              child: SizedBox(
+                height: 52.h,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    _openWhatsApp(sellerPhone);
+                  },
+                  icon: Icon(
+                    Icons.chat_rounded,
                     color: Colors.white,
+                    size: 18.sp,
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _whatsappGreen,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.r),
+                  label: Text(
+                    'واتساب',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
-                  elevation: 0,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _whatsappGreen,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    elevation: 0,
+                  ),
                 ),
               ),
             ),
-            SizedBox(height: 10.h),
-            // Secondary: In-app chat + Call
-            Row(
-              children: [
-                Expanded(
-                  child: _SecondaryActionButton(
-                    icon: Icons.forum_outlined,
-                    label: l10n.mustamalInAppChat,
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      // TODO: navigate to in-app chat
-                    },
+            SizedBox(width: 12.w),
+            // Call button
+            Expanded(
+              child: SizedBox(
+                height: 52.h,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    _callSeller(sellerPhone);
+                  },
+                  icon: Icon(Icons.call_outlined, color: _orange, size: 18.sp),
+                  label: Text(
+                    'اتصال',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                      color: _orange,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: _orange, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    foregroundColor: _orange,
                   ),
                 ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: _SecondaryActionButton(
-                    icon: Icons.call_outlined,
-                    label: l10n.mustamalCallSeller,
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      _callSeller(sellerPhone);
-                    },
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -767,49 +728,25 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
     );
   }
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
   AppLocalizations get l10n => AppLocalizations.of(context);
 
   Widget _buildDivider() => Padding(
     padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 2.h),
-    child: const Divider(color: Color(0xFFF0F0F0)),
+    child: const Divider(color: _border),
   );
 
   String _conditionLabel(String condition) {
     const labels = {
       'new': 'جديد',
       'like_new': 'كالجديد',
-      'excellent': 'ممتاز',
-      'good': 'حالة جيدة',
+      'excellent': 'مستعمل - ممتاز',
+      'good': 'مستعمل - جيد',
       'fair': 'مقبول',
       'poor': 'يحتاج إصلاح',
     };
     return labels[condition] ?? condition;
-  }
-}
-
-// ── Top Bar Button ─────────────────────────────────────────────────────────
-
-class _TopBarButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final Color? iconColor;
-
-  const _TopBarButton({required this.icon, required this.onTap, this.iconColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 38.w,
-        height: 38.w,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 18.sp, color: iconColor ?? AppTheme.textPrimary),
-      ),
-    );
   }
 }
 
@@ -840,10 +777,64 @@ class _SectionHeader extends StatelessWidget {
           style: GoogleFonts.tajawal(
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
+            color: const Color(0xFF1C1713),
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Meta Item ──────────────────────────────────────────────────────────────
+
+class _MetaItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MetaItem({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14.sp, color: _textTertiary),
+        SizedBox(width: 4.w),
+        Text(
+          label,
+          style: GoogleFonts.tajawal(
+            fontSize: 12.sp,
+            color: _textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Condition Badge (green) ─────────────────────────────────────────────────
+
+class _ConditionBadge extends StatelessWidget {
+  final String label;
+  const _ConditionBadge({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFDCFCE7),
+        borderRadius: BorderRadius.circular(6.r),
+        border: Border.all(color: const Color(0xFF86EFAC)),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.tajawal(
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF166534),
+        ),
+      ),
     );
   }
 }
@@ -857,18 +848,18 @@ class _InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppTheme.divider),
+        color: _bg,
+        borderRadius: BorderRadius.circular(6.r),
+        border: Border.all(color: _border),
       ),
       child: Text(
         label,
         style: GoogleFonts.tajawal(
           fontSize: 12.sp,
           fontWeight: FontWeight.w600,
-          color: AppTheme.textSecondary,
+          color: _textSecondary,
         ),
       ),
     );
@@ -895,7 +886,7 @@ class _SimilarCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppTheme.divider),
+        border: Border.all(color: _border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -928,14 +919,14 @@ class _SimilarCard extends StatelessWidget {
                   style: GoogleFonts.tajawal(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
+                    color: _textPrimary,
                   ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   IqdFormatter.format(price),
                   style: GoogleFonts.tajawal(
-                    fontSize: 14.sp,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w800,
                     color: _orange,
                   ),
@@ -944,50 +935,6 @@ class _SimilarCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ── Secondary Action Button ────────────────────────────────────────────────
-
-class _SecondaryActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _SecondaryActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 46.h,
-        decoration: BoxDecoration(
-          color: _orange.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: _orange.withValues(alpha: 0.25)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: _orange, size: 18.sp),
-            SizedBox(width: 6.w),
-            Text(
-              label,
-              style: GoogleFonts.tajawal(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-                color: _orange,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -11,6 +11,34 @@ import '../../../cart/presentation/cubit/balla_cart_cubit.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../data/models/shop_models.dart';
 
+// ── Balla Theme constants ────────────────────────────────────────────────────
+
+const _kBg            = Color(0xFFF5F0FF);
+const _kSurface       = Color(0xFFFFFFFF);
+const _kPurpleSurface = Color(0xFFEDE0FF);
+const _kPurple        = Color(0xFF7C3AED);
+const _kGold          = Color(0xFFFFB800);
+const _kBorder        = Color(0xFFD8D0E8);
+const _kTextPrimary   = Color(0xFF1C1713);
+const _kTextSecondary = Color(0xFF6B5E52);
+const _kTextTertiary  = Color(0xFFA89585);
+
+// ── Unit enum ────────────────────────────────────────────────────────────────
+
+enum _BallaUnit { kilo, piece, bundle }
+
+extension _BallaUnitX on _BallaUnit {
+  String get label {
+    switch (this) {
+      case _BallaUnit.kilo:   return 'كيلو';
+      case _BallaUnit.piece:  return 'قطعة';
+      case _BallaUnit.bundle: return 'حزمة';
+    }
+  }
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 class BallaProductDetailsPage extends StatefulWidget {
   final ProductModel product;
 
@@ -23,14 +51,29 @@ class BallaProductDetailsPage extends StatefulWidget {
 
 class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
   int _currentImageIndex = 0;
-  int _selectedUnit = 0; // 0=بالكيلو, 1=بالقطعة, 2=بالحزمة
+  _BallaUnit _selectedUnit = _BallaUnit.kilo;
   int _quantity = 1;
   bool _isBookmarked = false;
+  bool _infoExpanded = false;
   final PageController _pageController = PageController();
 
-  static const _units = ['بالكيلو', 'بالقطعة', 'بالحزمة'];
+  // ── Pricing ───────────────────────────────────────────────────────────────
 
-  double get _totalPrice => widget.product.price * _quantity;
+  double get _totalPrice => widget.product.price;
+
+  /// Derived kilo price assuming a 25 kg bale weight.
+  double get _kiloPrice => widget.product.price / 25;
+
+  /// Approximate piece price (kilo / 2).
+  double get _piecePrice => _kiloPrice / 2;
+
+  double get _unitPrice {
+    switch (_selectedUnit) {
+      case _BallaUnit.kilo:   return _kiloPrice;
+      case _BallaUnit.piece:  return _piecePrice;
+      case _BallaUnit.bundle: return widget.product.price;
+    }
+  }
 
   @override
   void dispose() {
@@ -41,62 +84,53 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0FF),
+      backgroundColor: _kBg,
       body: Stack(
         children: [
           _buildScrollContent(),
-          _buildHeader(),
+          _buildAppBar(),
           _buildStickyFooter(),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  // ── App Bar ───────────────────────────────────────────────────────────────
+
+  Widget _buildAppBar() {
+    final topPad = MediaQuery.of(context).padding.top;
     return Positioned(
       top: 0,
       left: 0,
       right: 0,
       child: Container(
         padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + 8.h,
+          top: topPad + 6.h,
           bottom: 8.h,
-          left: 16.w,
-          right: 16.w,
+          left: 12.w,
+          right: 12.w,
         ),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.9),
-          border: Border(
-            bottom: BorderSide(
-              color: AppTheme.ballaPurple.withValues(alpha: 0.08),
-            ),
-          ),
-        ),
+        color: _kBg,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _HeaderBtn(
+            // Back arrow
+            _CircleBtn(
               icon: Icons.arrow_forward_rounded,
               onTap: () => context.pop(),
             ),
-            Text(
-              'تفاصيل عرض البالة',
-              style: GoogleFonts.cairo(
-                fontSize: 17.sp,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
-            ),
+            // Share + Favorite icons
             Row(
               children: [
-                _HeaderBtn(icon: Icons.share_outlined, onTap: () {}),
+                _CircleBtn(icon: Icons.share_outlined, onTap: () {}),
                 SizedBox(width: 8.w),
-                _HeaderBtn(
+                _CircleBtn(
                   icon: _isBookmarked
-                      ? Icons.bookmark_rounded
-                      : Icons.bookmark_outline_rounded,
-                  onTap: () => setState(() => _isBookmarked = !_isBookmarked),
-                  color: _isBookmarked ? AppTheme.ballaPurple : null,
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  color: _isBookmarked ? Colors.redAccent : null,
+                  onTap: () =>
+                      setState(() => _isBookmarked = !_isBookmarked),
                 ),
               ],
             ),
@@ -106,56 +140,158 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
     );
   }
 
+  // ── Scroll body ───────────────────────────────────────────────────────────
+
   Widget _buildScrollContent() {
+    final topPad = MediaQuery.of(context).padding.top;
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: MediaQuery.of(context).padding.top + 64.h),
-          _buildImageGallery(),
-          _buildProductInfo(),
+          // Space for app bar
+          SizedBox(height: topPad + 56.h),
+
+          // Image carousel
+          _buildImageCarousel(),
+
+          SizedBox(height: 16.h),
+
+          // Title
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Text(
+              widget.product.name,
+              style: GoogleFonts.tajawal(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: _kTextPrimary,
+                height: 1.35,
+              ),
+            ),
+          ),
+
+          SizedBox(height: 12.h),
+
+          // Price breakdown card
+          _buildPriceCard(),
+
+          SizedBox(height: 12.h),
+
+          // Unit selector pill chips
           _buildUnitSelector(),
-          _buildQuantityCalculator(),
-          _buildConditionBars(),
-          _buildSellerCard(),
-          _buildLocationInfo(),
-          _buildDescription(),
-          SizedBox(height: 120.h),
+
+          SizedBox(height: 12.h),
+
+          // Quantity row
+          _buildQuantityRow(),
+
+          SizedBox(height: 12.h),
+
+          // Supplier card
+          _buildSupplierCard(),
+
+          SizedBox(height: 12.h),
+
+          // Info section (expandable)
+          _buildInfoSection(),
+
+          SizedBox(height: 16.h),
+
+          // Similar bales
+          _buildSimilarBales(),
+
+          // Bottom padding for sticky footer
+          SizedBox(height: 100.h + MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
   }
 
-  Widget _buildImageGallery() {
+  // ── Image Carousel ────────────────────────────────────────────────────────
+
+  Widget _buildImageCarousel() {
     final images = widget.product.images.isNotEmpty
         ? widget.product.images
-        : ['https://placehold.co/800x800/png'];
+        : ['https://placehold.co/800x600/EDE0FF/7C3AED/png?text=بالة'];
 
     return Container(
-      color: Colors.white,
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      decoration: BoxDecoration(
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: _kBorder),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          AspectRatio(
-            aspectRatio: 1,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: images.length,
-              onPageChanged: (i) => setState(() => _currentImageIndex = i),
-              itemBuilder: (context, index) {
-                return CachedNetworkImage(
-                  imageUrl: images[index],
-                  fit: BoxFit.cover,
-                  placeholder: (_, _) => Container(
-                    color: AppTheme.ballaPurple.withValues(alpha: 0.06),
+          // Image pages
+          SizedBox(
+            height: 260.h,
+            child: Stack(
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  itemCount: images.length,
+                  onPageChanged: (i) =>
+                      setState(() => _currentImageIndex = i),
+                  itemBuilder: (context, index) => CachedNetworkImage(
+                    imageUrl: images[index],
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    placeholder: (_, p2) => Container(
+                      color: _kPurpleSurface,
+                      child: Center(
+                        child: Icon(
+                          Icons.inventory_2_outlined,
+                          size: 48.sp,
+                          color: _kPurple.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (_, p2, p3) => Container(
+                      color: _kPurpleSurface,
+                      child: Center(
+                        child: Icon(
+                          Icons.broken_image_outlined,
+                          size: 48.sp,
+                          color: _kPurple.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    ),
                   ),
-                );
-              },
+                ),
+
+                // "بالة" purple pill badge — top-start (RTL: visually top-left)
+                Positioned(
+                  top: 12.h,
+                  right: 12.w,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 5.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _kPurple,
+                      borderRadius: BorderRadius.circular(99.r),
+                    ),
+                    child: Text(
+                      'بالة',
+                      style: GoogleFonts.tajawal(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          // Dot indicators
+
+          // Dot page indicators
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.h),
+            padding: EdgeInsets.symmetric(vertical: 10.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(images.length, (i) {
@@ -163,12 +299,12 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   margin: EdgeInsets.symmetric(horizontal: 3.w),
-                  width: active ? 20.w : 6.w,
+                  width: active ? 18.w : 6.w,
                   height: 6.w,
                   decoration: BoxDecoration(
                     color: active
-                        ? AppTheme.ballaPurple
-                        : AppTheme.ballaPurple.withValues(alpha: 0.25),
+                        ? _kPurple
+                        : _kPurple.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(99.r),
                   ),
                 );
@@ -180,372 +316,487 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
     );
   }
 
-  Widget _buildProductInfo() {
+  // ── Price Breakdown Card ──────────────────────────────────────────────────
+
+  Widget _buildPriceCard() {
     return Container(
-      color: Colors.white,
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: _kPurpleSurface,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: _kPurple.withValues(alpha: 0.2)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Badges
-          Wrap(
-            spacing: 8.w,
-            children: [
-              const _Badge(label: 'بالجملة', color: AppTheme.ballaPurple),
-              _Badge(
-                label: 'نخب أول Grade A',
-                color: Colors.green.shade600,
-              ),
-              const _Badge(label: '🇪🇺 استيراد أوروبي', color: AppTheme.textSecondary),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          Text(
-            widget.product.name,
-            style: GoogleFonts.cairo(
-              fontSize: 22.sp,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
-              height: 1.2,
-            ),
-          ),
-          SizedBox(height: 6.h),
+          // Total price row
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                IqdFormatter.format(widget.product.price)
-                    .replaceAll(' د.ع', ''),
-                style: GoogleFonts.cairo(
-                  fontSize: 28.sp,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.ballaPurple,
+                'السعر الإجمالي',
+                style: GoogleFonts.tajawal(
+                  fontSize: 13.sp,
+                  color: _kTextSecondary,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(width: 4.w),
               Text(
-                'د.ع / ${_units[_selectedUnit]}',
-                style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textSecondary,
+                IqdFormatter.format(_totalPrice),
+                style: GoogleFonts.tajawal(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w800,
+                  color: _kPurple,
+                  height: 1.1,
                 ),
               ),
             ],
+          ),
+
+          SizedBox(height: 10.h),
+          Divider(height: 1, color: _kPurple.withValues(alpha: 0.12)),
+          SizedBox(height: 10.h),
+
+          // Kilo price
+          _PriceRow(
+            label: 'سعر الكيلو',
+            value: '${IqdFormatter.format(_kiloPrice)}/كغم',
+          ),
+
+          SizedBox(height: 6.h),
+
+          // Piece price
+          _PriceRow(
+            label: 'سعر القطعة (تقريبي)',
+            value: '${IqdFormatter.format(_piecePrice)}/قطعة',
           ),
         ],
       ),
     );
   }
 
+  // ── Unit Selector — pill chips ────────────────────────────────────────────
+
   Widget _buildUnitSelector() {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppTheme.ballaPurple.withValues(alpha: 0.12)),
-      ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
-        children: List.generate(_units.length, (i) {
-          final selected = _selectedUnit == i;
+        children: _BallaUnit.values.map((unit) {
+          final selected = _selectedUnit == unit;
+          final isLast = unit == _BallaUnit.values.last;
           return Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _selectedUnit = i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: selected ? AppTheme.ballaPurple : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  _units[i],
-                  style: GoogleFonts.cairo(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.bold,
-                    color: selected ? Colors.white : AppTheme.textSecondary,
+            child: Padding(
+              padding: EdgeInsets.only(left: isLast ? 0 : 6.w),
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedUnit = unit),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                  decoration: BoxDecoration(
+                    color: selected ? _kPurple : _kSurface,
+                    borderRadius: BorderRadius.circular(99.r),
+                    border: Border.all(
+                      color: _kPurple,
+                      width: selected ? 0 : 1,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    unit.label,
+                    style: GoogleFonts.tajawal(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
+                      color: selected ? Colors.white : _kPurple,
+                    ),
                   ),
                 ),
               ),
             ),
           );
-        }),
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildQuantityCalculator() {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'الكمية',
-                style: GoogleFonts.cairo(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              Row(
-                children: [
-                  _QtyBtn(
-                    icon: Icons.remove_rounded,
-                    onTap: () {
-                      if (_quantity > 1) setState(() => _quantity--);
-                    },
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Text(
-                      '$_quantity',
-                      style: GoogleFonts.cairo(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                  ),
-                  _QtyBtn(
-                    icon: Icons.add_rounded,
-                    onTap: () => setState(() => _quantity++),
-                    filled: true,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Divider(color: AppTheme.inactive.withValues(alpha: 0.1)),
-          SizedBox(height: 12.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'الإجمالي',
-                style: GoogleFonts.cairo(
-                  fontSize: 14.sp,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              Text(
-                IqdFormatter.format(_totalPrice),
-                style: GoogleFonts.cairo(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.ballaPurple,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // ── Quantity Row ──────────────────────────────────────────────────────────
 
-  Widget _buildConditionBars() {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'حالة البضاعة',
-            style: GoogleFonts.cairo(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+  Widget _buildQuantityRow() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: _kSurface,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: _kBorder),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Minus (−)
+            _QtyButton(
+              icon: Icons.remove_rounded,
+              onTap: () {
+                if (_quantity > 1) setState(() => _quantity--);
+              },
             ),
-          ),
-          SizedBox(height: 14.h),
-          const _ConditionBar(label: 'النظافة', value: 0.9),
-          SizedBox(height: 10.h),
-          const _ConditionBar(label: 'الجودة', value: 0.85),
-          SizedBox(height: 10.h),
-          const _ConditionBar(label: 'الاكتمال', value: 0.95),
-        ],
+
+            // Count centered
+            SizedBox(
+              width: 72.w,
+              child: Text(
+                '$_quantity',
+                style: GoogleFonts.tajawal(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w800,
+                  color: _kTextPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+            // Plus (+)
+            _QtyButton(
+              icon: Icons.add_rounded,
+              filled: true,
+              onTap: () => setState(() => _quantity++),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSellerCard() {
+  // ── Supplier Card ─────────────────────────────────────────────────────────
+
+  Widget _buildSupplierCard() {
     return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
-      padding: EdgeInsets.all(16.w),
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _kSurface,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.1)),
+        border: Border.all(color: _kBorder),
       ),
       child: Row(
         children: [
+          // Warehouse icon
           Container(
-            width: 52.w,
-            height: 52.w,
+            width: 48.w,
+            height: 48.w,
             decoration: BoxDecoration(
-              color: AppTheme.ballaPurple.withValues(alpha: 0.1),
+              color: _kPurpleSurface,
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
               Icons.warehouse_rounded,
-              size: 28.sp,
-              color: AppTheme.ballaPurple,
+              size: 26.sp,
+              color: _kPurple,
             ),
           ),
+
           SizedBox(width: 12.w),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Name + verified badge
                 Row(
                   children: [
-                    Text(
-                      'مستودع البصرة الاستثماري',
-                      style: GoogleFonts.cairo(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                    Flexible(
+                      child: Text(
+                        'مستودع الأمانة للجملة',
+                        style: GoogleFonts.tajawal(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: _kTextPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     SizedBox(width: 4.w),
                     Icon(
                       Icons.verified_rounded,
-                      color: AppTheme.ballaPurple,
-                      size: 16.sp,
+                      size: 15.sp,
+                      color: _kPurple,
                     ),
                   ],
                 ),
-                SizedBox(height: 2.h),
-                Text(
-                  'تاجر جملة موثق • 4.8 ★',
-                  style: GoogleFonts.cairo(
-                    fontSize: 11.sp,
-                    color: AppTheme.textSecondary,
-                  ),
+
+                SizedBox(height: 4.h),
+
+                // Stars + reviews + divider + bales count chip
+                Row(
+                  children: [
+                    Icon(Icons.star_rounded, size: 14.sp, color: _kGold),
+                    SizedBox(width: 3.w),
+                    Text(
+                      '4.9',
+                      style: GoogleFonts.tajawal(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                        color: _kTextPrimary,
+                      ),
+                    ),
+                    SizedBox(width: 3.w),
+                    Text(
+                      '(٢٣٠ تقييم)',
+                      style: GoogleFonts.tajawal(
+                        fontSize: 11.sp,
+                        color: _kTextSecondary,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Container(width: 1, height: 12.h, color: _kBorder),
+                    SizedBox(width: 8.w),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _kBg,
+                        borderRadius: BorderRadius.circular(6.r),
+                        border: Border.all(color: _kBorder),
+                      ),
+                      child: Text(
+                        '٣٥ بالة معروضة',
+                        style: GoogleFonts.tajawal(
+                          fontSize: 10.sp,
+                          color: _kTextSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_left_rounded, color: AppTheme.inactive),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildLocationInfo() {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        children: [
-          const _InfoRow(icon: Icons.location_on_rounded, label: 'مكان الحمولة', value: 'البصرة، العراق'),
-          Divider(height: 20.h, color: AppTheme.inactive.withValues(alpha: 0.1)),
-          const _InfoRow(icon: Icons.schedule_rounded, label: 'وقت التحميل', value: 'يومين عمل'),
-          Divider(height: 20.h, color: AppTheme.inactive.withValues(alpha: 0.1)),
-          const _InfoRow(icon: Icons.alt_route_rounded, label: 'نوع الشحن', value: 'شحن بري (TIR)'),
-          Divider(height: 20.h, color: AppTheme.inactive.withValues(alpha: 0.1)),
-          const _InfoRow(icon: Icons.inventory_rounded, label: 'الكمية المتاحة', value: 'متاح الآن'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDescription() {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'وصف المنتج',
-            style: GoogleFonts.cairo(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            widget.product.description ??
-                'بالات ملابس شتوية نخب أول مختارة بعناية من الأسواق الأوروبية. تحتوي كل بالة على تشكيلة متنوعة من الجاكيتات، البلوفرات، والملابس الصوفية الثقيلة.',
-            style: GoogleFonts.cairo(
-              fontSize: 14.sp,
-              color: AppTheme.textSecondary,
-              height: 1.6,
-            ),
+          Icon(
+            Icons.chevron_left_rounded,
+            size: 20.sp,
+            color: _kTextTertiary,
           ),
         ],
       ),
     );
   }
+
+  // ── Expandable Info Section ───────────────────────────────────────────────
+
+  Widget _buildInfoSection() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      decoration: BoxDecoration(
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: _kBorder),
+      ),
+      child: Column(
+        children: [
+          // Header / toggle
+          GestureDetector(
+            onTap: () => setState(() => _infoExpanded = !_infoExpanded),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 18.sp,
+                    color: _kPurple,
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'معلومات البالة',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: _kTextPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  AnimatedRotation(
+                    turns: _infoExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 20.sp,
+                      color: _kTextSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Expandable content
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Divider(height: 1, color: _kBorder),
+                  SizedBox(height: 12.h),
+                  const _InfoDetailRow(label: 'المنشأ', value: 'أوروبا (ألمانيا)'),
+                  SizedBox(height: 8.h),
+                  _InfoDetailRow(
+                    label: 'المحتوى',
+                    value: widget.product.description ??
+                        'ملابس نسائية مشكلة — جاكيتات، بلوفرات، فساتين',
+                  ),
+                  SizedBox(height: 8.h),
+                  const _InfoDetailRow(label: 'الحالة', value: 'نخب أول — Grade A'),
+                  SizedBox(height: 8.h),
+                  const _InfoDetailRow(label: 'الوزن التقريبي', value: '٢٥ كغم/بالة'),
+                  SizedBox(height: 8.h),
+                  const _InfoDetailRow(
+                    label: 'عدد القطع',
+                    value: '٤٠–٦٠ قطعة/بالة',
+                  ),
+                ],
+              ),
+            ),
+            crossFadeState: _infoExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 250),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Similar Bales ─────────────────────────────────────────────────────────
+
+  Widget _buildSimilarBales() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'بالات مشابهة',
+                style: GoogleFonts.tajawal(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w700,
+                  color: _kTextPrimary,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: Text(
+                  'عرض الكل',
+                  style: GoogleFonts.tajawal(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _kPurple,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 10.h),
+
+        SizedBox(
+          height: 160.h,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            physics: const BouncingScrollPhysics(),
+            itemCount: 3,
+            separatorBuilder: (_, i) => SizedBox(width: 10.w),
+            itemBuilder: (context, i) => _SimilarBaleCard(index: i),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Sticky Footer ─────────────────────────────────────────────────────────
 
   Widget _buildStickyFooter() {
+    final bottomPad = MediaQuery.of(context).padding.bottom;
     return Positioned(
       bottom: 0,
       left: 0,
       right: 0,
       child: Container(
-        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h + MediaQuery.of(context).padding.bottom),
+        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h + bottomPad),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            top: BorderSide(color: AppTheme.inactive.withValues(alpha: 0.1)),
-          ),
+          color: _kSurface,
+          border: const Border(top: BorderSide(color: _kBorder)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 12,
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 16,
               offset: const Offset(0, -4),
             ),
           ],
         ),
-        child: Row(
-          children: [
-            // Add to cart
-            Expanded(
-              child: BlocBuilder<BallaCartCubit, CartState>(
-                builder: (ctx, cartState) {
-                  final inCart = cartState.isInCart(widget.product.id);
-                  return GestureDetector(
+        child: BlocBuilder<BallaCartCubit, CartState>(
+          builder: (ctx, cartState) {
+            final inCart = cartState.isInCart(widget.product.id);
+            return Row(
+              children: [
+                // Selected unit label + price
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _selectedUnit.label,
+                      style: GoogleFonts.tajawal(
+                        fontSize: 11.sp,
+                        color: _kTextSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      IqdFormatter.format(_unitPrice * _quantity),
+                      style: GoogleFonts.tajawal(
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w800,
+                        color: _kPurple,
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(width: 12.w),
+
+                // "إضافة للسلة" full-width purple pill button
+                Expanded(
+                  child: GestureDetector(
                     onTap: () {
-                      ctx.read<BallaCartCubit>().addToCart(widget.product);
+                      ctx
+                          .read<BallaCartCubit>()
+                          .addToCart(widget.product);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'تم الإضافة إلى عرض الجملة',
-                            style: GoogleFonts.cairo(),
+                            inCart
+                                ? 'تم تحديث السلة'
+                                : 'تمت الإضافة إلى السلة',
+                            style: GoogleFonts.tajawal(),
+                            textDirection: TextDirection.rtl,
                           ),
-                          backgroundColor: AppTheme.ballaPurple,
+                          backgroundColor: _kPurple,
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.r),
@@ -556,65 +807,41 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
                     child: Container(
                       height: 52.h,
                       decoration: BoxDecoration(
-                        color: inCart
-                            ? AppTheme.ballaPurpleSurface
-                            : AppTheme.ballaPurple,
-                        borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(
-                          color: AppTheme.ballaPurple,
-                          width: inCart ? 1.5 : 0,
-                        ),
+                        color: inCart ? AppTheme.ballaPurpleSurface : _kPurple,
+                        borderRadius: BorderRadius.circular(99.r),
+                        border: inCart
+                            ? Border.all(color: _kPurple, width: 1.5)
+                            : null,
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        inCart ? 'موجود في السلة ✓' : 'أضف للسلة',
-                        style: GoogleFonts.cairo(
+                        inCart ? 'موجود في السلة ✓' : 'إضافة للسلة',
+                        style: GoogleFonts.tajawal(
                           fontSize: 15.sp,
-                          fontWeight: FontWeight.bold,
-                          color: inCart ? AppTheme.ballaPurple : Colors.white,
+                          fontWeight: FontWeight.w700,
+                          color: inCart ? _kPurple : Colors.white,
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(width: 12.w),
-            // Buy now
-            Container(
-              height: 52.h,
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF5B21B6), Color(0xFF7C3AED)],
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                'اشتري الآن',
-                style: GoogleFonts.cairo(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
   }
 }
 
-// ── Helper Widgets ─────────────────────────────────────────────────
+// ── Helper Widgets ────────────────────────────────────────────────────────────
 
-class _HeaderBtn extends StatelessWidget {
+class _CircleBtn extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final Color? color;
 
-  const _HeaderBtn({required this.icon, required this.onTap, this.color});
+  const _CircleBtn({required this.icon, required this.onTap, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -624,114 +851,80 @@ class _HeaderBtn extends StatelessWidget {
         width: 38.w,
         height: 38.w,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _kSurface,
           shape: BoxShape.circle,
-          border: Border.all(color: AppTheme.inactive.withValues(alpha: 0.15)),
+          border: Border.all(color: _kBorder),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        child: Icon(icon, color: color ?? AppTheme.textPrimary, size: 20.sp),
+        child: Icon(icon, size: 18.sp, color: color ?? _kTextPrimary),
       ),
     );
   }
 }
 
-class _Badge extends StatelessWidget {
-  final String label;
-  final Color color;
-
-  const _Badge({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(99.r),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.cairo(
-          fontSize: 11.sp,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
-      ),
-    );
-  }
-}
-
-class _QtyBtn extends StatelessWidget {
+class _QtyButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final bool filled;
 
-  const _QtyBtn({required this.icon, required this.onTap, this.filled = false});
+  const _QtyButton({
+    required this.icon,
+    required this.onTap,
+    this.filled = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 36.w,
-        height: 36.w,
+        width: 40.w,
+        height: 40.w,
         decoration: BoxDecoration(
-          color: filled ? AppTheme.ballaPurple : Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(
-            color: filled
-                ? AppTheme.ballaPurple
-                : AppTheme.inactive.withValues(alpha: 0.2),
-          ),
+          color: filled ? _kPurple : _kSurface,
+          shape: BoxShape.circle,
+          border: Border.all(color: filled ? _kPurple : _kBorder),
         ),
         child: Icon(
           icon,
           size: 18.sp,
-          color: filled ? Colors.white : AppTheme.textPrimary,
+          color: filled ? Colors.white : _kTextPrimary,
         ),
       ),
     );
   }
 }
 
-class _ConditionBar extends StatelessWidget {
+class _PriceRow extends StatelessWidget {
   final String label;
-  final double value; // 0.0 – 1.0
+  final String value;
 
-  const _ConditionBar({required this.label, required this.value});
+  const _PriceRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SizedBox(
-          width: 60.w,
-          child: Text(
-            label,
-            style: GoogleFonts.cairo(
-              fontSize: 12.sp,
-              color: AppTheme.textSecondary,
-            ),
-          ),
-        ),
-        SizedBox(width: 8.w),
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(99.r),
-            child: LinearProgressIndicator(
-              value: value,
-              minHeight: 8.h,
-              backgroundColor: AppTheme.ballaPurple.withValues(alpha: 0.1),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.ballaPurple),
-            ),
-          ),
-        ),
-        SizedBox(width: 8.w),
         Text(
-          '${(value * 100).toInt()}%',
-          style: GoogleFonts.cairo(
+          label,
+          style: GoogleFonts.tajawal(
             fontSize: 12.sp,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.ballaPurple,
+            color: _kTextSecondary,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.tajawal(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            color: _kTextSecondary,
           ),
         ),
       ],
@@ -739,40 +932,111 @@ class _ConditionBar extends StatelessWidget {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
+class _InfoDetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoRow({required this.icon, required this.label, required this.value});
+  const _InfoDetailRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, size: 16.sp, color: AppTheme.ballaPurple),
-            SizedBox(width: 8.w),
-            Text(
-              label,
-              style: GoogleFonts.cairo(
-                fontSize: 13.sp,
-                color: AppTheme.textSecondary,
-              ),
+        SizedBox(
+          width: 80.w,
+          child: Text(
+            label,
+            style: GoogleFonts.tajawal(
+              fontSize: 12.sp,
+              color: _kTextTertiary,
             ),
-          ],
+          ),
         ),
-        Text(
-          value,
-          style: GoogleFonts.cairo(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
+        SizedBox(width: 8.w),
+        Expanded(
+          child: Text(
+            value,
+            style: GoogleFonts.tajawal(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+              color: _kTextPrimary,
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SimilarBaleCard extends StatelessWidget {
+  final int index;
+
+  const _SimilarBaleCard({required this.index});
+
+  static const _titles = [
+    'بالة ملابس رجالية',
+    'بالة أطفال شتوية',
+    'بالة ملابس مشكلة',
+  ];
+
+  static const _prices = [95000.0, 85000.0, 110000.0];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 130.w,
+      decoration: BoxDecoration(
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: _kBorder),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Image placeholder
+          Container(
+            height: 90.h,
+            color: _kPurpleSurface,
+            child: Center(
+              child: Icon(
+                Icons.inventory_2_outlined,
+                size: 32.sp,
+                color: _kPurple.withValues(alpha: 0.4),
+              ),
+            ),
+          ),
+
+          Padding(
+            padding: EdgeInsets.all(8.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _titles[index % _titles.length],
+                  style: GoogleFonts.tajawal(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _kTextPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  IqdFormatter.format(_prices[index % _prices.length]),
+                  style: GoogleFonts.tajawal(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: _kPurple,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
