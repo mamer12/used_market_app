@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +18,7 @@ class ShillaButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () => _onTap(context),
+      onPressed: () => unawaited(_onTap(context)),
       icon: const Icon(Icons.group_rounded),
       label: Text(
         'ابدأ شلة 👥',
@@ -37,14 +39,14 @@ class ShillaButton extends StatelessWidget {
     final model = await cubit.createGroupBuy(productId);
 
     if (!context.mounted) return;
-    cubit.close();
+    unawaited(cubit.close());
 
     if (model != null) {
-      Navigator.of(context).push(
+      unawaited(Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => GroupBuyPage(groupBuyId: model.id),
         ),
-      );
+      ));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

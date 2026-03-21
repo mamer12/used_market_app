@@ -4,28 +4,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/storage/token_storage.dart';
 import '../../data/models/negotiation_model.dart';
 import '../cubit/negotiation_cubit.dart';
 
 class MyNegotiationsPage extends StatelessWidget {
   const MyNegotiationsPage({super.key});
 
-  static const _baseUrl = 'https://api.madhmoon.iq';
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: getIt<TokenStorage>().getToken(),
-      builder: (context, snapshot) {
-        final token = snapshot.data ?? '';
-        return BlocProvider(
-          create: (_) =>
-              NegotiationCubit(baseUrl: _baseUrl, token: token)
-                ..fetchMyNegotiations(),
-          child: const _MyNegotiationsView(),
-        );
-      },
+    return BlocProvider(
+      create: (_) => getIt<NegotiationCubit>()..fetchMyNegotiations(),
+      child: const _MyNegotiationsView(),
     );
   }
 }

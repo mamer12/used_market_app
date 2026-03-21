@@ -297,7 +297,7 @@ class _ChatViewState extends State<_ChatView> {
             child: Container(
               width: 44.w,
               height: 44.w,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.primary,
                 shape: BoxShape.circle,
               ),

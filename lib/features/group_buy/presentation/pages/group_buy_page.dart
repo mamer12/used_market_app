@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,7 +72,7 @@ class _GroupBuyViewState extends State<_GroupBuyView> {
   void _shareLink() {
     final link = 'madhmoon://group/${widget.groupBuyId}';
     Clipboard.setData(ClipboardData(text: link));
-    Share.share(link, subject: 'انضم إلى الشلة');
+    unawaited(SharePlus.instance.share(ShareParams(text: link, subject: 'انضم إلى الشلة')));
   }
 
   @override

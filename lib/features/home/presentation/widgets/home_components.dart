@@ -47,7 +47,7 @@ class HomeSection extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (trailing != null) trailing!,
+                  ?trailing,
                 ],
               ),
             ),

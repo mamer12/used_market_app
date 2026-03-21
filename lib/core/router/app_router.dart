@@ -42,6 +42,7 @@ import '../../features/shop/presentation/pages/matajir_shell_page.dart';
 import '../../features/shop/presentation/pages/dispute_page.dart';
 import '../../features/shop/presentation/pages/favorites_page.dart';
 import '../../features/shop/presentation/pages/mustamal_detail_page.dart';
+import '../../features/shop/presentation/pages/mustamal_my_ads_page.dart';
 import '../../features/shop/presentation/pages/mustamal_page.dart';
 import '../../features/shop/presentation/pages/product_details_page.dart';
 import '../../features/shop/presentation/pages/shipping_address_page.dart';
@@ -283,6 +284,10 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
           GoRoute(
             path: 'create',
             builder: (context, state) => const CreateMustamalPage(),
+          ),
+          GoRoute(
+            path: 'my-ads',
+            builder: (_, _) => const MustamalMyAdsPage(),
           ),
         ],
       ),

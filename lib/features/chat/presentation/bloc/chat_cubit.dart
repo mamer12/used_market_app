@@ -108,7 +108,7 @@ class ChatCubit extends Cubit<ChatState> {
         data: {
           'other_user_id': otherUserId,
           'context_type': contextType,
-          if (contextId != null) 'context_id': contextId,
+          'context_id': ?contextId,
         },
       );
       return resp.data['data']['id'] as String?;

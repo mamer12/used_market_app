@@ -371,48 +371,17 @@ class _HeroZone extends StatelessWidget {
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
     return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
           colors: [_bgBottom, _bgTop],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
-        // glass border on bottom edge
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.10),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: _bgBottom.withValues(alpha: 0.45),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
-          ),
-        ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          // top specular sheen
-          Positioned(
-            top: 0, left: 0, right: 0,
-            child: Container(
-              height: 100,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.10),
-                    Colors.transparent,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(0),
-                ),
-              ),
-            ),
-          ),
-          // ── White rounded cap at bottom ─────────────────────────────
+          // ── Rounded cap at bottom matching scaffold bg ──────────────
           Positioned(
             bottom: 0, left: 0, right: 0,
             child: Container(
@@ -518,6 +487,7 @@ class _HeroZone extends StatelessWidget {
                         WalletLoading() => null,
                         WalletLoaded(:final balanceIqd) => balanceIqd,
                         WalletError() => -1,
+                        _ => null, // WalletTransactionsLoaded — balance unchanged
                       },
                       onDeposit: onDeposit,
                       onWithdraw: onWithdraw,

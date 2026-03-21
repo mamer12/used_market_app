@@ -30,7 +30,10 @@ import '../../../home/presentation/widgets/home_components.dart';
 ///
 /// Based on Stitch Screen 8 (953e87ff).
 class MazadatPage extends StatefulWidget {
-  const MazadatPage({super.key});
+  /// When true, hides the built-in bottom nav (shell provides it instead).
+  final bool embeddedInShell;
+
+  const MazadatPage({super.key, this.embeddedInShell = false});
 
   @override
   State<MazadatPage> createState() => _MazadatPageState();
@@ -391,11 +394,12 @@ class _MazadatPageState extends State<MazadatPage> {
             const MazadatAccountPage(),
           ],
         ),
-        // ── Mazadat Bottom Nav (Stitch Screen 8) ──
-        _MazadatBottomNav(
-          currentIndex: _selectedNavIndex,
-          onTap: _onNavTap,
-        ),
+        // Bottom nav hidden when hosted inside MazadatShellPage
+        if (!widget.embeddedInShell)
+          _MazadatBottomNav(
+            currentIndex: _selectedNavIndex,
+            onTap: _onNavTap,
+          ),
       ],
     ),
       ),

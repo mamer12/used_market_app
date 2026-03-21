@@ -199,7 +199,7 @@ class _OrderCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          Divider(color: AppTheme.divider, height: 1),
+          const Divider(color: AppTheme.divider, height: 1),
           SizedBox(height: 12.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

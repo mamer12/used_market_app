@@ -4,9 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../bloc/auctions_cubit.dart';
-import 'mazadat_shell_page.dart';
 
 /// المراقبة — Auction Watchlist page.
 ///
@@ -38,7 +39,7 @@ class _MazadatWatchlistPageState extends State<MazadatWatchlistPage> {
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               // ── App Bar ────────────────────────────────
-              SliverAppBar(
+              const SliverAppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 pinned: true,
@@ -92,7 +93,7 @@ class _MazadatWatchlistPageState extends State<MazadatWatchlistPage> {
               else
                 SliverList.separated(
                   itemCount: state.watchedAuctions.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                  separatorBuilder: (_, _) => SizedBox(height: 12.h),
                   itemBuilder: (_, index) {
                     final item = state.watchedAuctions[index];
                     return Padding(
@@ -217,20 +218,8 @@ class _EmptyWatchlist extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
-                // Find parent MazadatShellPage state and switch to tab 0
-                final shell = context.findAncestorStateOfType<State<MazadatShellPage>>();
-                // Use reflection / dynamic call since state class is private, or pass a callback.
-                // Let's just use GoRouter to go to mazadat base route which resets the stack/tab.
-                // Or better, since it's a tab, we can't easily push. Actually go('/mazadat') might just reset it.
-                // Let's rely on standard navigation or passing an event.
-                // Since this is all in Shell, popping to /mazadat:
-                // Actually the best way is to tap the first bottom nav item via some event bus, but going to /mazadat works.
-                // Another way is to expose a public method on MazadatShellPageState.
-                // I exported it as public `MazadatShellPageState`.
-                final state = context.findAncestorStateOfType();
-                // Unfortunately we can't cast to a private state but we made it public!
-                context.findAncestorStateOfType(); // Need to import and cast.
-                // It is public. Let's just do an implicit cast by finding it.
+                // Navigate to the main Mazadat auctions list
+                context.go('/mazadat');
               },
               child: Container(
                 padding: EdgeInsets.symmetric(

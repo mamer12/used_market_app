@@ -9,6 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../../../../core/widgets/center_fab_bottom_nav.dart';
+import '../../../../core/widgets/promoted_carousel.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
@@ -95,6 +97,23 @@ class _MustamalPageState extends State<MustamalPage> {
       value: _cubit,
       child: Scaffold(
         backgroundColor: _orangeSurface,
+        bottomNavigationBar: CenterFabBottomNav(
+          items: const [
+            NavItem(icon: Icons.home_rounded, label: 'الرئيسية'),
+            NavItem(icon: Icons.category_rounded, label: 'الأقسام'),
+            NavItem(icon: Icons.campaign_rounded, label: 'إعلاناتي'),
+            NavItem(icon: Icons.person_rounded, label: 'حسابي'),
+          ],
+          currentIndex: 0,
+          onTap: (index) {
+            if (index == 2) context.push('/mustamal/my-ads');
+          },
+          fabIcon: Icons.camera_alt_rounded,
+          fabColor: AppTheme.mustamalOrange,
+          fabLabel: 'أضف إعلان',
+          onFabTap: () => context.push('/mustamal/create'),
+          darkMode: false,
+        ),
         body: SafeArea(
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -205,6 +224,33 @@ class _MustamalPageState extends State<MustamalPage> {
                         SizedBox(width: 8.w),
                       ],
                     ),
+                  ),
+                ),
+              ),
+
+              // ── Promoted Carousel ─────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+                  child: PromotedCarousel(
+                    primaryColor: AppTheme.mustamalOrange,
+                    items: const [
+                      PromotedItem(
+                        badge: 'مميز',
+                        title: 'بيع وشري بكل سهولة',
+                        subtitle: 'آلاف الإعلانات في بغداد',
+                      ),
+                      PromotedItem(
+                        badge: 'جديد',
+                        title: 'هواتف وأجهزة مستعملة',
+                        subtitle: 'أسعار مناسبة وضمان المشتري',
+                      ),
+                      PromotedItem(
+                        badge: 'الأكثر بحثاً',
+                        title: 'سيارات وعقارات',
+                        subtitle: 'تصفّح الآلاف من الإعلانات',
+                      ),
+                    ],
                   ),
                 ),
               ),

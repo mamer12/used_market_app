@@ -146,7 +146,7 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
                 return CachedNetworkImage(
                   imageUrl: images[index],
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
+                  placeholder: (_, _) => Container(
                     color: AppTheme.ballaPurple.withValues(alpha: 0.06),
                   ),
                 );
@@ -191,12 +191,12 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
           Wrap(
             spacing: 8.w,
             children: [
-              _Badge(label: 'بالجملة', color: AppTheme.ballaPurple),
+              const _Badge(label: 'بالجملة', color: AppTheme.ballaPurple),
               _Badge(
                 label: 'نخب أول Grade A',
                 color: Colors.green.shade600,
               ),
-              _Badge(label: '🇪🇺 استيراد أوروبي', color: AppTheme.textSecondary),
+              const _Badge(label: '🇪🇺 استيراد أوروبي', color: AppTheme.textSecondary),
             ],
           ),
           SizedBox(height: 10.h),
@@ -377,11 +377,11 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
             ),
           ),
           SizedBox(height: 14.h),
-          _ConditionBar(label: 'النظافة', value: 0.9),
+          const _ConditionBar(label: 'النظافة', value: 0.9),
           SizedBox(height: 10.h),
-          _ConditionBar(label: 'الجودة', value: 0.85),
+          const _ConditionBar(label: 'الجودة', value: 0.85),
           SizedBox(height: 10.h),
-          _ConditionBar(label: 'الاكتمال', value: 0.95),
+          const _ConditionBar(label: 'الاكتمال', value: 0.95),
         ],
       ),
     );
@@ -445,7 +445,7 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
               ],
             ),
           ),
-          Icon(Icons.chevron_left_rounded, color: AppTheme.inactive),
+          const Icon(Icons.chevron_left_rounded, color: AppTheme.inactive),
         ],
       ),
     );
@@ -462,13 +462,13 @@ class _BallaProductDetailsPageState extends State<BallaProductDetailsPage> {
       ),
       child: Column(
         children: [
-          _InfoRow(icon: Icons.location_on_rounded, label: 'مكان الحمولة', value: 'البصرة، العراق'),
+          const _InfoRow(icon: Icons.location_on_rounded, label: 'مكان الحمولة', value: 'البصرة، العراق'),
           Divider(height: 20.h, color: AppTheme.inactive.withValues(alpha: 0.1)),
-          _InfoRow(icon: Icons.schedule_rounded, label: 'وقت التحميل', value: 'يومين عمل'),
+          const _InfoRow(icon: Icons.schedule_rounded, label: 'وقت التحميل', value: 'يومين عمل'),
           Divider(height: 20.h, color: AppTheme.inactive.withValues(alpha: 0.1)),
-          _InfoRow(icon: Icons.alt_route_rounded, label: 'نوع الشحن', value: 'شحن بري (TIR)'),
+          const _InfoRow(icon: Icons.alt_route_rounded, label: 'نوع الشحن', value: 'شحن بري (TIR)'),
           Divider(height: 20.h, color: AppTheme.inactive.withValues(alpha: 0.1)),
-          _InfoRow(icon: Icons.inventory_rounded, label: 'الكمية المتاحة', value: 'متاح الآن'),
+          const _InfoRow(icon: Icons.inventory_rounded, label: 'الكمية المتاحة', value: 'متاح الآن'),
         ],
       ),
     );

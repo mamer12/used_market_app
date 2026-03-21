@@ -150,7 +150,7 @@ class _StoryAvatar extends StatelessWidget {
                           width: 48.w,
                           height: 48.w,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Text(
+                          errorBuilder: (_, _, _) => Text(
                             initial,
                             style: GoogleFonts.cairo(
                               fontSize: 18.sp,

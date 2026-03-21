@@ -98,6 +98,12 @@ class ApiConstants {
   static const String authRegisterPassword = 'auth/register';
   static const String authLoginPassword = 'auth/login';
 
+  // --- Notifications ---
+  static const String notifications = 'notifications'; // GET list, PATCH /:id/read, PATCH /read-all
+
+  // --- Wallet Transactions ---
+  static const String walletTransactions = 'wallet/transactions'; // GET list
+
   // --- Search ---
   static const String search = 'search'; // GET ?q=
 }

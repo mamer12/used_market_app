@@ -162,7 +162,7 @@ class _MatajirCategoriesPageState extends State<MatajirCategoriesPage> {
                   builder: (context, state) {
                     return state.maybeWhen(
                       loading: () => _CategoriesGridSkeleton(),
-                      loaded: (categories, _, __) {
+                      loaded: (categories, _, _) {
                         final cats = categories.take(9).toList();
                         if (cats.isEmpty) {
                           return _StaticCategoriesGrid(l10n: l10n);
@@ -243,7 +243,7 @@ class _MatajirCategoriesPageState extends State<MatajirCategoriesPage> {
                         scrollDirection: Axis.horizontal,
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         itemCount: state.shops.take(8).length,
-                        separatorBuilder: (_, __) => SizedBox(width: 16.w),
+                        separatorBuilder: (_, _) => SizedBox(width: 16.w),
                         itemBuilder: (context, i) {
                           final shop = state.shops[i];
                           return _PopularStoreCard(
@@ -277,7 +277,7 @@ class _MatajirCategoriesPageState extends State<MatajirCategoriesPage> {
                 child: BlocBuilder<CategoryCubit, CategoryState>(
                   builder: (context, state) {
                     final cats = state.maybeWhen(
-                      loaded: (categories, _, __) => categories.isEmpty
+                      loaded: (categories, _, _) => categories.isEmpty
                           ? _staticCategoryList(l10n)
                           : categories
                               .map((c) => _CatListItem(
@@ -605,7 +605,7 @@ class _CatListItem extends StatelessWidget {
             Container(
               width: 40.w,
               height: 40.w,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.matajirBlueSurface,
                 shape: BoxShape.circle,
               ),
@@ -661,7 +661,7 @@ class _CategoriesGridSkeleton extends StatelessWidget {
           childAspectRatio: 0.9,
         ),
         itemCount: 9,
-        itemBuilder: (_, __) => Container(
+        itemBuilder: (_, _) => Container(
           decoration: BoxDecoration(
             color: AppTheme.shimmerBase,
             borderRadius: BorderRadius.circular(AppTheme.radiusLg),
@@ -681,13 +681,13 @@ class _StoresRowSkeleton extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: 5,
-        separatorBuilder: (_, __) => SizedBox(width: 16.w),
-        itemBuilder: (_, __) => Column(
+        separatorBuilder: (_, _) => SizedBox(width: 16.w),
+        itemBuilder: (_, _) => Column(
           children: [
             Container(
               width: 64.w,
               height: 64.w,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.shimmerBase,
                 shape: BoxShape.circle,
               ),

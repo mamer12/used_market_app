@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../../../../core/widgets/center_fab_bottom_nav.dart';
+import '../../../../core/widgets/promoted_carousel.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/balla_cart_cubit.dart';
@@ -51,12 +53,57 @@ class _BallaPageState extends State<BallaPage> {
         },
         child: Scaffold(
           backgroundColor: const Color(0xFFF5F0FF),
+          bottomNavigationBar: BlocBuilder<BallaCartCubit, CartState>(
+            builder: (context, cartState) {
+              return CenterFabBottomNav(
+                items: const [
+                  NavItem(icon: Icons.home_rounded, label: 'الرئيسية'),
+                  NavItem(icon: Icons.category_rounded, label: 'الأقسام'),
+                  NavItem(icon: Icons.shopping_bag_rounded, label: 'السلة'),
+                  NavItem(icon: Icons.person_rounded, label: 'حسابي'),
+                ],
+                currentIndex: 0,
+                onTap: (_) {},
+                fabIcon: Icons.add_rounded,
+                fabColor: AppTheme.ballaPurple,
+                fabLabel: 'أضف بالة',
+                onFabTap: () => context.push('/balla/create'),
+                darkMode: false,
+                badgeIndexInItems: 2,
+                badgeCount: cartState.cartItems.length,
+              );
+            },
+          ),
           body: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               _buildSliverAppBar(context),
               SliverToBoxAdapter(child: _buildSearchBar()),
-              SliverToBoxAdapter(child: _buildHeroBanner()),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+                  child: PromotedCarousel(
+                    primaryColor: AppTheme.ballaPurple,
+                    items: const [
+                      PromotedItem(
+                        badge: 'عروض حصرية',
+                        title: 'وفّر حتى ٤٠٪ على بالات الجملة',
+                        price: 'تسوّق الآن',
+                      ),
+                      PromotedItem(
+                        badge: 'جديد',
+                        title: 'بالات ملابس مستوردة',
+                        subtitle: 'جودة عالية بأسعار الجملة',
+                      ),
+                      PromotedItem(
+                        badge: 'الأكثر مبيعاً',
+                        title: 'بالات إلكترونيات',
+                        subtitle: 'هواتف وأجهزة بكميات كبيرة',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               SliverToBoxAdapter(child: _buildUnitToggle()),
               SliverToBoxAdapter(child: _buildCategoriesGrid()),
               SliverToBoxAdapter(child: _buildSectionHeader('أكثر الصفقات رواجاً', 'عرض الكل')),
@@ -175,116 +222,6 @@ class _BallaPageState extends State<BallaPage> {
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeroBanner() {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-      child: Container(
-        height: 160.h,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF5B21B6), Color(0xFF7C3AED), Color(0xFF9F67FF)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            // Decorative circles
-            Positioned(
-              right: -20.w,
-              top: -20.h,
-              child: Container(
-                width: 120.w,
-                height: 120.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 40.w,
-              bottom: -30.h,
-              child: Container(
-                width: 90.w,
-                height: 90.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.06),
-                ),
-              ),
-            ),
-            Positioned(
-              left: -10.w,
-              bottom: 10.h,
-              child: Container(
-                width: 60.w,
-                height: 60.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.05),
-                ),
-              ),
-            ),
-            // Content
-            Padding(
-              padding: EdgeInsets.all(20.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(99.r),
-                    ),
-                    child: Text(
-                      '🔥 عروض حصرية اليوم',
-                      style: GoogleFonts.cairo(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    'وفّر حتى ٤٠٪\nعلى بالات الجملة',
-                    style: GoogleFonts.cairo(
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(99.r),
-                    ),
-                    child: Text(
-                      'تسوّق الآن',
-                      style: GoogleFonts.cairo(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF7C3AED),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );

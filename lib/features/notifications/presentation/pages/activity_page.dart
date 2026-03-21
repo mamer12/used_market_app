@@ -1,137 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
-
-// ── Mock notification model ───────────────────────────────────────────────────
-
-enum _NotifType { order, auction, escrow, dispute, message }
-
-class _Notif {
-  final String id;
-  final _NotifType type;
-  final String title;
-  final String subtitle;
-  final String relativeTime;
-  final String? routePath;
-  bool isRead;
-
-  _Notif({
-    required this.id,
-    required this.type,
-    required this.title,
-    required this.subtitle,
-    required this.relativeTime,
-    this.routePath,
-    this.isRead = false,
-  });
-}
-
-List<_Notif> _buildMockNotifs() => [
-      _Notif(
-        id: 'n1',
-        type: _NotifType.order,
-        title: 'تم شحن طلبك',
-        subtitle: 'طلب #LQ-4A2F — آيفون 13 برو في الطريق إليك',
-        relativeTime: 'منذ ساعتين',
-        routePath: '/orders/LQ-4A2F',
-      ),
-      _Notif(
-        id: 'n2',
-        type: _NotifType.auction,
-        title: 'فزت بالمزاد!',
-        subtitle: 'لابتوب ديل XPS — ٧٥٠,٠٠٠ د.ع',
-        relativeTime: 'منذ ٣ ساعات',
-        routePath: '/mazadat',
-      ),
-      _Notif(
-        id: 'n3',
-        type: _NotifType.escrow,
-        title: 'تم إفراج الضمان',
-        subtitle: 'تم تحويل ٤٥٠,٠٠٠ د.ع إلى محفظتك',
-        relativeTime: 'منذ ٥ ساعات',
-      ),
-      _Notif(
-        id: 'n4',
-        type: _NotifType.message,
-        title: 'رسالة جديدة من أبو محمد',
-        subtitle: 'هل المنتج لا يزال متاحاً؟',
-        relativeTime: 'منذ ٦ ساعات',
-        routePath: '/messages/1',
-        isRead: true,
-      ),
-      _Notif(
-        id: 'n5',
-        type: _NotifType.dispute,
-        title: 'تم حل النزاع',
-        subtitle: 'النزاع #LQ-8C3E — تم إغلاقه لصالحك',
-        relativeTime: 'أمس',
-        routePath: '/orders/LQ-8C3E',
-        isRead: true,
-      ),
-      _Notif(
-        id: 'n6',
-        type: _NotifType.order,
-        title: 'تم تسليم طلبك',
-        subtitle: 'طلب #LQ-3B1A — حذاء نايكي رياضي',
-        relativeTime: 'أمس',
-        routePath: '/orders/LQ-3B1A',
-        isRead: true,
-      ),
-      _Notif(
-        id: 'n7',
-        type: _NotifType.auction,
-        title: 'انتهت مزايدتك',
-        subtitle: 'ساعة أوميغا — تجاوزك أحد المزايدين',
-        relativeTime: 'منذ يومين',
-        routePath: '/mazadat',
-        isRead: true,
-      ),
-      _Notif(
-        id: 'n8',
-        type: _NotifType.escrow,
-        title: 'طلب تأكيد الاستلام',
-        subtitle: 'طلب #LQ-9F7C — يرجى تأكيد الاستلام',
-        relativeTime: 'منذ يومين',
-        isRead: true,
-      ),
-    ];
+import '../bloc/notification_cubit.dart';
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-class ActivityPage extends StatefulWidget {
+class ActivityPage extends StatelessWidget {
   const ActivityPage({super.key});
 
   @override
-  State<ActivityPage> createState() => _ActivityPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => getIt<NotificationCubit>()..loadNotifications(),
+      child: const _ActivityView(),
+    );
+  }
 }
 
-class _ActivityPageState extends State<ActivityPage> {
-  late List<_Notif> _notifs;
-
-  @override
-  void initState() {
-    super.initState();
-    _notifs = _buildMockNotifs();
-  }
-
-  bool get _allRead => _notifs.every((n) => n.isRead);
-
-  void _markAllRead() {
-    setState(() {
-      for (final n in _notifs) {
-        n.isRead = true;
-      }
-    });
-  }
-
-  List<_Notif> get _today =>
-      _notifs.where((n) => n.relativeTime.contains('ساعات') || n.relativeTime == 'منذ ساعتين').toList();
-
-  List<_Notif> get _earlier =>
-      _notifs.where((n) => !_today.contains(n)).toList();
+class _ActivityView extends StatelessWidget {
+  const _ActivityView();
 
   @override
   Widget build(BuildContext context) {
@@ -153,49 +45,110 @@ class _ActivityPageState extends State<ActivityPage> {
           elevation: 0,
           iconTheme: const IconThemeData(color: AppTheme.textPrimary),
           actions: [
-            if (!_allRead)
-              TextButton(
-                onPressed: _markAllRead,
-                child: Text(
-                  'تحديد الكل كمقروء',
-                  style: GoogleFonts.cairo(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primary,
-                  ),
-                ),
-              ),
+            BlocBuilder<NotificationCubit, NotificationState>(
+              builder: (context, state) {
+                if (state is NotificationsLoaded && state.unreadCount > 0) {
+                  return TextButton(
+                    onPressed: () =>
+                        context.read<NotificationCubit>().markAllRead(),
+                    child: Text(
+                      'تحديد الكل كمقروء',
+                      style: GoogleFonts.cairo(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primary,
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ],
         ),
-        body: _allRead && _notifs.isEmpty
-            ? _buildEmpty()
-            : ListView(
+        body: BlocBuilder<NotificationCubit, NotificationState>(
+          builder: (context, state) {
+            if (state is NotificationLoading ||
+                state is NotificationInitial) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppTheme.primary),
+              );
+            }
+
+            if (state is NotificationError) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.wifi_off_rounded,
+                        size: 48.sp, color: AppTheme.textSecondary),
+                    SizedBox(height: 12.h),
+                    Text(
+                      'تعذّر تحميل الإشعارات',
+                      style: GoogleFonts.cairo(
+                        fontSize: 15.sp,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    ElevatedButton(
+                      onPressed: () =>
+                          context.read<NotificationCubit>().loadNotifications(),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary),
+                      child: Text('إعادة المحاولة',
+                          style: GoogleFonts.cairo(color: Colors.white)),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (state is NotificationsLoaded) {
+              final notifs = state.notifications;
+              if (notifs.isEmpty) return _buildEmpty();
+
+              // Group: today = first 3, earlier = rest (API returns newest first)
+              final today = notifs.length > 3 ? notifs.sublist(0, 3) : notifs;
+              final earlier =
+                  notifs.length > 3 ? notifs.sublist(3) : <Map<String, dynamic>>[];
+
+              return ListView(
                 padding: EdgeInsets.only(bottom: 100.h),
                 children: [
-                  if (_today.isNotEmpty) ...[
+                  if (today.isNotEmpty) ...[
                     _buildGroupHeader('اليوم'),
-                    ..._today.map((n) => _NotifTile(
+                    ...today.map((n) => _NotifTile(
                           notif: n,
                           onTap: () => _handleTap(context, n),
                         )),
                   ],
-                  if (_earlier.isNotEmpty) ...[
+                  if (earlier.isNotEmpty) ...[
                     _buildGroupHeader('سابقاً'),
-                    ..._earlier.map((n) => _NotifTile(
+                    ...earlier.map((n) => _NotifTile(
                           notif: n,
                           onTap: () => _handleTap(context, n),
                         )),
                   ],
                 ],
-              ),
+              );
+            }
+
+            return _buildEmpty();
+          },
+        ),
       ),
     );
   }
 
-  void _handleTap(BuildContext context, _Notif notif) {
-    setState(() => notif.isRead = true);
-    if (notif.routePath != null) {
-      context.push(notif.routePath!);
+  void _handleTap(BuildContext context, Map<String, dynamic> notif) {
+    final id = notif['id'] as String?;
+    if (id != null) {
+      context.read<NotificationCubit>().markRead(id);
+    }
+    final link = notif['action_url'] as String?;
+    if (link != null && link.isNotEmpty) {
+      context.push(link);
     }
   }
 
@@ -258,20 +211,57 @@ class _ActivityPageState extends State<ActivityPage> {
 // ── Notification tile ─────────────────────────────────────────────────────────
 
 class _NotifTile extends StatelessWidget {
-  final _Notif notif;
+  final Map<String, dynamic> notif;
   final VoidCallback onTap;
 
   const _NotifTile({required this.notif, required this.onTap});
 
+  String get _title => (notif['title'] as String?) ?? '';
+  String get _body => (notif['body'] as String?) ?? '';
+  bool get _isRead => notif['is_read'] as bool? ?? true;
+  String get _type => (notif['type'] as String?) ?? '';
+
+  // Map API type → icon & colour
+  IconData get _icon {
+    switch (_type) {
+      case 'order':
+        return Icons.local_shipping_outlined;
+      case 'auction':
+        return Icons.gavel_rounded;
+      case 'escrow':
+        return Icons.account_balance_wallet_outlined;
+      case 'dispute':
+        return Icons.shield_outlined;
+      case 'message':
+        return Icons.chat_bubble_outline_rounded;
+      default:
+        return Icons.notifications_outlined;
+    }
+  }
+
+  Color get _color {
+    switch (_type) {
+      case 'order':
+        return AppTheme.matajirBlue;
+      case 'auction':
+        return AppTheme.mustamalOrange;
+      case 'escrow':
+        return AppTheme.success;
+      case 'dispute':
+        return AppTheme.ballaPurple;
+      case 'message':
+        return AppTheme.primary;
+      default:
+        return AppTheme.textSecondary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final iconData = _iconFor(notif.type);
-    final iconColor = _colorFor(notif.type);
-
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: notif.isRead
+        color: _isRead
             ? Colors.transparent
             : AppTheme.primary.withValues(alpha: 0.04),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
@@ -282,10 +272,10 @@ class _NotifTile extends StatelessWidget {
               width: 44.w,
               height: 44.w,
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
+                color: _color.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(iconData, size: 20.sp, color: iconColor),
+              child: Icon(_icon, size: 20.sp, color: _color),
             ),
             SizedBox(width: 12.w),
             Expanded(
@@ -297,21 +287,21 @@ class _NotifTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          notif.title,
+                          _title,
                           style: GoogleFonts.cairo(
                             fontSize: 14.sp,
-                            fontWeight: notif.isRead
+                            fontWeight: _isRead
                                 ? FontWeight.w600
                                 : FontWeight.w700,
                             color: AppTheme.textPrimary,
                           ),
                         ),
                       ),
-                      if (!notif.isRead)
+                      if (!_isRead)
                         Container(
                           width: 8.w,
                           height: 8.w,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppTheme.primary,
                             shape: BoxShape.circle,
                           ),
@@ -320,19 +310,11 @@ class _NotifTile extends StatelessWidget {
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    notif.subtitle,
+                    _body,
                     style: GoogleFonts.cairo(
                       fontSize: 12.sp,
                       color: AppTheme.textSecondary,
                       fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    notif.relativeTime,
-                    style: GoogleFonts.cairo(
-                      fontSize: 11.sp,
-                      color: AppTheme.inactive,
                     ),
                   ),
                 ],
@@ -342,35 +324,5 @@ class _NotifTile extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  IconData _iconFor(_NotifType type) {
-    switch (type) {
-      case _NotifType.order:
-        return Icons.local_shipping_outlined;
-      case _NotifType.auction:
-        return Icons.gavel_rounded;
-      case _NotifType.escrow:
-        return Icons.account_balance_wallet_outlined;
-      case _NotifType.dispute:
-        return Icons.shield_outlined;
-      case _NotifType.message:
-        return Icons.chat_bubble_outline_rounded;
-    }
-  }
-
-  Color _colorFor(_NotifType type) {
-    switch (type) {
-      case _NotifType.order:
-        return AppTheme.matajirBlue;
-      case _NotifType.auction:
-        return AppTheme.mustamalOrange;
-      case _NotifType.escrow:
-        return AppTheme.success;
-      case _NotifType.dispute:
-        return AppTheme.ballaPurple;
-      case _NotifType.message:
-        return AppTheme.primary;
-    }
   }
 }

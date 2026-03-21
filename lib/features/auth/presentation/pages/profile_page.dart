@@ -1,66 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/locale/locale_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auction/presentation/pages/active_bids_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../shop/data/datasources/order_remote_data_source.dart';
+import '../../../shop/data/models/order_models.dart';
 import '../../../shop/presentation/pages/order_history_page.dart';
 import '../../data/models/auth_models.dart';
-
-// ── Mock order data ───────────────────────────────────────────────────────────
-
-class _MockOrder {
-  final String id;
-  final String itemName;
-  final String status;
-  final Color statusColor;
-  final int priceIqd;
-  final String date;
-
-  const _MockOrder({
-    required this.id,
-    required this.itemName,
-    required this.status,
-    required this.statusColor,
-    required this.priceIqd,
-    required this.date,
-  });
-}
-
-const _mockOrders = [
-  _MockOrder(
-    id: 'LQ-4A2F',
-    itemName: 'آيفون 14 برو',
-    status: 'تم الشحن',
-    statusColor: Color(0xFF1B4FD8),
-    priceIqd: 1200000,
-    date: '١٢ مايو',
-  ),
-  _MockOrder(
-    id: 'LQ-3B1A',
-    itemName: 'استيراد أوروبي 50kg',
-    status: 'تم الدفع',
-    statusColor: Color(0xFF16A34A),
-    priceIqd: 400000,
-    date: '١٠ مايو',
-  ),
-  _MockOrder(
-    id: 'LQ-2C9D',
-    itemName: 'حذاء نايكي رياضي',
-    status: 'تم التسليم',
-    statusColor: Color(0xFF6B7280),
-    priceIqd: 85000,
-    date: '٥ مايو',
-  ),
-];
 
 final _iqFormat = NumberFormat('#,###', 'ar_IQ');
 
@@ -79,10 +35,25 @@ class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController _nameController;
   String _localName = '';
 
+  // Real orders loaded from API
+  List<OrderModel>? _orders;
+  bool _ordersLoading = true;
+
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController();
+    _loadOrders();
+  }
+
+  Future<void> _loadOrders() async {
+    try {
+      final ds = getIt<OrderRemoteDataSource>();
+      final orders = await ds.getMyOrders(viewAs: 'buyer', limit: 3);
+      if (mounted) setState(() { _orders = orders; _ordersLoading = false; });
+    } catch (_) {
+      if (mounted) setState(() { _orders = []; _ordersLoading = false; });
+    }
   }
 
   @override
@@ -491,13 +462,60 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
           SizedBox(height: 10.h),
-          ..._mockOrders.map((order) => _buildOrderRow(order)),
+          if (_ordersLoading)
+            Column(
+              children: List.generate(
+                3,
+                (_) => Padding(
+                  padding: EdgeInsets.only(bottom: 8.h),
+                  child: SkeletonBox(
+                    width: double.infinity,
+                    height: 62.h,
+                    borderRadius: 12.r,
+                  ),
+                ),
+              ),
+            )
+          else if (_orders == null || _orders!.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 12.h),
+              child: Text(
+                'لا توجد طلبات بعد',
+                style: GoogleFonts.cairo(
+                  fontSize: 13.sp,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            )
+          else
+            ..._orders!.map((order) => _buildApiOrderRow(order)),
         ],
       ),
     );
   }
 
-  Widget _buildOrderRow(_MockOrder order) {
+  // Maps API OrderStatus enum to Arabic label + colour
+  (String, Color) _statusLabel(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pendingPayment:
+        return ('بانتظار الدفع', const Color(0xFFD97706));
+      case OrderStatus.paidToEscrow:
+        return ('تم الدفع', const Color(0xFF16A34A));
+      case OrderStatus.shipped:
+        return ('تم الشحن', const Color(0xFF1B4FD8));
+      case OrderStatus.delivered:
+      case OrderStatus.fundsReleased:
+        return ('تم التسليم', const Color(0xFF6B7280));
+      case OrderStatus.pendingCODFulfillment:
+        return ('دفع عند الاستلام', const Color(0xFF7C3AED));
+      case OrderStatus.deliveredAndCashCollected:
+        return ('مكتمل', const Color(0xFF6B7280));
+    }
+  }
+
+  Widget _buildApiOrderRow(OrderModel order) {
+    final (label, color) = _statusLabel(order.status);
+    final priceStr = '${_iqFormat.format(order.totalPrice.toInt())} د.ع';
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
@@ -519,7 +537,7 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  order.itemName,
+                  '#${order.id.length > 8 ? order.id.substring(0, 8).toUpperCase() : order.id}',
                   style: GoogleFonts.cairo(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
@@ -530,7 +548,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  '#${order.id} — ${order.date}',
+                  order.shippingAddress.city,
                   style: GoogleFonts.cairo(
                     fontSize: 11.sp,
                     color: AppTheme.textSecondary,
@@ -544,24 +562,23 @@ class _ProfilePageState extends State<ProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                 decoration: BoxDecoration(
-                  color: order.statusColor.withValues(alpha: 0.10),
+                  color: color.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(6.r),
                 ),
                 child: Text(
-                  order.status,
+                  label,
                   style: GoogleFonts.cairo(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w700,
-                    color: order.statusColor,
+                    color: color,
                   ),
                 ),
               ),
               SizedBox(height: 4.h),
               Text(
-                '${_iqFormat.format(order.priceIqd)} د.ع',
+                priceStr,
                 style: GoogleFonts.cairo(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w700,
