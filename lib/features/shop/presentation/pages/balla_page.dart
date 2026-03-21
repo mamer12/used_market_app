@@ -82,10 +82,10 @@ class _BallaPageState extends State<BallaPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
           children: [
-            // Back / filter icon
+            // Back to home
             _AppBarBtn(
-              icon: Icons.tune_rounded,
-              onTap: () {},
+              icon: Icons.home_rounded,
+              onTap: () => context.go('/'),
             ),
             SizedBox(width: 12.w),
             Expanded(
@@ -686,7 +686,7 @@ class _BulkItemCard extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: item.images.first,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
+                      placeholder: (_, _) => Container(
                         color: AppTheme.ballaPurple.withValues(alpha: 0.06),
                       ),
                     )

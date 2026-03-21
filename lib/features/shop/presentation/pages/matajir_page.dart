@@ -179,7 +179,7 @@ class _MatajirPageState extends State<MatajirPage> {
                               loaded: (categories, p2, p3) =>
                                   _CategoryChips(categories: categories),
                               orElse: () =>
-                                  _CategoryChips(categories: const []),
+                                  const _CategoryChips(categories: []),
                             );
                           },
                         ),
@@ -188,7 +188,7 @@ class _MatajirPageState extends State<MatajirPage> {
 
                     // ── Map View (when toggle active) ────────────────────
                     if (_mapMode)
-                    SliverFillRemaining(
+                    const SliverFillRemaining(
                       child: MahallatiPage(contextFilter: 'matajir'),
                     ),
 
@@ -354,6 +354,19 @@ class _MatajirAppBar extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
+          GestureDetector(
+            onTap: () => context.go('/'),
+            child: Container(
+              width: 36.w,
+              height: 36.w,
+              margin: EdgeInsetsDirectional.only(end: 8.w),
+              decoration: const BoxDecoration(
+                color: AppTheme.surface,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.home_rounded, size: 20.sp, color: AppTheme.matajirBlue),
+            ),
+          ),
           Expanded(
             child: Text(
               l10n.matajirTitle,
@@ -374,7 +387,7 @@ class _MatajirAppBar extends StatelessWidget {
                     child: Container(
                       width: 40.w,
                       height: 40.w,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppTheme.surface,
                         shape: BoxShape.circle,
                       ),
@@ -416,7 +429,7 @@ class _MatajirAppBar extends StatelessWidget {
             child: Container(
               width: 40.w,
               height: 40.w,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.surface,
                 shape: BoxShape.circle,
               ),
@@ -1086,7 +1099,7 @@ class _VerifiedStoresSkeleton extends StatelessWidget {
             Container(
               width: 62.w,
               height: 62.w,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.shimmerBase,
                 shape: BoxShape.circle,
               ),

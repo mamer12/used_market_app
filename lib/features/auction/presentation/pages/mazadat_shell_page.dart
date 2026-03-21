@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../l10n/generated/app_localizations.dart';
@@ -75,6 +77,11 @@ class _MazadatShellPageState extends State<MazadatShellPage> {
       backgroundColor: const Color(0xFF12121A),
       elevation: 0,
       centerTitle: false,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20.sp),
+        onPressed: () => context.go('/'),
+        tooltip: 'الرئيسية',
+      ),
       title: Text(
         l10n.mazadatNavAuctions,
         style: GoogleFonts.cairo(
@@ -89,7 +96,7 @@ class _MazadatShellPageState extends State<MazadatShellPage> {
           builder: (context, walletState) {
             final balanceText = walletState is WalletLoaded
                 ? IqdFormatter.format(
-                    (walletState as WalletLoaded).balanceIqd.toDouble())
+                    (walletState).balanceIqd.toDouble())
                 : '---';
             return Container(
               margin: EdgeInsetsDirectional.only(end: 16.w),

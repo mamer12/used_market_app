@@ -108,11 +108,12 @@ class _MustamalPageState extends State<MustamalPage> {
                 surfaceTintColor: _orangeSurface,
                 shadowColor: Colors.black.withValues(alpha: 0.08),
                 leading: IconButton(
-                  icon: Icon(Icons.tune_rounded, color: _orange, size: 26.sp),
+                  icon: Icon(Icons.home_rounded, color: _orange, size: 26.sp),
                   onPressed: () {
                     HapticFeedback.selectionClick();
-                    // TODO: open filter sheet
+                    context.go('/');
                   },
+                  tooltip: 'الرئيسية',
                 ),
                 title: Text(
                   l10n.homeSooqUsed,
@@ -299,8 +300,8 @@ class _MustamalPageState extends State<MustamalPage> {
                               scrollDirection: Axis.horizontal,
                               padding: EdgeInsets.symmetric(horizontal: 16.w),
                               itemCount: 3,
-                              separatorBuilder: (_, __) => SizedBox(width: 14.w),
-                              itemBuilder: (_, __) => SkeletonBox(
+                              separatorBuilder: (_, _) => SizedBox(width: 14.w),
+                              itemBuilder: (_, _) => SkeletonBox(
                                 width: 160.w,
                                 height: 200.h,
                                 borderRadius: 14.r,
@@ -329,7 +330,7 @@ class _MustamalPageState extends State<MustamalPage> {
                             scrollDirection: Axis.horizontal,
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
                             itemCount: items.length,
-                            separatorBuilder: (_, __) => SizedBox(width: 14.w),
+                            separatorBuilder: (_, _) => SizedBox(width: 14.w),
                             itemBuilder: (context, index) {
                               final item = items[index];
                               // Mock distances for nearby display
@@ -370,7 +371,7 @@ class _MustamalPageState extends State<MustamalPage> {
                 padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
                 sliver: SliverList.separated(
                   itemCount: _allCategories.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 10.h),
+                  separatorBuilder: (_, _) => SizedBox(height: 10.h),
                   itemBuilder: (context, index) =>
                       _AllCategoryRow(cat: _allCategories[index]),
                 ),
@@ -550,7 +551,7 @@ class _NearbyCard extends StatelessWidget {
                     CachedNetworkImage(
                       imageUrl: images.first,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) =>
+                      errorWidget: (_, _, _) =>
                           _PlaceholderBox(color: AppTheme.inactive.withValues(alpha: 0.15)),
                     )
                   else
