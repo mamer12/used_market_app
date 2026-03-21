@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/storage/token_storage.dart';
 import '../cubit/group_buy_cubit.dart';
 import '../pages/group_buy_page.dart';
 
@@ -14,7 +12,6 @@ class ShillaButton extends StatelessWidget {
   const ShillaButton({super.key, required this.productId});
 
   static const _purple = Color(0xFF7C3AED);
-  static const _baseUrl = 'https://api.madhmoon.iq';
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +33,7 @@ class ShillaButton extends StatelessWidget {
   }
 
   Future<void> _onTap(BuildContext context) async {
-    final token = await getIt<TokenStorage>().getToken() ?? '';
-    if (!context.mounted) return;
-
-    final cubit = GroupBuyCubit(baseUrl: _baseUrl, token: token);
+    final cubit = getIt<GroupBuyCubit>();
     final model = await cubit.createGroupBuy(productId);
 
     if (!context.mounted) return;

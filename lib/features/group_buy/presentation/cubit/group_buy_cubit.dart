@@ -45,27 +45,15 @@ class GroupBuyError extends GroupBuyState {
 // ── Cubit ─────────────────────────────────────────────────────────────────────
 
 class GroupBuyCubit extends Cubit<GroupBuyState> {
-  final String baseUrl;
-  final String token;
-  late final Dio _dio;
+  final Dio _dio;
 
-  GroupBuyCubit({required this.baseUrl, required this.token})
-      : super(GroupBuyInitial()) {
-    _dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      validateStatus: (_) => true,
-    ));
-  }
+  GroupBuyCubit(this._dio) : super(GroupBuyInitial());
 
   Future<void> fetchGroupBuy(String id) async {
     emit(GroupBuyLoading());
     try {
       final res =
-          await _dio.get<Map<String, dynamic>>('/api/v1/group-buys/$id');
+          await _dio.get<Map<String, dynamic>>('group-buys/$id');
       if (res.statusCode == 200 && res.data != null) {
         final data = res.data!['data'] as Map<String, dynamic>? ?? res.data!;
         emit(GroupBuyLoaded(GroupBuyModel.fromJson(data)));
@@ -81,7 +69,7 @@ class GroupBuyCubit extends Cubit<GroupBuyState> {
     emit(GroupBuyLoading());
     try {
       final res =
-          await _dio.post<Map<String, dynamic>>('/api/v1/group-buys/$id/join');
+          await _dio.post<Map<String, dynamic>>('group-buys/$id/join');
       if ((res.statusCode == 200 || res.statusCode == 201) &&
           res.data != null) {
         final data = res.data!['data'] as Map<String, dynamic>? ?? res.data!;
@@ -98,7 +86,7 @@ class GroupBuyCubit extends Cubit<GroupBuyState> {
     emit(GroupBuyLoading());
     try {
       final res = await _dio.post<Map<String, dynamic>>(
-        '/api/v1/group-buys',
+        'group-buys',
         data: {'product_id': productId},
       );
       if (res.statusCode == 201 && res.data != null) {

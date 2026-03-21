@@ -76,6 +76,11 @@ import '../../features/shop/presentation/bloc/create_shop_cubit.dart' as _i910;
 import '../../features/shop/presentation/bloc/order_cubit.dart' as _i771;
 import '../../features/shop/presentation/bloc/shops_cubit.dart' as _i162;
 import '../../features/shop/presentation/pages/dispute_page.dart' as _i943;
+import '../../features/group_buy/presentation/cubit/group_buy_cubit.dart'
+    as _i600;
+import '../../features/map/presentation/cubit/map_cubit.dart' as _i601;
+import '../../features/negotiation/presentation/cubit/negotiation_cubit.dart'
+    as _i602;
 import '../../features/stories/presentation/bloc/story_cubit.dart' as _i480;
 import '../../features/wallet/data/datasources/wallet_remote_datasource.dart'
     as _i684;
@@ -134,6 +139,13 @@ _i174.GetIt init(
     () => _i943.DisputeDataSource(gh<_i361.Dio>()),
   );
   gh.factory<_i480.StoryCubit>(() => _i480.StoryCubit(gh<_i361.Dio>()));
+  gh.factory<_i602.NegotiationCubit>(
+    () => _i602.NegotiationCubit(gh<_i361.Dio>()),
+  );
+  gh.factory<_i600.GroupBuyCubit>(
+    () => _i600.GroupBuyCubit(gh<_i361.Dio>()),
+  );
+  gh.factory<_i601.MapCubit>(() => _i601.MapCubit(gh<_i361.Dio>()));
   gh.factory<_i94.AuctionCubit>(
     () => _i94.AuctionCubit(gh<_i256.AuctionRepository>()),
   );

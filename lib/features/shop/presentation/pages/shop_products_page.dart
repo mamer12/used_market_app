@@ -12,8 +12,9 @@ import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
-import 'package:http/http.dart' as http;
-import '../../../../core/storage/token_storage.dart';
+import 'package:dio/dio.dart';
+import '../../../../core/di/injection.dart' show getIt;
+import '../../../../core/network/api_constants.dart';
 import '../../data/models/shop_models.dart';
 import '../bloc/shops_cubit.dart';
 
@@ -252,13 +253,13 @@ class _StoreHeaderSliverState extends State<_StoreHeaderSliver> {
     if (_followLoading || shop == null) return;
     setState(() => _followLoading = true);
     try {
-      final token = await getIt<TokenStorage>().getToken();
-      final headers = {'Authorization': 'Bearer ${token ?? ''}'};
-      final url = Uri.parse('https://api.madhmoon.iq/api/v1/shops/${shop!.id}/follow');
+      final dio = getIt<Dio>();
+      final endpoint = '${ApiConstants.shops}/${shop!.id}/follow';
       final res = _isFollowing
-          ? await http.delete(url, headers: headers)
-          : await http.post(url, headers: headers);
-      if (res.statusCode == 200 || res.statusCode == 201 || res.statusCode == 204) {
+          ? await dio.delete<void>(endpoint)
+          : await dio.post<void>(endpoint);
+      final code = res.statusCode ?? 0;
+      if (code == 200 || code == 201 || code == 204) {
         if (mounted) setState(() => _isFollowing = !_isFollowing);
       }
     } catch (_) {}
@@ -363,7 +364,7 @@ class _StoreHeaderSliverState extends State<_StoreHeaderSliver> {
                         Container(
                           width: 4.w,
                           height: 4.w,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppTheme.divider,
                             shape: BoxShape.circle,
                           ),

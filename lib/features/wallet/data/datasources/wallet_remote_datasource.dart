@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 abstract class WalletRemoteDataSource {
   Future<int> fetchBalance();
   Future<void> deductBalance(int amount);
+  Future<List<Map<String, dynamic>>> fetchTransactions({int page = 1, int limit = 20});
 }
 
 @LazySingleton(as: WalletRemoteDataSource)
@@ -33,5 +34,23 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       'wallet/deduct',
       data: {'amount': amount},
     );
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchTransactions({
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      'wallet/transactions',
+      queryParameters: {'page': page, 'limit': limit},
+    );
+    final raw = response.data;
+    if (raw is List) return raw.cast<Map<String, dynamic>>();
+    if (raw is Map) {
+      final list = raw['data'] ?? raw['transactions'];
+      if (list is List) return list.cast<Map<String, dynamic>>();
+    }
+    return [];
   }
 }

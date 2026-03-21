@@ -1,15 +1,11 @@
-import 'dart:convert';
-
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/storage/token_storage.dart';
 import '../../../../core/theme/app_theme.dart';
 
 /// Seller dashboard page — accessible from Profile when user has a shop.
@@ -22,20 +18,20 @@ class SellerDashboardPage extends StatefulWidget {
 }
 
 class _SellerDashboardPageState extends State<SellerDashboardPage> {
-  static const _baseUrl = 'https://api.madhmoon.iq';
+  late final Dio _dio = getIt<Dio>();
 
   bool _loading = true;
   String? _error;
 
   // Stats
-  int _todayOrders = 0;
-  int _todayRevenue = 0;
-  int _storyViews = 0;
-  int _followers = 0;
+  final int _todayOrders = 0;
+  final int _todayRevenue = 0;
+  final int _storyViews = 0;
+  final int _followers = 0;
 
   // Pending items
   List<Map<String, dynamic>> _pendingNegotiations = [];
-  List<Map<String, dynamic>> _activeGroupBuys = [];
+  final List<Map<String, dynamic>> _activeGroupBuys = [];
 
   @override
   void initState() {
@@ -46,14 +42,6 @@ class _SellerDashboardPageState extends State<SellerDashboardPage> {
   String _formatPrice(int amount) =>
       '${NumberFormat('#,###', 'ar_IQ').format(amount)} د.ع';
 
-  Future<Map<String, String>> get _headers async {
-    final token = await getIt<TokenStorage>().getToken();
-    return {
-      'Authorization': 'Bearer ${token ?? ''}',
-      'Content-Type': 'application/json',
-    };
-  }
-
   Future<void> _loadData() async {
     setState(() {
       _loading = true;
@@ -61,15 +49,12 @@ class _SellerDashboardPageState extends State<SellerDashboardPage> {
     });
 
     try {
-      final headers = await _headers;
-
-      // Fetch negotiations (seller)
-      final negRes = await http.get(
-        Uri.parse('$_baseUrl/api/v1/negotiations/seller'),
-        headers: headers,
+      // Fetch negotiations (seller) — uses DI Dio with auth interceptor
+      final negRes = await _dio.get<Map<String, dynamic>>(
+        'negotiations/seller',
       );
       if (negRes.statusCode == 200) {
-        final data = jsonDecode(negRes.body)['data'] as List? ?? [];
+        final data = negRes.data?['data'] as List? ?? [];
         _pendingNegotiations = data.cast<Map<String, dynamic>>();
       }
 

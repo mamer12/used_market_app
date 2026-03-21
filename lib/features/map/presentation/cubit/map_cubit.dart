@@ -1,9 +1,7 @@
-import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 
 import '../../data/models/shop_nearby_model.dart';
 
@@ -40,14 +38,9 @@ class MapError extends MapState {
 // ── Cubit ───────────────────────────────────────────────────────────────────
 
 class MapCubit extends Cubit<MapState> {
-  final String baseUrl;
-  final String token;
+  final Dio _dio;
 
-  MapCubit({required this.baseUrl, required this.token}) : super(MapInitial());
-
-  Map<String, String> get _headers => {
-        'Authorization': 'Bearer $token',
-      };
+  MapCubit(this._dio) : super(MapInitial());
 
   /// Determine current location and load nearby shops.
   Future<void> loadNearbyShops({int radiusMeters = 5000}) async {
@@ -92,18 +85,23 @@ class MapCubit extends Cubit<MapState> {
     int radiusMeters = 5000,
   }) async {
     try {
-      final uri = Uri.parse(
-        '$baseUrl/api/v1/shops?lat=$lat&lng=$lng&radius=$radiusMeters',
+      final res = await _dio.get<Map<String, dynamic>>(
+        'shops',
+        queryParameters: {
+          'lat': lat,
+          'lng': lng,
+          'radius': radiusMeters,
+        },
       );
-      final res = await http.get(uri, headers: _headers);
 
       if (isClosed) return;
 
       if (res.statusCode == 200) {
-        final body = jsonDecode(res.body);
-        final data = (body['data'] as List?) ?? [];
-        final shops =
-            data.map((e) => ShopNearbyModel.fromJson(e as Map<String, dynamic>)).toList();
+        final data = (res.data?['data'] as List?) ?? [];
+        final shops = data
+            .map((e) =>
+                ShopNearbyModel.fromJson(e as Map<String, dynamic>))
+            .toList();
         emit(MapLoaded(shops, lat: lat, lng: lng));
       } else {
         emit(MapError('فشل تحميل المحلات'));

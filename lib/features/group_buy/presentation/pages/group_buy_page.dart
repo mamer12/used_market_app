@@ -9,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/storage/token_storage.dart';
 import '../cubit/group_buy_cubit.dart';
 import '../../data/models/group_buy_model.dart';
 
@@ -18,20 +17,11 @@ class GroupBuyPage extends StatelessWidget {
 
   const GroupBuyPage({super.key, required this.groupBuyId});
 
-  static const _baseUrl = 'https://api.madhmoon.iq';
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: getIt<TokenStorage>().getToken(),
-      builder: (context, snapshot) {
-        final token = snapshot.data ?? '';
-        return BlocProvider(
-          create: (_) => GroupBuyCubit(baseUrl: _baseUrl, token: token)
-            ..fetchGroupBuy(groupBuyId),
-          child: _GroupBuyView(groupBuyId: groupBuyId),
-        );
-      },
+    return BlocProvider(
+      create: (_) => getIt<GroupBuyCubit>()..fetchGroupBuy(groupBuyId),
+      child: _GroupBuyView(groupBuyId: groupBuyId),
     );
   }
 }
@@ -160,7 +150,7 @@ class _GroupBuyViewState extends State<_GroupBuyView> {
                 imageUrl: gb.productImageUrl!,
                 height: 200.h,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => _imagePlaceholder(),
+                errorWidget: (_, _, _) => _imagePlaceholder(),
               ),
             )
           else

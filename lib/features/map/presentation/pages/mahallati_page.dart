@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/storage/token_storage.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/shop_nearby_model.dart';
 import '../cubit/map_cubit.dart';
@@ -20,20 +19,11 @@ class MahallatiPage extends StatelessWidget {
 
   const MahallatiPage({super.key, this.contextFilter});
 
-  static const _baseUrl = 'https://api.madhmoon.iq';
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: getIt<TokenStorage>().getToken(),
-      builder: (context, snapshot) {
-        final token = snapshot.data ?? '';
-        return BlocProvider(
-          create: (_) =>
-              MapCubit(baseUrl: _baseUrl, token: token)..loadNearbyShops(),
-          child: _MahallatiView(contextFilter: contextFilter),
-        );
-      },
+    return BlocProvider(
+      create: (_) => getIt<MapCubit>()..loadNearbyShops(),
+      child: _MahallatiView(contextFilter: contextFilter),
     );
   }
 }
@@ -197,7 +187,7 @@ class _MahallatiView extends StatelessWidget {
           child: ListView.separated(
             padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
             itemCount: shops.length,
-            separatorBuilder: (_, __) => SizedBox(height: 8.h),
+            separatorBuilder: (_, _) => SizedBox(height: 8.h),
             itemBuilder: (context, index) {
               final shop = shops[index];
               return _ShopNearbyCard(shop: shop);

@@ -17,6 +17,11 @@ class WalletLoaded extends WalletState {
   const WalletLoaded(this.balanceIqd);
 }
 
+class WalletTransactionsLoaded extends WalletState {
+  final List<Map<String, dynamic>> transactions;
+  const WalletTransactionsLoaded(this.transactions);
+}
+
 class WalletError extends WalletState {
   const WalletError();
 }
@@ -52,6 +57,16 @@ class WalletCubit extends Cubit<WalletState> {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  Future<void> loadTransactions({int page = 1, int limit = 20}) async {
+    try {
+      final txns = await _repository.getTransactions(page: page, limit: limit);
+      emit(WalletTransactionsLoaded(txns));
+    } catch (_) {
+      // Silently ignore — the page handles empty list
+      emit(const WalletTransactionsLoaded([]));
     }
   }
 }

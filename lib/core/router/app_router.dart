@@ -47,6 +47,7 @@ import '../../features/shop/presentation/pages/product_details_page.dart';
 import '../../features/shop/presentation/pages/shipping_address_page.dart';
 import '../../features/shop/presentation/pages/shop_products_page.dart';
 import '../../features/shop/presentation/pages/zaincash_payment_page.dart';
+import '../../features/map/presentation/pages/mahallati_page.dart';
 import '../../features/group_buy/presentation/pages/group_buy_page.dart';
 import '../../features/negotiation/presentation/pages/my_negotiations_page.dart';
 import '../../features/seller/presentation/pages/seller_dashboard_page.dart';
@@ -147,6 +148,15 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       GoRoute(
         path: '/negotiations',
         builder: (_, _) => const MyNegotiationsPage(),
+      ),
+
+      // ── Mahallati (hyperlocal map) ───────────────────────────────
+      GoRoute(
+        path: '/mahallati',
+        builder: (context, state) {
+          final contextFilter = state.uri.queryParameters['context'];
+          return MahallatiPage(contextFilter: contextFilter);
+        },
       ),
 
       // ── Seller Dashboard ───────────────────────────────────────────────

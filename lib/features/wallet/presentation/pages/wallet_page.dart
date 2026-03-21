@@ -22,7 +22,9 @@ class _WalletPageState extends State<WalletPage> {
   @override
   void initState() {
     super.initState();
-    _cubit = getIt<WalletCubit>()..loadBalance();
+    _cubit = getIt<WalletCubit>()
+      ..loadBalance()
+      ..loadTransactions();
   }
 
   @override
@@ -56,16 +58,7 @@ class _WalletPageState extends State<WalletPage> {
               ),
               SliverToBoxAdapter(child: _buildEscrowInfoCard()),
               SliverToBoxAdapter(child: _buildSectionHeader('آخر العمليات')),
-              SliverPadding(
-                padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
-                sliver: SliverList.separated(
-                  itemCount: _mockTransactions.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1, color: AppTheme.divider),
-                  itemBuilder: (_, i) =>
-                      _TransactionRow(tx: _mockTransactions[i]),
-                ),
-              ),
+              _RealTransactionsList(),
             ],
           ),
         ),
@@ -195,6 +188,7 @@ class _BalanceCard extends StatelessWidget {
           WalletError() => '-- د.ع',
           WalletLoaded(:final balanceIqd) =>
             '${IqdFormatter.format(balanceIqd.toDouble())} د.ع',
+          _ => null, // WalletTransactionsLoaded — balance unchanged
         };
 
         return Container(
@@ -414,49 +408,102 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-// ── Transaction Row ───────────────────────────────────────────────────────────
+// ── Real Transactions List ────────────────────────────────────────────────────
 
-class _TxData {
-  final String title;
-  final String subtitle;
-  final int amount;
-  final bool isCredit;
-  final String date;
-  final _TxType type;
-
-  const _TxData({
-    required this.title,
-    required this.subtitle,
-    required this.amount,
-    required this.isCredit,
-    required this.date,
-    this.type = _TxType.transfer,
-  });
+class _RealTransactionsList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WalletCubit, WalletState>(
+      builder: (context, state) {
+        if (state is WalletTransactionsLoaded) {
+          final txns = state.transactions;
+          if (txns.isEmpty) {
+            return SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 24.h),
+                child: Center(
+                  child: Text(
+                    'لا توجد عمليات بعد',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 14.sp,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+          return SliverPadding(
+            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
+            sliver: SliverList.separated(
+              itemCount: txns.length,
+              separatorBuilder: (_, _) =>
+                  const Divider(height: 1, color: AppTheme.divider),
+              itemBuilder: (_, i) => _ApiTransactionRow(tx: txns[i]),
+            ),
+          );
+        }
+        // Loading skeleton
+        return SliverPadding(
+          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (_, _) => Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.h),
+                child: SkeletonBox(
+                    width: double.infinity, height: 48.h, borderRadius: 10.r),
+              ),
+              childCount: 5,
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-enum _TxType { deposit, withdraw, escrowLock, escrowRelease, transfer, refund }
+class _ApiTransactionRow extends StatelessWidget {
+  const _ApiTransactionRow({required this.tx});
+  final Map<String, dynamic> tx;
 
-class _TransactionRow extends StatelessWidget {
-  const _TransactionRow({required this.tx});
-  final _TxData tx;
+  String get _title =>
+      (tx['title'] as String?) ?? (tx['description'] as String?) ?? 'عملية';
+  String get _subtitle =>
+      (tx['subtitle'] as String?) ?? (tx['type'] as String?) ?? '';
+  String get _date =>
+      (tx['created_at'] as String?) ?? (tx['date'] as String?) ?? '';
 
-  IconData get _icon => switch (tx.type) {
-        _TxType.deposit => Icons.add_circle_outline_rounded,
-        _TxType.withdraw => Icons.arrow_circle_up_rounded,
-        _TxType.escrowLock => Icons.lock_rounded,
-        _TxType.escrowRelease => Icons.lock_open_rounded,
-        _TxType.refund => Icons.undo_rounded,
-        _TxType.transfer => tx.isCredit
-            ? Icons.arrow_circle_down_rounded
-            : Icons.arrow_circle_up_rounded,
-      };
+  bool get _isCredit {
+    final type = (tx['type'] as String?)?.toLowerCase();
+    if (type == 'credit' ||
+        type == 'deposit' ||
+        type == 'refund' ||
+        type == 'escrow_release') {
+      return true;
+    }
+    if (type == 'debit' ||
+        type == 'withdrawal' ||
+        type == 'payment' ||
+        type == 'escrow_lock') {
+      return false;
+    }
+    final amount = tx['amount'];
+    if (amount is num) return amount >= 0;
+    return true;
+  }
 
-  Color get _color => switch (tx.type) {
-        _TxType.escrowLock => AppTheme.tigrisBlue,
-        _TxType.escrowRelease => AppTheme.emeraldGreen,
-        _TxType.refund => AppTheme.dinarGold,
-        _ => tx.isCredit ? AppTheme.success : AppTheme.error,
-      };
+  int get _amount {
+    final raw = tx['amount'];
+    if (raw is int) return raw.abs();
+    if (raw is double) return raw.abs().toInt();
+    if (raw is String) return (double.tryParse(raw) ?? 0).abs().toInt();
+    return 0;
+  }
+
+  Color get _color => _isCredit ? AppTheme.success : AppTheme.error;
+  IconData get _icon => _isCredit
+      ? Icons.arrow_circle_down_rounded
+      : Icons.arrow_circle_up_rounded;
 
   @override
   Widget build(BuildContext context) {
@@ -479,20 +526,21 @@ class _TransactionRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  tx.title,
+                  _title,
                   style: GoogleFonts.tajawal(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.textPrimary,
                   ),
                 ),
-                Text(
-                  tx.subtitle,
-                  style: GoogleFonts.tajawal(
-                    fontSize: 11.sp,
-                    color: AppTheme.textSecondary,
+                if (_subtitle.isNotEmpty)
+                  Text(
+                    _subtitle,
+                    style: GoogleFonts.tajawal(
+                      fontSize: 11.sp,
+                      color: AppTheme.textSecondary,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -500,20 +548,21 @@ class _TransactionRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${tx.isCredit ? '+' : '-'}${IqdFormatter.format(tx.amount.toDouble())} د.ع',
+                '${_isCredit ? '+' : '-'}${IqdFormatter.format(_amount.toDouble())} د.ع',
                 style: GoogleFonts.tajawal(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
                   color: _color,
                 ),
               ),
-              Text(
-                tx.date,
-                style: GoogleFonts.tajawal(
-                  fontSize: 11.sp,
-                  color: AppTheme.textTertiary,
+              if (_date.isNotEmpty)
+                Text(
+                  _date.length > 10 ? _date.substring(0, 10) : _date,
+                  style: GoogleFonts.tajawal(
+                    fontSize: 11.sp,
+                    color: AppTheme.textTertiary,
+                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -522,47 +571,3 @@ class _TransactionRow extends StatelessWidget {
   }
 }
 
-// ── Mock data ─────────────────────────────────────────────────────────────────
-
-const _mockTransactions = [
-  _TxData(
-    title: 'إيداع في المحفظة',
-    subtitle: 'تم الإيداع بنجاح عبر ZainCash',
-    amount: 150000,
-    isCredit: true,
-    date: '١٤ مارس',
-    type: _TxType.deposit,
-  ),
-  _TxData(
-    title: 'حجز أمانة — طلب #LQ-4A2F',
-    subtitle: 'المبلغ محجوز حتى استلام الطلب',
-    amount: 75000,
-    isCredit: false,
-    date: '١٣ مارس',
-    type: _TxType.escrowLock,
-  ),
-  _TxData(
-    title: 'تحرير أمانة — طلب #LQ-3B1C',
-    subtitle: 'تم تحويل المبلغ للبائع بعد الاستلام',
-    amount: 45000,
-    isCredit: true,
-    date: '١٢ مارس',
-    type: _TxType.escrowRelease,
-  ),
-  _TxData(
-    title: 'دفع مزاد #AUC-9910',
-    subtitle: 'فوز بالمزاد — قيد الشحن',
-    amount: 200000,
-    isCredit: false,
-    date: '١١ مارس',
-    type: _TxType.withdraw,
-  ),
-  _TxData(
-    title: 'استرداد طلب #LQ-8C3E',
-    subtitle: 'تم رد المبلغ بعد نزاع ناجح',
-    amount: 320000,
-    isCredit: true,
-    date: '١٠ مارس',
-    type: _TxType.refund,
-  ),
-];

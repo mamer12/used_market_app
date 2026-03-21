@@ -45,27 +45,15 @@ class NegotiationError extends NegotiationState {
 // ── Cubit ─────────────────────────────────────────────────────────────────────
 
 class NegotiationCubit extends Cubit<NegotiationState> {
-  final String baseUrl;
-  final String token;
-  late final Dio _dio;
+  final Dio _dio;
 
-  NegotiationCubit({required this.baseUrl, required this.token})
-      : super(NegotiationInitial()) {
-    _dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      validateStatus: (_) => true,
-    ));
-  }
+  NegotiationCubit(this._dio) : super(NegotiationInitial());
 
   Future<void> fetchMyNegotiations() async {
     emit(NegotiationLoading());
     try {
       final res = await _dio.get<Map<String, dynamic>>(
-          '/api/v1/negotiations/mine');
+          'negotiations/mine');
       if (res.statusCode == 200) {
         final data = (res.data?['data'] as List?) ?? [];
         emit(NegotiationLoaded(
@@ -87,7 +75,7 @@ class NegotiationCubit extends Cubit<NegotiationState> {
   }) async {
     try {
       final res = await _dio.post<void>(
-        '/api/v1/negotiations',
+        'negotiations',
         data: {'product_id': productId, 'offered_price': offeredPrice},
       );
       return res.statusCode == 201;
@@ -99,7 +87,7 @@ class NegotiationCubit extends Cubit<NegotiationState> {
   Future<bool> acceptNegotiation(String id) async {
     try {
       final res =
-          await _dio.patch<void>('/api/v1/negotiations/$id/accept');
+          await _dio.patch<void>('negotiations/$id/accept');
       return res.statusCode == 200;
     } on DioException {
       return false;
@@ -109,7 +97,7 @@ class NegotiationCubit extends Cubit<NegotiationState> {
   Future<bool> counterNegotiation(String id, int counterPrice) async {
     try {
       final res = await _dio.patch<void>(
-        '/api/v1/negotiations/$id/counter',
+        'negotiations/$id/counter',
         data: {'counter_price': counterPrice},
       );
       return res.statusCode == 200;
@@ -121,7 +109,7 @@ class NegotiationCubit extends Cubit<NegotiationState> {
   Future<bool> rejectNegotiation(String id) async {
     try {
       final res =
-          await _dio.patch<void>('/api/v1/negotiations/$id/reject');
+          await _dio.patch<void>('negotiations/$id/reject');
       return res.statusCode == 200;
     } on DioException {
       return false;
