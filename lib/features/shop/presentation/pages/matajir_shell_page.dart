@@ -7,13 +7,14 @@ import '../../../../core/widgets/center_fab_bottom_nav.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
+import '../widgets/following_products_tab.dart';
 import 'matajir_categories_page.dart';
 import 'matajir_page.dart' show MatajirPage;
 import 'order_history_page.dart';
 
-/// Matajir Mini-App Shell — 5-slot bottom nav with center FAB:
+/// Matajir Mini-App Shell — 6-slot bottom nav with center FAB:
 ///   0 = الرئيسية  (MatajirPage — marketplace home)
-///   1 = الأقسام   (MatajirCategoriesPage — categories)
+///   1 = المتابَعين (FollowingProductsTab — products from followed shops)
 ///   [FAB] = أضف منتج (add product)
 ///   3 = السلة    (CartPage — cart with badge)
 ///   4 = حسابي    (OrderHistoryPage — account/orders)
@@ -29,7 +30,7 @@ class _MatajirShellPageState extends State<MatajirShellPage> {
 
   late final Map<int, Widget> _pageMap = {
     0: const MatajirPage(),
-    1: const MatajirCategoriesPage(),
+    1: const FollowingProductsTab(),
     3: const _MatajirCartTab(),
     4: const OrderHistoryPage(),
   };
@@ -52,7 +53,7 @@ class _MatajirShellPageState extends State<MatajirShellPage> {
           return CenterFabBottomNav(
             items: const [
               NavItem(icon: Icons.home_rounded, label: 'الرئيسية'),
-              NavItem(icon: Icons.category_rounded, label: 'الأقسام'),
+              NavItem(icon: Icons.favorite_rounded, label: 'المتابَعين'),
               NavItem(icon: Icons.shopping_cart_rounded, label: 'السلة'),
               NavItem(icon: Icons.person_rounded, label: 'حسابي'),
             ],

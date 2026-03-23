@@ -16,6 +16,7 @@ abstract class OrderRemoteDataSource {
     int limit = 20,
   });
   Future<OrderModel> initiateCODCheckout(String orderId);
+  Future<OrderModel> getOrderById(String orderId);
 }
 
 @LazySingleton(as: OrderRemoteDataSource)
@@ -74,5 +75,13 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       }
       rethrow;
     }
+  }
+
+  @override
+  Future<OrderModel> getOrderById(String orderId) async {
+    final response = await _dio.get(
+      '${ApiConstants.ordersStatus}/$orderId',
+    );
+    return OrderModel.fromJson(response.data as Map<String, dynamic>);
   }
 }

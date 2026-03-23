@@ -49,8 +49,13 @@ import '../../features/shop/presentation/pages/shipping_address_page.dart';
 import '../../features/shop/presentation/pages/shop_products_page.dart';
 import '../../features/shop/presentation/pages/zaincash_payment_page.dart';
 import '../../features/map/presentation/pages/mahallati_page.dart';
+import '../../features/flash_drops/presentation/pages/create_flash_drop_page.dart';
+import '../../features/group_buy/presentation/pages/create_group_buy_page.dart';
+import '../../features/group_buy/presentation/pages/group_buy_list_page.dart';
 import '../../features/group_buy/presentation/pages/group_buy_page.dart';
 import '../../features/negotiation/presentation/pages/my_negotiations_page.dart';
+import '../../features/stories/presentation/pages/create_story_page.dart';
+import '../../features/stories/presentation/pages/story_viewer_page.dart';
 import '../../features/seller/presentation/pages/seller_dashboard_page.dart';
 import '../../features/wallet/presentation/pages/wallet_page.dart';
 import '../di/injection.dart';
@@ -137,7 +142,33 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       GoRoute(path: '/favorites', builder: (_, _) => const FavoritesPage()),
       GoRoute(path: '/shipping-address', builder: (_, _) => const ShippingAddressPage()),
 
-      // ── Group Buy (deep link) ──────────────────────────────────────────
+      // ── Stories ────────────────────────────────────────────────────────
+      GoRoute(
+        path: '/stories/create',
+        builder: (_, _) => const CreateStoryPage(),
+      ),
+      GoRoute(
+        path: '/stories/view/:shopId',
+        builder: (context, state) => StoryViewerPage(
+          shopId: state.pathParameters['shopId'] ?? '',
+        ),
+      ),
+
+      // ── Flash Drops ─────────────────────────────────────────────────────
+      GoRoute(
+        path: '/flash-drops/create',
+        builder: (_, _) => const CreateFlashDropPage(),
+      ),
+
+      // ── Group Buys ──────────────────────────────────────────────────────
+      GoRoute(
+        path: '/group-buys',
+        builder: (_, _) => const GroupBuyListPage(),
+      ),
+      GoRoute(
+        path: '/group-buys/create',
+        builder: (_, _) => const CreateGroupBuyPage(),
+      ),
       GoRoute(
         path: '/group/:id',
         builder: (context, state) => GroupBuyPage(

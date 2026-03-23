@@ -1165,4 +1165,362 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mazadatTopUpWallet => 'Top-up Wallet';
+
+  @override
+  String get followBtn => 'Follow';
+
+  @override
+  String get followingBtn => 'Following';
+
+  @override
+  String get unfollowConfirm => 'Unfollow?';
+
+  @override
+  String get followSuccess => 'Now following';
+
+  @override
+  String get unfollowSuccess => 'Unfollowed';
+
+  @override
+  String get followingTab => 'Following';
+
+  @override
+  String get followingEmpty => 'You\'re not following any shops yet';
+
+  @override
+  String get followingEmptySub => 'Follow shops to see their products here';
+
+  @override
+  String get storyCreateTitle => 'Create Story';
+
+  @override
+  String get storyCaption => 'Add a caption...';
+
+  @override
+  String get storyPost => 'Post Story';
+
+  @override
+  String get storySelectMedia => 'Select photo or video';
+
+  @override
+  String get storyPostedSuccess => 'Story posted';
+
+  @override
+  String get storyPostError => 'Failed to post story';
+
+  @override
+  String get storyFromCamera => 'Camera';
+
+  @override
+  String get storyFromGallery => 'Gallery';
+
+  @override
+  String get flashDropCreateTitle => 'Create Flash Drop';
+
+  @override
+  String get flashDropSelectProduct => 'Select Product';
+
+  @override
+  String get flashDropDiscount => 'Discount Percentage';
+
+  @override
+  String get flashDropSlots => 'Number of Slots';
+
+  @override
+  String get flashDropStartTime => 'Start Time';
+
+  @override
+  String get flashDropEndTime => 'End Time';
+
+  @override
+  String get flashDropPreview => 'Preview';
+
+  @override
+  String get flashDropSubmit => 'Launch Drop';
+
+  @override
+  String get flashDropCreatedSuccess => 'Flash drop created';
+
+  @override
+  String get flashDropCreateError => 'Failed to create drop';
+
+  @override
+  String flashDropOff(int pct) {
+    return '$pct% OFF';
+  }
+
+  @override
+  String flashDropSlotsLabel(int count) {
+    return '$count slots';
+  }
+
+  @override
+  String get groupBuyListTitle => 'Group Buys';
+
+  @override
+  String get groupBuyCreateTitle => 'Create Group Buy';
+
+  @override
+  String get groupBuySelectProduct => 'Select Product';
+
+  @override
+  String get groupBuyGroupPrice => 'Group Price';
+
+  @override
+  String get groupBuyMinBuyers => 'Minimum Buyers';
+
+  @override
+  String get groupBuyDeadline => 'Deadline';
+
+  @override
+  String get groupBuySubmit => 'Create Group Buy';
+
+  @override
+  String get groupBuyCreatedSuccess => 'Group buy created';
+
+  @override
+  String get groupBuyCreateError => 'Failed to create group buy';
+
+  @override
+  String get groupBuyJoinBtn => 'Join';
+
+  @override
+  String get groupBuyShareBtn => 'Share Link';
+
+  @override
+  String groupBuySlotsRemaining(int count) {
+    return '$count slots left';
+  }
+
+  @override
+  String get groupBuyOriginalPrice => 'Original Price';
+
+  @override
+  String get groupBuyGroupPriceLabel => 'Group Price';
+
+  @override
+  String get groupBuyTimeLeft => 'Time Left';
+
+  @override
+  String groupBuyProgress(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get groupBuyEmpty => 'No active group buys';
+
+  @override
+  String get groupBuyEmptySub => 'Create a group buy or wait for new ones';
+
+  @override
+  String get orderTrackingTitle => 'Order Tracking';
+
+  @override
+  String get orderTrackingQty => 'Qty';
+
+  @override
+  String get orderTrackingStatusTitle => 'Order Status';
+
+  @override
+  String get escrowStatusIdle => 'Awaiting Payment';
+
+  @override
+  String get escrowStatusLocked => 'Amount Secured in Escrow';
+
+  @override
+  String get escrowStatusShipped => 'Shipped — Awaiting Delivery';
+
+  @override
+  String get escrowStatusDelivered => 'Delivered — Releasing Funds';
+
+  @override
+  String get escrowStatusReleased => 'Funds Transferred to Seller';
+
+  @override
+  String get escrowStatusDisputed => 'Dispute Opened — Under Review';
+
+  @override
+  String get escrowStatusRefunded => 'Refunded';
+
+  @override
+  String get escrowBannerIdle =>
+      'Complete payment to secure your funds in escrow.';
+
+  @override
+  String get escrowBannerLocked =>
+      'Your payment is safely held in مضمون escrow until delivery.';
+
+  @override
+  String get escrowBannerShipped =>
+      'Order has shipped. Confirm delivery once received.';
+
+  @override
+  String get escrowBannerDelivered =>
+      'Delivery confirmed. Funds will be released to seller.';
+
+  @override
+  String get escrowBannerReleased =>
+      'Transaction complete. Funds released to seller.';
+
+  @override
+  String get escrowBannerDisputed =>
+      'A dispute has been opened. Our team will review shortly.';
+
+  @override
+  String get escrowBannerRefunded => 'Your refund has been processed.';
+
+  @override
+  String get orderTrackingDetails => 'Order Details';
+
+  @override
+  String get orderTrackingOrderId => 'Order ID';
+
+  @override
+  String get orderTrackingTotal => 'Total';
+
+  @override
+  String get orderTrackingFulfillment => 'Fulfillment';
+
+  @override
+  String get orderTrackingDelivery => 'Delivery';
+
+  @override
+  String get orderTrackingPickup => 'Pickup';
+
+  @override
+  String get orderTrackingCity => 'City';
+
+  @override
+  String get orderTrackingConfirmDelivery => 'Confirm Delivery';
+
+  @override
+  String get orderTrackingOpenDispute => 'Open Dispute';
+
+  @override
+  String get orderTrackingConfirmDeliveryTitle => 'Confirm Delivery';
+
+  @override
+  String get orderTrackingConfirmDeliveryMessage =>
+      'Confirm you have received the order? Funds will be released to the seller.';
+
+  @override
+  String get orderTrackingCancel => 'Cancel';
+
+  @override
+  String get orderTrackingConfirm => 'Confirm';
+
+  @override
+  String get orderTrackingError => 'Error loading order';
+
+  @override
+  String get zaincashCancelTitle => 'Cancel Payment?';
+
+  @override
+  String get zaincashCancelMessage =>
+      'Are you sure you want to cancel the payment?';
+
+  @override
+  String get zaincashContinuePayment => 'Continue Payment';
+
+  @override
+  String get checkoutCartTitle => 'Cart';
+
+  @override
+  String get checkoutBrowseProducts => 'Browse Products';
+
+  @override
+  String get checkoutDeliveryAddress => 'Delivery Address';
+
+  @override
+  String get checkoutCity => 'City';
+
+  @override
+  String get checkoutDistrict => 'District';
+
+  @override
+  String get checkoutStreet => 'Street';
+
+  @override
+  String get checkoutBuilding => 'Building';
+
+  @override
+  String get checkoutPhone => 'Phone';
+
+  @override
+  String get checkoutFieldRequired => 'This field is required';
+
+  @override
+  String get checkoutPaymentMethod => 'Payment Method';
+
+  @override
+  String get checkoutCOD => 'Cash on Delivery';
+
+  @override
+  String get checkoutDeliveryHome => 'Home Delivery';
+
+  @override
+  String get checkoutPickupStore => 'Store Pickup';
+
+  @override
+  String get checkoutPickupEscrowNote =>
+      'Escrow funds released on pickup confirmation';
+
+  @override
+  String get checkoutPromoHint => 'Enter promo code';
+
+  @override
+  String get checkoutPromoApply => 'Apply';
+
+  @override
+  String get checkoutFreeDelivery => 'Free';
+
+  @override
+  String get checkoutOrderSummary => 'Order Summary';
+
+  @override
+  String get checkoutSubtotal => 'Subtotal';
+
+  @override
+  String get checkoutDeliveryFee => 'Delivery Fee';
+
+  @override
+  String get checkoutEscrowFee => 'Escrow Fee';
+
+  @override
+  String get checkoutTotal => 'Total';
+
+  @override
+  String get checkoutEscrowNotice =>
+      'Your payment is protected by مضمون escrow';
+
+  @override
+  String get checkoutEscrowSuccessBadge => 'Amount Secured in Escrow';
+
+  @override
+  String get checkoutOrderSuccess => 'Order placed successfully!';
+
+  @override
+  String get checkoutErrorGeneral => 'Failed to place order. Please try again.';
+
+  @override
+  String get zaincashPageTitle => 'ZainCash Payment';
+
+  @override
+  String get zaincashLoading => 'Loading payment page...';
+
+  @override
+  String get zaincashExit => 'Exit';
+
+  @override
+  String get zaincashFailedTitle => 'Payment Failed';
+
+  @override
+  String get zaincashFailedMessage =>
+      'Payment could not be completed. Please try again.';
+
+  @override
+  String get zaincashRetry => 'Retry';
+
+  @override
+  String get zaincashGoBack => 'Go Back';
 }

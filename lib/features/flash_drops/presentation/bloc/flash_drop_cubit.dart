@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/models/flash_drop_model.dart';
+import '../../domain/repositories/flash_drop_repository.dart';
 
 // ── States ────────────────────────────────────────────────────────────────────
 
@@ -40,21 +40,16 @@ class FlashDropError extends FlashDropState {
 
 @injectable
 class FlashDropCubit extends Cubit<FlashDropState> {
-  final Dio _dio;
+  final FlashDropRepository _repository;
   Timer? _pollTimer;
 
-  FlashDropCubit(this._dio) : super(FlashDropInitial());
+  FlashDropCubit(this._repository) : super(FlashDropInitial());
 
   Future<void> fetchActive() async {
     emit(FlashDropLoading());
     try {
-      final resp = await _dio.get('/api/v1/flash-drops/active');
-      final raw = (resp.data['data'] as List?) ?? [];
-      final drops = raw
-          .map((e) => FlashDropModel.fromJson(e as Map<String, dynamic>))
-          .where((d) => !d.isExpired)
-          .toList();
-      emit(FlashDropsLoaded(drops));
+      final drops = await _repository.getActiveFlashDrops();
+      emit(FlashDropsLoaded(drops.where((d) => !d.isExpired).toList()));
     } catch (e) {
       emit(FlashDropError(e.toString()));
     }

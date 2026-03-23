@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -6,9 +7,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/skeleton_loading.dart';
 import '../bloc/notification_cubit.dart';
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// -- Page --
 
 class ActivityPage extends StatelessWidget {
   const ActivityPage({super.key});
@@ -22,122 +24,208 @@ class ActivityPage extends StatelessWidget {
   }
 }
 
-class _ActivityView extends StatelessWidget {
+class _ActivityView extends StatefulWidget {
   const _ActivityView();
 
   @override
+  State<_ActivityView> createState() => _ActivityViewState();
+}
+
+class _ActivityViewState extends State<_ActivityView>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  static const _tabs = ['الكل', 'طلبات', 'مزادات', 'إشعارات'];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppTheme.background,
-        appBar: AppBar(
-          title: Text(
-            'الإشعارات',
-            style: GoogleFonts.cairo(
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-              fontSize: 18.sp,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: AppTheme.textPrimary),
-          actions: [
-            BlocBuilder<NotificationCubit, NotificationState>(
-              builder: (context, state) {
-                if (state is NotificationsLoaded && state.unreadCount > 0) {
-                  return TextButton(
-                    onPressed: () =>
-                        context.read<NotificationCubit>().markAllRead(),
-                    child: Text(
-                      'تحديد الكل كمقروء',
-                      style: GoogleFonts.cairo(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primary,
-                      ),
+    return Scaffold(
+      backgroundColor: AppTheme.background,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // -- Header --
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(20.w, 16.h, 20.w, 0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6.w,
+                    height: 28.h,
+                    decoration: BoxDecoration(
+                      color: AppTheme.dinarGold,
+                      borderRadius: BorderRadius.circular(3.r),
                     ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+                  ),
+                  SizedBox(width: 10.w),
+                  Text(
+                    'نشاطاتي',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  BlocBuilder<NotificationCubit, NotificationState>(
+                    builder: (context, state) {
+                      if (state is NotificationsLoaded &&
+                          state.unreadCount > 0) {
+                        return TextButton(
+                          onPressed: () =>
+                              context.read<NotificationCubit>().markAllRead(),
+                          child: Text(
+                            'تحديد الكل كمقروء',
+                            style: GoogleFonts.tajawal(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16.h),
+
+            // -- Tab bar --
+            Padding(
+              padding: EdgeInsetsDirectional.symmetric(horizontal: 16.w),
+              child: Container(
+                height: 42.h,
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  isScrollable: false,
+                  labelPadding: EdgeInsets.zero,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicator: BoxDecoration(
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                  ),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: AppTheme.textSecondary,
+                  labelStyle: GoogleFonts.tajawal(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  unselectedLabelStyle: GoogleFonts.tajawal(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  dividerColor: Colors.transparent,
+                  tabs: _tabs.map((t) => Tab(text: t)).toList(),
+                ),
+              ),
+            ),
+            SizedBox(height: 12.h),
+
+            // -- Tab content --
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildNotifList(filter: null),
+                  _buildNotifList(filter: 'order'),
+                  _buildNotifList(filter: 'auction'),
+                  _buildNotifList(filter: null, notificationsOnly: true),
+                ],
+              ),
             ),
           ],
         ),
-        body: BlocBuilder<NotificationCubit, NotificationState>(
-          builder: (context, state) {
-            if (state is NotificationLoading ||
-                state is NotificationInitial) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppTheme.primary),
-              );
-            }
-
-            if (state is NotificationError) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.wifi_off_rounded,
-                        size: 48.sp, color: AppTheme.textSecondary),
-                    SizedBox(height: 12.h),
-                    Text(
-                      'تعذّر تحميل الإشعارات',
-                      style: GoogleFonts.cairo(
-                        fontSize: 15.sp,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    ElevatedButton(
-                      onPressed: () =>
-                          context.read<NotificationCubit>().loadNotifications(),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary),
-                      child: Text('إعادة المحاولة',
-                          style: GoogleFonts.cairo(color: Colors.white)),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (state is NotificationsLoaded) {
-              final notifs = state.notifications;
-              if (notifs.isEmpty) return _buildEmpty();
-
-              // Group: today = first 3, earlier = rest (API returns newest first)
-              final today = notifs.length > 3 ? notifs.sublist(0, 3) : notifs;
-              final earlier =
-                  notifs.length > 3 ? notifs.sublist(3) : <Map<String, dynamic>>[];
-
-              return ListView(
-                padding: EdgeInsets.only(bottom: 100.h),
-                children: [
-                  if (today.isNotEmpty) ...[
-                    _buildGroupHeader('اليوم'),
-                    ...today.map((n) => _NotifTile(
-                          notif: n,
-                          onTap: () => _handleTap(context, n),
-                        )),
-                  ],
-                  if (earlier.isNotEmpty) ...[
-                    _buildGroupHeader('سابقاً'),
-                    ...earlier.map((n) => _NotifTile(
-                          notif: n,
-                          onTap: () => _handleTap(context, n),
-                        )),
-                  ],
-                ],
-              );
-            }
-
-            return _buildEmpty();
-          },
-        ),
       ),
+    );
+  }
+
+  Widget _buildNotifList({
+    String? filter,
+    bool notificationsOnly = false,
+  }) {
+    return BlocBuilder<NotificationCubit, NotificationState>(
+      builder: (context, state) {
+        if (state is NotificationLoading || state is NotificationInitial) {
+          return _buildSkeleton();
+        }
+
+        if (state is NotificationError) {
+          return _buildError(context);
+        }
+
+        if (state is NotificationsLoaded) {
+          var notifs = state.notifications;
+
+          // Filter by type
+          if (filter != null) {
+            notifs = notifs
+                .where((n) => (n['type'] as String?) == filter)
+                .toList();
+          }
+          if (notificationsOnly) {
+            notifs = notifs
+                .where((n) =>
+                    (n['type'] as String?) != 'order' &&
+                    (n['type'] as String?) != 'auction')
+                .toList();
+          }
+
+          if (notifs.isEmpty) return _buildEmpty();
+
+          return RefreshIndicator(
+            color: AppTheme.dinarGold,
+            backgroundColor: AppTheme.primary,
+            onRefresh: () async {
+              HapticFeedback.mediumImpact();
+              await context
+                  .read<NotificationCubit>()
+                  .loadNotifications();
+            },
+            child: ListView.separated(
+              padding: EdgeInsetsDirectional.fromSTEB(
+                0,
+                0,
+                0,
+                100.h,
+              ),
+              itemCount: notifs.length,
+              separatorBuilder: (_, __) => Padding(
+                padding: EdgeInsetsDirectional.symmetric(horizontal: 16.w),
+                child: const Divider(
+                  height: 1,
+                  color: AppTheme.divider,
+                ),
+              ),
+              itemBuilder: (_, i) => _ActivityTile(
+                notif: notifs[i],
+                onTap: () => _handleTap(context, notifs[i]),
+              ),
+            ),
+          );
+        }
+
+        return _buildEmpty();
+      },
     );
   }
 
@@ -152,17 +240,62 @@ class _ActivityView extends StatelessWidget {
     }
   }
 
-  Widget _buildGroupHeader(String label) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 6.h),
-      child: Text(
-        label,
-        style: GoogleFonts.cairo(
-          fontSize: 13.sp,
-          fontWeight: FontWeight.w700,
-          color: AppTheme.textSecondary,
-          letterSpacing: 0.3,
-        ),
+  Widget _buildSkeleton() {
+    return ListView.separated(
+      padding: EdgeInsetsDirectional.all(16.w),
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 5,
+      separatorBuilder: (_, __) => SizedBox(height: 12.h),
+      itemBuilder: (_, __) => Row(
+        children: [
+          SkeletonCircle(size: 44.w),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonBox(width: 160.w, height: 14.h),
+                SizedBox(height: 6.h),
+                SkeletonBox(width: 220.w, height: 12.h),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildError(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.wifi_off_rounded,
+            size: 48.sp,
+            color: AppTheme.textSecondary,
+          ),
+          SizedBox(height: 12.h),
+          Text(
+            'تعذّر تحميل النشاطات',
+            style: GoogleFonts.tajawal(
+              fontSize: 15.sp,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          ElevatedButton(
+            onPressed: () =>
+                context.read<NotificationCubit>().loadNotifications(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+            ),
+            child: Text(
+              'إعادة المحاولة',
+              style: GoogleFonts.tajawal(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -180,15 +313,15 @@ class _ActivityView extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.notifications_none_rounded,
+              Icons.inbox_rounded,
               size: 36.sp,
               color: AppTheme.primary,
             ),
           ),
           SizedBox(height: 16.h),
           Text(
-            'لا توجد إشعارات',
-            style: GoogleFonts.cairo(
+            'لا توجد نشاطات',
+            style: GoogleFonts.tajawal(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
               color: AppTheme.textPrimary,
@@ -196,8 +329,8 @@ class _ActivityView extends StatelessWidget {
           ),
           SizedBox(height: 6.h),
           Text(
-            'ستظهر إشعاراتك هنا عند وصولها',
-            style: GoogleFonts.cairo(
+            'ستظهر نشاطاتك هنا عند وصولها',
+            style: GoogleFonts.tajawal(
               fontSize: 13.sp,
               color: AppTheme.textSecondary,
             ),
@@ -208,20 +341,38 @@ class _ActivityView extends StatelessWidget {
   }
 }
 
-// ── Notification tile ─────────────────────────────────────────────────────────
+// -- Activity tile --
 
-class _NotifTile extends StatelessWidget {
+class _ActivityTile extends StatelessWidget {
   final Map<String, dynamic> notif;
   final VoidCallback onTap;
 
-  const _NotifTile({required this.notif, required this.onTap});
+  const _ActivityTile({required this.notif, required this.onTap});
 
   String get _title => (notif['title'] as String?) ?? '';
   String get _body => (notif['body'] as String?) ?? '';
   bool get _isRead => notif['is_read'] as bool? ?? true;
   String get _type => (notif['type'] as String?) ?? '';
+  String get _timeAgo => (notif['created_at'] as String?) ?? '';
 
-  // Map API type → icon & colour
+  // Sooq color dot
+  Color get _dotColor {
+    switch (_type) {
+      case 'order':
+        return AppTheme.matajirBlue;
+      case 'auction':
+        return const Color(0xFFFF3D5A);
+      case 'escrow':
+        return AppTheme.emeraldGreen;
+      case 'dispute':
+        return AppTheme.ballaPurple;
+      case 'message':
+        return AppTheme.mustamalOrange;
+      default:
+        return AppTheme.textSecondary;
+    }
+  }
+
   IconData get _icon {
     switch (_type) {
       case 'order':
@@ -239,20 +390,24 @@ class _NotifTile extends StatelessWidget {
     }
   }
 
-  Color get _color {
-    switch (_type) {
-      case 'order':
-        return AppTheme.matajirBlue;
-      case 'auction':
-        return AppTheme.mustamalOrange;
-      case 'escrow':
-        return AppTheme.success;
-      case 'dispute':
-        return AppTheme.ballaPurple;
-      case 'message':
-        return AppTheme.primary;
+  String get _statusLabel {
+    final status = notif['status'] as String?;
+    if (status == null) return '';
+    switch (status) {
+      case 'pending':
+        return 'قيد الانتظار';
+      case 'shipped':
+        return 'تم الشحن';
+      case 'delivered':
+        return 'تم التسليم';
+      case 'won':
+        return 'فزت!';
+      case 'lost':
+        return 'خسرت';
+      case 'active':
+        return 'نشط';
       default:
-        return AppTheme.textSecondary;
+        return status;
     }
   }
 
@@ -264,62 +419,125 @@ class _NotifTile extends StatelessWidget {
         color: _isRead
             ? Colors.transparent
             : AppTheme.primary.withValues(alpha: 0.04),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        padding: EdgeInsetsDirectional.symmetric(
+          horizontal: 16.w,
+          vertical: 14.h,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 44.w,
-              height: 44.w,
-              decoration: BoxDecoration(
-                color: _color.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(_icon, size: 20.sp, color: _color),
+            // Sooq color dot + icon
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 44.w,
+                  height: 44.w,
+                  decoration: BoxDecoration(
+                    color: _dotColor.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(_icon, size: 20.sp, color: _dotColor),
+                ),
+                // Sooq color dot
+                Positioned(
+                  top: -2,
+                  right: -2,
+                  child: Container(
+                    width: 12.w,
+                    height: 12.w,
+                    decoration: BoxDecoration(
+                      color: _dotColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppTheme.background,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(width: 12.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Title row
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Text(
                           _title,
-                          style: GoogleFonts.cairo(
+                          style: GoogleFonts.tajawal(
                             fontSize: 14.sp,
-                            fontWeight: _isRead
-                                ? FontWeight.w600
-                                : FontWeight.w700,
+                            fontWeight:
+                                _isRead ? FontWeight.w600 : FontWeight.w700,
                             color: AppTheme.textPrimary,
                           ),
                         ),
                       ),
-                      if (!_isRead)
+                      if (_statusLabel.isNotEmpty) ...[
+                        SizedBox(width: 8.w),
                         Container(
-                          width: 8.w,
-                          height: 8.w,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.primary,
-                            shape: BoxShape.circle,
+                          padding: EdgeInsetsDirectional.symmetric(
+                            horizontal: 8.w,
+                            vertical: 3.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _dotColor.withValues(alpha: 0.10),
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                          child: Text(
+                            _statusLabel,
+                            style: GoogleFonts.tajawal(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w700,
+                              color: _dotColor,
+                            ),
                           ),
                         ),
+                      ],
                     ],
                   ),
                   SizedBox(height: 2.h),
                   Text(
                     _body,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 12.sp,
                       color: AppTheme.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  if (_timeAgo.isNotEmpty) ...[
+                    SizedBox(height: 4.h),
+                    Text(
+                      _timeAgo.length > 16
+                          ? _timeAgo.substring(0, 16)
+                          : _timeAgo,
+                      style: GoogleFonts.tajawal(
+                        fontSize: 11.sp,
+                        color: AppTheme.textTertiary,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
+            if (!_isRead)
+              Padding(
+                padding: EdgeInsetsDirectional.only(start: 8.w, top: 4.h),
+                child: Container(
+                  width: 8.w,
+                  height: 8.w,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.dinarGold,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

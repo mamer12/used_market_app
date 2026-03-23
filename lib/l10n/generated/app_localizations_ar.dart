@@ -1161,4 +1161,356 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get mazadatTopUpWallet => 'شحن المحفظة';
+
+  @override
+  String get followBtn => 'متابعة';
+
+  @override
+  String get followingBtn => 'متابَع';
+
+  @override
+  String get unfollowConfirm => 'إلغاء المتابعة؟';
+
+  @override
+  String get followSuccess => 'تمت المتابعة';
+
+  @override
+  String get unfollowSuccess => 'تم إلغاء المتابعة';
+
+  @override
+  String get followingTab => 'المتابَعين';
+
+  @override
+  String get followingEmpty => 'لا تتابع أي متجر بعد';
+
+  @override
+  String get followingEmptySub => 'تابع المتاجر لتشوف منتجاتهم هنا';
+
+  @override
+  String get storyCreateTitle => 'إنشاء ستوري';
+
+  @override
+  String get storyCaption => 'أضف وصف...';
+
+  @override
+  String get storyPost => 'نشر الستوري';
+
+  @override
+  String get storySelectMedia => 'اختر صورة أو فيديو';
+
+  @override
+  String get storyPostedSuccess => 'تم نشر الستوري';
+
+  @override
+  String get storyPostError => 'فشل نشر الستوري';
+
+  @override
+  String get storyFromCamera => 'الكاميرا';
+
+  @override
+  String get storyFromGallery => 'المعرض';
+
+  @override
+  String get flashDropCreateTitle => 'إنشاء عرض خاطف';
+
+  @override
+  String get flashDropSelectProduct => 'اختر المنتج';
+
+  @override
+  String get flashDropDiscount => 'نسبة الخصم';
+
+  @override
+  String get flashDropSlots => 'عدد الفرص';
+
+  @override
+  String get flashDropStartTime => 'وقت البداية';
+
+  @override
+  String get flashDropEndTime => 'وقت النهاية';
+
+  @override
+  String get flashDropPreview => 'معاينة';
+
+  @override
+  String get flashDropSubmit => 'إطلاق العرض';
+
+  @override
+  String get flashDropCreatedSuccess => 'تم إنشاء العرض الخاطف';
+
+  @override
+  String get flashDropCreateError => 'فشل إنشاء العرض';
+
+  @override
+  String flashDropOff(int pct) {
+    return 'خصم $pct٪';
+  }
+
+  @override
+  String flashDropSlotsLabel(int count) {
+    return '$count فرصة';
+  }
+
+  @override
+  String get groupBuyListTitle => 'الشلّة';
+
+  @override
+  String get groupBuyCreateTitle => 'إنشاء شلّة';
+
+  @override
+  String get groupBuySelectProduct => 'اختر المنتج';
+
+  @override
+  String get groupBuyGroupPrice => 'سعر الشلّة';
+
+  @override
+  String get groupBuyMinBuyers => 'الحد الأدنى للمشاركين';
+
+  @override
+  String get groupBuyDeadline => 'آخر موعد';
+
+  @override
+  String get groupBuySubmit => 'إنشاء الشلّة';
+
+  @override
+  String get groupBuyCreatedSuccess => 'تم إنشاء الشلّة';
+
+  @override
+  String get groupBuyCreateError => 'فشل إنشاء الشلّة';
+
+  @override
+  String get groupBuyJoinBtn => 'انضم';
+
+  @override
+  String get groupBuyShareBtn => 'شارك الرابط';
+
+  @override
+  String groupBuySlotsRemaining(int count) {
+    return '$count مقعد متبقي';
+  }
+
+  @override
+  String get groupBuyOriginalPrice => 'السعر الأصلي';
+
+  @override
+  String get groupBuyGroupPriceLabel => 'سعر الشلّة';
+
+  @override
+  String get groupBuyTimeLeft => 'الوقت المتبقي';
+
+  @override
+  String groupBuyProgress(int current, int total) {
+    return '$current من $total';
+  }
+
+  @override
+  String get groupBuyEmpty => 'لا توجد شلّات نشطة';
+
+  @override
+  String get groupBuyEmptySub => 'أنشئ شلّة أو انتظر شلّات جديدة';
+
+  @override
+  String get orderTrackingTitle => 'تتبع الطلب';
+
+  @override
+  String get orderTrackingQty => 'الكمية';
+
+  @override
+  String get orderTrackingStatusTitle => 'حالة الطلب';
+
+  @override
+  String get escrowStatusIdle => 'في انتظار الدفع';
+
+  @override
+  String get escrowStatusLocked => 'المبلغ محجوز في أمانة مضمون';
+
+  @override
+  String get escrowStatusShipped => 'تم الشحن — في انتظار الاستلام';
+
+  @override
+  String get escrowStatusDelivered => 'تم التسليم — جاري تحرير المبلغ';
+
+  @override
+  String get escrowStatusReleased => 'تم تحويل المبلغ للبائع';
+
+  @override
+  String get escrowStatusDisputed => 'طلب نزاع — قيد المراجعة';
+
+  @override
+  String get escrowStatusRefunded => 'تم الاسترداد';
+
+  @override
+  String get escrowBannerIdle => 'أكمل الدفع لتأمين مبلغك في الضمان.';
+
+  @override
+  String get escrowBannerLocked =>
+      'دفعتك محفوظة بأمان في أمانة مضمون حتى التسليم.';
+
+  @override
+  String get escrowBannerShipped => 'تم شحن الطلب. أكد الاستلام عند وصوله.';
+
+  @override
+  String get escrowBannerDelivered =>
+      'تم تأكيد التسليم. سيتم تحرير المبلغ للبائع.';
+
+  @override
+  String get escrowBannerReleased => 'اكتملت المعاملة. تم تحرير المبلغ للبائع.';
+
+  @override
+  String get escrowBannerDisputed => 'تم فتح نزاع. سيراجع فريقنا الأمر قريباً.';
+
+  @override
+  String get escrowBannerRefunded => 'تمت معالجة استردادك.';
+
+  @override
+  String get orderTrackingDetails => 'تفاصيل الطلب';
+
+  @override
+  String get orderTrackingOrderId => 'رقم الطلب';
+
+  @override
+  String get orderTrackingTotal => 'الإجمالي';
+
+  @override
+  String get orderTrackingFulfillment => 'طريقة التنفيذ';
+
+  @override
+  String get orderTrackingDelivery => 'توصيل';
+
+  @override
+  String get orderTrackingPickup => 'استلام شخصي';
+
+  @override
+  String get orderTrackingCity => 'المدينة';
+
+  @override
+  String get orderTrackingConfirmDelivery => 'تأكيد الاستلام';
+
+  @override
+  String get orderTrackingOpenDispute => 'فتح نزاع';
+
+  @override
+  String get orderTrackingConfirmDeliveryTitle => 'تأكيد الاستلام';
+
+  @override
+  String get orderTrackingConfirmDeliveryMessage =>
+      'هل تأكد استلام الطلب؟ سيتم تحرير المبلغ للبائع.';
+
+  @override
+  String get orderTrackingCancel => 'إلغاء';
+
+  @override
+  String get orderTrackingConfirm => 'تأكيد';
+
+  @override
+  String get orderTrackingError => 'خطأ في تحميل الطلب';
+
+  @override
+  String get zaincashCancelTitle => 'إلغاء الدفع؟';
+
+  @override
+  String get zaincashCancelMessage => 'هل أنت متأكد من إلغاء الدفع؟';
+
+  @override
+  String get zaincashContinuePayment => 'متابعة الدفع';
+
+  @override
+  String get checkoutCartTitle => 'السلة';
+
+  @override
+  String get checkoutBrowseProducts => 'تصفح المنتجات';
+
+  @override
+  String get checkoutDeliveryAddress => 'عنوان التوصيل';
+
+  @override
+  String get checkoutCity => 'المدينة';
+
+  @override
+  String get checkoutDistrict => 'الحي';
+
+  @override
+  String get checkoutStreet => 'الشارع';
+
+  @override
+  String get checkoutBuilding => 'المبنى';
+
+  @override
+  String get checkoutPhone => 'الهاتف';
+
+  @override
+  String get checkoutFieldRequired => 'هذا الحقل مطلوب';
+
+  @override
+  String get checkoutPaymentMethod => 'طريقة الدفع';
+
+  @override
+  String get checkoutCOD => 'الدفع عند الاستلام';
+
+  @override
+  String get checkoutDeliveryHome => 'توصيل للمنزل';
+
+  @override
+  String get checkoutPickupStore => 'استلام من المتجر';
+
+  @override
+  String get checkoutPickupEscrowNote =>
+      'يُحرَّر مبلغ الضمان عند تأكيد الاستلام';
+
+  @override
+  String get checkoutPromoHint => 'أدخل كود الخصم';
+
+  @override
+  String get checkoutPromoApply => 'تطبيق';
+
+  @override
+  String get checkoutFreeDelivery => 'مجاني';
+
+  @override
+  String get checkoutOrderSummary => 'ملخص الطلب';
+
+  @override
+  String get checkoutSubtotal => 'المجموع الفرعي';
+
+  @override
+  String get checkoutDeliveryFee => 'رسوم التوصيل';
+
+  @override
+  String get checkoutEscrowFee => 'رسوم الضمان';
+
+  @override
+  String get checkoutTotal => 'الإجمالي';
+
+  @override
+  String get checkoutEscrowNotice => 'دفعتك محمية بضمان مضمون';
+
+  @override
+  String get checkoutEscrowSuccessBadge => 'المبلغ محجوز في أمانة مضمون';
+
+  @override
+  String get checkoutOrderSuccess => 'تم تقديم طلبك بنجاح!';
+
+  @override
+  String get checkoutErrorGeneral => 'فشل تقديم الطلب. يرجى المحاولة مجدداً.';
+
+  @override
+  String get zaincashPageTitle => 'الدفع عبر زين كاش';
+
+  @override
+  String get zaincashLoading => 'جارٍ تحميل صفحة الدفع...';
+
+  @override
+  String get zaincashExit => 'خروج';
+
+  @override
+  String get zaincashFailedTitle => 'فشل الدفع';
+
+  @override
+  String get zaincashFailedMessage =>
+      'تعذّر إتمام الدفع. يرجى المحاولة مجدداً.';
+
+  @override
+  String get zaincashRetry => 'إعادة المحاولة';
+
+  @override
+  String get zaincashGoBack => 'العودة';
 }

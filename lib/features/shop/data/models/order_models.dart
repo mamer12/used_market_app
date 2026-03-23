@@ -18,6 +18,10 @@ enum OrderStatus {
   pendingCODFulfillment,
   @JsonValue('DELIVERED_AND_CASH_COLLECTED')
   deliveredAndCashCollected,
+  @JsonValue('DISPUTED')
+  disputed,
+  @JsonValue('REFUNDED')
+  refunded,
 }
 
 @freezed
@@ -46,6 +50,9 @@ abstract class OrderModel with _$OrderModel {
     required OrderStatus status,
     @JsonKey(name: 'shipping_address') required ShippingAddress shippingAddress,
     @JsonKey(name: 'fulfillment_type') required String fulfillmentType,
+    @JsonKey(name: 'payment_url') String? paymentUrl,
+    @JsonKey(name: 'product_name') String? productName,
+    @JsonKey(name: 'product_image') String? productImage,
   }) = _OrderModel;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) =>
@@ -60,6 +67,7 @@ abstract class BuyProductRequest with _$BuyProductRequest {
     @JsonKey(name: 'shipping_address') required ShippingAddress shippingAddress,
     @JsonKey(name: 'fulfillment_type') required String fulfillmentType,
     @JsonKey(name: 'app_context') String? appContext,
+    @JsonKey(name: 'payment_method') String? paymentMethod,
   }) = _BuyProductRequest;
 
   factory BuyProductRequest.fromJson(Map<String, dynamic> json) =>

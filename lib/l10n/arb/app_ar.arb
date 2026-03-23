@@ -374,7 +374,7 @@
   "matajirCategories": "التصنيفات المميزة",
   "matajirPopularStores": "متاجر شهيرة",
   "matajirAllCategories": "كل التصنيفات",
-  "matajirVerifiedBadge": "متجر موثق من لكطة",
+  "matajirVerifiedBadge": "متجر موثق",
   "matajirAddToCart": "أضف للسلة",
   "matajirInCart": "في السلة",
   "matajirCompleteOrder": "إتمام الطلب",
@@ -417,7 +417,6 @@
   "matajirShopEmptySubtitle": "لم يُضف هذا المتجر منتجات حتى الآن",
   "matajirRetry": "إعادة المحاولة",
   "matajirOutOfStock": "نفد المخزون",
-  "matajirVerifiedBadge": "متجر موثق",
   "matajirVerifiedFull": "متجر موثق من لكطة",
   "matajirSalesCountPlaceholder": "٢٬٣٤١ عملية بيع",
   "matajirProductSuffix": "منتج",
@@ -430,5 +429,319 @@
   "mazadatTopUpWallet": "شحن المحفظة",
   "mazadatInsufficientBalance": "رصيد غير كاف",
   "mazadatAmountRequired": "المطلوب سداده",
-  "mazadatPaymentConfirmTitle": "إتمام الدفع"
+  "mazadatPaymentConfirmTitle": "إتمام الدفع",
+  "followBtn": "متابعة",
+  "followingBtn": "متابَع",
+  "unfollowConfirm": "إلغاء المتابعة؟",
+  "followSuccess": "تمت المتابعة",
+  "unfollowSuccess": "تم إلغاء المتابعة",
+  "followingTab": "المتابَعين",
+  "followingEmpty": "لا تتابع أي متجر بعد",
+  "followingEmptySub": "تابع المتاجر لتشوف منتجاتهم هنا",
+  "storyCreateTitle": "إنشاء ستوري",
+  "storyCaption": "أضف وصف...",
+  "storyPost": "نشر الستوري",
+  "storySelectMedia": "اختر صورة أو فيديو",
+  "storyPostedSuccess": "تم نشر الستوري",
+  "storyPostError": "فشل نشر الستوري",
+  "storyFromCamera": "الكاميرا",
+  "storyFromGallery": "المعرض",
+  "flashDropCreateTitle": "إنشاء عرض خاطف",
+  "flashDropSelectProduct": "اختر المنتج",
+  "flashDropDiscount": "نسبة الخصم",
+  "flashDropSlots": "عدد الفرص",
+  "flashDropStartTime": "وقت البداية",
+  "flashDropEndTime": "وقت النهاية",
+  "flashDropPreview": "معاينة",
+  "flashDropSubmit": "إطلاق العرض",
+  "flashDropCreatedSuccess": "تم إنشاء العرض الخاطف",
+  "flashDropCreateError": "فشل إنشاء العرض",
+  "flashDropOff": "خصم {pct}٪",
+  "flashDropSlotsLabel": "{count} فرصة",
+  "groupBuyListTitle": "الشلّة",
+  "groupBuyCreateTitle": "إنشاء شلّة",
+  "groupBuySelectProduct": "اختر المنتج",
+  "groupBuyGroupPrice": "سعر الشلّة",
+  "groupBuyMinBuyers": "الحد الأدنى للمشاركين",
+  "groupBuyDeadline": "آخر موعد",
+  "groupBuySubmit": "إنشاء الشلّة",
+  "groupBuyCreatedSuccess": "تم إنشاء الشلّة",
+  "groupBuyCreateError": "فشل إنشاء الشلّة",
+  "groupBuyJoinBtn": "انضم",
+  "groupBuyShareBtn": "شارك الرابط",
+  "groupBuySlotsRemaining": "{count} مقعد متبقي",
+  "groupBuyOriginalPrice": "السعر الأصلي",
+  "groupBuyGroupPriceLabel": "سعر الشلّة",
+  "groupBuyTimeLeft": "الوقت المتبقي",
+  "groupBuyProgress": "{current} من {total}",
+  "groupBuyEmpty": "لا توجد شلّات نشطة",
+  "groupBuyEmptySub": "أنشئ شلّة أو انتظر شلّات جديدة",
+  "orderTrackingTitle": "تتبع الطلب",
+  "@orderTrackingTitle": {
+    "description": "Order tracking page title"
+  },
+  "orderTrackingQty": "الكمية",
+  "@orderTrackingQty": {
+    "description": "Quantity label"
+  },
+  "orderTrackingStatusTitle": "حالة الطلب",
+  "@orderTrackingStatusTitle": {
+    "description": "Status section title"
+  },
+  "escrowStatusIdle": "في انتظار الدفع",
+  "@escrowStatusIdle": {
+    "description": "Escrow idle status"
+  },
+  "escrowStatusLocked": "المبلغ محجوز في أمانة مضمون",
+  "@escrowStatusLocked": {
+    "description": "Escrow locked status"
+  },
+  "escrowStatusShipped": "تم الشحن — في انتظار الاستلام",
+  "@escrowStatusShipped": {
+    "description": "Escrow shipped status"
+  },
+  "escrowStatusDelivered": "تم التسليم — جاري تحرير المبلغ",
+  "@escrowStatusDelivered": {
+    "description": "Escrow delivered status"
+  },
+  "escrowStatusReleased": "تم تحويل المبلغ للبائع",
+  "@escrowStatusReleased": {
+    "description": "Escrow released status"
+  },
+  "escrowStatusDisputed": "طلب نزاع — قيد المراجعة",
+  "@escrowStatusDisputed": {
+    "description": "Escrow disputed status"
+  },
+  "escrowStatusRefunded": "تم الاسترداد",
+  "@escrowStatusRefunded": {
+    "description": "Escrow refunded status"
+  },
+  "escrowBannerIdle": "أكمل الدفع لتأمين مبلغك في الضمان.",
+  "@escrowBannerIdle": {
+    "description": "Escrow idle banner"
+  },
+  "escrowBannerLocked": "دفعتك محفوظة بأمان في أمانة مضمون حتى التسليم.",
+  "@escrowBannerLocked": {
+    "description": "Escrow locked banner"
+  },
+  "escrowBannerShipped": "تم شحن الطلب. أكد الاستلام عند وصوله.",
+  "@escrowBannerShipped": {
+    "description": "Escrow shipped banner"
+  },
+  "escrowBannerDelivered": "تم تأكيد التسليم. سيتم تحرير المبلغ للبائع.",
+  "@escrowBannerDelivered": {
+    "description": "Escrow delivered banner"
+  },
+  "escrowBannerReleased": "اكتملت المعاملة. تم تحرير المبلغ للبائع.",
+  "@escrowBannerReleased": {
+    "description": "Escrow released banner"
+  },
+  "escrowBannerDisputed": "تم فتح نزاع. سيراجع فريقنا الأمر قريباً.",
+  "@escrowBannerDisputed": {
+    "description": "Escrow disputed banner"
+  },
+  "escrowBannerRefunded": "تمت معالجة استردادك.",
+  "@escrowBannerRefunded": {
+    "description": "Escrow refunded banner"
+  },
+  "orderTrackingDetails": "تفاصيل الطلب",
+  "@orderTrackingDetails": {
+    "description": "Order details section"
+  },
+  "orderTrackingOrderId": "رقم الطلب",
+  "@orderTrackingOrderId": {
+    "description": "Order ID label"
+  },
+  "orderTrackingTotal": "الإجمالي",
+  "@orderTrackingTotal": {
+    "description": "Total label"
+  },
+  "orderTrackingFulfillment": "طريقة التنفيذ",
+  "@orderTrackingFulfillment": {
+    "description": "Fulfillment label"
+  },
+  "orderTrackingDelivery": "توصيل",
+  "@orderTrackingDelivery": {
+    "description": "Delivery option"
+  },
+  "orderTrackingPickup": "استلام شخصي",
+  "@orderTrackingPickup": {
+    "description": "Pickup option"
+  },
+  "orderTrackingCity": "المدينة",
+  "@orderTrackingCity": {
+    "description": "City label"
+  },
+  "orderTrackingConfirmDelivery": "تأكيد الاستلام",
+  "@orderTrackingConfirmDelivery": {
+    "description": "Confirm delivery button"
+  },
+  "orderTrackingOpenDispute": "فتح نزاع",
+  "@orderTrackingOpenDispute": {
+    "description": "Open dispute button"
+  },
+  "orderTrackingConfirmDeliveryTitle": "تأكيد الاستلام",
+  "@orderTrackingConfirmDeliveryTitle": {
+    "description": "Confirm dialog title"
+  },
+  "orderTrackingConfirmDeliveryMessage": "هل تأكد استلام الطلب؟ سيتم تحرير المبلغ للبائع.",
+  "@orderTrackingConfirmDeliveryMessage": {
+    "description": "Confirm dialog message"
+  },
+  "orderTrackingCancel": "إلغاء",
+  "@orderTrackingCancel": {
+    "description": "Cancel button"
+  },
+  "orderTrackingConfirm": "تأكيد",
+  "@orderTrackingConfirm": {
+    "description": "Confirm button"
+  },
+  "orderTrackingError": "خطأ في تحميل الطلب",
+  "@orderTrackingError": {
+    "description": "Error loading order"
+  },
+  "zaincashCancelTitle": "إلغاء الدفع؟",
+  "@zaincashCancelTitle": {
+    "description": "ZainCash cancel dialog title"
+  },
+  "zaincashCancelMessage": "هل أنت متأكد من إلغاء الدفع؟",
+  "@zaincashCancelMessage": {
+    "description": "ZainCash cancel dialog message"
+  },
+  "zaincashContinuePayment": "متابعة الدفع",
+  "@zaincashContinuePayment": {
+    "description": "ZainCash continue button"
+  },
+  "checkoutCartTitle": "السلة",
+  "@checkoutCartTitle": {
+    "description": "Checkout cart section title"
+  },
+  "checkoutBrowseProducts": "تصفح المنتجات",
+  "@checkoutBrowseProducts": {
+    "description": "Browse products button"
+  },
+  "checkoutDeliveryAddress": "عنوان التوصيل",
+  "@checkoutDeliveryAddress": {
+    "description": "Delivery address section"
+  },
+  "checkoutCity": "المدينة",
+  "@checkoutCity": {
+    "description": "City field"
+  },
+  "checkoutDistrict": "الحي",
+  "@checkoutDistrict": {
+    "description": "District field"
+  },
+  "checkoutStreet": "الشارع",
+  "@checkoutStreet": {
+    "description": "Street field"
+  },
+  "checkoutBuilding": "المبنى",
+  "@checkoutBuilding": {
+    "description": "Building field"
+  },
+  "checkoutPhone": "الهاتف",
+  "@checkoutPhone": {
+    "description": "Phone field"
+  },
+  "checkoutFieldRequired": "هذا الحقل مطلوب",
+  "@checkoutFieldRequired": {
+    "description": "Required field error"
+  },
+  "checkoutPaymentMethod": "طريقة الدفع",
+  "@checkoutPaymentMethod": {
+    "description": "Payment method section"
+  },
+  "checkoutCOD": "الدفع عند الاستلام",
+  "@checkoutCOD": {
+    "description": "COD payment option"
+  },
+  "checkoutDeliveryHome": "توصيل للمنزل",
+  "@checkoutDeliveryHome": {
+    "description": "Home delivery option"
+  },
+  "checkoutPickupStore": "استلام من المتجر",
+  "@checkoutPickupStore": {
+    "description": "Store pickup option"
+  },
+  "checkoutPickupEscrowNote": "يُحرَّر مبلغ الضمان عند تأكيد الاستلام",
+  "@checkoutPickupEscrowNote": {
+    "description": "Pickup escrow note"
+  },
+  "checkoutPromoHint": "أدخل كود الخصم",
+  "@checkoutPromoHint": {
+    "description": "Promo code input hint"
+  },
+  "checkoutPromoApply": "تطبيق",
+  "@checkoutPromoApply": {
+    "description": "Apply promo code button"
+  },
+  "checkoutFreeDelivery": "مجاني",
+  "@checkoutFreeDelivery": {
+    "description": "Free delivery label"
+  },
+  "checkoutOrderSummary": "ملخص الطلب",
+  "@checkoutOrderSummary": {
+    "description": "Order summary section"
+  },
+  "checkoutSubtotal": "المجموع الفرعي",
+  "@checkoutSubtotal": {
+    "description": "Subtotal label"
+  },
+  "checkoutDeliveryFee": "رسوم التوصيل",
+  "@checkoutDeliveryFee": {
+    "description": "Delivery fee label"
+  },
+  "checkoutEscrowFee": "رسوم الضمان",
+  "@checkoutEscrowFee": {
+    "description": "Escrow fee label"
+  },
+  "checkoutTotal": "الإجمالي",
+  "@checkoutTotal": {
+    "description": "Total label"
+  },
+  "checkoutEscrowNotice": "دفعتك محمية بضمان مضمون",
+  "@checkoutEscrowNotice": {
+    "description": "Escrow protection notice"
+  },
+  "checkoutEscrowSuccessBadge": "المبلغ محجوز في أمانة مضمون",
+  "@checkoutEscrowSuccessBadge": {
+    "description": "Escrow success badge"
+  },
+  "checkoutOrderSuccess": "تم تقديم طلبك بنجاح!",
+  "@checkoutOrderSuccess": {
+    "description": "Order success message"
+  },
+  "checkoutErrorGeneral": "فشل تقديم الطلب. يرجى المحاولة مجدداً.",
+  "@checkoutErrorGeneral": {
+    "description": "General checkout error"
+  },
+  "zaincashPageTitle": "الدفع عبر زين كاش",
+  "@zaincashPageTitle": {
+    "description": "ZainCash page title"
+  },
+  "zaincashLoading": "جارٍ تحميل صفحة الدفع...",
+  "@zaincashLoading": {
+    "description": "ZainCash loading message"
+  },
+  "zaincashExit": "خروج",
+  "@zaincashExit": {
+    "description": "Exit payment button"
+  },
+  "zaincashFailedTitle": "فشل الدفع",
+  "@zaincashFailedTitle": {
+    "description": "ZainCash failed title"
+  },
+  "zaincashFailedMessage": "تعذّر إتمام الدفع. يرجى المحاولة مجدداً.",
+  "@zaincashFailedMessage": {
+    "description": "ZainCash failed message"
+  },
+  "zaincashRetry": "إعادة المحاولة",
+  "@zaincashRetry": {
+    "description": "Retry payment button"
+  },
+  "zaincashGoBack": "العودة",
+  "@zaincashGoBack": {
+    "description": "Go back button"
+  }
 }

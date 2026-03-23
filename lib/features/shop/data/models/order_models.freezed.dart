@@ -290,7 +290,7 @@ as String,
 /// @nodoc
 mixin _$OrderModel {
 
- String get id;@JsonKey(name: 'product_id') String get productId;@JsonKey(name: 'buyer_id') String get buyerId;@JsonKey(name: 'seller_id') String get sellerId; int get quantity;@JsonKey(name: 'total_price') double get totalPrice; OrderStatus get status;@JsonKey(name: 'shipping_address') ShippingAddress get shippingAddress;@JsonKey(name: 'fulfillment_type') String get fulfillmentType;
+ String get id;@JsonKey(name: 'product_id') String get productId;@JsonKey(name: 'buyer_id') String get buyerId;@JsonKey(name: 'seller_id') String get sellerId; int get quantity;@JsonKey(name: 'total_price') double get totalPrice; OrderStatus get status;@JsonKey(name: 'shipping_address') ShippingAddress get shippingAddress;@JsonKey(name: 'fulfillment_type') String get fulfillmentType;@JsonKey(name: 'payment_url') String? get paymentUrl;@JsonKey(name: 'product_name') String? get productName;@JsonKey(name: 'product_image') String? get productImage;
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -303,16 +303,16 @@ $OrderModelCopyWith<OrderModel> get copyWith => _$OrderModelCopyWithImpl<OrderMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType)&&(identical(other.paymentUrl, paymentUrl) || other.paymentUrl == paymentUrl)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.productImage, productImage) || other.productImage == productImage));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,productId,buyerId,sellerId,quantity,totalPrice,status,shippingAddress,fulfillmentType);
+int get hashCode => Object.hash(runtimeType,id,productId,buyerId,sellerId,quantity,totalPrice,status,shippingAddress,fulfillmentType,paymentUrl,productName,productImage);
 
 @override
 String toString() {
-  return 'OrderModel(id: $id, productId: $productId, buyerId: $buyerId, sellerId: $sellerId, quantity: $quantity, totalPrice: $totalPrice, status: $status, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType)';
+  return 'OrderModel(id: $id, productId: $productId, buyerId: $buyerId, sellerId: $sellerId, quantity: $quantity, totalPrice: $totalPrice, status: $status, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType, paymentUrl: $paymentUrl, productName: $productName, productImage: $productImage)';
 }
 
 
@@ -323,7 +323,7 @@ abstract mixin class $OrderModelCopyWith<$Res>  {
   factory $OrderModelCopyWith(OrderModel value, $Res Function(OrderModel) _then) = _$OrderModelCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'product_id') String productId,@JsonKey(name: 'buyer_id') String buyerId,@JsonKey(name: 'seller_id') String sellerId, int quantity,@JsonKey(name: 'total_price') double totalPrice, OrderStatus status,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType
+ String id,@JsonKey(name: 'product_id') String productId,@JsonKey(name: 'buyer_id') String buyerId,@JsonKey(name: 'seller_id') String sellerId, int quantity,@JsonKey(name: 'total_price') double totalPrice, OrderStatus status,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType,@JsonKey(name: 'payment_url') String? paymentUrl,@JsonKey(name: 'product_name') String? productName,@JsonKey(name: 'product_image') String? productImage
 });
 
 
@@ -340,7 +340,7 @@ class _$OrderModelCopyWithImpl<$Res>
 
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? productId = null,Object? buyerId = null,Object? sellerId = null,Object? quantity = null,Object? totalPrice = null,Object? status = null,Object? shippingAddress = null,Object? fulfillmentType = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? productId = null,Object? buyerId = null,Object? sellerId = null,Object? quantity = null,Object? totalPrice = null,Object? status = null,Object? shippingAddress = null,Object? fulfillmentType = null,Object? paymentUrl = freezed,Object? productName = freezed,Object? productImage = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
@@ -351,7 +351,10 @@ as int,totalPrice: null == totalPrice ? _self.totalPrice : totalPrice // ignore:
 as double,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as OrderStatus,shippingAddress: null == shippingAddress ? _self.shippingAddress : shippingAddress // ignore: cast_nullable_to_non_nullable
 as ShippingAddress,fulfillmentType: null == fulfillmentType ? _self.fulfillmentType : fulfillmentType // ignore: cast_nullable_to_non_nullable
-as String,
+as String,paymentUrl: freezed == paymentUrl ? _self.paymentUrl : paymentUrl // ignore: cast_nullable_to_non_nullable
+as String?,productName: freezed == productName ? _self.productName : productName // ignore: cast_nullable_to_non_nullable
+as String?,productImage: freezed == productImage ? _self.productImage : productImage // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of OrderModel
@@ -445,10 +448,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'buyer_id')  String buyerId, @JsonKey(name: 'seller_id')  String sellerId,  int quantity, @JsonKey(name: 'total_price')  double totalPrice,  OrderStatus status, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'buyer_id')  String buyerId, @JsonKey(name: 'seller_id')  String sellerId,  int quantity, @JsonKey(name: 'total_price')  double totalPrice,  OrderStatus status, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'payment_url')  String? paymentUrl, @JsonKey(name: 'product_name')  String? productName, @JsonKey(name: 'product_image')  String? productImage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OrderModel() when $default != null:
-return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quantity,_that.totalPrice,_that.status,_that.shippingAddress,_that.fulfillmentType);case _:
+return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quantity,_that.totalPrice,_that.status,_that.shippingAddress,_that.fulfillmentType,_that.paymentUrl,_that.productName,_that.productImage);case _:
   return orElse();
 
 }
@@ -466,10 +469,10 @@ return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quan
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'buyer_id')  String buyerId, @JsonKey(name: 'seller_id')  String sellerId,  int quantity, @JsonKey(name: 'total_price')  double totalPrice,  OrderStatus status, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'buyer_id')  String buyerId, @JsonKey(name: 'seller_id')  String sellerId,  int quantity, @JsonKey(name: 'total_price')  double totalPrice,  OrderStatus status, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'payment_url')  String? paymentUrl, @JsonKey(name: 'product_name')  String? productName, @JsonKey(name: 'product_image')  String? productImage)  $default,) {final _that = this;
 switch (_that) {
 case _OrderModel():
-return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quantity,_that.totalPrice,_that.status,_that.shippingAddress,_that.fulfillmentType);case _:
+return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quantity,_that.totalPrice,_that.status,_that.shippingAddress,_that.fulfillmentType,_that.paymentUrl,_that.productName,_that.productImage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -486,10 +489,10 @@ return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quan
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'buyer_id')  String buyerId, @JsonKey(name: 'seller_id')  String sellerId,  int quantity, @JsonKey(name: 'total_price')  double totalPrice,  OrderStatus status, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'buyer_id')  String buyerId, @JsonKey(name: 'seller_id')  String sellerId,  int quantity, @JsonKey(name: 'total_price')  double totalPrice,  OrderStatus status, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'payment_url')  String? paymentUrl, @JsonKey(name: 'product_name')  String? productName, @JsonKey(name: 'product_image')  String? productImage)?  $default,) {final _that = this;
 switch (_that) {
 case _OrderModel() when $default != null:
-return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quantity,_that.totalPrice,_that.status,_that.shippingAddress,_that.fulfillmentType);case _:
+return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quantity,_that.totalPrice,_that.status,_that.shippingAddress,_that.fulfillmentType,_that.paymentUrl,_that.productName,_that.productImage);case _:
   return null;
 
 }
@@ -501,7 +504,7 @@ return $default(_that.id,_that.productId,_that.buyerId,_that.sellerId,_that.quan
 @JsonSerializable()
 
 class _OrderModel implements OrderModel {
-  const _OrderModel({required this.id, @JsonKey(name: 'product_id') required this.productId, @JsonKey(name: 'buyer_id') required this.buyerId, @JsonKey(name: 'seller_id') required this.sellerId, required this.quantity, @JsonKey(name: 'total_price') required this.totalPrice, required this.status, @JsonKey(name: 'shipping_address') required this.shippingAddress, @JsonKey(name: 'fulfillment_type') required this.fulfillmentType});
+  const _OrderModel({required this.id, @JsonKey(name: 'product_id') required this.productId, @JsonKey(name: 'buyer_id') required this.buyerId, @JsonKey(name: 'seller_id') required this.sellerId, required this.quantity, @JsonKey(name: 'total_price') required this.totalPrice, required this.status, @JsonKey(name: 'shipping_address') required this.shippingAddress, @JsonKey(name: 'fulfillment_type') required this.fulfillmentType, @JsonKey(name: 'payment_url') this.paymentUrl, @JsonKey(name: 'product_name') this.productName, @JsonKey(name: 'product_image') this.productImage});
   factory _OrderModel.fromJson(Map<String, dynamic> json) => _$OrderModelFromJson(json);
 
 @override final  String id;
@@ -513,6 +516,9 @@ class _OrderModel implements OrderModel {
 @override final  OrderStatus status;
 @override@JsonKey(name: 'shipping_address') final  ShippingAddress shippingAddress;
 @override@JsonKey(name: 'fulfillment_type') final  String fulfillmentType;
+@override@JsonKey(name: 'payment_url') final  String? paymentUrl;
+@override@JsonKey(name: 'product_name') final  String? productName;
+@override@JsonKey(name: 'product_image') final  String? productImage;
 
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
@@ -527,16 +533,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.totalPrice, totalPrice) || other.totalPrice == totalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType)&&(identical(other.paymentUrl, paymentUrl) || other.paymentUrl == paymentUrl)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.productImage, productImage) || other.productImage == productImage));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,productId,buyerId,sellerId,quantity,totalPrice,status,shippingAddress,fulfillmentType);
+int get hashCode => Object.hash(runtimeType,id,productId,buyerId,sellerId,quantity,totalPrice,status,shippingAddress,fulfillmentType,paymentUrl,productName,productImage);
 
 @override
 String toString() {
-  return 'OrderModel(id: $id, productId: $productId, buyerId: $buyerId, sellerId: $sellerId, quantity: $quantity, totalPrice: $totalPrice, status: $status, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType)';
+  return 'OrderModel(id: $id, productId: $productId, buyerId: $buyerId, sellerId: $sellerId, quantity: $quantity, totalPrice: $totalPrice, status: $status, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType, paymentUrl: $paymentUrl, productName: $productName, productImage: $productImage)';
 }
 
 
@@ -547,7 +553,7 @@ abstract mixin class _$OrderModelCopyWith<$Res> implements $OrderModelCopyWith<$
   factory _$OrderModelCopyWith(_OrderModel value, $Res Function(_OrderModel) _then) = __$OrderModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'product_id') String productId,@JsonKey(name: 'buyer_id') String buyerId,@JsonKey(name: 'seller_id') String sellerId, int quantity,@JsonKey(name: 'total_price') double totalPrice, OrderStatus status,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType
+ String id,@JsonKey(name: 'product_id') String productId,@JsonKey(name: 'buyer_id') String buyerId,@JsonKey(name: 'seller_id') String sellerId, int quantity,@JsonKey(name: 'total_price') double totalPrice, OrderStatus status,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType,@JsonKey(name: 'payment_url') String? paymentUrl,@JsonKey(name: 'product_name') String? productName,@JsonKey(name: 'product_image') String? productImage
 });
 
 
@@ -564,7 +570,7 @@ class __$OrderModelCopyWithImpl<$Res>
 
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? productId = null,Object? buyerId = null,Object? sellerId = null,Object? quantity = null,Object? totalPrice = null,Object? status = null,Object? shippingAddress = null,Object? fulfillmentType = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? productId = null,Object? buyerId = null,Object? sellerId = null,Object? quantity = null,Object? totalPrice = null,Object? status = null,Object? shippingAddress = null,Object? fulfillmentType = null,Object? paymentUrl = freezed,Object? productName = freezed,Object? productImage = freezed,}) {
   return _then(_OrderModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
@@ -575,7 +581,10 @@ as int,totalPrice: null == totalPrice ? _self.totalPrice : totalPrice // ignore:
 as double,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as OrderStatus,shippingAddress: null == shippingAddress ? _self.shippingAddress : shippingAddress // ignore: cast_nullable_to_non_nullable
 as ShippingAddress,fulfillmentType: null == fulfillmentType ? _self.fulfillmentType : fulfillmentType // ignore: cast_nullable_to_non_nullable
-as String,
+as String,paymentUrl: freezed == paymentUrl ? _self.paymentUrl : paymentUrl // ignore: cast_nullable_to_non_nullable
+as String?,productName: freezed == productName ? _self.productName : productName // ignore: cast_nullable_to_non_nullable
+as String?,productImage: freezed == productImage ? _self.productImage : productImage // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -595,7 +604,7 @@ $ShippingAddressCopyWith<$Res> get shippingAddress {
 /// @nodoc
 mixin _$BuyProductRequest {
 
-@JsonKey(name: 'product_id') String get productId; int get quantity;@JsonKey(name: 'shipping_address') ShippingAddress get shippingAddress;@JsonKey(name: 'fulfillment_type') String get fulfillmentType;@JsonKey(name: 'app_context') String? get appContext;
+@JsonKey(name: 'product_id') String get productId; int get quantity;@JsonKey(name: 'shipping_address') ShippingAddress get shippingAddress;@JsonKey(name: 'fulfillment_type') String get fulfillmentType;@JsonKey(name: 'app_context') String? get appContext;@JsonKey(name: 'payment_method') String? get paymentMethod;
 /// Create a copy of BuyProductRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -608,16 +617,16 @@ $BuyProductRequestCopyWith<BuyProductRequest> get copyWith => _$BuyProductReques
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyProductRequest&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType)&&(identical(other.appContext, appContext) || other.appContext == appContext));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyProductRequest&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType)&&(identical(other.appContext, appContext) || other.appContext == appContext)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productId,quantity,shippingAddress,fulfillmentType,appContext);
+int get hashCode => Object.hash(runtimeType,productId,quantity,shippingAddress,fulfillmentType,appContext,paymentMethod);
 
 @override
 String toString() {
-  return 'BuyProductRequest(productId: $productId, quantity: $quantity, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType, appContext: $appContext)';
+  return 'BuyProductRequest(productId: $productId, quantity: $quantity, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType, appContext: $appContext, paymentMethod: $paymentMethod)';
 }
 
 
@@ -628,7 +637,7 @@ abstract mixin class $BuyProductRequestCopyWith<$Res>  {
   factory $BuyProductRequestCopyWith(BuyProductRequest value, $Res Function(BuyProductRequest) _then) = _$BuyProductRequestCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'product_id') String productId, int quantity,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType,@JsonKey(name: 'app_context') String? appContext
+@JsonKey(name: 'product_id') String productId, int quantity,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType,@JsonKey(name: 'app_context') String? appContext,@JsonKey(name: 'payment_method') String? paymentMethod
 });
 
 
@@ -645,13 +654,14 @@ class _$BuyProductRequestCopyWithImpl<$Res>
 
 /// Create a copy of BuyProductRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? productId = null,Object? quantity = null,Object? shippingAddress = null,Object? fulfillmentType = null,Object? appContext = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? productId = null,Object? quantity = null,Object? shippingAddress = null,Object? fulfillmentType = null,Object? appContext = freezed,Object? paymentMethod = freezed,}) {
   return _then(_self.copyWith(
 productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,shippingAddress: null == shippingAddress ? _self.shippingAddress : shippingAddress // ignore: cast_nullable_to_non_nullable
 as ShippingAddress,fulfillmentType: null == fulfillmentType ? _self.fulfillmentType : fulfillmentType // ignore: cast_nullable_to_non_nullable
 as String,appContext: freezed == appContext ? _self.appContext : appContext // ignore: cast_nullable_to_non_nullable
+as String?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -746,10 +756,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext, @JsonKey(name: 'payment_method')  String? paymentMethod)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BuyProductRequest() when $default != null:
-return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext);case _:
+return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext,_that.paymentMethod);case _:
   return orElse();
 
 }
@@ -767,10 +777,10 @@ return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext, @JsonKey(name: 'payment_method')  String? paymentMethod)  $default,) {final _that = this;
 switch (_that) {
 case _BuyProductRequest():
-return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext);case _:
+return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext,_that.paymentMethod);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -787,10 +797,10 @@ return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'product_id')  String productId,  int quantity, @JsonKey(name: 'shipping_address')  ShippingAddress shippingAddress, @JsonKey(name: 'fulfillment_type')  String fulfillmentType, @JsonKey(name: 'app_context')  String? appContext, @JsonKey(name: 'payment_method')  String? paymentMethod)?  $default,) {final _that = this;
 switch (_that) {
 case _BuyProductRequest() when $default != null:
-return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext);case _:
+return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfillmentType,_that.appContext,_that.paymentMethod);case _:
   return null;
 
 }
@@ -802,7 +812,7 @@ return $default(_that.productId,_that.quantity,_that.shippingAddress,_that.fulfi
 @JsonSerializable()
 
 class _BuyProductRequest implements BuyProductRequest {
-  const _BuyProductRequest({@JsonKey(name: 'product_id') required this.productId, required this.quantity, @JsonKey(name: 'shipping_address') required this.shippingAddress, @JsonKey(name: 'fulfillment_type') required this.fulfillmentType, @JsonKey(name: 'app_context') this.appContext});
+  const _BuyProductRequest({@JsonKey(name: 'product_id') required this.productId, required this.quantity, @JsonKey(name: 'shipping_address') required this.shippingAddress, @JsonKey(name: 'fulfillment_type') required this.fulfillmentType, @JsonKey(name: 'app_context') this.appContext, @JsonKey(name: 'payment_method') this.paymentMethod});
   factory _BuyProductRequest.fromJson(Map<String, dynamic> json) => _$BuyProductRequestFromJson(json);
 
 @override@JsonKey(name: 'product_id') final  String productId;
@@ -810,6 +820,7 @@ class _BuyProductRequest implements BuyProductRequest {
 @override@JsonKey(name: 'shipping_address') final  ShippingAddress shippingAddress;
 @override@JsonKey(name: 'fulfillment_type') final  String fulfillmentType;
 @override@JsonKey(name: 'app_context') final  String? appContext;
+@override@JsonKey(name: 'payment_method') final  String? paymentMethod;
 
 /// Create a copy of BuyProductRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -824,16 +835,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyProductRequest&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType)&&(identical(other.appContext, appContext) || other.appContext == appContext));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyProductRequest&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.shippingAddress, shippingAddress) || other.shippingAddress == shippingAddress)&&(identical(other.fulfillmentType, fulfillmentType) || other.fulfillmentType == fulfillmentType)&&(identical(other.appContext, appContext) || other.appContext == appContext)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,productId,quantity,shippingAddress,fulfillmentType,appContext);
+int get hashCode => Object.hash(runtimeType,productId,quantity,shippingAddress,fulfillmentType,appContext,paymentMethod);
 
 @override
 String toString() {
-  return 'BuyProductRequest(productId: $productId, quantity: $quantity, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType, appContext: $appContext)';
+  return 'BuyProductRequest(productId: $productId, quantity: $quantity, shippingAddress: $shippingAddress, fulfillmentType: $fulfillmentType, appContext: $appContext, paymentMethod: $paymentMethod)';
 }
 
 
@@ -844,7 +855,7 @@ abstract mixin class _$BuyProductRequestCopyWith<$Res> implements $BuyProductReq
   factory _$BuyProductRequestCopyWith(_BuyProductRequest value, $Res Function(_BuyProductRequest) _then) = __$BuyProductRequestCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'product_id') String productId, int quantity,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType,@JsonKey(name: 'app_context') String? appContext
+@JsonKey(name: 'product_id') String productId, int quantity,@JsonKey(name: 'shipping_address') ShippingAddress shippingAddress,@JsonKey(name: 'fulfillment_type') String fulfillmentType,@JsonKey(name: 'app_context') String? appContext,@JsonKey(name: 'payment_method') String? paymentMethod
 });
 
 
@@ -861,13 +872,14 @@ class __$BuyProductRequestCopyWithImpl<$Res>
 
 /// Create a copy of BuyProductRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? productId = null,Object? quantity = null,Object? shippingAddress = null,Object? fulfillmentType = null,Object? appContext = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? productId = null,Object? quantity = null,Object? shippingAddress = null,Object? fulfillmentType = null,Object? appContext = freezed,Object? paymentMethod = freezed,}) {
   return _then(_BuyProductRequest(
 productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,shippingAddress: null == shippingAddress ? _self.shippingAddress : shippingAddress // ignore: cast_nullable_to_non_nullable
 as ShippingAddress,fulfillmentType: null == fulfillmentType ? _self.fulfillmentType : fulfillmentType // ignore: cast_nullable_to_non_nullable
 as String,appContext: freezed == appContext ? _self.appContext : appContext // ignore: cast_nullable_to_non_nullable
+as String?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

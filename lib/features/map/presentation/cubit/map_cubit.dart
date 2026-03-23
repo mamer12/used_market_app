@@ -1,9 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:injectable/injectable.dart';
 
 import '../../data/models/shop_nearby_model.dart';
+import '../../domain/repositories/map_repository.dart';
 
 // ── States ──────────────────────────────────────────────────────────────────
 
@@ -37,10 +38,11 @@ class MapError extends MapState {
 
 // ── Cubit ───────────────────────────────────────────────────────────────────
 
+@injectable
 class MapCubit extends Cubit<MapState> {
-  final Dio _dio;
+  final MapRepository _repository;
 
-  MapCubit(this._dio) : super(MapInitial());
+  MapCubit(this._repository) : super(MapInitial());
 
   /// Determine current location and load nearby shops.
   Future<void> loadNearbyShops({int radiusMeters = 5000}) async {
@@ -85,27 +87,12 @@ class MapCubit extends Cubit<MapState> {
     int radiusMeters = 5000,
   }) async {
     try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        'shops',
-        queryParameters: {
-          'lat': lat,
-          'lng': lng,
-          'radius': radiusMeters,
-        },
+      final shops = await _repository.getNearbyShops(
+        lat: lat,
+        lng: lng,
+        radiusMeters: radiusMeters,
       );
-
-      if (isClosed) return;
-
-      if (res.statusCode == 200) {
-        final data = (res.data?['data'] as List?) ?? [];
-        final shops = data
-            .map((e) =>
-                ShopNearbyModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        emit(MapLoaded(shops, lat: lat, lng: lng));
-      } else {
-        emit(MapError('فشل تحميل المحلات'));
-      }
+      if (!isClosed) emit(MapLoaded(shops, lat: lat, lng: lng));
     } catch (e) {
       if (!isClosed) emit(MapError(e.toString()));
     }

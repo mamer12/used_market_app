@@ -1,8 +1,9 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 
 import '../../data/models/group_buy_model.dart';
+import '../../domain/repositories/group_buy_repository.dart';
 
 // ── States ────────────────────────────────────────────────────────────────────
 
@@ -44,62 +45,40 @@ class GroupBuyError extends GroupBuyState {
 
 // ── Cubit ─────────────────────────────────────────────────────────────────────
 
+@injectable
 class GroupBuyCubit extends Cubit<GroupBuyState> {
-  final Dio _dio;
+  final GroupBuyRepository _repository;
 
-  GroupBuyCubit(this._dio) : super(GroupBuyInitial());
+  GroupBuyCubit(this._repository) : super(GroupBuyInitial());
 
   Future<void> fetchGroupBuy(String id) async {
     emit(GroupBuyLoading());
     try {
-      final res =
-          await _dio.get<Map<String, dynamic>>('group-buys/$id');
-      if (res.statusCode == 200 && res.data != null) {
-        final data = res.data!['data'] as Map<String, dynamic>? ?? res.data!;
-        emit(GroupBuyLoaded(GroupBuyModel.fromJson(data)));
-      } else {
-        emit(GroupBuyError('فشل تحميل الشلة'));
-      }
-    } on DioException catch (e) {
-      emit(GroupBuyError(e.message ?? 'حدث خطأ'));
+      final groupBuy = await _repository.getGroupBuy(id);
+      emit(GroupBuyLoaded(groupBuy));
+    } catch (e) {
+      emit(GroupBuyError(e.toString()));
     }
   }
 
   Future<void> joinGroupBuy(String id) async {
     emit(GroupBuyLoading());
     try {
-      final res =
-          await _dio.post<Map<String, dynamic>>('group-buys/$id/join');
-      if ((res.statusCode == 200 || res.statusCode == 201) &&
-          res.data != null) {
-        final data = res.data!['data'] as Map<String, dynamic>? ?? res.data!;
-        emit(GroupBuyJoined(GroupBuyModel.fromJson(data)));
-      } else {
-        emit(GroupBuyError('فشل الانضمام إلى الشلة'));
-      }
-    } on DioException catch (e) {
-      emit(GroupBuyError(e.message ?? 'حدث خطأ'));
+      final groupBuy = await _repository.joinGroupBuy(id);
+      emit(GroupBuyJoined(groupBuy));
+    } catch (e) {
+      emit(GroupBuyError(e.toString()));
     }
   }
 
   Future<GroupBuyModel?> createGroupBuy(String productId) async {
     emit(GroupBuyLoading());
     try {
-      final res = await _dio.post<Map<String, dynamic>>(
-        'group-buys',
-        data: {'product_id': productId},
-      );
-      if (res.statusCode == 201 && res.data != null) {
-        final data = res.data!['data'] as Map<String, dynamic>? ?? res.data!;
-        final model = GroupBuyModel.fromJson(data);
-        emit(GroupBuyLoaded(model));
-        return model;
-      } else {
-        emit(GroupBuyError('فشل إنشاء الشلة'));
-        return null;
-      }
-    } on DioException catch (e) {
-      emit(GroupBuyError(e.message ?? 'حدث خطأ'));
+      final model = await _repository.createGroupBuy(productId);
+      emit(GroupBuyLoaded(model));
+      return model;
+    } catch (e) {
+      emit(GroupBuyError(e.toString()));
       return null;
     }
   }

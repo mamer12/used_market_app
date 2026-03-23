@@ -4,16 +4,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../cart/presentation/bloc/cart_context.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../data/models/order_models.dart';
 import '../../data/models/shop_models.dart';
-import '../bloc/order_cubit.dart';
+import '../bloc/checkout_cubit.dart';
 
 // ── Matajir design tokens ──────────────────────────────────────────────────
 const _kBg = Color(0xFFFAFAFA);
@@ -48,6 +50,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedPayment = 'ZAIN_CASH';
   String _fulfillmentType = 'delivery';
   final _promoCtrl = TextEditingController();
+  bool _showEscrowSuccess = false;
 
   // ── Cart quantities (product.id → qty) ───────────────────────────────
   late final Map<String, int> _quantities;
@@ -84,7 +87,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Order submission ──────────────────────────────────────────────────
 
-  void _processPayment() {
+  void _processPayment(BuildContext context) {
     if (_fulfillmentType == 'delivery' && !_formKey.currentState!.validate()) {
       return;
     }
@@ -102,18 +105,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ? targetCubit.appContext.apiValue
         : null;
 
+    // Map UI payment selection to API payment_method value
+    final paymentMethod = _selectedPayment == 'COD' ? 'cod' : 'zaincash';
+
     final request = BuyProductRequest(
       productId: widget.products.first.id,
       quantity: _quantities[widget.products.first.id] ?? 1,
       shippingAddress: shippingAddress,
       fulfillmentType: _fulfillmentType,
       appContext: appContext,
+      paymentMethod: paymentMethod,
     );
 
     unawaited(
-      context.read<OrderCubit>().buyProduct(
+      context.read<CheckoutCubit>().placeOrder(
             request,
-            isCOD: _selectedPayment == 'COD',
+            paymentMethod: paymentMethod,
           ),
     );
   }
@@ -122,30 +129,47 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final cartCount = widget.products.length;
 
     return BlocProvider(
-      create: (_) => getIt<OrderCubit>(),
-      child: BlocListener<OrderCubit, OrderState>(
+      create: (_) => getIt<CheckoutCubit>(),
+      child: BlocListener<CheckoutCubit, CheckoutState>(
         listener: (context, state) {
-          if (state.status == OrderProcessStatus.success) {
-            final targetCubit = widget.cartCubit ?? context.read<CartCubit>();
+          if (state.status == CheckoutProcessStatus.success) {
+            final targetCubit =
+                widget.cartCubit ?? context.read<CartCubit>();
             targetCubit.clearCart();
-            Navigator.of(context).pop();
+
+            if (state.paymentMethod == 'cod') {
+              // COD: show escrow success badge, then navigate to tracking
+              setState(() => _showEscrowSuccess = true);
+              Future.delayed(const Duration(seconds: 2), () {
+                if (mounted) {
+                  context.go('/orders/${state.orderId}/tracking');
+                }
+              });
+            } else {
+              // ZainCash: navigate to payment WebView
+              if (state.paymentUrl != null &&
+                  state.paymentUrl!.isNotEmpty) {
+                context.push(
+                  '/payment/zaincash',
+                  extra: {
+                    'orderId': state.orderId,
+                    'paymentUrl': state.paymentUrl,
+                  },
+                );
+              } else {
+                // Fallback: go directly to order tracking
+                context.go('/orders/${state.orderId}/tracking');
+              }
+            }
+          } else if (state.status == CheckoutProcessStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'تم تقديم الطلب بنجاح!',
-                  style: GoogleFonts.cairo(),
-                ),
-                backgroundColor: _kGreen,
-              ),
-            );
-          } else if (state.status == OrderProcessStatus.error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.error ?? 'فشل إتمام الطلب',
+                  state.error ?? l10n.checkoutErrorGeneral,
                   style: GoogleFonts.cairo(),
                 ),
                 backgroundColor: AppTheme.error,
@@ -153,55 +177,53 @@ class _CheckoutPageState extends State<CheckoutPage> {
             );
           }
         },
-        child: BlocBuilder<OrderCubit, OrderState>(
+        child: BlocBuilder<CheckoutCubit, CheckoutState>(
           builder: (context, state) {
-            final isLoading = state.status == OrderProcessStatus.loading;
+            final isLoading =
+                state.status == CheckoutProcessStatus.loading;
 
             if (widget.products.isEmpty) {
               return Scaffold(
                 backgroundColor: _kBg,
-                appBar: _buildAppBar(cartCount),
-                body: _buildEmptyCart(context),
+                appBar: _buildAppBar(cartCount, l10n),
+                body: _buildEmptyCart(context, l10n),
               );
             }
 
             return Scaffold(
               backgroundColor: _kBg,
-              appBar: _buildAppBar(cartCount),
+              appBar: _buildAppBar(cartCount, l10n),
               body: SafeArea(
                 bottom: false,
-                child: Form(
-                  key: _formKey,
-                  child: ListView(
-                    padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
-                    children: [
-                      // Cart items list
-                      _buildCartItemsList(),
-                      SizedBox(height: 16.h),
-
-                      // Promo code
-                      _buildPromoSection(),
-                      SizedBox(height: 16.h),
-
-                      // Order summary
-                      _buildOrderSummaryCard(),
-                      SizedBox(height: 16.h),
-
-                      // Escrow notice
-                      _buildEscrowBanner(),
-                      SizedBox(height: 16.h),
-
-                      // Delivery address
-                      _buildDeliverySection(),
-                      SizedBox(height: 16.h),
-
-                      // Payment method
-                      _buildPaymentSection(),
-                    ],
-                  ),
+                child: Stack(
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: ListView(
+                        padding:
+                            EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
+                        children: [
+                          _buildCartItemsList(l10n),
+                          SizedBox(height: 16.h),
+                          _buildPromoSection(l10n),
+                          SizedBox(height: 16.h),
+                          _buildOrderSummaryCard(l10n),
+                          SizedBox(height: 16.h),
+                          _buildEscrowBanner(l10n),
+                          SizedBox(height: 16.h),
+                          _buildDeliverySection(l10n),
+                          SizedBox(height: 16.h),
+                          _buildPaymentSection(l10n),
+                        ],
+                      ),
+                    ),
+                    // Escrow success overlay
+                    if (_showEscrowSuccess) _buildEscrowSuccessOverlay(l10n),
+                  ],
                 ),
               ),
-              bottomNavigationBar: _buildStickyCheckoutButton(isLoading),
+              bottomNavigationBar:
+                  _buildStickyCheckoutButton(context, isLoading, l10n),
             );
           },
         ),
@@ -209,9 +231,78 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  // ── Escrow success overlay ──────────────────────────────────────────────
+
+  Widget _buildEscrowSuccessOverlay(AppLocalizations l10n) {
+    return Container(
+      color: _kBg.withValues(alpha: 0.95),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80.w,
+              height: 80.w,
+              decoration: BoxDecoration(
+                color: _kEscrow.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.lock_rounded, color: _kEscrow, size: 40.sp),
+            ),
+            SizedBox(height: 24.h),
+            Container(
+              margin: EdgeInsetsDirectional.symmetric(horizontal: 24.w),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+              decoration: BoxDecoration(
+                color: _kEscrow.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: _kEscrow.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.verified_rounded, color: _kEscrow, size: 20.sp),
+                  SizedBox(width: 10.w),
+                  Flexible(
+                    child: Text(
+                      l10n.checkoutEscrowSuccessBadge,
+                      style: GoogleFonts.cairo(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: _kEscrow,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              l10n.checkoutOrderSuccess,
+              style: GoogleFonts.cairo(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: _kTextPrimary,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            SizedBox(
+              width: 24.w,
+              height: 24.w,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                color: _kPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── AppBar ────────────────────────────────────────────────────────────
 
-  AppBar _buildAppBar(int cartCount) {
+  AppBar _buildAppBar(int cartCount, AppLocalizations l10n) {
     return AppBar(
       backgroundColor: _kSurface,
       elevation: 0,
@@ -223,7 +314,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         onPressed: () => Navigator.maybePop(context),
       ),
       title: Text(
-        'سلة التسوق ($cartCount)',
+        '${l10n.checkoutCartTitle} ($cartCount)',
         style: GoogleFonts.cairo(
           fontSize: 18.sp,
           fontWeight: FontWeight.w700,
@@ -235,7 +326,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Empty state ───────────────────────────────────────────────────────
 
-  Widget _buildEmptyCart(BuildContext context) {
+  Widget _buildEmptyCart(BuildContext context, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -247,7 +338,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
           SizedBox(height: 16.h),
           Text(
-            'سلتك فارغة',
+            l10n.cartEmpty,
             style: GoogleFonts.cairo(
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
@@ -256,7 +347,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
           SizedBox(height: 8.h),
           Text(
-            'أضف منتجات من المتاجر',
+            l10n.cartEmptySub,
             style: GoogleFonts.cairo(
               fontSize: 14.sp,
               color: _kTextSecondary,
@@ -272,7 +363,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 borderRadius: BorderRadius.circular(999.r),
               ),
               child: Text(
-                'تصفح المنتجات',
+                l10n.checkoutBrowseProducts,
                 style: GoogleFonts.cairo(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
@@ -288,7 +379,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Cart items list ───────────────────────────────────────────────────
 
-  Widget _buildCartItemsList() {
+  Widget _buildCartItemsList(AppLocalizations l10n) {
     return Column(
       children: widget.products.map((product) {
         return Padding(
@@ -313,7 +404,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Promo code ────────────────────────────────────────────────────────
 
-  Widget _buildPromoSection() {
+  Widget _buildPromoSection(AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
         color: _kSurface,
@@ -329,7 +420,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               style: GoogleFonts.cairo(fontSize: 14.sp, color: _kTextPrimary),
               textDirection: TextDirection.rtl,
               decoration: InputDecoration(
-                hintText: 'كود الخصم',
+                hintText: l10n.checkoutPromoHint,
                 hintStyle: GoogleFonts.cairo(
                     fontSize: 14.sp, color: _kTextSecondary),
                 border: InputBorder.none,
@@ -352,7 +443,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 borderRadius: BorderRadius.circular(999.r),
               ),
               child: Text(
-                'تطبيق',
+                l10n.checkoutPromoApply,
                 style: GoogleFonts.cairo(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
@@ -368,9 +459,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Order summary card ────────────────────────────────────────────────
 
-  Widget _buildOrderSummaryCard() {
+  Widget _buildOrderSummaryCard(AppLocalizations l10n) {
     final deliveryText = _deliveryFee == 0
-        ? 'مجاني'
+        ? l10n.checkoutFreeDelivery
         : IqdFormatter.format(_deliveryFee);
 
     return Container(
@@ -384,7 +475,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'ملخص الطلب',
+            l10n.checkoutOrderSummary,
             style: GoogleFonts.cairo(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
@@ -393,17 +484,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
           SizedBox(height: 14.h),
           _SummaryRow(
-            label: 'المجموع الفرعي',
+            label: l10n.checkoutSubtotal,
             value: IqdFormatter.format(_subtotal),
           ),
           SizedBox(height: 10.h),
           _SummaryRow(
-            label: 'رسوم التوصيل',
+            label: l10n.checkoutDeliveryFee,
             value: deliveryText,
           ),
           SizedBox(height: 10.h),
           _SummaryRow(
-            label: 'رسوم ضمان مضمون ٢٪',
+            label: l10n.checkoutEscrowFee,
             value: IqdFormatter.format(_escrowFee),
             valueColor: _kGreen,
           ),
@@ -414,7 +505,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'الإجمالي',
+                l10n.checkoutTotal,
                 style: GoogleFonts.cairo(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
@@ -438,7 +529,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Escrow notice ─────────────────────────────────────────────────────
 
-  Widget _buildEscrowBanner() {
+  Widget _buildEscrowBanner(AppLocalizations l10n) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
@@ -452,7 +543,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           SizedBox(width: 12.w),
           Expanded(
             child: Text(
-              'مبلغك محجوز في أمانة مضمون حتى تستلم طلبك',
+              l10n.checkoutEscrowNotice,
               style: GoogleFonts.cairo(
                 fontSize: 13.sp,
                 color: _kEscrow,
@@ -467,17 +558,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Delivery section ──────────────────────────────────────────────────
 
-  Widget _buildDeliverySection() {
+  Widget _buildDeliverySection(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Fulfillment toggle
         Row(
           children: [
             Expanded(
               child: _FulfillmentOption(
                 value: 'delivery',
-                label: 'توصيل للمنزل',
+                label: l10n.checkoutDeliveryHome,
                 icon: Icons.local_shipping_outlined,
                 selected: _fulfillmentType == 'delivery',
                 onTap: () => setState(() => _fulfillmentType = 'delivery'),
@@ -487,7 +577,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             Expanded(
               child: _FulfillmentOption(
                 value: 'pickup',
-                label: 'استلام من المتجر',
+                label: l10n.checkoutPickupStore,
                 icon: Icons.storefront_outlined,
                 selected: _fulfillmentType == 'pickup',
                 onTap: () => setState(() => _fulfillmentType = 'pickup'),
@@ -495,10 +585,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
           ],
         ),
-
         if (_fulfillmentType == 'delivery') ...[
           SizedBox(height: 14.h),
-          // Address card
           Container(
             decoration: BoxDecoration(
               color: _kSurface,
@@ -515,28 +603,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         color: _kPrimary, size: 18.sp),
                     SizedBox(width: 8.w),
                     Text(
-                      'عنوان التوصيل',
+                      l10n.checkoutDeliveryAddress,
                       style: GoogleFonts.cairo(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
                         color: _kTextPrimary,
-                      ),
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Text(
-                        'تغيير',
-                        style: GoogleFonts.cairo(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w600,
-                          color: _kPrimary,
-                        ),
                       ),
                     ),
                   ],
@@ -547,7 +618,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     Expanded(
                       child: _buildTextField(
                         controller: _cityCtrl,
-                        label: 'المدينة',
+                        label: l10n.checkoutCity,
                         icon: Icons.location_city_outlined,
                       ),
                     ),
@@ -555,7 +626,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     Expanded(
                       child: _buildTextField(
                         controller: _districtCtrl,
-                        label: 'الحي',
+                        label: l10n.checkoutDistrict,
                         icon: Icons.map_outlined,
                       ),
                     ),
@@ -568,7 +639,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       flex: 2,
                       child: _buildTextField(
                         controller: _streetCtrl,
-                        label: 'الشارع',
+                        label: l10n.checkoutStreet,
                         icon: Icons.add_road_outlined,
                       ),
                     ),
@@ -576,7 +647,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     Expanded(
                       child: _buildTextField(
                         controller: _buildingCtrl,
-                        label: 'البناية',
+                        label: l10n.checkoutBuilding,
                         icon: Icons.apartment_outlined,
                       ),
                     ),
@@ -585,7 +656,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 SizedBox(height: 12.h),
                 _buildTextField(
                   controller: _phoneCtrl,
-                  label: 'رقم الهاتف',
+                  label: l10n.checkoutPhone,
                   icon: Icons.phone_android_rounded,
                   keyboardType: TextInputType.phone,
                 ),
@@ -608,7 +679,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: Text(
-                    'سيتم حجز مبلغك في الأمانة حتى تمسح QR المتجر عند الاستلام.',
+                    l10n.checkoutPickupEscrowNote,
                     style: GoogleFonts.cairo(
                       fontSize: 13.sp,
                       color: _kTextPrimary,
@@ -625,12 +696,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Payment section ───────────────────────────────────────────────────
 
-  Widget _buildPaymentSection() {
+  Widget _buildPaymentSection(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'طريقة الدفع',
+          l10n.checkoutPaymentMethod,
           style: GoogleFonts.cairo(
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
@@ -646,15 +717,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
         SizedBox(height: 10.h),
         _buildPaymentOption(
-          'FIB',
-          'First Iraqi Bank',
-          Icons.account_balance_rounded,
-          _kPrimary,
-        ),
-        SizedBox(height: 10.h),
-        _buildPaymentOption(
           'COD',
-          'الدفع عند الاستلام',
+          l10n.checkoutCOD,
           Icons.local_shipping_outlined,
           _kGreen,
         ),
@@ -719,9 +783,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     required IconData icon,
     TextInputType? keyboardType,
   }) {
+    final l10n = AppLocalizations.of(context);
     return TextFormField(
       controller: controller,
-      validator: (v) => (v == null || v.isEmpty) ? 'مطلوب' : null,
+      validator: (v) =>
+          (v == null || v.isEmpty) ? l10n.checkoutFieldRequired : null,
       keyboardType: keyboardType,
       textDirection: TextDirection.rtl,
       style: GoogleFonts.cairo(fontSize: 14.sp, color: _kTextPrimary),
@@ -756,14 +822,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Sticky checkout button ────────────────────────────────────────────
 
-  Widget _buildStickyCheckoutButton(bool isLoading) {
+  Widget _buildStickyCheckoutButton(
+    BuildContext context,
+    bool isLoading,
+    AppLocalizations l10n,
+  ) {
     return SafeArea(
       top: false,
       child: Container(
         color: _kSurface,
         padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
         child: GestureDetector(
-          onTap: isLoading ? null : _processPayment,
+          onTap: isLoading ? null : () => _processPayment(context),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             height: 52.h,
@@ -793,7 +863,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                     )
                   : Text(
-                      'إتمام الطلب',
+                      l10n.checkoutBtn,
                       style: GoogleFonts.cairo(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
@@ -849,7 +919,6 @@ class _CartItemRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product image
             ClipRRect(
               borderRadius: BorderRadius.circular(10.r),
               child: SizedBox(
@@ -859,10 +928,10 @@ class _CartItemRow extends StatelessWidget {
                     ? CachedNetworkImage(
                         imageUrl: product.images.first,
                         fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
+                        placeholder: (_, __) => Container(
                           color: AppTheme.shimmerBase,
                         ),
-                        errorWidget: (context, url, err) => Container(
+                        errorWidget: (_, __, ___) => Container(
                           color: AppTheme.shimmerBase,
                           child: Icon(Icons.image_outlined,
                               color: _kTextSecondary, size: 24.sp),
@@ -876,13 +945,10 @@ class _CartItemRow extends StatelessWidget {
               ),
             ),
             SizedBox(width: 12.w),
-
-            // Info & controls
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Name
                   Text(
                     product.name,
                     style: GoogleFonts.cairo(
@@ -894,7 +960,6 @@ class _CartItemRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 2.h),
-                  // Variant subtitle
                   Text(
                     product.salesUnit == 'piece' ? 'قطعة' : product.salesUnit,
                     style: GoogleFonts.cairo(
@@ -903,14 +968,13 @@ class _CartItemRow extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 4.h),
-                  // Madhmoon badge
                   Row(
                     children: [
                       Icon(Icons.verified_rounded,
                           color: _kGreen, size: 11.sp),
                       SizedBox(width: 3.w),
                       Text(
-                        'مضمون ✓',
+                        'مضمون',
                         style: GoogleFonts.cairo(
                           fontSize: 10.sp,
                           color: _kGreen,
@@ -923,7 +987,6 @@ class _CartItemRow extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Price
                       Text(
                         IqdFormatter.format(product.price),
                         style: GoogleFonts.cairo(
@@ -932,7 +995,6 @@ class _CartItemRow extends StatelessWidget {
                           color: _kPrimary,
                         ),
                       ),
-                      // Quantity stepper
                       _QuantityStepper(
                         quantity: quantity,
                         onDecrement: () {
@@ -945,8 +1007,6 @@ class _CartItemRow extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Delete button
             IconButton(
               onPressed: onDelete,
               icon: Icon(Icons.delete_outline_rounded,

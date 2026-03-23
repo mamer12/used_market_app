@@ -423,6 +423,8 @@ class _NotificationsPageState extends State<NotificationsPage>
       OrderStatus.fundsReleased => ('مكتمل', Colors.green),
       OrderStatus.pendingCODFulfillment => ('قيد المعالجة', Colors.orange),
       OrderStatus.deliveredAndCashCollected => ('مكتمل', Colors.green),
+      OrderStatus.disputed => ('نزاع', Colors.red),
+      OrderStatus.refunded => ('مسترد', Colors.orange),
     };
   }
 
@@ -435,6 +437,8 @@ class _NotificationsPageState extends State<NotificationsPage>
       OrderStatus.fundsReleased => Icons.verified_rounded,
       OrderStatus.pendingCODFulfillment => Icons.delivery_dining_rounded,
       OrderStatus.deliveredAndCashCollected => Icons.done_all_rounded,
+      OrderStatus.disputed => Icons.report_problem_rounded,
+      OrderStatus.refunded => Icons.undo_rounded,
     };
   }
 

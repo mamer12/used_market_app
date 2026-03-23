@@ -12,4 +12,5 @@ abstract class OrderRepository {
     int limit = 20,
   });
   Future<OrderModel> initiateCODCheckout(String orderId);
+  Future<OrderModel> getOrderById(String orderId);
 }

@@ -1,9 +1,9 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/models/story_model.dart';
+import '../../domain/repositories/story_repository.dart';
 
 // ── States ────────────────────────────────────────────────────────────────────
 
@@ -38,45 +38,14 @@ class StoryError extends StoryState {
 
 @injectable
 class StoryCubit extends Cubit<StoryState> {
-  final Dio _dio;
+  final StoryRepository _repository;
 
-  StoryCubit(this._dio) : super(StoryInitial());
+  StoryCubit(this._repository) : super(StoryInitial());
 
   Future<void> fetchFeed() async {
     emit(StoryLoading());
     try {
-      final resp = await _dio.get('/api/v1/stories/feed');
-      final raw = (resp.data['data'] as List?) ?? [];
-
-      final Map<String, StoryGroupModel> grouped = {};
-      for (final item in raw) {
-        final m = item as Map<String, dynamic>;
-        final shopId = m['shop_id'] as String;
-        if (!grouped.containsKey(shopId)) {
-          grouped[shopId] = StoryGroupModel(
-            shopId: shopId,
-            shopName: m['shop_name'] as String? ?? '',
-            shopLogoUrl: m['shop_logo_url'] as String? ?? '',
-            sooqContext: m['sooq_context'] as String? ?? 'matajir',
-            stories: const [],
-            hasUnwatched: false,
-          );
-        }
-        final story = StoryItemModel.fromJson(m);
-        final existing = grouped[shopId]!;
-        grouped[shopId] = StoryGroupModel(
-          shopId: existing.shopId,
-          shopName: existing.shopName,
-          shopLogoUrl: existing.shopLogoUrl,
-          sooqContext: existing.sooqContext,
-          stories: [...existing.stories, story],
-          hasUnwatched: existing.hasUnwatched || !story.isWatched,
-        );
-      }
-
-      final groups = grouped.values.toList()
-        ..sort(
-            (a, b) => (b.hasUnwatched ? 1 : 0) - (a.hasUnwatched ? 1 : 0));
+      final groups = await _repository.getStoryFeed();
       emit(StoriesLoaded(groups));
     } catch (e) {
       emit(StoryError(e.toString()));
@@ -85,7 +54,7 @@ class StoryCubit extends Cubit<StoryState> {
 
   Future<void> markViewed(String storyId) async {
     try {
-      await _dio.post('/api/v1/stories/$storyId/view');
+      await _repository.markViewed(storyId);
     } catch (_) {}
   }
 }

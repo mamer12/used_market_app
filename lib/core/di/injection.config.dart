@@ -42,19 +42,55 @@ import '../../features/category/domain/repositories/category_repository.dart'
     as _i869;
 import '../../features/category/presentation/cubit/category_cubit.dart'
     as _i859;
+import '../../features/chat/data/datasources/chat_remote_data_source.dart'
+    as _i980;
+import '../../features/chat/data/repositories/chat_repository_impl.dart'
+    as _i504;
+import '../../features/chat/domain/repositories/chat_repository.dart' as _i420;
 import '../../features/chat/presentation/bloc/chat_cubit.dart' as _i708;
+import '../../features/flash_drops/data/datasources/flash_drop_remote_data_source.dart'
+    as _i644;
+import '../../features/flash_drops/data/repositories/flash_drop_repository_impl.dart'
+    as _i1063;
+import '../../features/flash_drops/domain/repositories/flash_drop_repository.dart'
+    as _i465;
 import '../../features/flash_drops/presentation/bloc/flash_drop_cubit.dart'
     as _i523;
+import '../../features/flash_drops/presentation/cubit/flash_drop_create_cubit.dart'
+    as _i24;
+import '../../features/group_buy/data/datasources/group_buy_remote_data_source.dart'
+    as _i471;
+import '../../features/group_buy/data/repositories/group_buy_repository_impl.dart'
+    as _i618;
+import '../../features/group_buy/domain/repositories/group_buy_repository.dart'
+    as _i773;
+import '../../features/group_buy/presentation/cubit/group_buy_cubit.dart'
+    as _i419;
 import '../../features/home/presentation/bloc/create_balla_cubit.dart' as _i740;
 import '../../features/home/presentation/bloc/create_mustamal_cubit.dart'
     as _i231;
 import '../../features/home/presentation/bloc/home_cubit.dart' as _i816;
+import '../../features/map/data/datasources/map_remote_data_source.dart'
+    as _i341;
+import '../../features/map/data/repositories/map_repository_impl.dart' as _i457;
+import '../../features/map/domain/repositories/map_repository.dart' as _i973;
+import '../../features/map/presentation/cubit/map_cubit.dart' as _i523;
 import '../../features/media/data/datasources/media_remote_data_source.dart'
     as _i1028;
+import '../../features/negotiation/data/datasources/negotiation_remote_data_source.dart'
+    as _i26;
+import '../../features/negotiation/data/repositories/negotiation_repository_impl.dart'
+    as _i267;
+import '../../features/negotiation/domain/repositories/negotiation_repository.dart'
+    as _i181;
+import '../../features/negotiation/presentation/cubit/negotiation_cubit.dart'
+    as _i926;
 import '../../features/notifications/presentation/bloc/notification_cubit.dart'
     as _i1060;
 import '../../features/notifications/presentation/pages/notifications_page.dart'
     as _i499;
+import '../../features/orders/presentation/cubit/order_tracking_cubit.dart'
+    as _i934;
 import '../../features/search/data/datasources/search_remote_data_source.dart'
     as _i280;
 import '../../features/search/data/repositories/search_repository_impl.dart'
@@ -66,21 +102,24 @@ import '../../features/shop/data/datasources/order_remote_data_source.dart'
     as _i239;
 import '../../features/shop/data/datasources/shop_remote_data_source.dart'
     as _i462;
+import '../../features/shop/data/repositories/follow_repository.dart' as _i654;
 import '../../features/shop/data/repositories/order_repository_impl.dart'
     as _i1001;
 import '../../features/shop/data/repositories/shop_repository_impl.dart'
     as _i704;
 import '../../features/shop/domain/repositories/order_repository.dart' as _i958;
 import '../../features/shop/domain/repositories/shop_repository.dart' as _i106;
+import '../../features/shop/presentation/bloc/checkout_cubit.dart' as _i596;
 import '../../features/shop/presentation/bloc/create_shop_cubit.dart' as _i910;
 import '../../features/shop/presentation/bloc/order_cubit.dart' as _i771;
 import '../../features/shop/presentation/bloc/shops_cubit.dart' as _i162;
 import '../../features/shop/presentation/pages/dispute_page.dart' as _i943;
-import '../../features/group_buy/presentation/cubit/group_buy_cubit.dart'
-    as _i600;
-import '../../features/map/presentation/cubit/map_cubit.dart' as _i601;
-import '../../features/negotiation/presentation/cubit/negotiation_cubit.dart'
-    as _i602;
+import '../../features/stories/data/datasources/story_remote_data_source.dart'
+    as _i51;
+import '../../features/stories/data/repositories/story_repository_impl.dart'
+    as _i262;
+import '../../features/stories/domain/repositories/story_repository.dart'
+    as _i909;
 import '../../features/stories/presentation/bloc/story_cubit.dart' as _i480;
 import '../../features/wallet/data/datasources/wallet_remote_datasource.dart'
     as _i684;
@@ -112,14 +151,32 @@ _i174.GetIt init(
   gh.lazySingleton<_i17.AuctionRemoteDataSource>(
     () => _i17.AuctionRemoteDataSourceImpl(gh<_i361.Dio>()),
   );
+  gh.lazySingleton<_i471.GroupBuyRemoteDataSource>(
+    () => _i471.GroupBuyRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
   gh.lazySingleton<_i239.OrderRemoteDataSource>(
     () => _i239.OrderRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
+  gh.lazySingleton<_i980.ChatRemoteDataSource>(
+    () => _i980.ChatRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
+  gh.lazySingleton<_i341.MapRemoteDataSource>(
+    () => _i341.MapRemoteDataSourceImpl(gh<_i361.Dio>()),
   );
   gh.lazySingleton<_i88.CategoryRemoteDataSource>(
     () => _i88.CategoryRemoteDataSourceImpl(gh<_i361.Dio>()),
   );
+  gh.lazySingleton<_i773.GroupBuyRepository>(
+    () => _i618.GroupBuyRepositoryImpl(gh<_i471.GroupBuyRemoteDataSource>()),
+  );
+  gh.lazySingleton<_i644.FlashDropRemoteDataSource>(
+    () => _i644.FlashDropRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
   gh.lazySingleton<_i1028.MediaRemoteDataSource>(
     () => _i1028.MediaRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
+  gh.lazySingleton<_i420.ChatRepository>(
+    () => _i504.ChatRepositoryImpl(gh<_i980.ChatRemoteDataSource>()),
   );
   gh.lazySingleton<_i684.WalletRemoteDataSource>(
     () => _i684.WalletRemoteDataSourceImpl(gh<_i361.Dio>()),
@@ -130,27 +187,42 @@ _i174.GetIt init(
       gh<_i464.AuctionWebSocketService>(),
     ),
   );
-  gh.factory<_i708.ChatCubit>(() => _i708.ChatCubit(gh<_i361.Dio>()));
-  gh.factory<_i523.FlashDropCubit>(() => _i523.FlashDropCubit(gh<_i361.Dio>()));
+  gh.lazySingleton<_i26.NegotiationRemoteDataSource>(
+    () => _i26.NegotiationRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
   gh.factory<_i1060.NotificationCubit>(
     () => _i1060.NotificationCubit(gh<_i361.Dio>()),
+  );
+  gh.factory<_i654.FollowRepository>(
+    () => _i654.FollowRepository(gh<_i361.Dio>()),
   );
   gh.factory<_i943.DisputeDataSource>(
     () => _i943.DisputeDataSource(gh<_i361.Dio>()),
   );
-  gh.factory<_i480.StoryCubit>(() => _i480.StoryCubit(gh<_i361.Dio>()));
-  gh.factory<_i602.NegotiationCubit>(
-    () => _i602.NegotiationCubit(gh<_i361.Dio>()),
+  gh.lazySingleton<_i465.FlashDropRepository>(
+    () => _i1063.FlashDropRepositoryImpl(gh<_i644.FlashDropRemoteDataSource>()),
   );
-  gh.factory<_i600.GroupBuyCubit>(
-    () => _i600.GroupBuyCubit(gh<_i361.Dio>()),
-  );
-  gh.factory<_i601.MapCubit>(() => _i601.MapCubit(gh<_i361.Dio>()));
   gh.factory<_i94.AuctionCubit>(
     () => _i94.AuctionCubit(gh<_i256.AuctionRepository>()),
   );
   gh.factory<_i936.AuctionsCubit>(
     () => _i936.AuctionsCubit(gh<_i256.AuctionRepository>()),
+  );
+  gh.factory<_i708.ChatCubit>(
+    () => _i708.ChatCubit(gh<_i420.ChatRepository>()),
+  );
+  gh.lazySingleton<_i181.NegotiationRepository>(
+    () =>
+        _i267.NegotiationRepositoryImpl(gh<_i26.NegotiationRemoteDataSource>()),
+  );
+  gh.factory<_i523.FlashDropCubit>(
+    () => _i523.FlashDropCubit(gh<_i465.FlashDropRepository>()),
+  );
+  gh.factory<_i24.FlashDropCreateCubit>(
+    () => _i24.FlashDropCreateCubit(gh<_i465.FlashDropRepository>()),
+  );
+  gh.lazySingleton<_i973.MapRepository>(
+    () => _i457.MapRepositoryImpl(gh<_i341.MapRemoteDataSource>()),
   );
   gh.lazySingleton<_i107.AuthRemoteDataSource>(
     () => _i107.AuthRemoteDataSourceImpl(gh<_i361.Dio>()),
@@ -172,11 +244,27 @@ _i174.GetIt init(
       remoteDataSource: gh<_i88.CategoryRemoteDataSource>(),
     ),
   );
+  gh.lazySingleton<_i51.StoryRemoteDataSource>(
+    () => _i51.StoryRemoteDataSourceImpl(gh<_i361.Dio>()),
+  );
   gh.lazySingleton<_i958.OrderRepository>(
     () => _i1001.OrderRepositoryImpl(gh<_i239.OrderRemoteDataSource>()),
   );
+  gh.factory<_i419.GroupBuyCubit>(
+    () => _i419.GroupBuyCubit(gh<_i773.GroupBuyRepository>()),
+  );
   gh.lazySingleton<_i690.WalletRepository>(
     () => _i690.WalletRepositoryImpl(gh<_i684.WalletRemoteDataSource>()),
+  );
+  gh.factory<_i523.MapCubit>(() => _i523.MapCubit(gh<_i973.MapRepository>()));
+  gh.lazySingleton<_i909.StoryRepository>(
+    () => _i262.StoryRepositoryImpl(gh<_i51.StoryRemoteDataSource>()),
+  );
+  gh.factory<_i926.NegotiationCubit>(
+    () => _i926.NegotiationCubit(gh<_i181.NegotiationRepository>()),
+  );
+  gh.factory<_i480.StoryCubit>(
+    () => _i480.StoryCubit(gh<_i909.StoryRepository>()),
   );
   gh.lazySingleton<_i787.AuthRepository>(
     () => _i153.AuthRepositoryImpl(
@@ -204,6 +292,12 @@ _i174.GetIt init(
   );
   gh.factory<_i101.WalletCubit>(
     () => _i101.WalletCubit(gh<_i690.WalletRepository>()),
+  );
+  gh.factory<_i934.OrderTrackingCubit>(
+    () => _i934.OrderTrackingCubit(gh<_i958.OrderRepository>()),
+  );
+  gh.factory<_i596.CheckoutCubit>(
+    () => _i596.CheckoutCubit(gh<_i958.OrderRepository>()),
   );
   gh.factory<_i771.OrderCubit>(
     () => _i771.OrderCubit(gh<_i958.OrderRepository>()),

@@ -1248,35 +1248,65 @@
     "description": "Fallback title when a Mustamal listing has no title"
   },
   "mustamalSellButton": "Sell +",
-  "@mustamalSellButton": { "description": "FAB / AppBar button to create a new Mustamal listing" },
+  "@mustamalSellButton": {
+    "description": "FAB / AppBar button to create a new Mustamal listing"
+  },
   "mustamalLocationChange": "Change",
-  "@mustamalLocationChange": { "description": "Inline tap to change location in Mustamal page" },
+  "@mustamalLocationChange": {
+    "description": "Inline tap to change location in Mustamal page"
+  },
   "mustamalNearMe": "Near Me",
-  "@mustamalNearMe": { "description": "Location filter chip for listings near user" },
+  "@mustamalNearMe": {
+    "description": "Location filter chip for listings near user"
+  },
   "mustamalNearbyTitle": "Nearest to You",
-  "@mustamalNearbyTitle": { "description": "Section header for nearby listings" },
+  "@mustamalNearbyTitle": {
+    "description": "Section header for nearby listings"
+  },
   "mustamalAllCategories": "All Categories",
-  "@mustamalAllCategories": { "description": "Section header for the full category list" },
+  "@mustamalAllCategories": {
+    "description": "Section header for the full category list"
+  },
   "mustamalDetailTitle": "Listing Details",
-  "@mustamalDetailTitle": { "description": "AppBar title on the detail screen" },
+  "@mustamalDetailTitle": {
+    "description": "AppBar title on the detail screen"
+  },
   "mustamalNegotiable": "Negotiable",
-  "@mustamalNegotiable": { "description": "Badge shown when price is negotiable" },
+  "@mustamalNegotiable": {
+    "description": "Badge shown when price is negotiable"
+  },
   "mustamalSafetyBanner": "Don't pay before receiving — use Luqta Escrow for protection",
-  "@mustamalSafetyBanner": { "description": "Safety reminder shown on listing detail" },
+  "@mustamalSafetyBanner": {
+    "description": "Safety reminder shown on listing detail"
+  },
   "mustamalContactWhatsapp": "Contact Seller via WhatsApp",
-  "@mustamalContactWhatsapp": { "description": "Primary CTA on detail page — opens WhatsApp" },
+  "@mustamalContactWhatsapp": {
+    "description": "Primary CTA on detail page — opens WhatsApp"
+  },
   "mustamalInAppChat": "Message in App",
-  "@mustamalInAppChat": { "description": "Secondary action: open in-app chat with seller" },
+  "@mustamalInAppChat": {
+    "description": "Secondary action: open in-app chat with seller"
+  },
   "mustamalCallSeller": "Call",
-  "@mustamalCallSeller": { "description": "Secondary action: call seller directly" },
+  "@mustamalCallSeller": {
+    "description": "Secondary action: call seller directly"
+  },
   "mustamalSimilarListings": "Similar Listings",
-  "@mustamalSimilarListings": { "description": "Section header for similar items carousel" },
+  "@mustamalSimilarListings": {
+    "description": "Section header for similar items carousel"
+  },
   "mustamalLocationTitle": "Location",
-  "@mustamalLocationTitle": { "description": "Section header on detail page for map/location" },
+  "@mustamalLocationTitle": {
+    "description": "Section header on detail page for map/location"
+  },
   "mustamalDescriptionTitle": "Listing Description",
-  "@mustamalDescriptionTitle": { "description": "Section header for item description on detail page" },
+  "@mustamalDescriptionTitle": {
+    "description": "Section header for item description on detail page"
+  },
   "mustamalSellerTitle": "Seller Info",
-  "@mustamalSellerTitle": { "description": "Section header for seller card on detail page" },
+  "@mustamalSellerTitle": {
+    "description": "Section header for seller card on detail page"
+  },
   "carouselPromoSubtitle": "Exclusive offers awaiting you",
   "@carouselPromoSubtitle": {
     "description": "Fallback subtitle on announcement carousel banner"
@@ -1366,9 +1396,9 @@
   "@matajirAllCategories": {
     "description": "All categories section header"
   },
-  "matajirVerifiedBadge": "Verified by Luqta",
+  "matajirVerifiedBadge": "Verified Shop",
   "@matajirVerifiedBadge": {
-    "description": "Verified store badge text"
+    "description": "Short verified badge label"
   },
   "matajirAddToCart": "Add to Cart",
   "@matajirAddToCart": {
@@ -1491,10 +1521,6 @@
   "@matajirOutOfStock": {
     "description": "Out of stock badge on product card"
   },
-  "matajirVerifiedBadge": "Verified Shop",
-  "@matajirVerifiedBadge": {
-    "description": "Short verified badge label"
-  },
   "matajirVerifiedFull": "Verified by Luqta",
   "@matajirVerifiedFull": {
     "description": "Full verified badge label"
@@ -1512,9 +1538,490 @@
   "mazadatNavWatchlist": "Watchlist",
   "mazadatNavAccount": "Account",
   "mazadatWalletBalance": "Wallet Balance",
-  "@mazadatWalletBalance": { "description": "Label for wallet balance in mazadat" },
+  "@mazadatWalletBalance": {
+    "description": "Label for wallet balance in mazadat"
+  },
   "mazadatPayFromWallet": "Pay From Wallet",
-  "@mazadatPayFromWallet": { "description": "Label for paying from wallet in mazadat" },
+  "@mazadatPayFromWallet": {
+    "description": "Label for paying from wallet in mazadat"
+  },
   "mazadatTopUpWallet": "Top-up Wallet",
-  "@mazadatTopUpWallet": { "description": "Label for topping up wallet in mazadat" }
+  "@mazadatTopUpWallet": {
+    "description": "Label for topping up wallet in mazadat"
+  },
+  "followBtn": "Follow",
+  "@followBtn": {
+    "description": "Follow shop button label"
+  },
+  "followingBtn": "Following",
+  "@followingBtn": {
+    "description": "Following shop button label (already following)"
+  },
+  "unfollowConfirm": "Unfollow?",
+  "@unfollowConfirm": {
+    "description": "Unfollow confirmation prompt"
+  },
+  "followSuccess": "Now following",
+  "@followSuccess": {
+    "description": "Snackbar after following a shop"
+  },
+  "unfollowSuccess": "Unfollowed",
+  "@unfollowSuccess": {
+    "description": "Snackbar after unfollowing a shop"
+  },
+  "followingTab": "Following",
+  "@followingTab": {
+    "description": "Tab label for followed shops on Matajir home"
+  },
+  "followingEmpty": "You're not following any shops yet",
+  "@followingEmpty": {
+    "description": "Empty state title for following tab"
+  },
+  "followingEmptySub": "Follow shops to see their products here",
+  "@followingEmptySub": {
+    "description": "Empty state subtitle for following tab"
+  },
+  "storyCreateTitle": "Create Story",
+  "@storyCreateTitle": {
+    "description": "Create story page title"
+  },
+  "storyCaption": "Add a caption...",
+  "@storyCaption": {
+    "description": "Story caption input hint"
+  },
+  "storyPost": "Post Story",
+  "@storyPost": {
+    "description": "Post story button"
+  },
+  "storySelectMedia": "Select photo or video",
+  "@storySelectMedia": {
+    "description": "Media picker prompt"
+  },
+  "storyPostedSuccess": "Story posted",
+  "@storyPostedSuccess": {
+    "description": "Snackbar after posting story"
+  },
+  "storyPostError": "Failed to post story",
+  "@storyPostError": {
+    "description": "Error posting story"
+  },
+  "storyFromCamera": "Camera",
+  "@storyFromCamera": {
+    "description": "Camera picker option"
+  },
+  "storyFromGallery": "Gallery",
+  "@storyFromGallery": {
+    "description": "Gallery picker option"
+  },
+  "flashDropCreateTitle": "Create Flash Drop",
+  "@flashDropCreateTitle": {
+    "description": "Create flash drop page title"
+  },
+  "flashDropSelectProduct": "Select Product",
+  "@flashDropSelectProduct": {
+    "description": "Product picker label"
+  },
+  "flashDropDiscount": "Discount Percentage",
+  "@flashDropDiscount": {
+    "description": "Discount slider label"
+  },
+  "flashDropSlots": "Number of Slots",
+  "@flashDropSlots": {
+    "description": "Slots selector label"
+  },
+  "flashDropStartTime": "Start Time",
+  "@flashDropStartTime": {
+    "description": "Start time picker label"
+  },
+  "flashDropEndTime": "End Time",
+  "@flashDropEndTime": {
+    "description": "End time picker label"
+  },
+  "flashDropPreview": "Preview",
+  "@flashDropPreview": {
+    "description": "Preview button"
+  },
+  "flashDropSubmit": "Launch Drop",
+  "@flashDropSubmit": {
+    "description": "Submit flash drop button"
+  },
+  "flashDropCreatedSuccess": "Flash drop created",
+  "@flashDropCreatedSuccess": {
+    "description": "Success snackbar"
+  },
+  "flashDropCreateError": "Failed to create drop",
+  "@flashDropCreateError": {
+    "description": "Error snackbar"
+  },
+  "flashDropOff": "{pct}% OFF",
+  "@flashDropOff": {
+    "description": "Discount badge",
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "flashDropSlotsLabel": "{count} slots",
+  "@flashDropSlotsLabel": {
+    "description": "Slots count label",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupBuyListTitle": "Group Buys",
+  "@groupBuyListTitle": {
+    "description": "Group buy list page title"
+  },
+  "groupBuyCreateTitle": "Create Group Buy",
+  "@groupBuyCreateTitle": {
+    "description": "Create group buy page title"
+  },
+  "groupBuySelectProduct": "Select Product",
+  "@groupBuySelectProduct": {
+    "description": "Product picker label"
+  },
+  "groupBuyGroupPrice": "Group Price",
+  "@groupBuyGroupPrice": {
+    "description": "Group price input label"
+  },
+  "groupBuyMinBuyers": "Minimum Buyers",
+  "@groupBuyMinBuyers": {
+    "description": "Min buyers input label"
+  },
+  "groupBuyDeadline": "Deadline",
+  "@groupBuyDeadline": {
+    "description": "Deadline picker label"
+  },
+  "groupBuySubmit": "Create Group Buy",
+  "@groupBuySubmit": {
+    "description": "Submit group buy button"
+  },
+  "groupBuyCreatedSuccess": "Group buy created",
+  "@groupBuyCreatedSuccess": {
+    "description": "Success snackbar"
+  },
+  "groupBuyCreateError": "Failed to create group buy",
+  "@groupBuyCreateError": {
+    "description": "Error snackbar"
+  },
+  "groupBuyJoinBtn": "Join",
+  "@groupBuyJoinBtn": {
+    "description": "Join group buy button"
+  },
+  "groupBuyShareBtn": "Share Link",
+  "@groupBuyShareBtn": {
+    "description": "Share group buy link button"
+  },
+  "groupBuySlotsRemaining": "{count} slots left",
+  "@groupBuySlotsRemaining": {
+    "description": "Slots remaining label",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupBuyOriginalPrice": "Original Price",
+  "@groupBuyOriginalPrice": {
+    "description": "Original price label"
+  },
+  "groupBuyGroupPriceLabel": "Group Price",
+  "@groupBuyGroupPriceLabel": {
+    "description": "Group price label"
+  },
+  "groupBuyTimeLeft": "Time Left",
+  "@groupBuyTimeLeft": {
+    "description": "Time left label"
+  },
+  "groupBuyProgress": "{current} of {total}",
+  "@groupBuyProgress": {
+    "description": "Progress label",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "groupBuyEmpty": "No active group buys",
+  "@groupBuyEmpty": {
+    "description": "Empty state title"
+  },
+  "groupBuyEmptySub": "Create a group buy or wait for new ones",
+  "@groupBuyEmptySub": {
+    "description": "Empty state subtitle"
+  },
+  "orderTrackingTitle": "Order Tracking",
+  "@orderTrackingTitle": {
+    "description": "Order tracking page title"
+  },
+  "orderTrackingQty": "Qty",
+  "@orderTrackingQty": {
+    "description": "Quantity label"
+  },
+  "orderTrackingStatusTitle": "Order Status",
+  "@orderTrackingStatusTitle": {
+    "description": "Status section title"
+  },
+  "escrowStatusIdle": "Awaiting Payment",
+  "@escrowStatusIdle": {
+    "description": "Escrow idle status"
+  },
+  "escrowStatusLocked": "Amount Secured in Escrow",
+  "@escrowStatusLocked": {
+    "description": "Escrow locked status"
+  },
+  "escrowStatusShipped": "Shipped — Awaiting Delivery",
+  "@escrowStatusShipped": {
+    "description": "Escrow shipped status"
+  },
+  "escrowStatusDelivered": "Delivered — Releasing Funds",
+  "@escrowStatusDelivered": {
+    "description": "Escrow delivered status"
+  },
+  "escrowStatusReleased": "Funds Transferred to Seller",
+  "@escrowStatusReleased": {
+    "description": "Escrow released status"
+  },
+  "escrowStatusDisputed": "Dispute Opened — Under Review",
+  "@escrowStatusDisputed": {
+    "description": "Escrow disputed status"
+  },
+  "escrowStatusRefunded": "Refunded",
+  "@escrowStatusRefunded": {
+    "description": "Escrow refunded status"
+  },
+  "escrowBannerIdle": "Complete payment to secure your funds in escrow.",
+  "@escrowBannerIdle": {
+    "description": "Escrow idle banner"
+  },
+  "escrowBannerLocked": "Your payment is safely held in مضمون escrow until delivery.",
+  "@escrowBannerLocked": {
+    "description": "Escrow locked banner"
+  },
+  "escrowBannerShipped": "Order has shipped. Confirm delivery once received.",
+  "@escrowBannerShipped": {
+    "description": "Escrow shipped banner"
+  },
+  "escrowBannerDelivered": "Delivery confirmed. Funds will be released to seller.",
+  "@escrowBannerDelivered": {
+    "description": "Escrow delivered banner"
+  },
+  "escrowBannerReleased": "Transaction complete. Funds released to seller.",
+  "@escrowBannerReleased": {
+    "description": "Escrow released banner"
+  },
+  "escrowBannerDisputed": "A dispute has been opened. Our team will review shortly.",
+  "@escrowBannerDisputed": {
+    "description": "Escrow disputed banner"
+  },
+  "escrowBannerRefunded": "Your refund has been processed.",
+  "@escrowBannerRefunded": {
+    "description": "Escrow refunded banner"
+  },
+  "orderTrackingDetails": "Order Details",
+  "@orderTrackingDetails": {
+    "description": "Order details section"
+  },
+  "orderTrackingOrderId": "Order ID",
+  "@orderTrackingOrderId": {
+    "description": "Order ID label"
+  },
+  "orderTrackingTotal": "Total",
+  "@orderTrackingTotal": {
+    "description": "Total label"
+  },
+  "orderTrackingFulfillment": "Fulfillment",
+  "@orderTrackingFulfillment": {
+    "description": "Fulfillment label"
+  },
+  "orderTrackingDelivery": "Delivery",
+  "@orderTrackingDelivery": {
+    "description": "Delivery option"
+  },
+  "orderTrackingPickup": "Pickup",
+  "@orderTrackingPickup": {
+    "description": "Pickup option"
+  },
+  "orderTrackingCity": "City",
+  "@orderTrackingCity": {
+    "description": "City label"
+  },
+  "orderTrackingConfirmDelivery": "Confirm Delivery",
+  "@orderTrackingConfirmDelivery": {
+    "description": "Confirm delivery button"
+  },
+  "orderTrackingOpenDispute": "Open Dispute",
+  "@orderTrackingOpenDispute": {
+    "description": "Open dispute button"
+  },
+  "orderTrackingConfirmDeliveryTitle": "Confirm Delivery",
+  "@orderTrackingConfirmDeliveryTitle": {
+    "description": "Confirm dialog title"
+  },
+  "orderTrackingConfirmDeliveryMessage": "Confirm you have received the order? Funds will be released to the seller.",
+  "@orderTrackingConfirmDeliveryMessage": {
+    "description": "Confirm dialog message"
+  },
+  "orderTrackingCancel": "Cancel",
+  "@orderTrackingCancel": {
+    "description": "Cancel button"
+  },
+  "orderTrackingConfirm": "Confirm",
+  "@orderTrackingConfirm": {
+    "description": "Confirm button"
+  },
+  "orderTrackingError": "Error loading order",
+  "@orderTrackingError": {
+    "description": "Error loading order"
+  },
+  "zaincashCancelTitle": "Cancel Payment?",
+  "@zaincashCancelTitle": {
+    "description": "ZainCash cancel dialog title"
+  },
+  "zaincashCancelMessage": "Are you sure you want to cancel the payment?",
+  "@zaincashCancelMessage": {
+    "description": "ZainCash cancel dialog message"
+  },
+  "zaincashContinuePayment": "Continue Payment",
+  "@zaincashContinuePayment": {
+    "description": "ZainCash continue button"
+  },
+  "checkoutCartTitle": "Cart",
+  "@checkoutCartTitle": {
+    "description": "Checkout cart section title"
+  },
+  "checkoutBrowseProducts": "Browse Products",
+  "@checkoutBrowseProducts": {
+    "description": "Browse products button"
+  },
+  "checkoutDeliveryAddress": "Delivery Address",
+  "@checkoutDeliveryAddress": {
+    "description": "Delivery address section"
+  },
+  "checkoutCity": "City",
+  "@checkoutCity": {
+    "description": "City field"
+  },
+  "checkoutDistrict": "District",
+  "@checkoutDistrict": {
+    "description": "District field"
+  },
+  "checkoutStreet": "Street",
+  "@checkoutStreet": {
+    "description": "Street field"
+  },
+  "checkoutBuilding": "Building",
+  "@checkoutBuilding": {
+    "description": "Building field"
+  },
+  "checkoutPhone": "Phone",
+  "@checkoutPhone": {
+    "description": "Phone field"
+  },
+  "checkoutFieldRequired": "This field is required",
+  "@checkoutFieldRequired": {
+    "description": "Required field error"
+  },
+  "checkoutPaymentMethod": "Payment Method",
+  "@checkoutPaymentMethod": {
+    "description": "Payment method section"
+  },
+  "checkoutCOD": "Cash on Delivery",
+  "@checkoutCOD": {
+    "description": "COD payment option"
+  },
+  "checkoutDeliveryHome": "Home Delivery",
+  "@checkoutDeliveryHome": {
+    "description": "Home delivery option"
+  },
+  "checkoutPickupStore": "Store Pickup",
+  "@checkoutPickupStore": {
+    "description": "Store pickup option"
+  },
+  "checkoutPickupEscrowNote": "Escrow funds released on pickup confirmation",
+  "@checkoutPickupEscrowNote": {
+    "description": "Pickup escrow note"
+  },
+  "checkoutPromoHint": "Enter promo code",
+  "@checkoutPromoHint": {
+    "description": "Promo code input hint"
+  },
+  "checkoutPromoApply": "Apply",
+  "@checkoutPromoApply": {
+    "description": "Apply promo code button"
+  },
+  "checkoutFreeDelivery": "Free",
+  "@checkoutFreeDelivery": {
+    "description": "Free delivery label"
+  },
+  "checkoutOrderSummary": "Order Summary",
+  "@checkoutOrderSummary": {
+    "description": "Order summary section"
+  },
+  "checkoutSubtotal": "Subtotal",
+  "@checkoutSubtotal": {
+    "description": "Subtotal label"
+  },
+  "checkoutDeliveryFee": "Delivery Fee",
+  "@checkoutDeliveryFee": {
+    "description": "Delivery fee label"
+  },
+  "checkoutEscrowFee": "Escrow Fee",
+  "@checkoutEscrowFee": {
+    "description": "Escrow fee label"
+  },
+  "checkoutTotal": "Total",
+  "@checkoutTotal": {
+    "description": "Total label"
+  },
+  "checkoutEscrowNotice": "Your payment is protected by مضمون escrow",
+  "@checkoutEscrowNotice": {
+    "description": "Escrow protection notice"
+  },
+  "checkoutEscrowSuccessBadge": "Amount Secured in Escrow",
+  "@checkoutEscrowSuccessBadge": {
+    "description": "Escrow success badge"
+  },
+  "checkoutOrderSuccess": "Order placed successfully!",
+  "@checkoutOrderSuccess": {
+    "description": "Order success message"
+  },
+  "checkoutErrorGeneral": "Failed to place order. Please try again.",
+  "@checkoutErrorGeneral": {
+    "description": "General checkout error"
+  },
+  "zaincashPageTitle": "ZainCash Payment",
+  "@zaincashPageTitle": {
+    "description": "ZainCash page title"
+  },
+  "zaincashLoading": "Loading payment page...",
+  "@zaincashLoading": {
+    "description": "ZainCash loading message"
+  },
+  "zaincashExit": "Exit",
+  "@zaincashExit": {
+    "description": "Exit payment button"
+  },
+  "zaincashFailedTitle": "Payment Failed",
+  "@zaincashFailedTitle": {
+    "description": "ZainCash failed title"
+  },
+  "zaincashFailedMessage": "Payment could not be completed. Please try again.",
+  "@zaincashFailedMessage": {
+    "description": "ZainCash failed message"
+  },
+  "zaincashRetry": "Retry",
+  "@zaincashRetry": {
+    "description": "Retry payment button"
+  },
+  "zaincashGoBack": "Go Back",
+  "@zaincashGoBack": {
+    "description": "Go back button"
+  }
 }

@@ -4,10 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dio/dio.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/network/api_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
@@ -16,6 +14,7 @@ import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../data/models/shop_models.dart';
 import '../bloc/shops_cubit.dart';
+import '../widgets/follow_button.dart';
 
 // ── Matajir design tokens ──────────────────────────────────────────────────
 const _kBg = Color(0xFFFAFAFA);
@@ -325,27 +324,9 @@ class _ShopHeader extends StatefulWidget {
 
 class _ShopHeaderState extends State<_ShopHeader> {
   bool _isFollowing = false;
-  bool _followLoading = false;
 
   ShopModel? get shop => widget.shop;
   String get _name => shop?.name ?? widget.fallbackName;
-
-  Future<void> _toggleFollow() async {
-    if (_followLoading || shop == null) return;
-    setState(() => _followLoading = true);
-    try {
-      final dio = getIt<Dio>();
-      final endpoint = '${ApiConstants.shops}/${shop!.id}/follow';
-      final res = _isFollowing
-          ? await dio.delete<void>(endpoint)
-          : await dio.post<void>(endpoint);
-      final code = res.statusCode ?? 0;
-      if (code == 200 || code == 201 || code == 204) {
-        if (mounted) setState(() => _isFollowing = !_isFollowing);
-      }
-    } catch (_) {}
-    if (mounted) setState(() => _followLoading = false);
-  }
 
   Future<void> _openChat() async {
     // Message action — navigate or show bottom sheet
@@ -477,49 +458,12 @@ class _ShopHeaderState extends State<_ShopHeader> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Follow button
-                      GestureDetector(
-                        onTap: _followLoading ? null : _toggleFollow,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          height: 38.h,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 24.w),
-                          decoration: BoxDecoration(
-                            color: _isFollowing
-                                ? _kPrimary
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(999.r),
-                            border: Border.all(
-                              color: _kPrimary,
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Center(
-                            child: _followLoading
-                                ? SizedBox(
-                                    width: 16.w,
-                                    height: 16.w,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: _isFollowing
-                                          ? Colors.white
-                                          : _kPrimary,
-                                    ),
-                                  )
-                                : Text(
-                                    _isFollowing ? 'متابَع ✓' : 'متابعة',
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w700,
-                                      color: _isFollowing
-                                          ? Colors.white
-                                          : _kPrimary,
-                                    ),
-                                  ),
-                          ),
+                      // Follow button (reusable widget)
+                      if (shop != null)
+                        FollowButton(
+                          shopId: shop!.id,
+                          initiallyFollowing: _isFollowing,
                         ),
-                      ),
                       SizedBox(width: 10.w),
                       // Message button
                       GestureDetector(

@@ -1,0 +1,14 @@
+{
+  "id": "session-1774112529892",
+  "startedAt": "2026-03-21T17:02:09.892Z",
+  "cwd": "/Users/mustafaamer/Documents/Development/Luqta/used_market_app",
+  "context": {},
+  "metrics": {
+    "edits": 64,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "endedAt": "2026-03-23T16:17:52.758Z",
+  "duration": 170142869
+}

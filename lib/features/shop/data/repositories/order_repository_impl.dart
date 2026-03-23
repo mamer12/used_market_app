@@ -39,6 +39,11 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
+  Future<OrderModel> getOrderById(String orderId) {
+    return _remoteDataSource.getOrderById(orderId);
+  }
+
+  @override
   Future<OrderModel> initiateCODCheckout(String orderId) async {
     try {
       return await _remoteDataSource.initiateCODCheckout(orderId);

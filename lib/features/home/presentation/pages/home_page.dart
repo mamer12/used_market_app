@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auction/data/models/auction_models.dart';
@@ -400,7 +401,7 @@ class _HeroZone extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ── App bar row ──────────────────────────
+                // ── App bar row: logo + wallet chip ──────
                 Row(
                   children: [
                     Text(
@@ -413,6 +414,54 @@ class _HeroZone extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
+                    // Wallet balance chip → taps to /wallet
+                    GestureDetector(
+                      onTap: () => context.push('/wallet'),
+                      child: BlocBuilder<WalletCubit, WalletState>(
+                        builder: (context, walletState) {
+                          final balanceLabel = switch (walletState) {
+                            WalletLoading() => '...',
+                            WalletLoaded(:final balanceIqd) =>
+                              IqdFormatter.format(balanceIqd.toDouble()),
+                            WalletError() => '-- د.ع',
+                            _ => '...',
+                          };
+                          return Container(
+                            padding: EdgeInsetsDirectional.symmetric(
+                              horizontal: 12.w,
+                              vertical: 6.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.dinarGold.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+                              border: Border.all(
+                                color: AppTheme.dinarGold.withValues(alpha: 0.35),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.account_balance_wallet_rounded,
+                                  color: AppTheme.dinarGold,
+                                  size: 14.sp,
+                                ),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  balanceLabel,
+                                  style: GoogleFonts.tajawal(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.dinarGold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
                     Container(
                       width: 38.w,
                       height: 38.w,

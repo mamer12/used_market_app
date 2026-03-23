@@ -1,9 +1,9 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/models/chat_models.dart';
+import '../../domain/repositories/chat_repository.dart';
 
 // ── States ────────────────────────────────────────────────────────────────────
 
@@ -48,21 +48,17 @@ class ChatError extends ChatState {
 
 @injectable
 class ChatCubit extends Cubit<ChatState> {
-  final Dio _dio;
+  final ChatRepository _repository;
 
   // Will be set by the auth system; empty string means isMe will never match.
   String currentUserId = '';
 
-  ChatCubit(this._dio) : super(ChatInitial());
+  ChatCubit(this._repository) : super(ChatInitial());
 
   Future<void> loadConversations() async {
     emit(ChatLoading());
     try {
-      final resp = await _dio.get('/api/v1/conversations');
-      final raw = (resp.data['data'] as List?) ?? [];
-      final conversations = raw
-          .map((e) => ConversationModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final conversations = await _repository.getConversations();
       emit(ConversationsLoaded(conversations));
     } catch (e) {
       emit(ChatError(e.toString()));
@@ -72,13 +68,8 @@ class ChatCubit extends Cubit<ChatState> {
   Future<void> loadMessages(String conversationId) async {
     emit(ChatLoading());
     try {
-      final resp =
-          await _dio.get('/api/v1/conversations/$conversationId/messages');
-      final raw = (resp.data['data'] as List?) ?? [];
-      final messages = raw
-          .map((e) => MessageModel.fromJson(
-              e as Map<String, dynamic>, currentUserId))
-          .toList();
+      final messages =
+          await _repository.getMessages(conversationId, currentUserId);
       emit(MessagesLoaded(conversationId, messages));
     } catch (e) {
       emit(ChatError(e.toString()));
@@ -87,10 +78,7 @@ class ChatCubit extends Cubit<ChatState> {
 
   Future<void> sendMessage(String conversationId, String body) async {
     try {
-      await _dio.post(
-        '/api/v1/conversations/$conversationId/messages',
-        data: {'body': body},
-      );
+      await _repository.sendMessage(conversationId, body);
       await loadMessages(conversationId);
     } catch (_) {
       // Keep current state; caller may show snackbar
@@ -103,15 +91,11 @@ class ChatCubit extends Cubit<ChatState> {
     String? contextId,
   }) async {
     try {
-      final resp = await _dio.post(
-        '/api/v1/conversations',
-        data: {
-          'other_user_id': otherUserId,
-          'context_type': contextType,
-          'context_id': ?contextId,
-        },
+      return await _repository.createConversation(
+        otherUserId: otherUserId,
+        contextType: contextType,
+        contextId: contextId,
       );
-      return resp.data['data']['id'] as String?;
     } catch (_) {
       return null;
     }

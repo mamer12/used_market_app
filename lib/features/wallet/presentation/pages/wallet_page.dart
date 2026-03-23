@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,6 +34,12 @@ class _WalletPageState extends State<WalletPage> {
     super.dispose();
   }
 
+  Future<void> _onRefresh() async {
+    HapticFeedback.mediumImpact();
+    await _cubit.loadBalance();
+    await _cubit.loadTransactions();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -41,25 +48,43 @@ class _WalletPageState extends State<WalletPage> {
         backgroundColor: AppTheme.background,
         body: SafeArea(
           bottom: false,
-          child: CustomScrollView(
-            slivers: [
-              _buildAppBar(context),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 0),
-                  child: _BalanceCard(),
+          child: RefreshIndicator(
+            color: AppTheme.dinarGold,
+            backgroundColor: AppTheme.primary,
+            strokeWidth: 2.5,
+            displacement: 60,
+            onRefresh: _onRefresh,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                _buildAppBar(context),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      16.w,
+                      20.h,
+                      16.w,
+                      0,
+                    ),
+                    child: const _BalanceCard(),
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-                  child: _ActionRow(),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      16.w,
+                      16.h,
+                      16.w,
+                      0,
+                    ),
+                    child: const _ActionRow(),
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(child: _buildEscrowInfoCard()),
-              SliverToBoxAdapter(child: _buildSectionHeader('آخر العمليات')),
-              _RealTransactionsList(),
-            ],
+                SliverToBoxAdapter(child: _buildEscrowInfoCard()),
+                SliverToBoxAdapter(child: _buildSectionHeader('آخر العمليات')),
+                const _RealTransactionsList(),
+              ],
+            ),
           ),
         ),
       ),
@@ -74,8 +99,11 @@ class _WalletPageState extends State<WalletPage> {
       foregroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios_new_rounded,
-            color: Colors.white, size: 20.sp),
+        icon: Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: Colors.white,
+          size: 20.sp,
+        ),
         onPressed: () => Navigator.of(context).maybePop(),
       ),
       title: Text(
@@ -89,7 +117,11 @@ class _WalletPageState extends State<WalletPage> {
       centerTitle: true,
       actions: [
         IconButton(
-          icon: Icon(Icons.refresh_rounded, color: Colors.white, size: 22.sp),
+          icon: Icon(
+            Icons.refresh_rounded,
+            color: Colors.white,
+            size: 22.sp,
+          ),
           onPressed: () => context.read<WalletCubit>().loadBalance(),
         ),
       ],
@@ -98,13 +130,17 @@ class _WalletPageState extends State<WalletPage> {
 
   Widget _buildEscrowInfoCard() {
     return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      margin: EdgeInsetsDirectional.fromSTEB(16.w, 16.h, 16.w, 0),
+      padding: EdgeInsetsDirectional.symmetric(
+        horizontal: 16.w,
+        vertical: 14.h,
+      ),
       decoration: BoxDecoration(
         color: AppTheme.emeraldGreen.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         border: Border.all(
-            color: AppTheme.emeraldGreen.withValues(alpha: 0.25)),
+          color: AppTheme.emeraldGreen.withValues(alpha: 0.25),
+        ),
       ),
       child: Row(
         children: [
@@ -115,8 +151,11 @@ class _WalletPageState extends State<WalletPage> {
               color: AppTheme.emeraldGreen.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.shield_rounded,
-                color: AppTheme.emeraldGreen, size: 20.sp),
+            child: Icon(
+              Icons.shield_rounded,
+              color: AppTheme.emeraldGreen,
+              size: 20.sp,
+            ),
           ),
           SizedBox(width: 14.w),
           Expanded(
@@ -124,7 +163,7 @@ class _WalletPageState extends State<WalletPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'أمانة لكطة',
+                  'أمانة مضمون',
                   style: GoogleFonts.tajawal(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
@@ -150,14 +189,14 @@ class _WalletPageState extends State<WalletPage> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 10.h),
+      padding: EdgeInsetsDirectional.fromSTEB(20.w, 24.h, 20.w, 10.h),
       child: Row(
         children: [
           Container(
             width: 4.w,
             height: 20.h,
             decoration: BoxDecoration(
-              color: AppTheme.primary,
+              color: AppTheme.dinarGold,
               borderRadius: BorderRadius.circular(2.r),
             ),
           ),
@@ -176,9 +215,11 @@ class _WalletPageState extends State<WalletPage> {
   }
 }
 
-// ── Balance Card ──────────────────────────────────────────────────────────────
+// -- Balance Card --
 
 class _BalanceCard extends StatelessWidget {
+  const _BalanceCard();
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WalletCubit, WalletState>(
@@ -187,8 +228,8 @@ class _BalanceCard extends StatelessWidget {
           WalletLoading() => null,
           WalletError() => '-- د.ع',
           WalletLoaded(:final balanceIqd) =>
-            '${IqdFormatter.format(balanceIqd.toDouble())} د.ع',
-          _ => null, // WalletTransactionsLoaded — balance unchanged
+            IqdFormatter.format(balanceIqd.toDouble()),
+          _ => null,
         };
 
         return Container(
@@ -215,8 +256,11 @@ class _BalanceCard extends StatelessWidget {
               // Label row
               Row(
                 children: [
-                  Icon(Icons.account_balance_wallet_rounded,
-                      color: Colors.white60, size: 16.sp),
+                  Icon(
+                    Icons.account_balance_wallet_rounded,
+                    color: AppTheme.dinarGold.withValues(alpha: 0.8),
+                    size: 16.sp,
+                  ),
                   SizedBox(width: 6.w),
                   Text(
                     'رصيد ضمانك',
@@ -245,15 +289,17 @@ class _BalanceCard extends StatelessWidget {
               Text(
                 'دينار عراقي',
                 style: GoogleFonts.tajawal(
-                    fontSize: 12.sp, color: Colors.white38),
+                  fontSize: 12.sp,
+                  color: Colors.white38,
+                ),
               ),
               SizedBox(height: 20.h),
-              // Escrow lock chip + Dinar Gold badge
+              // Badges
               Row(
                 children: [
                   const _WhitePill(
                     icon: Icons.lock_rounded,
-                    label: 'محمي بأمانة لكطة',
+                    label: 'محمي بأمانة مضمون',
                     iconColor: AppTheme.emeraldGreen,
                   ),
                   SizedBox(width: 8.w),
@@ -273,8 +319,11 @@ class _BalanceCard extends StatelessWidget {
 }
 
 class _WhitePill extends StatelessWidget {
-  const _WhitePill(
-      {required this.icon, required this.label, required this.iconColor});
+  const _WhitePill({
+    required this.icon,
+    required this.label,
+    required this.iconColor,
+  });
   final IconData icon;
   final String label;
   final Color iconColor;
@@ -282,7 +331,10 @@ class _WhitePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      padding: EdgeInsetsDirectional.symmetric(
+        horizontal: 10.w,
+        vertical: 5.h,
+      ),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppTheme.radiusFull),
@@ -307,9 +359,11 @@ class _WhitePill extends StatelessWidget {
   }
 }
 
-// ── Action Row ────────────────────────────────────────────────────────────────
+// -- Action Row --
 
 class _ActionRow extends StatelessWidget {
+  const _ActionRow();
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -319,7 +373,7 @@ class _ActionRow extends StatelessWidget {
           label: 'إيداع',
           bg: AppTheme.dinarGold.withValues(alpha: 0.12),
           border: AppTheme.dinarGold.withValues(alpha: 0.30),
-          iconColor: const Color(0xFFB8860B), // dark gold
+          iconColor: const Color(0xFFB8860B),
           labelColor: const Color(0xFF8B6914),
           onTap: () {},
         ),
@@ -335,22 +389,12 @@ class _ActionRow extends StatelessWidget {
         ),
         SizedBox(width: 10.w),
         _ActionButton(
-          icon: Icons.history_rounded,
-          label: 'السجل',
-          bg: AppTheme.surface,
-          border: AppTheme.divider,
-          iconColor: AppTheme.textSecondary,
-          labelColor: AppTheme.textSecondary,
-          onTap: () {},
-        ),
-        SizedBox(width: 10.w),
-        _ActionButton(
-          icon: Icons.share_rounded,
-          label: 'مشاركة',
-          bg: AppTheme.surface,
-          border: AppTheme.divider,
-          iconColor: AppTheme.textSecondary,
-          labelColor: AppTheme.textSecondary,
+          icon: Icons.swap_horiz_rounded,
+          label: 'تحويل',
+          bg: AppTheme.matajirBlue.withValues(alpha: 0.08),
+          border: AppTheme.matajirBlue.withValues(alpha: 0.20),
+          iconColor: AppTheme.matajirBlue,
+          labelColor: AppTheme.matajirBlue,
           onTap: () {},
         ),
       ],
@@ -382,7 +426,7 @@ class _ActionButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 14.h),
+          padding: EdgeInsetsDirectional.symmetric(vertical: 14.h),
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(14.r),
@@ -408,9 +452,11 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-// ── Real Transactions List ────────────────────────────────────────────────────
+// -- Real Transactions List --
 
 class _RealTransactionsList extends StatelessWidget {
+  const _RealTransactionsList();
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WalletCubit, WalletState>(
@@ -420,24 +466,34 @@ class _RealTransactionsList extends StatelessWidget {
           if (txns.isEmpty) {
             return SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24.h),
+                padding: EdgeInsetsDirectional.symmetric(vertical: 24.h),
                 child: Center(
-                  child: Text(
-                    'لا توجد عمليات بعد',
-                    style: GoogleFonts.tajawal(
-                      fontSize: 14.sp,
-                      color: AppTheme.textSecondary,
-                    ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.receipt_long_outlined,
+                        size: 48.sp,
+                        color: AppTheme.inactive,
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        'لا توجد عمليات بعد',
+                        style: GoogleFonts.tajawal(
+                          fontSize: 14.sp,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             );
           }
           return SliverPadding(
-            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
+            padding: EdgeInsetsDirectional.fromSTEB(16.w, 0, 16.w, 100.h),
             sliver: SliverList.separated(
               itemCount: txns.length,
-              separatorBuilder: (_, _) =>
+              separatorBuilder: (_, __) =>
                   const Divider(height: 1, color: AppTheme.divider),
               itemBuilder: (_, i) => _ApiTransactionRow(tx: txns[i]),
             ),
@@ -445,13 +501,16 @@ class _RealTransactionsList extends StatelessWidget {
         }
         // Loading skeleton
         return SliverPadding(
-          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 100.h),
+          padding: EdgeInsetsDirectional.fromSTEB(16.w, 0, 16.w, 100.h),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (_, _) => Padding(
-                padding: EdgeInsets.symmetric(vertical: 10.h),
+              (_, __) => Padding(
+                padding: EdgeInsetsDirectional.symmetric(vertical: 10.h),
                 child: SkeletonBox(
-                    width: double.infinity, height: 48.h, borderRadius: 10.r),
+                  width: double.infinity,
+                  height: 48.h,
+                  borderRadius: 10.r,
+                ),
               ),
               childCount: 5,
             ),
@@ -492,6 +551,11 @@ class _ApiTransactionRow extends StatelessWidget {
     return true;
   }
 
+  bool get _isFrozen {
+    final type = (tx['type'] as String?)?.toLowerCase();
+    return type == 'escrow_lock' || type == 'freeze';
+  }
+
   int get _amount {
     final raw = tx['amount'];
     if (raw is int) return raw.abs();
@@ -500,15 +564,22 @@ class _ApiTransactionRow extends StatelessWidget {
     return 0;
   }
 
-  Color get _color => _isCredit ? AppTheme.success : AppTheme.error;
-  IconData get _icon => _isCredit
-      ? Icons.arrow_circle_down_rounded
-      : Icons.arrow_circle_up_rounded;
+  Color get _color {
+    if (_isFrozen) return AppTheme.matajirBlue;
+    return _isCredit ? AppTheme.success : AppTheme.error;
+  }
+
+  IconData get _icon {
+    if (_isFrozen) return Icons.lock_rounded;
+    return _isCredit
+        ? Icons.arrow_circle_down_rounded
+        : Icons.arrow_circle_up_rounded;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 14.h),
+      padding: EdgeInsetsDirectional.symmetric(vertical: 14.h),
       child: Row(
         children: [
           Container(
@@ -548,7 +619,7 @@ class _ApiTransactionRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${_isCredit ? '+' : '-'}${IqdFormatter.format(_amount.toDouble())} د.ع',
+                '${_isCredit ? '+' : '-'}${IqdFormatter.format(_amount.toDouble())}',
                 style: GoogleFonts.tajawal(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
@@ -570,4 +641,3 @@ class _ApiTransactionRow extends StatelessWidget {
     );
   }
 }
-

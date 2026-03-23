@@ -14,11 +14,11 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
-/// Full-page OTP verification screen.
+/// Full-page OTP verification screen — Stitch v2 design.
 ///
 /// Navigates to:
-///   • Home `/` when [AuthStatus.authenticated]
-///   • Registration `/register` when [AuthStatus.registrationRequired]
+///   - Home `/` when [AuthStatus.authenticated]
+///   - Registration `/register` when [AuthStatus.registrationRequired]
 class VerifyOtpPage extends StatefulWidget {
   const VerifyOtpPage({super.key});
 
@@ -27,12 +27,11 @@ class VerifyOtpPage extends StatefulWidget {
 }
 
 class _VerifyOtpPageState extends State<VerifyOtpPage> {
-  /// One controller per OTP digit box.
   late final List<TextEditingController> _controllers;
   late final List<FocusNode> _focusNodes;
 
   Timer? _resendTimer;
-  int _secondsLeft = 30;
+  int _secondsLeft = 60;
 
   @override
   void initState() {
@@ -56,7 +55,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
 
   void _startResendTimer() {
     _resendTimer?.cancel();
-    setState(() => _secondsLeft = 30);
+    setState(() => _secondsLeft = 60);
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsLeft <= 1) {
         timer.cancel();
@@ -76,7 +75,6 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
       _focusNodes[index - 1].requestFocus();
     }
 
-    // Auto-submit when all 6 digits are filled.
     if (_otpValue.length == 6) {
       _submit();
     }
@@ -118,20 +116,37 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
         backgroundColor: AppTheme.background,
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsetsDirectional.symmetric(horizontal: 24.w),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 60.h),
 
-                // ── Header ──────────────────────────────────────────
+                // -- Logo icon --
+                Container(
+                  width: 64.w,
+                  height: 64.w,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.sms_outlined,
+                    color: AppTheme.primary,
+                    size: 28.sp,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+
+                // -- Header --
                 Text(
                   l10n.verifyOtpTitle,
-                  style: GoogleFonts.cairo(
-                    fontSize: 28.sp,
+                  style: GoogleFonts.tajawal(
+                    fontSize: 26.sp,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 8.h),
                 BlocBuilder<AuthBloc, AuthState>(
@@ -139,55 +154,76 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
                     final phone = state.phoneNumber ?? '';
                     return Text(
                       '${l10n.verifyOtpSubtitle} $phone',
-                      style: GoogleFonts.cairo(
+                      style: GoogleFonts.tajawal(
                         fontSize: 14.sp,
                         color: AppTheme.textSecondary,
                       ),
+                      textAlign: TextAlign.center,
                     );
                   },
                 ),
 
-                // ── Edit number ──────────────────────────────────────
+                // -- Edit number --
                 TextButton(
                   onPressed: _onEditNumber,
                   child: Text(
                     l10n.verifyOtpEditNumber,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 13.sp,
-                      color: AppTheme.primary,
-                      fontWeight: FontWeight.w600,
+                      color: AppTheme.dinarGold,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
 
                 SizedBox(height: 32.h),
 
-                // ── OTP digit row ────────────────────────────────────
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(6, (index) {
-                    return _OtpDigitBox(
-                      controller: _controllers[index],
-                      focusNode: _focusNodes[index],
-                      onChanged: (v) => _onDigitChanged(index, v),
-                      autofocus: index == 0,
-                    );
-                  }),
+                // -- OTP digit row --
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(6, (index) {
+                      return Padding(
+                        padding: EdgeInsetsDirectional.symmetric(
+                          horizontal: 4.w,
+                        ),
+                        child: _OtpDigitBox(
+                          controller: _controllers[index],
+                          focusNode: _focusNodes[index],
+                          onChanged: (v) => _onDigitChanged(index, v),
+                          autofocus: index == 0,
+                        ),
+                      );
+                    }),
+                  ),
                 ),
                 SizedBox(height: 12.h),
 
-                // ── Error ────────────────────────────────────────────
+                // -- Error --
                 BlocBuilder<AuthBloc, AuthState>(
                   buildWhen: (prev, curr) => prev.error != curr.error,
                   builder: (context, state) {
                     if (state.error == null) return const SizedBox.shrink();
                     return Padding(
-                      padding: EdgeInsets.only(top: 8.h),
-                      child: Text(
-                        state.error!,
-                        style: GoogleFonts.cairo(
-                          fontSize: 13.sp,
-                          color: Colors.red.shade700,
+                      padding: EdgeInsetsDirectional.only(top: 8.h),
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          color: AppTheme.error.withValues(alpha: 0.08),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.radiusSm),
+                          border: Border.all(
+                            color: AppTheme.error.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Text(
+                          state.error!,
+                          style: GoogleFonts.tajawal(
+                            fontSize: 13.sp,
+                            color: AppTheme.error,
+                          ),
                         ),
                       ),
                     );
@@ -196,7 +232,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
 
                 SizedBox(height: 32.h),
 
-                // ── Submit button ────────────────────────────────────
+                // -- Verify button --
                 BlocBuilder<AuthBloc, AuthState>(
                   buildWhen: (prev, curr) => prev.isLoading != curr.isLoading,
                   builder: (context, state) {
@@ -209,24 +245,49 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
                 ),
                 SizedBox(height: 24.h),
 
-                // ── Resend ───────────────────────────────────────────
+                // -- Resend countdown (60 seconds) --
                 Center(
                   child: _secondsLeft > 0
-                      ? Text(
-                          '${l10n.verifyOtpResendIn} $_secondsLeft${_secondsLeft == 1 ? 's' : 's'}',
-                          style: GoogleFonts.cairo(
-                            fontSize: 13.sp,
-                            color: AppTheme.textSecondary,
-                          ),
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${l10n.verifyOtpResendIn} ',
+                              style: GoogleFonts.tajawal(
+                                fontSize: 13.sp,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 10.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primary.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusFull,
+                                ),
+                              ),
+                              child: Text(
+                                '${_secondsLeft}s',
+                                style: GoogleFonts.tajawal(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.primary,
+                                ),
+                              ),
+                            ),
+                          ],
                         )
                       : TextButton(
                           onPressed: _onResend,
                           child: Text(
                             l10n.verifyOtpResend,
-                            style: GoogleFonts.cairo(
-                              fontSize: 13.sp,
+                            style: GoogleFonts.tajawal(
+                              fontSize: 14.sp,
                               color: AppTheme.primary,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -240,7 +301,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
   }
 }
 
-// ── _OtpDigitBox ──────────────────────────────────────────────────────────────
+// -- _OtpDigitBox --
 
 class _OtpDigitBox extends StatelessWidget {
   final TextEditingController controller;
@@ -258,8 +319,8 @@ class _OtpDigitBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 44.w,
-      height: 54.h,
+      width: 48.w,
+      height: 56.h,
       child: TextField(
         controller: controller,
         focusNode: focusNode,
@@ -267,20 +328,22 @@ class _OtpDigitBox extends StatelessWidget {
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         maxLength: 1,
-        style: GoogleFonts.cairo(
-          fontSize: 22.sp,
-          fontWeight: FontWeight.w700,
+        style: GoogleFonts.tajawal(
+          fontSize: 24.sp,
+          fontWeight: FontWeight.w800,
           color: AppTheme.textPrimary,
         ),
         decoration: InputDecoration(
           counterText: '',
           contentPadding: EdgeInsets.zero,
+          filled: true,
+          fillColor: AppTheme.surfaceAlt,
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: const BorderSide(color: AppTheme.inactive),
+            borderRadius: BorderRadius.circular(12.r),
+            borderSide: const BorderSide(color: AppTheme.divider),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(12.r),
             borderSide: const BorderSide(color: AppTheme.primary, width: 2),
           ),
         ),

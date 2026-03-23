@@ -2317,6 +2317,684 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Top-up Wallet'**
   String get mazadatTopUpWallet;
+
+  /// Follow shop button label
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get followBtn;
+
+  /// Following shop button label (already following)
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get followingBtn;
+
+  /// Unfollow confirmation prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollow?'**
+  String get unfollowConfirm;
+
+  /// Snackbar after following a shop
+  ///
+  /// In en, this message translates to:
+  /// **'Now following'**
+  String get followSuccess;
+
+  /// Snackbar after unfollowing a shop
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollowed'**
+  String get unfollowSuccess;
+
+  /// Tab label for followed shops on Matajir home
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get followingTab;
+
+  /// Empty state title for following tab
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not following any shops yet'**
+  String get followingEmpty;
+
+  /// Empty state subtitle for following tab
+  ///
+  /// In en, this message translates to:
+  /// **'Follow shops to see their products here'**
+  String get followingEmptySub;
+
+  /// Create story page title
+  ///
+  /// In en, this message translates to:
+  /// **'Create Story'**
+  String get storyCreateTitle;
+
+  /// Story caption input hint
+  ///
+  /// In en, this message translates to:
+  /// **'Add a caption...'**
+  String get storyCaption;
+
+  /// Post story button
+  ///
+  /// In en, this message translates to:
+  /// **'Post Story'**
+  String get storyPost;
+
+  /// Media picker prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Select photo or video'**
+  String get storySelectMedia;
+
+  /// Snackbar after posting story
+  ///
+  /// In en, this message translates to:
+  /// **'Story posted'**
+  String get storyPostedSuccess;
+
+  /// Error posting story
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to post story'**
+  String get storyPostError;
+
+  /// Camera picker option
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get storyFromCamera;
+
+  /// Gallery picker option
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get storyFromGallery;
+
+  /// Create flash drop page title
+  ///
+  /// In en, this message translates to:
+  /// **'Create Flash Drop'**
+  String get flashDropCreateTitle;
+
+  /// Product picker label
+  ///
+  /// In en, this message translates to:
+  /// **'Select Product'**
+  String get flashDropSelectProduct;
+
+  /// Discount slider label
+  ///
+  /// In en, this message translates to:
+  /// **'Discount Percentage'**
+  String get flashDropDiscount;
+
+  /// Slots selector label
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Slots'**
+  String get flashDropSlots;
+
+  /// Start time picker label
+  ///
+  /// In en, this message translates to:
+  /// **'Start Time'**
+  String get flashDropStartTime;
+
+  /// End time picker label
+  ///
+  /// In en, this message translates to:
+  /// **'End Time'**
+  String get flashDropEndTime;
+
+  /// Preview button
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get flashDropPreview;
+
+  /// Submit flash drop button
+  ///
+  /// In en, this message translates to:
+  /// **'Launch Drop'**
+  String get flashDropSubmit;
+
+  /// Success snackbar
+  ///
+  /// In en, this message translates to:
+  /// **'Flash drop created'**
+  String get flashDropCreatedSuccess;
+
+  /// Error snackbar
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create drop'**
+  String get flashDropCreateError;
+
+  /// Discount badge
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% OFF'**
+  String flashDropOff(int pct);
+
+  /// Slots count label
+  ///
+  /// In en, this message translates to:
+  /// **'{count} slots'**
+  String flashDropSlotsLabel(int count);
+
+  /// Group buy list page title
+  ///
+  /// In en, this message translates to:
+  /// **'Group Buys'**
+  String get groupBuyListTitle;
+
+  /// Create group buy page title
+  ///
+  /// In en, this message translates to:
+  /// **'Create Group Buy'**
+  String get groupBuyCreateTitle;
+
+  /// Product picker label
+  ///
+  /// In en, this message translates to:
+  /// **'Select Product'**
+  String get groupBuySelectProduct;
+
+  /// Group price input label
+  ///
+  /// In en, this message translates to:
+  /// **'Group Price'**
+  String get groupBuyGroupPrice;
+
+  /// Min buyers input label
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum Buyers'**
+  String get groupBuyMinBuyers;
+
+  /// Deadline picker label
+  ///
+  /// In en, this message translates to:
+  /// **'Deadline'**
+  String get groupBuyDeadline;
+
+  /// Submit group buy button
+  ///
+  /// In en, this message translates to:
+  /// **'Create Group Buy'**
+  String get groupBuySubmit;
+
+  /// Success snackbar
+  ///
+  /// In en, this message translates to:
+  /// **'Group buy created'**
+  String get groupBuyCreatedSuccess;
+
+  /// Error snackbar
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create group buy'**
+  String get groupBuyCreateError;
+
+  /// Join group buy button
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get groupBuyJoinBtn;
+
+  /// Share group buy link button
+  ///
+  /// In en, this message translates to:
+  /// **'Share Link'**
+  String get groupBuyShareBtn;
+
+  /// Slots remaining label
+  ///
+  /// In en, this message translates to:
+  /// **'{count} slots left'**
+  String groupBuySlotsRemaining(int count);
+
+  /// Original price label
+  ///
+  /// In en, this message translates to:
+  /// **'Original Price'**
+  String get groupBuyOriginalPrice;
+
+  /// Group price label
+  ///
+  /// In en, this message translates to:
+  /// **'Group Price'**
+  String get groupBuyGroupPriceLabel;
+
+  /// Time left label
+  ///
+  /// In en, this message translates to:
+  /// **'Time Left'**
+  String get groupBuyTimeLeft;
+
+  /// Progress label
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String groupBuyProgress(int current, int total);
+
+  /// Empty state title
+  ///
+  /// In en, this message translates to:
+  /// **'No active group buys'**
+  String get groupBuyEmpty;
+
+  /// Empty state subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Create a group buy or wait for new ones'**
+  String get groupBuyEmptySub;
+
+  /// Order tracking page title
+  ///
+  /// In en, this message translates to:
+  /// **'Order Tracking'**
+  String get orderTrackingTitle;
+
+  /// Quantity label
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get orderTrackingQty;
+
+  /// Status section title
+  ///
+  /// In en, this message translates to:
+  /// **'Order Status'**
+  String get orderTrackingStatusTitle;
+
+  /// Escrow idle status
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting Payment'**
+  String get escrowStatusIdle;
+
+  /// Escrow locked status
+  ///
+  /// In en, this message translates to:
+  /// **'Amount Secured in Escrow'**
+  String get escrowStatusLocked;
+
+  /// Escrow shipped status
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped — Awaiting Delivery'**
+  String get escrowStatusShipped;
+
+  /// Escrow delivered status
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered — Releasing Funds'**
+  String get escrowStatusDelivered;
+
+  /// Escrow released status
+  ///
+  /// In en, this message translates to:
+  /// **'Funds Transferred to Seller'**
+  String get escrowStatusReleased;
+
+  /// Escrow disputed status
+  ///
+  /// In en, this message translates to:
+  /// **'Dispute Opened — Under Review'**
+  String get escrowStatusDisputed;
+
+  /// Escrow refunded status
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get escrowStatusRefunded;
+
+  /// Escrow idle banner
+  ///
+  /// In en, this message translates to:
+  /// **'Complete payment to secure your funds in escrow.'**
+  String get escrowBannerIdle;
+
+  /// Escrow locked banner
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment is safely held in مضمون escrow until delivery.'**
+  String get escrowBannerLocked;
+
+  /// Escrow shipped banner
+  ///
+  /// In en, this message translates to:
+  /// **'Order has shipped. Confirm delivery once received.'**
+  String get escrowBannerShipped;
+
+  /// Escrow delivered banner
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery confirmed. Funds will be released to seller.'**
+  String get escrowBannerDelivered;
+
+  /// Escrow released banner
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction complete. Funds released to seller.'**
+  String get escrowBannerReleased;
+
+  /// Escrow disputed banner
+  ///
+  /// In en, this message translates to:
+  /// **'A dispute has been opened. Our team will review shortly.'**
+  String get escrowBannerDisputed;
+
+  /// Escrow refunded banner
+  ///
+  /// In en, this message translates to:
+  /// **'Your refund has been processed.'**
+  String get escrowBannerRefunded;
+
+  /// Order details section
+  ///
+  /// In en, this message translates to:
+  /// **'Order Details'**
+  String get orderTrackingDetails;
+
+  /// Order ID label
+  ///
+  /// In en, this message translates to:
+  /// **'Order ID'**
+  String get orderTrackingOrderId;
+
+  /// Total label
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get orderTrackingTotal;
+
+  /// Fulfillment label
+  ///
+  /// In en, this message translates to:
+  /// **'Fulfillment'**
+  String get orderTrackingFulfillment;
+
+  /// Delivery option
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get orderTrackingDelivery;
+
+  /// Pickup option
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get orderTrackingPickup;
+
+  /// City label
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get orderTrackingCity;
+
+  /// Confirm delivery button
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Delivery'**
+  String get orderTrackingConfirmDelivery;
+
+  /// Open dispute button
+  ///
+  /// In en, this message translates to:
+  /// **'Open Dispute'**
+  String get orderTrackingOpenDispute;
+
+  /// Confirm dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Delivery'**
+  String get orderTrackingConfirmDeliveryTitle;
+
+  /// Confirm dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm you have received the order? Funds will be released to the seller.'**
+  String get orderTrackingConfirmDeliveryMessage;
+
+  /// Cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get orderTrackingCancel;
+
+  /// Confirm button
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get orderTrackingConfirm;
+
+  /// Error loading order
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading order'**
+  String get orderTrackingError;
+
+  /// ZainCash cancel dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Payment?'**
+  String get zaincashCancelTitle;
+
+  /// ZainCash cancel dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel the payment?'**
+  String get zaincashCancelMessage;
+
+  /// ZainCash continue button
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Payment'**
+  String get zaincashContinuePayment;
+
+  /// Checkout cart section title
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get checkoutCartTitle;
+
+  /// Browse products button
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Products'**
+  String get checkoutBrowseProducts;
+
+  /// Delivery address section
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Address'**
+  String get checkoutDeliveryAddress;
+
+  /// City field
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get checkoutCity;
+
+  /// District field
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get checkoutDistrict;
+
+  /// Street field
+  ///
+  /// In en, this message translates to:
+  /// **'Street'**
+  String get checkoutStreet;
+
+  /// Building field
+  ///
+  /// In en, this message translates to:
+  /// **'Building'**
+  String get checkoutBuilding;
+
+  /// Phone field
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get checkoutPhone;
+
+  /// Required field error
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get checkoutFieldRequired;
+
+  /// Payment method section
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Method'**
+  String get checkoutPaymentMethod;
+
+  /// COD payment option
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on Delivery'**
+  String get checkoutCOD;
+
+  /// Home delivery option
+  ///
+  /// In en, this message translates to:
+  /// **'Home Delivery'**
+  String get checkoutDeliveryHome;
+
+  /// Store pickup option
+  ///
+  /// In en, this message translates to:
+  /// **'Store Pickup'**
+  String get checkoutPickupStore;
+
+  /// Pickup escrow note
+  ///
+  /// In en, this message translates to:
+  /// **'Escrow funds released on pickup confirmation'**
+  String get checkoutPickupEscrowNote;
+
+  /// Promo code input hint
+  ///
+  /// In en, this message translates to:
+  /// **'Enter promo code'**
+  String get checkoutPromoHint;
+
+  /// Apply promo code button
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get checkoutPromoApply;
+
+  /// Free delivery label
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get checkoutFreeDelivery;
+
+  /// Order summary section
+  ///
+  /// In en, this message translates to:
+  /// **'Order Summary'**
+  String get checkoutOrderSummary;
+
+  /// Subtotal label
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get checkoutSubtotal;
+
+  /// Delivery fee label
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Fee'**
+  String get checkoutDeliveryFee;
+
+  /// Escrow fee label
+  ///
+  /// In en, this message translates to:
+  /// **'Escrow Fee'**
+  String get checkoutEscrowFee;
+
+  /// Total label
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get checkoutTotal;
+
+  /// Escrow protection notice
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment is protected by مضمون escrow'**
+  String get checkoutEscrowNotice;
+
+  /// Escrow success badge
+  ///
+  /// In en, this message translates to:
+  /// **'Amount Secured in Escrow'**
+  String get checkoutEscrowSuccessBadge;
+
+  /// Order success message
+  ///
+  /// In en, this message translates to:
+  /// **'Order placed successfully!'**
+  String get checkoutOrderSuccess;
+
+  /// General checkout error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to place order. Please try again.'**
+  String get checkoutErrorGeneral;
+
+  /// ZainCash page title
+  ///
+  /// In en, this message translates to:
+  /// **'ZainCash Payment'**
+  String get zaincashPageTitle;
+
+  /// ZainCash loading message
+  ///
+  /// In en, this message translates to:
+  /// **'Loading payment page...'**
+  String get zaincashLoading;
+
+  /// Exit payment button
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get zaincashExit;
+
+  /// ZainCash failed title
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Failed'**
+  String get zaincashFailedTitle;
+
+  /// ZainCash failed message
+  ///
+  /// In en, this message translates to:
+  /// **'Payment could not be completed. Please try again.'**
+  String get zaincashFailedMessage;
+
+  /// Retry payment button
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get zaincashRetry;
+
+  /// Go back button
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get zaincashGoBack;
 }
 
 class _AppLocalizationsDelegate

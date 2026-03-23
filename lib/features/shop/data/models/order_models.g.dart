@@ -36,6 +36,9 @@ _OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => _OrderModel(
     json['shipping_address'] as Map<String, dynamic>,
   ),
   fulfillmentType: json['fulfillment_type'] as String,
+  paymentUrl: json['payment_url'] as String?,
+  productName: json['product_name'] as String?,
+  productImage: json['product_image'] as String?,
 );
 
 Map<String, dynamic> _$OrderModelToJson(_OrderModel instance) =>
@@ -49,6 +52,9 @@ Map<String, dynamic> _$OrderModelToJson(_OrderModel instance) =>
       'status': _$OrderStatusEnumMap[instance.status]!,
       'shipping_address': instance.shippingAddress,
       'fulfillment_type': instance.fulfillmentType,
+      'payment_url': instance.paymentUrl,
+      'product_name': instance.productName,
+      'product_image': instance.productImage,
     };
 
 const _$OrderStatusEnumMap = {
@@ -59,6 +65,8 @@ const _$OrderStatusEnumMap = {
   OrderStatus.fundsReleased: 'FUNDS_RELEASED',
   OrderStatus.pendingCODFulfillment: 'PENDING_COD_FULFILLMENT',
   OrderStatus.deliveredAndCashCollected: 'DELIVERED_AND_CASH_COLLECTED',
+  OrderStatus.disputed: 'DISPUTED',
+  OrderStatus.refunded: 'REFUNDED',
 };
 
 _BuyProductRequest _$BuyProductRequestFromJson(Map<String, dynamic> json) =>
@@ -70,6 +78,7 @@ _BuyProductRequest _$BuyProductRequestFromJson(Map<String, dynamic> json) =>
       ),
       fulfillmentType: json['fulfillment_type'] as String,
       appContext: json['app_context'] as String?,
+      paymentMethod: json['payment_method'] as String?,
     );
 
 Map<String, dynamic> _$BuyProductRequestToJson(_BuyProductRequest instance) =>
@@ -79,6 +88,7 @@ Map<String, dynamic> _$BuyProductRequestToJson(_BuyProductRequest instance) =>
       'shipping_address': instance.shippingAddress,
       'fulfillment_type': instance.fulfillmentType,
       'app_context': instance.appContext,
+      'payment_method': instance.paymentMethod,
     };
 
 _UpdateOrderStatusRequest _$UpdateOrderStatusRequestFromJson(

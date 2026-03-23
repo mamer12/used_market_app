@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/story_model.dart';
 import '../bloc/story_cubit.dart';
-import '../pages/story_player_page.dart';
 
 // ── Ring color by sooq context ────────────────────────────────────────────────
 
@@ -110,15 +110,8 @@ class _StoryAvatar extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (_) => BlocProvider.value(
-              value: context.read<StoryCubit>(),
-              child: StoryPlayerPage(group: group),
-            ),
-          ),
-        );
+        // Navigate to the story viewer page via go_router
+        context.push('/stories/view/${group.shopId}');
       },
       child: SizedBox(
         width: 60.w,

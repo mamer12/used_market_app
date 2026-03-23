@@ -12,11 +12,11 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
-/// Full-page Login screen — Phone number (Iraqi +964).
+/// Full-page Login screen — Stitch v2 design system.
 ///
 /// Fires [AuthOtpRequested] on submit; listens to [AuthState] for
 /// navigation side-effects:
-///   • [AuthStatus.otpSent] → push /verify-otp
+///   - [AuthStatus.otpSent] -> push /verify-otp
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -55,70 +55,110 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: AppTheme.background,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsetsDirectional.symmetric(horizontal: 24.w),
             child: Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 60.h),
+                  SizedBox(height: 80.h),
 
-                  // ── Header ──────────────────────────────
+                  // -- Logo --
+                  Container(
+                    width: 80.w,
+                    height: 80.w,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary,
+                      borderRadius: BorderRadius.circular(20.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primary.withValues(alpha: 0.25),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'م',
+                        style: GoogleFonts.tajawal(
+                          fontSize: 40.sp,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.dinarGold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // -- App name --
+                  Text(
+                    'مضمون',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 32.sp,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.textPrimary,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
                   Text(
                     l10n.loginWelcomeTo,
-                    style: GoogleFonts.cairo(
-                      fontSize: 16.sp,
+                    style: GoogleFonts.tajawal(
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w500,
                       color: AppTheme.textSecondary,
                     ),
                   ),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: l10n.appTitle,
-                          style: GoogleFonts.cairo(
-                            fontSize: 32.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        TextSpan(
-                          text: '.',
-                          style: GoogleFonts.cairo(
-                            fontSize: 32.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 40.h),
+                  SizedBox(height: 48.h),
 
-                  // ── Phone Label ─────────────────────────
-                  Text(
-                    l10n.loginPhoneNumber,
-                    style: GoogleFonts.cairo(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
+                  // -- Phone Label --
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      l10n.loginPhoneNumber,
+                      style: GoogleFonts.tajawal(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
                     ),
                   ),
                   SizedBox(height: 8.h),
 
-                  // ── Phone Input ─────────────────────────
+                  // -- Phone Input --
                   TextFormField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     textDirection: TextDirection.ltr,
-                    style: GoogleFonts.cairo(
+                    style: GoogleFonts.tajawal(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: l10n.loginPhoneHint,
+                      hintStyle: GoogleFonts.tajawal(
+                        fontSize: 14.sp,
+                        color: AppTheme.textTertiary,
+                      ),
+                      filled: true,
+                      fillColor: AppTheme.surfaceAlt,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        borderSide: const BorderSide(color: AppTheme.divider),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        borderSide: const BorderSide(color: AppTheme.divider),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        borderSide: const BorderSide(
+                          color: AppTheme.primary,
+                          width: 2,
+                        ),
+                      ),
                       prefixIcon: Container(
                         width: 90.w,
                         alignment: Alignment.center,
@@ -126,11 +166,14 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SizedBox(width: 12.w),
-                            Text('🇮🇶', style: TextStyle(fontSize: 20.sp)),
+                            Text(
+                              '\u{1F1EE}\u{1F1F6}',
+                              style: TextStyle(fontSize: 20.sp),
+                            ),
                             SizedBox(width: 6.w),
                             Text(
                               '+964',
-                              style: GoogleFonts.cairo(
+                              style: GoogleFonts.tajawal(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w700,
                                 color: AppTheme.textPrimary,
@@ -158,25 +201,37 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 24.h),
 
-                  // ── Error ───────────────────────────────
+                  // -- Error --
                   BlocBuilder<AuthBloc, AuthState>(
                     buildWhen: (prev, curr) => prev.error != curr.error,
                     builder: (context, state) {
                       if (state.error == null) return const SizedBox.shrink();
                       return Padding(
-                        padding: EdgeInsets.only(bottom: 12.h),
-                        child: Text(
-                          state.error!,
-                          style: GoogleFonts.cairo(
-                            fontSize: 13.sp,
-                            color: Colors.red.shade700,
+                        padding: EdgeInsetsDirectional.only(bottom: 12.h),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: AppTheme.error.withValues(alpha: 0.08),
+                            borderRadius:
+                                BorderRadius.circular(AppTheme.radiusSm),
+                            border: Border.all(
+                              color: AppTheme.error.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Text(
+                            state.error!,
+                            style: GoogleFonts.tajawal(
+                              fontSize: 13.sp,
+                              color: AppTheme.error,
+                            ),
                           ),
                         ),
                       );
                     },
                   ),
 
-                  // ── Continue Button ─────────────────────
+                  // -- Login Button --
                   BlocBuilder<AuthBloc, AuthState>(
                     buildWhen: (prev, curr) => prev.isLoading != curr.isLoading,
                     builder: (context, state) {
@@ -187,18 +242,42 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                   ),
+                  SizedBox(height: 24.h),
+
+                  // -- Register link --
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'مستخدم جديد؟',
+                        style: GoogleFonts.tajawal(
+                          fontSize: 14.sp,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.go('/register'),
+                        child: Text(
+                          'سجل الآن',
+                          style: GoogleFonts.tajawal(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 32.h),
 
-                  // ── Terms ───────────────────────────────
-                  Center(
-                    child: Text(
-                      l10n.loginTerms,
-                      style: GoogleFonts.cairo(
-                        fontSize: 12.sp,
-                        color: AppTheme.inactive,
-                      ),
-                      textAlign: TextAlign.center,
+                  // -- Terms --
+                  Text(
+                    l10n.loginTerms,
+                    style: GoogleFonts.tajawal(
+                      fontSize: 12.sp,
+                      color: AppTheme.inactive,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 16.h),
                 ],
