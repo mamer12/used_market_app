@@ -28,7 +28,7 @@ class MockAuthBloc extends Mock implements AuthBloc {}
 // ── Fallback registrations (call once before any test using any()) ─────────────
 
 void registerFallbackValues() {
-  registerFallbackValue(const AuthOtpRequested(phoneNumber: ''));
+  registerFallbackValue(const AuthOtpRequested(''));
 }
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -96,20 +96,24 @@ Widget buildTestApp({
       BlocProvider<AuthBloc>.value(value: bloc),
       ...extraProviders,
     ],
-    child: ScreenUtilInit(
-      designSize: const Size(390, 844),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (_, _) => MaterialApp(
-        locale: const Locale('ar', 'IQ'),
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        home: child,
+    child: MediaQuery(
+      // Force design-size dimensions so ScreenUtil .w/.h/.sp values are 1:1.
+      data: const MediaQueryData(size: Size(390, 1024)),
+      child: ScreenUtilInit(
+        designSize: const Size(390, 844),
+        minTextAdapt: true,
+        splitScreenMode: false,
+        builder: (_, _) => MaterialApp(
+          locale: const Locale('ar', 'IQ'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: child,
+        ),
       ),
     ),
   );
@@ -135,9 +139,12 @@ Widget buildRouterTestApp({
       BlocProvider<AuthBloc>.value(value: bloc),
       ...extraProviders,
     ],
-    child: ScreenUtilInit(
+    child: MediaQuery(
+      data: const MediaQueryData(size: Size(390, 1024)),
+      child: ScreenUtilInit(
       designSize: const Size(390, 844),
       minTextAdapt: true,
+      splitScreenMode: false,
       builder: (_, _) => MaterialApp.router(
         locale: const Locale('ar', 'IQ'),
         supportedLocales: AppLocalizations.supportedLocales,
@@ -149,6 +156,7 @@ Widget buildRouterTestApp({
         ],
         routerConfig: router,
       ),
+    ),
     ),
   );
 }

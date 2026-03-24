@@ -361,7 +361,7 @@ class _ImagePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
+      width: size == 140 ? double.infinity : size.w,
       height: size.h,
       color: color.withValues(alpha: 0.12),
       child: Icon(

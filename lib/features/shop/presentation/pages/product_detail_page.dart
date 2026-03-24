@@ -7,9 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/generated/app_localizations.dart';
-import '../../../cart/presentation/bloc/cart_context.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
-import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
+import '../../../cart/presentation/widgets/cart_conflict_sheet.dart';
 import '../../data/models/shop_models.dart';
 
 class ProductDetailPage extends StatelessWidget {
@@ -36,10 +35,7 @@ class ProductDetailPage extends StatelessWidget {
           curr.cartStatus == CartStatus.conflict &&
           prev.cartStatus != CartStatus.conflict,
       listener: (context, state) {
-        CartConflictSheet.show(
-          context,
-          context.read<CartCubit>() as ScopedCartCubit,
-        );
+        CartConflictSheet.show(context);
       },
       child: Scaffold(
         backgroundColor: AppTheme.surface,

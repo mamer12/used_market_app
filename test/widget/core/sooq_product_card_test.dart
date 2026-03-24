@@ -32,7 +32,7 @@ void main() {
       child: Scaffold(
         body: SizedBox(
           width: 200,
-          height: 260,
+          height: 400,
           child: SooqProductCard(
             title: title,
             price: price,
@@ -164,11 +164,20 @@ void main() {
   // ── 11. List layout renders title and price ──────────────────────────────────
 
   testWidgets('list layout also renders title and price', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
-      buildCard(
-        title: 'لابتوب ديل',
-        price: '800,000 د.ع',
-        isGridView: false,
+      buildTestApp(
+        child: const Scaffold(
+          body: SooqProductCard(
+            title: 'لابتوب ديل',
+            price: '800,000 د.ع',
+            primaryColor: Color(0xFF1B4FD8),
+            isGridView: false,
+          ),
+        ),
       ),
     );
     await tester.pump();

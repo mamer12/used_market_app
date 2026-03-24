@@ -15,7 +15,7 @@ import '../../../../core/widgets/skeleton_loading.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
-import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
+import '../../../cart/presentation/widgets/cart_conflict_sheet.dart';
 import '../../../category/presentation/cubit/category_cubit.dart';
 import '../../../category/presentation/cubit/category_state.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
@@ -123,7 +123,7 @@ class _MatajirPageState extends State<MatajirPage> {
             curr.cartStatus == CartStatus.conflict &&
             prev.cartStatus != CartStatus.conflict,
         listener: (context, state) {
-          CartConflictSheet.show(context, context.read<MatajirCartCubit>());
+          CartConflictSheet.show(context);
         },
         child: Scaffold(
           backgroundColor: _kBg,

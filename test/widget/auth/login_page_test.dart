@@ -16,7 +16,19 @@ import 'package:luqta/features/auth/presentation/pages/login_page.dart';
 
 import '../../helpers/test_helpers.dart';
 
+/// Sets the logical screen to 390×844 (ScreenUtil design size) to prevent
+/// overflow errors. Must be called inside each testWidgets body.
+void _setScreenSize(WidgetTester tester) {
+  // Match ScreenUtil designSize exactly so .w/.h/.sp values are 1:1.
+  tester.view.physicalSize = const Size(390, 844);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
+
 void main() {
+  setUpAll(registerFallbackValues);
+
   late MockAuthBloc authBloc;
 
   setUp(() {
@@ -33,15 +45,16 @@ void main() {
   // ── Rendering ───────────────────────────────────────────────────────────────
 
   testWidgets('renders phone input and continue button', (tester) async {
+    _setScreenSize(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
     expect(find.byType(TextFormField), findsOneWidget);
-    // Continue button exists (ElevatedButton from PrimaryButton)
     expect(find.byType(ElevatedButton), findsOneWidget);
   });
 
   testWidgets('shows +964 prefix in the input decoration', (tester) async {
+    _setScreenSize(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
@@ -52,6 +65,7 @@ void main() {
 
   testWidgets('does not dispatch event when phone field is empty on submit',
       (tester) async {
+    _setScreenSize(tester);
     when(() => authBloc.add(any())).thenReturn(null);
 
     await tester.pumpWidget(buildSubject());
@@ -65,6 +79,7 @@ void main() {
 
   testWidgets('does not dispatch event when phone is shorter than 10 chars',
       (tester) async {
+    _setScreenSize(tester);
     when(() => authBloc.add(any())).thenReturn(null);
 
     await tester.pumpWidget(buildSubject());
@@ -81,6 +96,7 @@ void main() {
 
   testWidgets('dispatches AuthOtpRequested with +964 prefix on valid input',
       (tester) async {
+    _setScreenSize(tester);
     when(() => authBloc.add(any())).thenReturn(null);
 
     await tester.pumpWidget(buildSubject());
@@ -101,6 +117,7 @@ void main() {
 
   testWidgets('button shows loading indicator when isLoading=true',
       (tester) async {
+    _setScreenSize(tester);
     when(() => authBloc.state).thenReturn(
       const AuthState(
         isLoading: true,
@@ -118,6 +135,7 @@ void main() {
   // ── Error State ─────────────────────────────────────────────────────────────
 
   testWidgets('displays API error message from bloc state', (tester) async {
+    _setScreenSize(tester);
     const errorMsg = 'Failed to send code. Please try again.';
     when(() => authBloc.state).thenReturn(
       const AuthState(
@@ -137,6 +155,7 @@ void main() {
 
   testWidgets('navigates to /verify-otp when status becomes otpSent',
       (tester) async {
+    _setScreenSize(tester);
     final visited = <String>[];
 
     final router = GoRouter(

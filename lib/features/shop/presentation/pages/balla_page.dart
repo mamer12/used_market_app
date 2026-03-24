@@ -10,7 +10,7 @@ import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/center_fab_bottom_nav.dart';
 import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/balla_cart_cubit.dart';
-import '../../../cart/presentation/pages/cart_conflict_sheet.dart';
+import '../../../cart/presentation/widgets/cart_conflict_sheet.dart';
 import '../../../category/presentation/cubit/category_cubit.dart';
 import '../../../home/presentation/bloc/home_cubit.dart';
 
@@ -157,7 +157,7 @@ class _BallaPageState extends State<BallaPage> {
             curr.cartStatus == CartStatus.conflict &&
             prev.cartStatus != CartStatus.conflict,
         listener: (context, state) {
-          CartConflictSheet.show(context, context.read<BallaCartCubit>());
+          CartConflictSheet.show(context);
         },
         child: Scaffold(
           backgroundColor: _kBg,

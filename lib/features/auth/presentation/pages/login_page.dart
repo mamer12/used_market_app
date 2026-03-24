@@ -160,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       prefixIcon: Container(
-                        width: 90.w,
+                        width: 130.w,
                         alignment: Alignment.center,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

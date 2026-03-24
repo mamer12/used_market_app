@@ -59,6 +59,14 @@ GoRouter _buildTestRouter(AuthBloc bloc) {
         return location == '/splash' ? null : '/splash';
       }
 
+      if (status == AuthStatus.registrationRequired) {
+        return location == '/register' ? null : '/register';
+      }
+
+      if (status == AuthStatus.otpSent) {
+        return location == '/verify-otp' ? null : '/verify-otp';
+      }
+
       final isAuth = status == AuthStatus.authenticated;
 
       if (location == '/splash') {
@@ -159,6 +167,8 @@ Widget _buildApp(AuthBloc bloc) {
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 void main() {
+  setUpAll(registerFallbackValues);
+
   late MockAuthBloc authBloc;
   late StreamController<AuthState> stateStream;
 
@@ -188,12 +198,12 @@ void main() {
       expect(find.text('Splash'), findsOneWidget);
 
       // Now the session check completes: not onboarded, not authenticated
-      stateStream.add(
-        const AuthState(
-          status: AuthStatus.unauthenticated,
-          hasOnboarded: false,
-        ),
+      const nextState = AuthState(
+        status: AuthStatus.unauthenticated,
+        hasOnboarded: false,
       );
+      when(() => authBloc.state).thenReturn(nextState);
+      stateStream.add(nextState);
       await tester.pumpAndSettle();
 
       // Should be on Onboarding
@@ -212,6 +222,7 @@ void main() {
       await tester.pumpWidget(_buildApp(authBloc));
       await tester.pump();
 
+      when(() => authBloc.state).thenReturn(kUnauthenticatedState);
       stateStream.add(kUnauthenticatedState); // hasOnboarded = true
       await tester.pumpAndSettle();
 
@@ -229,6 +240,7 @@ void main() {
       await tester.pumpWidget(_buildApp(authBloc));
       await tester.pump();
 
+      when(() => authBloc.state).thenReturn(kAuthenticatedState);
       stateStream.add(kAuthenticatedState);
       await tester.pumpAndSettle();
 
@@ -326,6 +338,7 @@ void main() {
       expect(find.text('Login'), findsOneWidget);
 
       // OTP requested → status becomes otpSent
+      when(() => authBloc.state).thenReturn(kOtpSentState);
       stateStream.add(kOtpSentState);
       await tester.pumpAndSettle();
 
@@ -333,7 +346,7 @@ void main() {
       // (In this test we're relying on BlocListener inside LoginPage stub;
       //  here we just test the router guard doesn't block /verify-otp)
       // Direct navigation to verify-otp should be allowed
-      final BuildContext ctx = tester.element(find.byType(MaterialApp).last);
+      final BuildContext ctx = tester.element(find.byType(Scaffold).first);
       GoRouter.of(ctx).go('/verify-otp');
       await tester.pumpAndSettle();
       expect(find.text('Verify OTP'), findsOneWidget);
@@ -350,6 +363,7 @@ void main() {
       await tester.pumpWidget(_buildApp(authBloc));
       await tester.pump();
 
+      when(() => authBloc.state).thenReturn(kAuthenticatedState);
       stateStream.add(kAuthenticatedState);
       await tester.pumpAndSettle();
 
@@ -367,10 +381,12 @@ void main() {
       await tester.pumpWidget(_buildApp(authBloc));
       await tester.pump();
 
-      stateStream.add(const AuthState(
+      const regState = AuthState(
         status: AuthStatus.registrationRequired,
         hasOnboarded: true,
-      ));
+      );
+      when(() => authBloc.state).thenReturn(regState);
+      stateStream.add(regState);
       await tester.pumpAndSettle();
 
       expect(find.text('Register'), findsOneWidget);
@@ -391,10 +407,12 @@ void main() {
       expect(find.text('Home'), findsOneWidget);
 
       // Logout
-      stateStream.add(const AuthState(
+      const loggedOutState = AuthState(
         status: AuthStatus.unauthenticated,
         hasOnboarded: true,
-      ));
+      );
+      when(() => authBloc.state).thenReturn(loggedOutState);
+      stateStream.add(loggedOutState);
       await tester.pumpAndSettle();
 
       expect(find.text('Login'), findsOneWidget);

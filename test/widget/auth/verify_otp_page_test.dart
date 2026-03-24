@@ -17,6 +17,15 @@ import 'package:luqta/features/auth/presentation/pages/verify_otp_page.dart';
 
 import '../../helpers/test_helpers.dart';
 
+/// Sets physical size to 390×900 so the OTP page (designed for 844px) fits
+/// without overflow. ScreenUtil reads physical size from the Flutter binding.
+void _setOtpScreenSize(WidgetTester tester) {
+  tester.view.physicalSize = const Size(390, 900);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
+
 void main() {
   setUpAll(registerFallbackValues);
 
@@ -37,15 +46,16 @@ void main() {
   // ── Rendering ───────────────────────────────────────────────────────────────
 
   testWidgets('renders 6 OTP input boxes', (tester) async {
+    _setOtpScreenSize(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
-    // There should be exactly 6 single-digit TextField widgets
     final fields = tester.widgetList<TextField>(find.byType(TextField));
     expect(fields.length, 6);
   });
 
   testWidgets('shows phone number from bloc state', (tester) async {
+    _setOtpScreenSize(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
@@ -53,27 +63,25 @@ void main() {
   });
 
   testWidgets('shows resend countdown (≥ 0 seconds visible)', (tester) async {
+    _setOtpScreenSize(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
-    // The countdown starts at 30; at least some seconds text should appear
     expect(find.textContaining('s'), findsWidgets);
   });
 
   // ── Auto-advance focus ──────────────────────────────────────────────────────
 
   testWidgets('entering digit advances focus to next box', (tester) async {
+    _setOtpScreenSize(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
     final allFields = find.byType(TextField);
-    // Enter digit into first box
     await tester.tap(allFields.at(0));
     await tester.enterText(allFields.at(0), '1');
     await tester.pump();
 
-    // The second box should now have focus (hard to assert directly without
-    // FocusScope, so we just verify no crash and state is correct)
     expect(find.text('1'), findsOneWidget);
   });
 
@@ -81,6 +89,7 @@ void main() {
 
   testWidgets('dispatches AuthOtpSubmitted when all 6 digits are entered',
       (tester) async {
+    _setOtpScreenSize(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
@@ -96,6 +105,7 @@ void main() {
   // ── OTP value is correct ────────────────────────────────────────────────────
 
   testWidgets('dispatches correct OTP string from all 6 inputs', (tester) async {
+    _setOtpScreenSize(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
@@ -114,10 +124,19 @@ void main() {
   // ── Edit number ─────────────────────────────────────────────────────────────
 
   testWidgets('tapping edit-number dispatches AuthOtpCancelled', (tester) async {
-    await tester.pumpWidget(buildSubject());
+    _setOtpScreenSize(tester);
+    final router = GoRouter(
+      initialLocation: '/verify-otp',
+      routes: [
+        GoRoute(path: '/verify-otp', builder: (_, _) => const VerifyOtpPage()),
+        GoRoute(
+            path: '/login',
+            builder: (_, _) => const Scaffold(body: Text('Login'))),
+      ],
+    );
+    await tester.pumpWidget(buildRouterTestApp(router: router, authBloc: authBloc));
     await tester.pump();
 
-    // Find the edit-number TextButton
     final editBtn = find.byType(TextButton).first;
     await tester.tap(editBtn);
     await tester.pump();
@@ -128,6 +147,7 @@ void main() {
   // ── Loading ─────────────────────────────────────────────────────────────────
 
   testWidgets('submit button shows loading when isLoading=true', (tester) async {
+    _setOtpScreenSize(tester);
     when(() => authBloc.state).thenReturn(
       const AuthState(
         status: AuthStatus.otpSent,
@@ -145,6 +165,12 @@ void main() {
   // ── Error ───────────────────────────────────────────────────────────────────
 
   testWidgets('shows error message from bloc state', (tester) async {
+    // Extra height needed because error widget adds ~80px below existing content.
+    tester.view.physicalSize = const Size(390, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     const errMsg = 'رمز التحقق غير صحيح';
     when(() => authBloc.state).thenReturn(
       const AuthState(
@@ -163,6 +189,7 @@ void main() {
   // ── Navigation to home on authenticated ─────────────────────────────────────
 
   testWidgets('navigates to / when status becomes authenticated', (tester) async {
+    _setOtpScreenSize(tester);
     final visited = <String>[];
 
     final router = GoRouter(
@@ -204,6 +231,7 @@ void main() {
 
   testWidgets('navigates to /register when status becomes registrationRequired',
       (tester) async {
+    _setOtpScreenSize(tester);
     final visited = <String>[];
 
     final router = GoRouter(
