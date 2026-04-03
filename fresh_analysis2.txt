@@ -1,0 +1,11 @@
+Analyzing used_market_app...
+
+  error - test/unit/auth/auth_bloc_test.dart:89:7 - Too many positional arguments: 2 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments. - extra_positional_arguments_could_be_named
+  error - test/unit/auth/auth_bloc_test.dart:89:25 - Expected to find ')'. - expected_token
+  error - test/unit/auth/auth_bloc_test.dart:106:7 - Too many positional arguments: 2 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments. - extra_positional_arguments_could_be_named
+  error - test/unit/auth/auth_bloc_test.dart:106:25 - Expected to find ')'. - expected_token
+  error - test/unit/auth/auth_bloc_test.dart:123:7 - Too many positional arguments: 2 expected, but 3 found. Try removing the extra positional arguments, or specifying the name for named arguments. - extra_positional_arguments_could_be_named
+  error - test/unit/auth/auth_bloc_test.dart:123:25 - Expected to find ')'. - expected_token
+   info - lib/features/notifications/presentation/pages/activity_page.dart:200:21 - Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check. - use_build_context_synchronously
+
+7 issues found.

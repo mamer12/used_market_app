@@ -1,0 +1,50 @@
+Analyzing used_market_app...                                    
+
+warning • Dead code • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:132:42 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:132:45 • dead_null_aware_expression
+warning • Dead code • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:145:39 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:145:42 • dead_null_aware_expression
+warning • Dead code • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:168:39 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:168:42 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:188:62 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:195:48 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:210:57 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:254:59 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:264:57 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:286:48 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:334:51 • dead_null_aware_expression
+warning • The value of the field '_selectedProductName' isn't used • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:34:10 • unused_field
+warning • Dead code • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:116:41 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:116:44 • dead_null_aware_expression
+warning • Dead code • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:134:38 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:134:41 • dead_null_aware_expression
+warning • Dead code • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:157:38 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:157:41 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:178:51 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:184:58 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:228:47 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:261:56 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:321:50 • dead_null_aware_expression
+   info • Missing an 'await' for the 'Future' computed by this expression • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:108:15 • unawaited_futures
+warning • Dead code • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:132:36 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:132:39 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:147:52 • dead_null_aware_expression
+warning • Dead code • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:182:41 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:182:44 • dead_null_aware_expression
+warning • Dead code • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:198:34 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:198:37 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:207:40 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:218:40 • dead_null_aware_expression
+   info • Missing an 'await' for the 'Future' computed by this expression • lib/features/notifications/presentation/pages/activity_page.dart:199:30 • unawaited_futures
+warning • The declaration '_kGreen' isn't referenced • lib/features/payment/presentation/pages/zaincash_page.dart:18:7 • unused_element
+   info • Don't use 'BuildContext's across async gaps • lib/features/shop/presentation/pages/checkout_page.dart:149:19 • use_build_context_synchronously
+warning • Dead code • lib/features/shop/presentation/widgets/following_products_tab.dart:70:37 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/shop/presentation/widgets/following_products_tab.dart:70:40 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed • lib/features/shop/presentation/widgets/following_products_tab.dart:80:43 • dead_null_aware_expression
+   info • Missing an 'await' for the 'Future' computed by this expression • lib/features/wallet/presentation/pages/wallet_page.dart:38:20 • unawaited_futures
+   info • Missing an 'await' for the 'Future' computed by this expression • test/unit/auth/auth_bloc_test.dart:90:12 • unawaited_futures
+   info • Missing an 'await' for the 'Future' computed by this expression • test/unit/auth/auth_bloc_test.dart:108:12 • unawaited_futures
+   info • Missing an 'await' for the 'Future' computed by this expression • test/unit/auth/auth_bloc_test.dart:126:12 • unawaited_futures
+   info • Missing an 'await' for the 'Future' computed by this expression • test/unit/wallet/wallet_cubit_test.dart:102:13 • unawaited_futures
+  error • The name 'MyApp' isn't a class • test/widget_test.dart:16:35 • creation_with_non_type
+

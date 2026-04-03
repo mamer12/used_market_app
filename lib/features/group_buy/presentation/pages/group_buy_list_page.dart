@@ -105,7 +105,7 @@ class _GroupBuyListPageState extends State<GroupBuyListPage> {
       await _dio.post('/api/v1/group-buys/$id/join');
       if (!mounted) return;
       // Navigate to group buy detail
-      context.push('/group/$id');
+      await context.push('/group/$id');
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +129,7 @@ class _GroupBuyListPageState extends State<GroupBuyListPage> {
         backgroundColor: const Color(0xFFF5F0FF),
         appBar: AppBar(
           title: Text(
-            l10n?.groupBuyListTitle ?? 'الشلّة',
+            l10n.groupBuyListTitle,
             style: GoogleFonts.cairo(
               fontWeight: FontWeight.w800,
               fontSize: 18.sp,
@@ -144,7 +144,7 @@ class _GroupBuyListPageState extends State<GroupBuyListPage> {
             IconButton(
               onPressed: () => context.push('/group-buys/create'),
               icon: const Icon(Icons.add_rounded),
-              tooltip: l10n?.groupBuyCreateTitle ?? 'إنشاء شلّة',
+              tooltip: l10n.groupBuyCreateTitle,
             ),
           ],
         ),
@@ -179,7 +179,7 @@ class _GroupBuyListPageState extends State<GroupBuyListPage> {
                 foregroundColor: Colors.white,
                 shape: const StadiumBorder(),
               ),
-              child: Text(l10n?.retryBtn ?? 'إعادة المحاولة',
+              child: Text(l10n.retryBtn,
                   style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
             ),
           ],
@@ -195,7 +195,7 @@ class _GroupBuyListPageState extends State<GroupBuyListPage> {
             Icon(Icons.group_rounded, size: 64.sp, color: _purple),
             SizedBox(height: 12.h),
             Text(
-              l10n?.groupBuyEmpty ?? 'لا توجد شلّات نشطة',
+              l10n.groupBuyEmpty,
               style: GoogleFonts.cairo(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
@@ -204,7 +204,7 @@ class _GroupBuyListPageState extends State<GroupBuyListPage> {
             ),
             SizedBox(height: 4.h),
             Text(
-              l10n?.groupBuyEmptySub ?? 'أنشئ شلّة أو انتظر شلّات جديدة',
+              l10n.groupBuyEmptySub,
               style: GoogleFonts.cairo(
                 fontSize: 13.sp,
                 color: Colors.black54,
@@ -215,7 +215,7 @@ class _GroupBuyListPageState extends State<GroupBuyListPage> {
               onPressed: () => context.push('/group-buys/create'),
               icon: const Icon(Icons.add_rounded),
               label: Text(
-                l10n?.groupBuySubmit ?? 'إنشاء الشلّة',
+                l10n.groupBuySubmit,
                 style: GoogleFonts.cairo(fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(

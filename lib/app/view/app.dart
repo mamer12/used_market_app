@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/di/injection.dart';
+import '../../core/cubit/sooq_config_cubit.dart';
 import '../../core/locale/locale_cubit.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_theme.dart';
@@ -24,17 +25,20 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   late final AuthBloc _authBloc;
   late final GoRouter _router;
+  late final SooqConfigCubit _sooqConfigCubit;
 
   @override
   void initState() {
     super.initState();
     _authBloc = getIt<AuthBloc>()..add(const AuthCheckRequested());
-    _router = buildAppRouter(_authBloc); // Create once; never rebuild
+    _sooqConfigCubit = getIt<SooqConfigCubit>()..loadConfig();
+    _router = buildAppRouter(_authBloc, _sooqConfigCubit); // Create once; never rebuild
   }
 
   @override
   void dispose() {
     _authBloc.close();
+    _sooqConfigCubit.close();
     _router.dispose();
     super.dispose();
   }
@@ -58,6 +62,7 @@ class _AppState extends State<App> {
               ),
             ),
             BlocProvider(create: (_) => LocaleCubit()),
+            BlocProvider.value(value: _sooqConfigCubit),
             BlocProvider(create: (_) => getIt<WalletCubit>()..loadBalance()),
           ],
           child: BlocBuilder<LocaleCubit, Locale>(

@@ -28,38 +28,38 @@ class _MustamalMyAdsPageState extends State<MustamalMyAdsPage>
 
   // Mock ads data until API provides seller-specific endpoint
   static final _mockAds = [
-    ItemModel(
+    const ItemModel(
       id: '1',
       title: 'آيفون 14 برو ماكس - بحالة ممتازة',
       category: 'هواتف وأجهزة',
-      images: const [],
+      images: [],
       price: 950000,
       condition: 'مستعمل',
       city: 'بغداد',
     ),
-    ItemModel(
+    const ItemModel(
       id: '2',
       title: 'سامسونج جالاكسي S23 الترا',
       category: 'هواتف وأجهزة',
-      images: const [],
+      images: [],
       price: 780000,
       condition: 'مستعمل',
       city: 'أربيل',
     ),
-    ItemModel(
+    const ItemModel(
       id: '3',
       title: 'لابتوب ديل XPS 15 - 2023',
       category: 'أجهزة كمبيوتر',
-      images: const [],
+      images: [],
       price: 1200000,
       condition: 'مستعمل',
       city: 'البصرة',
     ),
-    ItemModel(
+    const ItemModel(
       id: '4',
       title: 'كاميرا كانون EOS R6',
       category: 'كاميرات',
-      images: const [],
+      images: [],
       price: 1500000,
       condition: 'مستعمل',
       city: 'بغداد',
@@ -153,7 +153,7 @@ class _MustamalMyAdsPageState extends State<MustamalMyAdsPage>
                 labelColor: AppTheme.mustamalOrange,
                 unselectedLabelColor: const Color(0xFFA89585),
                 indicator: UnderlineTabIndicator(
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: AppTheme.mustamalOrange,
                     width: 2,
                   ),
@@ -587,7 +587,17 @@ class _AdCard extends StatelessWidget {
                             color: const Color(0xFF1B4FD8),
                             onTap: () {
                               HapticFeedback.selectionClick();
-                              // TODO: navigate to edit ad page
+                              // Navigate to WebView for editing (native page deprecated)
+                              context.push('/mustamal');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'التعديل متوفر في نسخة الويب',
+                                    style: GoogleFonts.tajawal(),
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
                             },
                           ),
                           SizedBox(width: 8.w),
@@ -639,7 +649,17 @@ class _AdCard extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              // TODO: dispatch delete action via cubit
+              // Navigate to WebView for deletion (native page deprecated)
+              context.push('/mustamal');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'إدارة الإعلانات متوفرة في نسخة الويب',
+                    style: GoogleFonts.tajawal(),
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
             },
             child: Text(
               'حذف',
@@ -689,9 +709,9 @@ class _PlaceholderThumb extends StatelessWidget {
       width: 76,
       height: 76,
       color: const Color(0xFFF5F0E8),
-      child: Icon(
+      child: const Icon(
         Icons.image_rounded,
-        color: const Color(0xFFA89585),
+        color: Color(0xFFA89585),
         size: 28,
       ),
     );

@@ -9,4 +9,6 @@ abstract class FlashDropRepository {
     required DateTime startsAt,
     required DateTime endsAt,
   });
+  /// Purchase a flash drop item. Returns the created order ID on success.
+  Future<String> purchaseFlashDrop(String flashDropId);
 }

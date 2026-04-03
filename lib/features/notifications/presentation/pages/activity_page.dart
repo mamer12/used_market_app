@@ -196,10 +196,10 @@ class _ActivityViewState extends State<_ActivityView>
             color: AppTheme.dinarGold,
             backgroundColor: AppTheme.primary,
             onRefresh: () async {
-              HapticFeedback.mediumImpact();
-              await context
-                  .read<NotificationCubit>()
-                  .loadNotifications();
+              await HapticFeedback.mediumImpact();
+              if (context.mounted) {
+                await context.read<NotificationCubit>().loadNotifications();
+              }
             },
             child: ListView.separated(
               padding: EdgeInsetsDirectional.fromSTEB(
@@ -209,7 +209,7 @@ class _ActivityViewState extends State<_ActivityView>
                 100.h,
               ),
               itemCount: notifs.length,
-              separatorBuilder: (_, __) => Padding(
+              separatorBuilder: (_, _) => Padding(
                 padding: EdgeInsetsDirectional.symmetric(horizontal: 16.w),
                 child: const Divider(
                   height: 1,
@@ -245,8 +245,8 @@ class _ActivityViewState extends State<_ActivityView>
       padding: EdgeInsetsDirectional.all(16.w),
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 5,
-      separatorBuilder: (_, __) => SizedBox(height: 12.h),
-      itemBuilder: (_, __) => Row(
+      separatorBuilder: (_, _) => SizedBox(height: 12.h),
+      itemBuilder: (_, _) => Row(
         children: [
           SkeletonCircle(size: 44.w),
           SizedBox(width: 12.w),

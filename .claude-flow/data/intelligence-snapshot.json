@@ -424,5 +424,289 @@
         "accessCount": 0
       }
     ]
+  },
+  {
+    "timestamp": 1775131206525,
+    "nodes": 30,
+    "edges": 20,
+    "pageRankSum": 1.0000000000000002,
+    "confidences": [
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44,
+      0.44
+    ],
+    "accessCounts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "topPatterns": [
+      {
+        "id": "mem-feedback_dev_patterns--on-conflict--id--do-update--f",
+        "summary": "`ON CONFLICT (id) DO UPDATE` for seed users, not `ON CONFLIC",
+        "confidence": 0.44,
+        "pageRank": 0.06952500696769665,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-feedback_dev_patterns-use--iqdformatter-format----fo",
+        "summary": "Use `IqdFormatter.format()` for ALL currency display",
+        "confidence": 0.44,
+        "pageRank": 0.06492943427626206,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-feedback_dev_patterns-cartcubit-is-per-sooq---never-",
+        "summary": "CartCubit is per-Sooq — never share",
+        "confidence": 0.44,
+        "pageRank": 0.059523129904193686,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-project_seed_data-flutter-fixes-made",
+        "summary": "Flutter fixes made",
+        "confidence": 0.44,
+        "pageRank": 0.059523129904193686,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-feedback_dev_patterns-deposit-withdraw-transfer-alwa",
+        "summary": "Deposit/Withdraw/Transfer always live inside WalletCard",
+        "confidence": 0.44,
+        "pageRank": 0.05316273017691425,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-project_seed_data-backend-fixes-made",
+        "summary": "Backend fixes made",
+        "confidence": 0.44,
+        "pageRank": 0.05316273017691425,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-project_theme_system-walletcard---home-components-d",
+        "summary": "WalletCard (`home_components.dart`)",
+        "confidence": 0.44,
+        "pageRank": 0.05316273017691425,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-feedback_dev_patterns-balla-bg-is-always---f5f0ff---",
+        "summary": "Balla bg is always `#F5F0FF`, never `AppTheme.background`",
+        "confidence": 0.44,
+        "pageRank": 0.0456798593109867,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-project_seed_data-migration-000018---seed-dev-da",
+        "summary": "Migration 000018 — seed dev data",
+        "confidence": 0.44,
+        "pageRank": 0.0456798593109867,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-project_theme_system-home-screen-herozone---home-pa",
+        "summary": "Home Screen HeroZone (`home_page.dart`)",
+        "confidence": 0.44,
+        "pageRank": 0.0456798593109867,
+        "accessCount": 0
+      }
+    ]
+  },
+  {
+    "timestamp": 1775216194667,
+    "nodes": 30,
+    "edges": 20,
+    "pageRankSum": 1.0000000000000002,
+    "confidences": [
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.7800000000000002,
+      0.435,
+      0.435,
+      0.7800000000000002,
+      0.435,
+      0.7800000000000002,
+      0.435,
+      0.435,
+      0.435,
+      0.7800000000000002,
+      0.435,
+      0.7800000000000002,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435,
+      0.435
+    ],
+    "accessCounts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      6,
+      0,
+      0,
+      6,
+      0,
+      6,
+      0,
+      0,
+      0,
+      6,
+      0,
+      6,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "topPatterns": [
+      {
+        "id": "mem-project_seed_data-flutter-fixes-made",
+        "summary": "Flutter fixes made",
+        "confidence": 0.7800000000000002,
+        "pageRank": 0.059523129904193686,
+        "accessCount": 6
+      },
+      {
+        "id": "mem-project_seed_data-migration-000018---seed-dev-da",
+        "summary": "Migration 000018 — seed dev data",
+        "confidence": 0.7800000000000002,
+        "pageRank": 0.0456798593109867,
+        "accessCount": 6
+      },
+      {
+        "id": "mem-project_balla_redesign-balla-product-details---balla-",
+        "summary": "Balla Product Details (`balla_product_details_page.dart`) — ",
+        "confidence": 0.7800000000000002,
+        "pageRank": 0.036876461863662224,
+        "accessCount": 6
+      },
+      {
+        "id": "mem-project_architecture_status--------madhmoon--architecture-",
+        "summary": "مضمون (Madhmoon) Architecture Status — 2026-03-20",
+        "confidence": 0.7800000000000002,
+        "pageRank": 0.026519507592150538,
+        "accessCount": 6
+      },
+      {
+        "id": "mem-project_remaining_gaps-remaining-gaps-for-100--functi",
+        "summary": "Remaining Gaps for 100% Functional App — 2026-03-20",
+        "confidence": 0.7800000000000002,
+        "pageRank": 0.026519507592150538,
+        "accessCount": 6
+      },
+      {
+        "id": "mem-feedback_dev_patterns--on-conflict--id--do-update--f",
+        "summary": "`ON CONFLICT (id) DO UPDATE` for seed users, not `ON CONFLIC",
+        "confidence": 0.435,
+        "pageRank": 0.06952500696769665,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-feedback_dev_patterns-use--iqdformatter-format----fo",
+        "summary": "Use `IqdFormatter.format()` for ALL currency display",
+        "confidence": 0.435,
+        "pageRank": 0.06492943427626206,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-feedback_dev_patterns-cartcubit-is-per-sooq---never-",
+        "summary": "CartCubit is per-Sooq — never share",
+        "confidence": 0.435,
+        "pageRank": 0.059523129904193686,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-feedback_dev_patterns-deposit-withdraw-transfer-alwa",
+        "summary": "Deposit/Withdraw/Transfer always live inside WalletCard",
+        "confidence": 0.435,
+        "pageRank": 0.05316273017691425,
+        "accessCount": 0
+      },
+      {
+        "id": "mem-project_seed_data-backend-fixes-made",
+        "summary": "Backend fixes made",
+        "confidence": 0.435,
+        "pageRank": 0.05316273017691425,
+        "accessCount": 0
+      }
+    ]
   }
 ]

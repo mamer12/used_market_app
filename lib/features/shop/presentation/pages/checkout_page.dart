@@ -145,7 +145,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               // COD: show escrow success badge, then navigate to tracking
               setState(() => _showEscrowSuccess = true);
               Future.delayed(const Duration(seconds: 2), () {
-                if (mounted) {
+                if (context.mounted) {
                   context.go('/orders/${state.orderId}/tracking');
                 }
               });
@@ -928,10 +928,10 @@ class _CartItemRow extends StatelessWidget {
                     ? CachedNetworkImage(
                         imageUrl: product.images.first,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(
+                        placeholder: (_, _) => Container(
                           color: AppTheme.shimmerBase,
                         ),
-                        errorWidget: (_, __, ___) => Container(
+                        errorWidget: (_, _, _) => Container(
                           color: AppTheme.shimmerBase,
                           child: Icon(Icons.image_outlined,
                               color: _kTextSecondary, size: 24.sp),

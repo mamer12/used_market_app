@@ -454,6 +454,7 @@ class QuickUtilitiesRow extends StatelessWidget {
   const QuickUtilitiesRow({super.key, required this.onTap});
 
   static const _items = [
+    _UtilItem('feed', 'لك', Icons.auto_awesome_rounded, Color(0xFF7C3AED)),
     _UtilItem('orders', 'طلباتي', Icons.receipt_long_outlined, null),
     _UtilItem('messages', 'رسائلي', Icons.chat_bubble_outline_rounded, null),
     _UtilItem('favorites', 'مفضلتي', Icons.favorite_outline_rounded, Color(0xFFEC4899)),
@@ -654,6 +655,9 @@ class BentoGrid extends StatelessWidget {
   final void Function(String id) onTileTap;
   /// Live auction count shown on Mazadat tile badge
   final int liveAuctionCount;
+  /// Set of active Sooq IDs. When null, all Sooqs are treated as active
+  /// (e.g., during the initial loading phase).
+  final Set<String>? activeSooqs;
 
   const BentoGrid({
     super.key,
@@ -661,7 +665,10 @@ class BentoGrid extends StatelessWidget {
     required this.taglines,
     required this.onTileTap,
     this.liveAuctionCount = 0,
+    this.activeSooqs,
   });
+
+  bool _isActive(String id) => activeSooqs == null || activeSooqs!.contains(id);
 
   @override
   Widget build(BuildContext context) {
@@ -673,39 +680,94 @@ class BentoGrid extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _MazadatTile(
-                  label: labels['mazad'] ?? 'مزادات',
-                  tagline: taglines['mazad'] ?? 'زايد واربح',
-                  liveCount: liveAuctionCount,
-                  onTap: () => onTileTap('mazad'),
+                child: _SooqTileWrapper(
+                  isActive: _isActive('mazad'),
+                  child: _MazadatTile(
+                    label: labels['mazad'] ?? 'مزادات',
+                    tagline: taglines['mazad'] ?? 'زايد واربح',
+                    liveCount: liveAuctionCount,
+                    onTap: _isActive('mazad') ? () => onTileTap('mazad') : null,
+                  ),
                 ),
               ),
               SizedBox(width: 12.w),
               Expanded(
-                child: _MatajirTile(
-                  label: labels['matajir'] ?? 'متاجر',
-                  tagline: taglines['matajir'] ?? 'متاجر موثقة',
-                  onTap: () => onTileTap('matajir'),
+                child: _SooqTileWrapper(
+                  isActive: _isActive('matajir'),
+                  child: _MatajirTile(
+                    label: labels['matajir'] ?? 'متاجر',
+                    tagline: taglines['matajir'] ?? 'متاجر موثقة',
+                    onTap: _isActive('matajir') ? () => onTileTap('matajir') : null,
+                  ),
                 ),
               ),
             ],
           ),
           SizedBox(height: 12.h),
           // Row 2: Balla — full width landscape
-          _BallaTile(
-            label: labels['balla'] ?? 'بالة وجملة',
-            tagline: taglines['balla'] ?? 'البسطية الرقمية',
-            onTap: () => onTileTap('balla'),
+          _SooqTileWrapper(
+            isActive: _isActive('balla'),
+            child: _BallaTile(
+              label: labels['balla'] ?? 'بالة وجملة',
+              tagline: taglines['balla'] ?? 'البسطية الرقمية',
+              onTap: _isActive('balla') ? () => onTileTap('balla') : null,
+            ),
           ),
           SizedBox(height: 12.h),
           // Row 3: Mustamal — full width landscape
-          _MustamalTile(
-            label: labels['mustamal'] ?? 'مستعمل',
-            tagline: taglines['mustamal'] ?? 'بيع واشتري بأمان',
-            onTap: () => onTileTap('mustamal'),
+          _SooqTileWrapper(
+            isActive: _isActive('mustamal'),
+            child: _MustamalTile(
+              label: labels['mustamal'] ?? 'مستعمل',
+              tagline: taglines['mustamal'] ?? 'بيع واشتري بأمان',
+              onTap: _isActive('mustamal') ? () => onTileTap('mustamal') : null,
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Wraps a Sooq tile with a "Coming Soon" greyed overlay when inactive.
+class _SooqTileWrapper extends StatelessWidget {
+  final bool isActive;
+  final Widget child;
+
+  const _SooqTileWrapper({required this.isActive, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (isActive) return child;
+    return Stack(
+      children: [
+        Opacity(opacity: 0.45, child: child),
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_clock_rounded, color: Colors.white70, size: 22.sp),
+                  SizedBox(height: 6.h),
+                  Text(
+                    'قريباً',
+                    style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -715,13 +777,13 @@ class _MazadatTile extends StatelessWidget {
   final String label;
   final String tagline;
   final int liveCount;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _MazadatTile({
     required this.label,
     required this.tagline,
     required this.liveCount,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
@@ -729,9 +791,9 @@ class _MazadatTile extends StatelessWidget {
     const dark = Color(0xFF0F0F16);
     const red = AppTheme.mazadGreen; // Mazadat neon red
     return GestureDetector(
-      onTap: () {
+      onTap: onTap == null ? null : () {
         HapticFeedback.selectionClick();
-        onTap();
+        onTap!();
       },
       child: AspectRatio(
         aspectRatio: 1,
@@ -836,17 +898,17 @@ class _MazadatTile extends StatelessWidget {
 class _MatajirTile extends StatelessWidget {
   final String label;
   final String tagline;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  const _MatajirTile({required this.label, required this.tagline, required this.onTap});
+  const _MatajirTile({required this.label, required this.tagline, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     const blue = AppTheme.matajirBlue;
     return GestureDetector(
-      onTap: () {
+      onTap: onTap == null ? null : () {
         HapticFeedback.selectionClick();
-        onTap();
+        onTap!();
       },
       child: AspectRatio(
         aspectRatio: 1,
@@ -925,17 +987,17 @@ class _MatajirTile extends StatelessWidget {
 class _BallaTile extends StatelessWidget {
   final String label;
   final String tagline;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  const _BallaTile({required this.label, required this.tagline, required this.onTap});
+  const _BallaTile({required this.label, required this.tagline, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     const purple = AppTheme.ballaPurple;
     return GestureDetector(
-      onTap: () {
+      onTap: onTap == null ? null : () {
         HapticFeedback.selectionClick();
-        onTap();
+        onTap!();
       },
       child: Container(
         height: 100.h,
@@ -1030,17 +1092,17 @@ class _BallaTile extends StatelessWidget {
 class _MustamalTile extends StatelessWidget {
   final String label;
   final String tagline;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  const _MustamalTile({required this.label, required this.tagline, required this.onTap});
+  const _MustamalTile({required this.label, required this.tagline, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     const orange = AppTheme.mustamalOrange;
     return GestureDetector(
-      onTap: () {
+      onTap: onTap == null ? null : () {
         HapticFeedback.selectionClick();
-        onTap();
+        onTap!();
       },
       child: Container(
         height: 100.h,
@@ -1147,4 +1209,92 @@ class _PulseDotState extends State<_PulseDot> with SingleTickerProviderStateMixi
       ),
     );
   }
+}
+
+// ── Verified Stores Row ───────────────────────────────────────────────────────
+
+class VerifiedStoresRow extends StatelessWidget {
+  final List<VerifiedStore> stores;
+  final ValueChanged<VerifiedStore>? onTap;
+
+  const VerifiedStoresRow({super.key, required this.stores, this.onTap});
+
+  /// Default constructor with placeholder data when no stores provided.
+  factory VerifiedStoresRow.placeholder() {
+    return const VerifiedStoresRow(
+      stores: [
+        VerifiedStore(name: 'متجر الكرم', initial: 'ك'),
+        VerifiedStore(name: 'بغداد فاشون', initial: 'ب'),
+        VerifiedStore(name: 'تكنو زون', initial: 'ت'),
+        VerifiedStore(name: 'الفرات', initial: 'ف'),
+        VerifiedStore(name: 'النور', initial: 'ن'),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (stores.isEmpty) return const SizedBox.shrink();
+    return SizedBox(
+      height: 76.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsetsDirectional.symmetric(horizontal: 16.w),
+        itemCount: stores.length,
+        separatorBuilder: (_, _) => SizedBox(width: 12.w),
+        itemBuilder: (context, index) {
+          final store = stores[index];
+          return GestureDetector(
+            onTap: () => onTap?.call(store),
+            child: Column(
+              children: [
+                Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.primary.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      store.initial,
+                      style: GoogleFonts.tajawal(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                SizedBox(
+                  width: 56.w,
+                  child: Text(
+                    store.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.tajawal(
+                      fontSize: 10.sp,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class VerifiedStore {
+  final String name;
+  final String initial;
+  final String? imageUrl;
+  const VerifiedStore({required this.name, required this.initial, this.imageUrl});
 }

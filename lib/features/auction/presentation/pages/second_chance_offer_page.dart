@@ -7,8 +7,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../../domain/repositories/auction_repository.dart';
 
 /// Second-Chance Offer page.
 ///
@@ -401,9 +403,28 @@ class _SecondChanceOfferPageState extends State<SecondChanceOfferPage> {
   // ── Accept Button ─────────────────────────────────────────────────────────
   Widget _buildAcceptButton() {
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        // TODO: call POST /api/v1/auctions/:id/second-chance/accept
+      onTap: () async {
+        await HapticFeedback.mediumImpact();
+        try {
+          final repository = getIt<AuctionRepository>();
+          await repository.acceptSecondChance(widget.auctionId);
+          if (mounted) {
+            // Navigate to payment page after accepting second chance offer
+            await context.push('/payment/zaincash', extra: {
+              'orderId': widget.auctionId,
+              'paymentUrl': '',
+            });
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('فشل قبول العرض: $e'),
+                backgroundColor: AppTheme.error,
+              ),
+            );
+          }
+        }
       },
       child: Container(
         width: double.infinity,

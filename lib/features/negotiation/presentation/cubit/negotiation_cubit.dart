@@ -96,4 +96,13 @@ class NegotiationCubit extends Cubit<NegotiationState> {
       return false;
     }
   }
+
+  /// Initiates payment for a negotiated order and returns payment details.
+  Future<Map<String, String>?> initiatePayment(String negotiationId) async {
+    try {
+      return await _repository.initiatePayment(negotiationId);
+    } catch (e) {
+      return null;
+    }
+  }
 }

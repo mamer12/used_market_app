@@ -33,4 +33,8 @@ class NegotiationRepositoryImpl implements NegotiationRepository {
   @override
   Future<bool> rejectNegotiation(String id) =>
       _remoteDataSource.rejectNegotiation(id);
+
+  @override
+  Future<Map<String, String>> initiatePayment(String negotiationId) =>
+      _remoteDataSource.initiatePayment(negotiationId);
 }

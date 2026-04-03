@@ -83,13 +83,17 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
 
     final time = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(
-        now.add(const Duration(hours: 1)),
-      ),
+      initialTime: TimeOfDay.fromDateTime(now.add(const Duration(hours: 1))),
     );
     if (time == null || !mounted) return;
 
-    final picked = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    final picked = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
     setState(() {
       if (isStart) {
         _startTime = picked;
@@ -110,19 +114,22 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
 
     try {
       final dio = getIt<Dio>();
-      await dio.post('/api/v1/flash-drops', data: {
-        'product_id': _selectedProductId,
-        'discount_pct': _discountPct.round(),
-        'slots': _slots,
-        'starts_at': _startTime!.toIso8601String(),
-        'ends_at': _endTime!.toIso8601String(),
-      });
+      await dio.post(
+        '/api/v1/flash-drops',
+        data: {
+          'product_id': _selectedProductId,
+          'discount_pct': _discountPct.round(),
+          'slots': _slots,
+          'starts_at': _startTime!.toIso8601String(),
+          'ends_at': _endTime!.toIso8601String(),
+        },
+      );
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l10n.flashDropCreatedSuccess ?? 'Flash drop created',
+            l10n.flashDropCreatedSuccess,
             style: GoogleFonts.tajawal(fontWeight: FontWeight.w600),
           ),
           backgroundColor: AppTheme.success,
@@ -135,7 +142,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l10n?.flashDropCreateError ?? 'Failed to create drop',
+            l10n.flashDropCreateError,
             style: GoogleFonts.tajawal(fontWeight: FontWeight.w600),
           ),
           backgroundColor: AppTheme.error,
@@ -158,7 +165,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
         backgroundColor: const Color(0xFFFAFAFA),
         appBar: AppBar(
           title: Text(
-            l10n?.flashDropCreateTitle ?? 'إنشاء عرض خاطف',
+            l10n.flashDropCreateTitle,
             style: GoogleFonts.tajawal(
               fontWeight: FontWeight.w800,
               fontSize: 18.sp,
@@ -178,14 +185,15 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // ── Product Selection ─────────────────────────────────
-                _sectionTitle(l10n?.flashDropSelectProduct ?? 'اختر المنتج'),
+                _sectionTitle(l10n.flashDropSelectProduct),
                 SizedBox(height: 8.h),
                 ...(_inventory.map((p) => _productTile(p))),
                 SizedBox(height: 20.h),
 
                 // ── Discount Slider ──────────────────────────────────
                 _sectionTitle(
-                    '${l10n?.flashDropDiscount ?? 'نسبة الخصم'}: ${_discountPct.round()}٪'),
+                  '${l10n.flashDropDiscount}: ${_discountPct.round()}٪',
+                ),
                 SizedBox(height: 8.h),
                 Slider(
                   value: _discountPct,
@@ -199,8 +207,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
                 SizedBox(height: 16.h),
 
                 // ── Slots Selector ───────────────────────────────────
-                _sectionTitle(
-                    '${l10n?.flashDropSlots ?? 'عدد الفرص'}: $_slots'),
+                _sectionTitle('${l10n.flashDropSlots}: $_slots'),
                 SizedBox(height: 8.h),
                 Row(
                   children: List.generate(5, (i) {
@@ -211,17 +218,14 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
                         onTap: () => setState(() => _slots = slot),
                         child: Container(
                           margin: EdgeInsetsDirectional.only(
-                              end: i < 4 ? 8.w : 0),
+                            end: i < 4 ? 8.w : 0,
+                          ),
                           padding: EdgeInsets.symmetric(vertical: 12.h),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? _orange
-                                : Colors.white,
+                            color: isSelected ? _orange : Colors.white,
                             borderRadius: BorderRadius.circular(10.r),
                             border: Border.all(
-                              color: isSelected
-                                  ? _orange
-                                  : AppTheme.divider,
+                              color: isSelected ? _orange : AppTheme.divider,
                             ),
                           ),
                           alignment: Alignment.center,
@@ -247,7 +251,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
                   children: [
                     Expanded(
                       child: _timePicker(
-                        label: l10n?.flashDropStartTime ?? 'وقت البداية',
+                        label: l10n.flashDropStartTime,
                         value: _startTime != null
                             ? dateFormat.format(_startTime!)
                             : null,
@@ -257,7 +261,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
                     SizedBox(width: 12.w),
                     Expanded(
                       child: _timePicker(
-                        label: l10n?.flashDropEndTime ?? 'وقت النهاية',
+                        label: l10n.flashDropEndTime,
                         value: _endTime != null
                             ? dateFormat.format(_endTime!)
                             : null,
@@ -279,7 +283,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
                           : Icons.visibility_rounded,
                     ),
                     label: Text(
-                      l10n?.flashDropPreview ?? 'معاينة',
+                      l10n.flashDropPreview,
                       style: GoogleFonts.tajawal(fontWeight: FontWeight.w700),
                     ),
                     style: OutlinedButton.styleFrom(
@@ -301,7 +305,8 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
 
                 // ── Submit Button ────────────────────────────────────
                 ElevatedButton(
-                  onPressed: _selectedProductId != null &&
+                  onPressed:
+                      _selectedProductId != null &&
                           _startTime != null &&
                           _endTime != null &&
                           !_isSubmitting
@@ -326,7 +331,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
                           ),
                         )
                       : Text(
-                          l10n?.flashDropSubmit ?? 'إطلاق العرض',
+                          l10n.flashDropSubmit,
                           style: GoogleFonts.tajawal(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w700,
@@ -382,8 +387,11 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              child: Icon(Icons.inventory_2_rounded,
-                  size: 24.sp, color: _orange),
+              child: Icon(
+                Icons.inventory_2_rounded,
+                size: 24.sp,
+                color: _orange,
+              ),
             ),
             SizedBox(width: 12.w),
             Expanded(
@@ -408,8 +416,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
               ),
             ),
             if (isSelected)
-              Icon(Icons.check_circle_rounded,
-                  color: _orange, size: 24.sp),
+              Icon(Icons.check_circle_rounded, color: _orange, size: 24.sp),
           ],
         ),
       ),
@@ -446,8 +453,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
               style: GoogleFonts.tajawal(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
-                color:
-                    value != null ? AppTheme.textPrimary : AppTheme.inactive,
+                color: value != null ? AppTheme.textPrimary : AppTheme.inactive,
               ),
             ),
           ],
@@ -457,8 +463,7 @@ class _CreateFlashDropPageState extends State<CreateFlashDropPage> {
   }
 
   Widget _buildPreviewCard() {
-    final previewEnd =
-        _endTime ?? DateTime.now().add(const Duration(hours: 2));
+    final previewEnd = _endTime ?? DateTime.now().add(const Duration(hours: 2));
 
     return Container(
       padding: EdgeInsets.all(16.w),

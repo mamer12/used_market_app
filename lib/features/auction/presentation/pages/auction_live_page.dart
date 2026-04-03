@@ -10,6 +10,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 import '../bloc/auction_cubit.dart';
 import 'auction_won_page.dart';
+import '../widgets/auction_clips_row.dart';
 import 'widgets/bid_confirmation_sheet.dart';
 import 'widgets/outbid_overlay.dart';
 
@@ -235,6 +236,8 @@ class _AuctionLivePageState extends State<AuctionLivePage>
                               _buildProductInfo(state),
                               SizedBox(height: 16.h),
                               _buildCurrentBidCard(currentHigh, bidCount),
+                              SizedBox(height: 16.h),
+                              const AuctionClipsRow(clips: []),
                               SizedBox(height: 12.h),
                               _buildStatsRow(minIncrement),
                               SizedBox(height: 20.h),
@@ -935,9 +938,9 @@ class _AuctionLivePageState extends State<AuctionLivePage>
               ),
             ),
             const Spacer(),
-            _ActivityStat(icon: Icons.visibility_outlined, value: '١.٢ك'),
+            const _ActivityStat(icon: Icons.visibility_outlined, value: '١.٢ك'),
             SizedBox(width: 16.w),
-            _ActivityStat(
+            const _ActivityStat(
                 icon: Icons.favorite_outline_rounded, value: '٨٤'),
           ],
         ),
@@ -953,7 +956,7 @@ class _AuctionLivePageState extends State<AuctionLivePage>
     AuctionState state,
   ) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: _surface,
         border: Border(top: BorderSide(color: _border)),
       ),

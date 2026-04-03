@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
@@ -225,8 +226,18 @@ class _NegotiationCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: navigate to payment page
+                onPressed: () async {
+                  final cubit = context.read<NegotiationCubit>();
+                  final paymentInfo = await cubit.initiatePayment(negotiation.id);
+                  if (paymentInfo != null && context.mounted) {
+                    await context.push(
+                      '/payment/zaincash',
+                      extra: {
+                        'orderId': paymentInfo['orderId'] ?? negotiation.id,
+                        'paymentUrl': paymentInfo['paymentUrl'] ?? '',
+                      },
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,

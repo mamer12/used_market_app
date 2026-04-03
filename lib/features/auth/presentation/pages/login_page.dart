@@ -244,6 +244,57 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 24.h),
 
+                  // -- Divider "أو تابع بـ" --
+                  Row(
+                    children: [
+                      const Expanded(child: Divider(color: AppTheme.divider)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12.w),
+                        child: Text(
+                          'أو تابع بـ',
+                          style: GoogleFonts.tajawal(
+                            fontSize: 13.sp,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Divider(color: AppTheme.divider)),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // -- Social login buttons --
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: null, // TODO: Google sign-in
+                          icon: const Text('G', style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF4285F4))),
+                          label: Text('Google', style: GoogleFonts.tajawal(fontSize: 14.sp, color: AppTheme.textPrimary)),
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            side: const BorderSide(color: AppTheme.divider),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: null, // TODO: Apple sign-in
+                          icon: Icon(Icons.apple, size: 20.sp, color: AppTheme.textPrimary),
+                          label: Text('Apple', style: GoogleFonts.tajawal(fontSize: 14.sp, color: AppTheme.textPrimary)),
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            side: const BorderSide(color: AppTheme.divider),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 24.h),
+
                   // -- Register link --
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

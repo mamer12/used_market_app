@@ -84,7 +84,7 @@ class _ActiveBidsPageState extends State<ActiveBidsPage>
                     labelColor: AppTheme.mazadGreen,
                     unselectedLabelColor: Colors.white38,
                     indicator: UnderlineTabIndicator(
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                         color: AppTheme.mazadGreen,
                         width: 2,
                       ),

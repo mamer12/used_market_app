@@ -270,7 +270,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
                                 ),
                               ),
                               child: Text(
-                                '${_secondsLeft}s',
+                                '٠:${(_secondsLeft % 60).toString().padLeft(2, '0')}',
                                 style: GoogleFonts.tajawal(
                                   fontSize: 13.sp,
                                   fontWeight: FontWeight.w700,

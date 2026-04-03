@@ -8,7 +8,6 @@ import '../../../cart/presentation/bloc/cart_cubit.dart';
 import '../../../cart/presentation/cubit/matajir_cart_cubit.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
 import '../widgets/following_products_tab.dart';
-import 'matajir_categories_page.dart';
 import 'matajir_page.dart' show MatajirPage;
 import 'order_history_page.dart';
 

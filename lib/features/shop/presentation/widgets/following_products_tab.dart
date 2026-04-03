@@ -67,7 +67,7 @@ class _FollowingProductsTabState extends State<FollowingProductsTab> {
                   size: 64.sp, color: _matajirBlue.withValues(alpha: 0.4)),
               SizedBox(height: 16.h),
               Text(
-                l10n?.followingEmpty ?? 'لا تتابع أي متجر بعد',
+                l10n.followingEmpty,
                 style: GoogleFonts.tajawal(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
@@ -77,7 +77,7 @@ class _FollowingProductsTabState extends State<FollowingProductsTab> {
               ),
               SizedBox(height: 6.h),
               Text(
-                l10n?.followingEmptySub ?? 'تابع المتاجر لتشوف منتجاتهم هنا',
+                l10n.followingEmptySub,
                 style: GoogleFonts.tajawal(
                   fontSize: 13.sp,
                   color: AppTheme.textSecondary,
@@ -147,7 +147,7 @@ class _ProductCard extends StatelessWidget {
                       imageUrl: imageUrl,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) => SkeletonBox(
+                      placeholder: (_, _) => const SkeletonBox(
                         width: double.infinity,
                         borderRadius: 0,
                       ),

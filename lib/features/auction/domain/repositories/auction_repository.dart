@@ -32,4 +32,7 @@ abstract class AuctionRepository {
   Stream<BidPlacedEvent> get liveBidStream;
   Stream<AuctionEndedEvent> get auctionEndedStream;
   Stream<String> get auctionErrorStream;
+
+  /// Accept a second-chance offer for an auction where the winner failed to pay.
+  Future<AuctionModel> acceptSecondChance(String auctionId);
 }

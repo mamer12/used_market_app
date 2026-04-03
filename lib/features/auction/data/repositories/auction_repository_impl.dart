@@ -97,4 +97,9 @@ class AuctionRepositoryImpl implements AuctionRepository {
 
   @override
   Stream<String> get auctionErrorStream => _webSocketService.errorStream;
+
+  @override
+  Future<AuctionModel> acceptSecondChance(String auctionId) {
+    return _remoteDataSource.acceptSecondChance(auctionId);
+  }
 }

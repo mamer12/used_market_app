@@ -51,7 +51,7 @@ class _CreateStoryPageState extends State<CreateStoryPage> {
   }
 
   void _showMediaPicker() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -92,7 +92,7 @@ class _CreateStoryPageState extends State<CreateStoryPage> {
     if (_selectedMedia == null || _isPosting) return;
 
     setState(() => _isPosting = true);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     try {
       final dio = getIt<Dio>();
@@ -134,7 +134,7 @@ class _CreateStoryPageState extends State<CreateStoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Directionality(
       textDirection: TextDirection.rtl,

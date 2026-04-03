@@ -226,33 +226,61 @@ class _NotificationsPageState extends State<NotificationsPage>
   Widget _buildTabBar() {
     return Container(
       color: Colors.white,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: AppTheme.inactive.withValues(alpha: 0.1)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Notification-type filter chips row
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final label in ['الكل', 'طلبات', 'مزادات', 'عروض', 'محفظة'])
+                    Padding(
+                      padding: EdgeInsetsDirectional.only(end: 8.w),
+                      child: ChoiceChip(
+                        label: Text(label, style: GoogleFonts.tajawal(fontSize: 12.sp)),
+                        selected: false,
+                        selectedColor: AppTheme.primary,
+                        labelStyle: GoogleFonts.tajawal(
+                          fontSize: 12.sp,
+                          color: AppTheme.textSecondary,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.r),
+                          side: const BorderSide(color: AppTheme.divider),
+                        ),
+                        onSelected: (_) {},
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
-        ),
-        child: TabBar(
-          controller: _tabController,
-          indicator: const UnderlineTabIndicator(
-            borderSide: BorderSide(color: AppTheme.primary, width: 3),
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: AppTheme.inactive.withValues(alpha: 0.1)),
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicator: const UnderlineTabIndicator(
+                borderSide: BorderSide(color: AppTheme.primary, width: 3),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: AppTheme.textPrimary,
+              unselectedLabelColor: AppTheme.textSecondary,
+              labelStyle: GoogleFonts.cairo(fontSize: 14.sp, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: GoogleFonts.cairo(fontSize: 14.sp, fontWeight: FontWeight.bold),
+              tabs: const [
+                Tab(text: 'مشترياتي'),
+                Tab(text: 'مبيعاتي'),
+              ],
+            ),
           ),
-          indicatorSize: TabBarIndicatorSize.tab,
-          labelColor: AppTheme.textPrimary,
-          unselectedLabelColor: AppTheme.textSecondary,
-          labelStyle: GoogleFonts.cairo(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-          ),
-          unselectedLabelStyle: GoogleFonts.cairo(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-          ),
-          tabs: const [
-            Tab(text: 'مشترياتي'),
-            Tab(text: 'مبيعاتي'),
-          ],
-        ),
+        ],
       ),
     );
   }

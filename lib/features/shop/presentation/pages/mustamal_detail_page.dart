@@ -336,12 +336,12 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
       spacing: 14.w,
       runSpacing: 6.h,
       children: [
-        _MetaItem(icon: Icons.schedule_rounded, label: 'منذ ٣ ساعات'),
+        const _MetaItem(icon: Icons.schedule_rounded, label: 'منذ ٣ ساعات'),
         _MetaItem(
           icon: Icons.location_on_outlined,
           label: widget.item.city ?? 'المنصور، بغداد',
         ),
-        _MetaItem(icon: Icons.remove_red_eye_outlined, label: '١٤٢ مشاهدة'),
+        const _MetaItem(icon: Icons.remove_red_eye_outlined, label: '١٤٢ مشاهدة'),
       ],
     );
   }
@@ -618,7 +618,7 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: mockImages.length,
-              separatorBuilder: (_, _x) => SizedBox(width: 12.w),
+              separatorBuilder: (_, x) => SizedBox(width: 12.w),
               itemBuilder: (_, index) => _SimilarCard(
                 imageUrl: mockImages[index],
                 title: widget.item.title,
@@ -713,7 +713,7 @@ class _MustamalDetailPageState extends State<MustamalDetailPage> {
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: _orange, width: 1.5),
+                    side: const BorderSide(color: _orange, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14.r),
                     ),

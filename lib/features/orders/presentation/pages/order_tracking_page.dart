@@ -171,10 +171,10 @@ class _OrderTrackingView extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: order.productImage!,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
+                      placeholder: (_, _) => Container(
                         color: AppTheme.shimmerBase,
                       ),
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: (_, _, _) => Container(
                         color: AppTheme.shimmerBase,
                         child: Icon(Icons.image_outlined,
                             color: _kTextSecondary, size: 24.sp),

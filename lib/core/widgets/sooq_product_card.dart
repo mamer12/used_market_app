@@ -14,6 +14,7 @@ class SooqProductCard extends StatelessWidget {
   final String title;
   final String price;
   final String? subtitle;
+  final String? originalPrice;
   final String? imageUrl;
   final String? badge;
   final Color? badgeColor;
@@ -30,6 +31,7 @@ class SooqProductCard extends StatelessWidget {
     required this.title,
     required this.price,
     this.subtitle,
+    this.originalPrice,
     this.imageUrl,
     this.badge,
     this.badgeColor,
@@ -143,6 +145,17 @@ class _GridCard extends StatelessWidget {
                       color: card.primaryColor,
                     ),
                   ),
+                  if (card.originalPrice != null) ...[
+                    SizedBox(height: 2.h),
+                    Text(
+                      card.originalPrice!,
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.sp,
+                        color: subtitleColor,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  ],
                   if (card.subtitle != null) ...[
                     SizedBox(height: 2.h),
                     Text(

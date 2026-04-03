@@ -12,6 +12,8 @@ abstract class FlashDropRemoteDataSource {
     required DateTime startsAt,
     required DateTime endsAt,
   });
+  /// Purchase a flash drop item. Returns the created order ID on success.
+  Future<String> purchaseFlashDrop(String flashDropId);
 }
 
 @LazySingleton(as: FlashDropRemoteDataSource)
@@ -44,5 +46,13 @@ class FlashDropRemoteDataSourceImpl implements FlashDropRemoteDataSource {
       'starts_at': startsAt.toIso8601String(),
       'ends_at': endsAt.toIso8601String(),
     });
+  }
+
+  @override
+  Future<String> purchaseFlashDrop(String flashDropId) async {
+    final resp = await _dio.post('/api/v1/flash-drops/$flashDropId/purchase');
+    // Extract order ID from response data
+    final data = resp.data['data'] as Map<String, dynamic>?;
+    return data?['order_id'] as String? ?? '';
   }
 }

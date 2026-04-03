@@ -29,4 +29,8 @@ class FlashDropRepositoryImpl implements FlashDropRepository {
         startsAt: startsAt,
         endsAt: endsAt,
       );
+
+  @override
+  Future<String> purchaseFlashDrop(String flashDropId) =>
+      _remoteDataSource.purchaseFlashDrop(flashDropId);
 }

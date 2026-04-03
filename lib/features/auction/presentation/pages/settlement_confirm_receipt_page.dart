@@ -1,12 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
+import '../../../orders/presentation/cubit/order_tracking_cubit.dart';
 
 /// Mazadat Secure Settlement — Confirm Receipt page.
 ///
@@ -20,6 +23,7 @@ class SettlementConfirmReceiptPage extends StatelessWidget {
   final String imageUrl;
   final String transactionId;
   final String? auctionId;
+  final String? orderId;
 
   const SettlementConfirmReceiptPage({
     super.key,
@@ -28,35 +32,39 @@ class SettlementConfirmReceiptPage extends StatelessWidget {
     required this.imageUrl,
     this.transactionId = '#LQ-8829-AX',
     this.auctionId,
+    this.orderId,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.surfaceAlt,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 120.h),
-                child: Column(
-                  children: [
-                    _buildItemCard(),
-                    SizedBox(height: 32.h),
-                    _buildConfirmSection(context),
-                    SizedBox(height: 32.h),
-                    _buildDisputeSection(context),
-                    SizedBox(height: 24.h),
-                    _buildEscrowPolicyInfo(),
-                  ],
+    return BlocProvider(
+      create: (_) => getIt<OrderTrackingCubit>(),
+      child: Scaffold(
+        backgroundColor: AppTheme.surfaceAlt,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 120.h),
+                  child: Column(
+                    children: [
+                      _buildItemCard(),
+                      SizedBox(height: 32.h),
+                      _buildConfirmSection(context),
+                      SizedBox(height: 32.h),
+                      _buildDisputeSection(context),
+                      SizedBox(height: 24.h),
+                      _buildEscrowPolicyInfo(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buildTransactionFooter(),
-          ],
+              _buildTransactionFooter(),
+            ],
+          ),
         ),
       ),
     );
@@ -213,7 +221,8 @@ class SettlementConfirmReceiptPage extends StatelessWidget {
         GestureDetector(
           onTap: () {
             HapticFeedback.mediumImpact();
-            // TODO: call backend confirm receipt API
+            final orderId = this.orderId ?? transactionId.replaceFirst('#LQ-', '');
+            context.read<OrderTrackingCubit>().confirmDelivery(orderId);
           },
           child: Container(
             width: double.infinity,
@@ -297,7 +306,8 @@ class SettlementConfirmReceiptPage extends StatelessWidget {
           GestureDetector(
             onTap: () {
               HapticFeedback.mediumImpact();
-              // TODO: navigate to dispute flow
+              final orderId = this.orderId ?? transactionId.replaceFirst('#LQ-', '');
+              context.push('/orders/$orderId/dispute');
             },
             child: Container(
               width: double.infinity,

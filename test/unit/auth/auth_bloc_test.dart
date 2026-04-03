@@ -87,7 +87,7 @@ void main() {
           ),
         ),
       );
-      bloc.close();
+      await bloc.close();
     });
 
     test('emits unauthenticated when no token stored', () async {
@@ -105,7 +105,7 @@ void main() {
           ),
         ),
       );
-      bloc.close();
+      await bloc.close();
     });
 
     test('emits unauthenticated on repository exception', () async {
@@ -123,7 +123,7 @@ void main() {
           ),
         ),
       );
-      bloc.close();
+      await bloc.close();
     });
   });
 

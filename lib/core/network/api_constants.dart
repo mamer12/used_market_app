@@ -13,7 +13,8 @@ class ApiConstants {
   ///
   /// Override at any time with --dart-define=DEV_HOST=YOUR_IP.
   static const String _devHost =
-      '192.168.68.105'; // <-- localhost for iOS Simulator
+      '127.0.0.1'; // <-- localhost for iOS Simulator
+
   static const String _prodHost =
       'luqta-api-production.up.railway.app'; // Railway deployment
 
@@ -26,7 +27,8 @@ class ApiConstants {
 
     // Debug / profile
     if (Platform.isAndroid) return '10.0.2.2'; // Android emulator loopback
-    return _devHost; // iOS Simulator + physical iPhone on same LAN
+    if (Platform.isIOS) return '127.0.0.1'; // iOS Simulator localhost
+    return _devHost; // Fallback
   }
 
   static bool get _isProduction => kReleaseMode;
@@ -106,4 +108,20 @@ class ApiConstants {
 
   // --- Search ---
   static const String search = 'search'; // GET ?q=
+
+  // --- Sooq Config ---
+  static const String sooqsAvailable = 'sooqs/available'; // GET — active Sooqs for city
+
+  // --- Chat / Conversations ---
+  static const String conversations = 'conversations'; // GET (list), POST (create)
+  static String conversationMessages(String id) =>
+      'conversations/$id/messages'; // GET (list), POST (send)
+
+  // --- Disputes ---
+  /// POST /orders/:id/dispute
+  static String orderDispute(String orderId) => 'orders/$orderId/dispute';
+
+  // --- Personalized Feed ---
+  static const String feedEvent = 'feed/event';     // POST
+  static const String feedForYou = 'feed/for-you';  // GET
 }

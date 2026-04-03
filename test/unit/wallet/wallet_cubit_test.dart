@@ -99,7 +99,7 @@ void main() {
       expect(ok, isFalse);
       expect(states, isEmpty); // no state emitted
       verifyNever(() => repo.deductBalance(any()));
-      cubit.close();
+      await cubit.close();
     },
   );
 

@@ -1,0 +1,108 @@
+Analyzing used_market_app...                                    
+
+  error • The name 'DisputeDataSource' isn't a type, so it can't be used as a type argument • lib/core/di/injection.config.dart:201:14 • non_type_as_type_argument
+  error • The function 'DisputeDataSource' isn't defined • lib/core/di/injection.config.dart:202:17 • undefined_function
+warning • Unused import: '../../features/auction/presentation/pages/auction_live_page.dart' • lib/core/router/app_router.dart:11:8 • unused_import
+   info • Use 'const' with the constructor to improve performance • lib/features/auction/presentation/pages/active_bids_page.dart:87:35 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/auction/presentation/pages/auction_live_page.dart:941:13 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/auction/presentation/pages/auction_live_page.dart:943:13 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/auction/presentation/pages/auction_live_page.dart:959:19 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/auction/presentation/pages/auction_live_page.dart:961:17 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/auction/presentation/pages/auction_live_page.dart:961:29 • prefer_const_constructors
+   info • Unnecessary use of multiple underscores • lib/features/auction/presentation/widgets/auction_clips_row.dart:83:37 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/auction/presentation/widgets/auction_clips_row.dart:105:26 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/auction/presentation/widgets/auction_clips_row.dart:105:30 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/auction/presentation/widgets/auction_clips_row.dart:147:37 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/auction/presentation/widgets/auction_clips_row.dart:147:41 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/auction/presentation/widgets/auction_clips_row.dart:387:27 • unnecessary_underscores
+   info • Use 'const' with the constructor to improve performance • lib/features/auction/presentation/widgets/auction_clips_row.dart:432:35 • prefer_const_constructors
+   info • Unnecessary use of multiple underscores • lib/features/auction/presentation/widgets/auction_clips_row.dart:466:31 • unnecessary_underscores
+   info • Use 'const' with the constructor to improve performance • lib/features/auth/presentation/pages/login_page.dart:250:23 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/auth/presentation/pages/login_page.dart:250:39 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/auth/presentation/pages/login_page.dart:261:23 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/auth/presentation/pages/login_page.dart:261:39 • prefer_const_constructors
+  error • The method '_buildStatsRow' isn't defined for the type '_ProfilePageState' • lib/features/auth/presentation/pages/profile_page.dart:90:35 • undefined_method
+  error • The method '_buildWalletChip' isn't defined for the type '_ProfilePageState' • lib/features/auth/presentation/pages/profile_page.dart:93:35 • undefined_method
+  error • The method '_buildOrdersQuickSection' isn't defined for the type '_ProfilePageState' • lib/features/auth/presentation/pages/profile_page.dart:96:35 • undefined_method
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/features/auth/presentation/pages/registration_page.dart:256:7 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance • lib/features/chat/presentation/pages/chat_room_page.dart:178:25 • prefer_const_constructors
+   info • Unnecessary use of multiple underscores • lib/features/chat/presentation/pages/conversations_page.dart:160:45 • unnecessary_underscores
+warning • Dead code • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:125:42 • dead_code
+warning • The left operand can't be null, so the right operand is never executed • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:125:45 • dead_null_aware_expression
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:138:17 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:161:17 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:181:35 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:188:28 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:203:28 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:250:36 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:260:36 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:282:27 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/flash_drops/presentation/pages/create_flash_drop_page.dart:329:31 • invalid_null_aware_operator
+warning • The value of the field '_selectedProductName' isn't used • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:34:10 • unused_field
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:116:17 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:134:17 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:157:17 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:178:25 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:184:35 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:228:25 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:261:35 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/create_group_buy_page.dart:321:31 • invalid_null_aware_operator
+   info • Missing an 'await' for the 'Future' computed by this expression • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:108:15 • unawaited_futures
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:132:17 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:147:28 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:182:31 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:198:19 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:207:19 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/group_buy/presentation/pages/group_buy_list_page.dart:218:21 • invalid_null_aware_operator
+warning • The operand can't be 'null', so the condition is always 'false' • lib/features/home/presentation/widgets/home_components.dart:407:20 • unnecessary_null_comparison
+warning • Dead code • lib/features/home/presentation/widgets/home_components.dart:407:30 • dead_code
+warning • The '!' will have no effect because the receiver can't be null • lib/features/home/presentation/widgets/home_components.dart:409:14 • unnecessary_non_null_assertion
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/home_components.dart:1224:12 • prefer_const_constructors
+   info • Unnecessary use of multiple underscores • lib/features/home/presentation/widgets/home_components.dart:1244:31 • unnecessary_underscores
+   info • Missing an 'await' for the 'Future' computed by this expression • lib/features/notifications/presentation/pages/activity_page.dart:199:30 • unawaited_futures
+   info • Unnecessary use of multiple underscores • lib/features/notifications/presentation/pages/activity_page.dart:212:37 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/notifications/presentation/pages/activity_page.dart:248:29 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/notifications/presentation/pages/activity_page.dart:249:24 • unnecessary_underscores
+   info • Use 'const' with the constructor to improve performance • lib/features/notifications/presentation/pages/notifications_page.dart:252:33 • prefer_const_constructors
+warning • Unused import: '../../../../core/di/injection.dart' • lib/features/orders/data/repositories/dispute_repository.dart:4:8 • unused_import
+   info • Unnecessary use of multiple underscores • lib/features/orders/presentation/pages/order_tracking_page.dart:174:40 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/orders/presentation/pages/order_tracking_page.dart:177:40 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/orders/presentation/pages/order_tracking_page.dart:177:44 • unnecessary_underscores
+warning • The declaration '_kGreen' isn't referenced • lib/features/payment/presentation/pages/zaincash_page.dart:18:7 • unused_element
+   info • Don't use 'BuildContext's across async gaps • lib/features/shop/presentation/pages/checkout_page.dart:149:19 • use_build_context_synchronously
+   info • Unnecessary use of multiple underscores • lib/features/shop/presentation/pages/checkout_page.dart:931:42 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/shop/presentation/pages/checkout_page.dart:934:42 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/shop/presentation/pages/checkout_page.dart:934:46 • unnecessary_underscores
+warning • Unused import: 'matajir_categories_page.dart' • lib/features/shop/presentation/pages/matajir_shell_page.dart:11:8 • unused_import
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_detail_page.dart:339:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_detail_page.dart:344:9 • prefer_const_constructors
+   info • The local variable '_x' starts with an underscore • lib/features/shop/presentation/pages/mustamal_detail_page.dart:621:37 • no_leading_underscores_for_local_identifiers
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_detail_page.dart:716:27 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_my_ads_page.dart:31:5 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_my_ads_page.dart:40:5 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_my_ads_page.dart:49:5 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_my_ads_page.dart:58:5 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_my_ads_page.dart:156:31 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/pages/mustamal_my_ads_page.dart:692:14 • prefer_const_constructors
+   info • Unnecessary use of multiple underscores • lib/features/shop/presentation/pages/order_history_page.dart:111:37 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/shop/presentation/pages/order_history_page.dart:128:29 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/shop/presentation/pages/order_history_page.dart:129:24 • unnecessary_underscores
+   info • The private field _isFollowing could be 'final' • lib/features/shop/presentation/pages/shop_products_page.dart:326:8 • prefer_final_fields
+warning • The '!' will have no effect because the receiver can't be null • lib/features/shop/presentation/widgets/follow_button.dart:91:48 • unnecessary_non_null_assertion
+warning • The '!' will have no effect because the receiver can't be null • lib/features/shop/presentation/widgets/follow_button.dart:111:46 • unnecessary_non_null_assertion
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/widgets/follow_button.dart:125:32 • prefer_const_constructors
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/shop/presentation/widgets/following_products_tab.dart:70:21 • invalid_null_aware_operator
+warning • The receiver can't be null, so the null-aware operator '?.' is unnecessary • lib/features/shop/presentation/widgets/following_products_tab.dart:80:21 • invalid_null_aware_operator
+   info • Use 'const' with the constructor to improve performance • lib/features/shop/presentation/widgets/following_products_tab.dart:150:46 • prefer_const_constructors
+warning • The '!' will have no effect because the receiver can't be null • lib/features/stories/presentation/pages/create_story_page.dart:54:46 • unnecessary_non_null_assertion
+warning • The '!' will have no effect because the receiver can't be null • lib/features/stories/presentation/pages/create_story_page.dart:95:46 • unnecessary_non_null_assertion
+warning • The '!' will have no effect because the receiver can't be null • lib/features/stories/presentation/pages/create_story_page.dart:137:46 • unnecessary_non_null_assertion
+   info • Missing an 'await' for the 'Future' computed by this expression • lib/features/wallet/presentation/pages/wallet_page.dart:38:20 • unawaited_futures
+   info • Unnecessary use of multiple underscores • lib/features/wallet/presentation/pages/wallet_page.dart:496:37 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores • lib/features/wallet/presentation/pages/wallet_page.dart:507:19 • unnecessary_underscores
+   info • Missing an 'await' for the 'Future' computed by this expression • test/unit/auth/auth_bloc_test.dart:90:12 • unawaited_futures
+   info • Missing an 'await' for the 'Future' computed by this expression • test/unit/auth/auth_bloc_test.dart:108:12 • unawaited_futures
+   info • Missing an 'await' for the 'Future' computed by this expression • test/unit/auth/auth_bloc_test.dart:126:12 • unawaited_futures
+   info • Missing an 'await' for the 'Future' computed by this expression • test/unit/wallet/wallet_cubit_test.dart:102:13 • unawaited_futures
+  error • The name 'MyApp' isn't a class • test/widget_test.dart:16:35 • creation_with_non_type
+

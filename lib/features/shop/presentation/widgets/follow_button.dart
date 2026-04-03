@@ -88,7 +88,7 @@ class _FollowButtonState extends State<FollowButton>
       unawaited(_animController.forward(from: 0));
       widget.onFollowChanged?.call();
 
-      final l10n = AppLocalizations.of(context)!;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -108,7 +108,7 @@ class _FollowButtonState extends State<FollowButton>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -122,7 +122,7 @@ class _FollowButtonState extends State<FollowButton>
                     ? SizedBox(
                         width: 14.w,
                         height: 14.w,
-                        child: CircularProgressIndicator(
+                        child: const CircularProgressIndicator(
                           strokeWidth: 2,
                           color: _matajirBlue,
                         ),

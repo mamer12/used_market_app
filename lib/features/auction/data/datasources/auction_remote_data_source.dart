@@ -22,6 +22,10 @@ abstract class AuctionRemoteDataSource {
   Future<BidModel> placeBid(String auctionId, PlaceBidRequest request);
   Future<List<BidModel>> getMyBids();
   Future<List<AuctionModel>> getWatchedAuctions();
+
+  /// Accept a second-chance offer for an auction where the winner failed to pay.
+  /// POST /api/v1/auctions/{id}/second-chance/accept
+  Future<AuctionModel> acceptSecondChance(String auctionId);
 }
 
 @LazySingleton(as: AuctionRemoteDataSource)
@@ -116,5 +120,13 @@ class AuctionRemoteDataSourceImpl implements AuctionRemoteDataSource {
     return data
         .map((e) => auctionFromApiResponse(e as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<AuctionModel> acceptSecondChance(String auctionId) async {
+    final response = await _dio.post(
+      '${ApiConstants.auctions}/$auctionId/second-chance/accept',
+    );
+    return auctionFromApiResponse(response.data as Map<String, dynamic>);
   }
 }

@@ -1,19 +1,13 @@
 import 'dart:async';
 
+import '../cubit/sooq_config_cubit.dart';
+import '../pages/coming_soon_page.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/auction/presentation/pages/active_bids_page.dart';
-import '../../features/auction/presentation/pages/auction_lost_page.dart';
-import '../../features/auction/presentation/pages/auction_won_page.dart';
-import '../../features/auction/presentation/pages/create_auction_page.dart';
-import '../../features/auction/presentation/bloc/auctions_cubit.dart';
-import '../../features/auction/presentation/pages/mazadat_shell_page.dart';
-import '../../features/auction/presentation/pages/mazadat_payment_page.dart';
-import '../../features/auction/presentation/pages/settlement_confirm_page.dart';
-import '../../features/auction/presentation/pages/second_chance_offer_page.dart';
-import '../../features/auction/presentation/pages/settlement_confirm_receipt_page.dart';
+// Sooq native pages removed - now using WebView
+// import '../../features/auction/presentation/pages/mazadat_shell_page.dart';
 import '../../features/auth/domain/entities/auth_status.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -21,45 +15,39 @@ import '../../features/auth/presentation/pages/profile_page.dart';
 import '../../features/auth/presentation/pages/registration_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/verify_otp_page.dart';
-import '../../features/cart/presentation/cubit/balla_cart_cubit.dart';
-import '../../features/cart/presentation/cubit/matajir_cart_cubit.dart';
-import '../../features/cart/presentation/pages/cart_page.dart';
-import '../../features/cart/presentation/pages/checkout_page.dart';
-import '../../features/home/presentation/pages/add_balla_page.dart';
-import '../../features/home/presentation/pages/create_mustamal_page.dart';
+// Cart/Checkout pages removed - now in WebView
+// import '../../features/cart/presentation/cubit/balla_cart_cubit.dart';
+// import '../../features/cart/presentation/cubit/matajir_cart_cubit.dart';
+// Sooq creation pages removed - now in WebView
+// import '../../features/home/presentation/pages/add_balla_page.dart';
+// import '../../features/home/presentation/pages/create_mustamal_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/messages/presentation/pages/chat_page.dart';
-import '../../features/messages/presentation/pages/messages_page.dart';
+// Messages pages removed - now in WebView
+// import '../../features/messages/presentation/pages/chat_page.dart';
+// import '../../features/messages/presentation/pages/messages_page.dart';
 import '../../features/notifications/presentation/pages/activity_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
-import '../../features/search/presentation/bloc/search_cubit.dart';
-import '../../features/search/presentation/pages/search_page.dart';
-import '../../features/home/data/models/portal_models.dart';
-import '../../features/shop/data/models/shop_models.dart';
-import '../../features/shop/presentation/pages/balla_page.dart';
-import '../../features/shop/presentation/pages/balla_product_details_page.dart';
-import '../../features/shop/presentation/pages/matajir_shell_page.dart';
-import '../../features/shop/presentation/pages/dispute_page.dart';
 import '../../features/shop/presentation/pages/favorites_page.dart';
-import '../../features/shop/presentation/pages/mustamal_detail_page.dart';
-import '../../features/shop/presentation/pages/mustamal_my_ads_page.dart';
-import '../../features/shop/presentation/pages/mustamal_page.dart';
-import '../../features/shop/presentation/pages/product_details_page.dart';
 import '../../features/shop/presentation/pages/shipping_address_page.dart';
-import '../../features/shop/presentation/pages/shop_products_page.dart';
-import '../../features/shop/presentation/pages/zaincash_payment_page.dart';
+// Sooq shop pages removed - now in WebView
+// import '../../features/shop/presentation/pages/balla_page.dart';
+// import '../../features/shop/presentation/pages/matajir_shell_page.dart';
+// import '../../features/shop/presentation/pages/mustamal_page.dart';
 import '../../features/map/presentation/pages/mahallati_page.dart';
-import '../../features/flash_drops/presentation/pages/create_flash_drop_page.dart';
+// Flash Drops pages removed - now in WebView
+// import '../../features/flash_drops/presentation/pages/flash_drops_page.dart';
 import '../../features/group_buy/presentation/pages/create_group_buy_page.dart';
 import '../../features/group_buy/presentation/pages/group_buy_list_page.dart';
 import '../../features/group_buy/presentation/pages/group_buy_page.dart';
 import '../../features/negotiation/presentation/pages/my_negotiations_page.dart';
 import '../../features/stories/presentation/pages/create_story_page.dart';
 import '../../features/stories/presentation/pages/story_viewer_page.dart';
+import '../../features/feed/presentation/pages/feed_page.dart';
 import '../../features/seller/presentation/pages/seller_dashboard_page.dart';
 import '../../features/wallet/presentation/pages/wallet_page.dart';
-import '../di/injection.dart';
+// import '../di/injection.dart'; // Not currently used
 import '../widgets/main_shell.dart';
+import '../widgets/sooq_webview.dart';
 
 /// Global navigator key to access top-level context anywhere if needed.
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -84,7 +72,7 @@ const _publicPaths = [
 /// Uses go_router's `redirect` to enforce mandatory authentication.
 /// Users must be [AuthStatus.authenticated] to access any route outside
 /// of [_publicPaths].
-GoRouter buildAppRouter(AuthBloc authBloc) {
+GoRouter buildAppRouter(AuthBloc authBloc, SooqConfigCubit sooqConfigCubit) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: '/',
@@ -127,10 +115,30 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
         return '/';
       }
 
+      // 5. Sooq gate: inactive Sooqs redirect to coming-soon
+      const sooqPaths = {
+        '/matajir': 'matajir',
+        '/balla': 'balla',
+        '/mustamal': 'mustamal',
+        '/mazadat': 'mazadat',
+      };
+      for (final entry in sooqPaths.entries) {
+        if (location.startsWith(entry.key)) {
+          if (!sooqConfigCubit.isSooqActive(entry.value)) {
+            return '/coming-soon/${entry.value}';
+          }
+          break;
+        }
+      }
+
       return null;
     },
     routes: [
       // ── Public auth routes ──────────────────────────────────────────────
+      GoRoute(
+        path: '/coming-soon/:sooqId',
+        builder: (context, state) => ComingSoonPage(sooqId: state.pathParameters['sooqId'] ?? ''),
+      ),
       GoRoute(path: '/wallet', builder: (_, _) => const WalletPage()),
       GoRoute(path: '/splash', builder: (_, _) => const SplashPage()),
       GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingPage()),
@@ -155,10 +163,15 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       ),
 
       // ── Flash Drops ─────────────────────────────────────────────────────
-      GoRoute(
-        path: '/flash-drops/create',
-        builder: (_, _) => const CreateFlashDropPage(),
-      ),
+      // NOTE: Flash Drops now rendered via WebView - native pages removed
+      // GoRoute(
+      //   path: '/flash-drops',
+      //   builder: (_, _) => const FlashDropsPage(),
+      // ),
+      // GoRoute(
+      //   path: '/flash-drops/create',
+      //   builder: (_, _) => const CreateFlashDropPage(),
+      // ),
 
       // ── Group Buys ──────────────────────────────────────────────────────
       GoRoute(
@@ -182,6 +195,20 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
         builder: (_, _) => const MyNegotiationsPage(),
       ),
 
+      // ── Conversations (in-app chat) ─────────────────────────────────────
+      // NOTE: Chat now rendered via WebView - native pages removed
+      // GoRoute(
+      //   path: '/conversations',
+      //   builder: (_, _) => const ConversationsPage(),
+      // ),
+      // GoRoute(
+      //   path: '/conversations/:id',
+      //   builder: (context, state) => ChatRoomPage(
+      //     conversationId: state.pathParameters['id'] ?? '',
+      //     recipientName: state.uri.queryParameters['name'] ?? '',
+      //   ),
+      // ),
+
       // ── Mahallati (hyperlocal map) ───────────────────────────────
       GoRoute(
         path: '/mahallati',
@@ -196,242 +223,47 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
         path: '/seller-dashboard',
         builder: (_, _) => const SellerDashboardPage(),
       ),
+      // NOTE: These routes now rendered via WebView
+      // GoRoute(
+      //   path: '/orders/:id/dispute',
+      //   builder: (context, state) =>
+      //       DisputePage(orderId: state.pathParameters['id'] ?? ''),
+      // ),
+      // GoRoute(
+      //   path: '/mustamal/:id',
+      //   builder: (context, state) =>
+      //       MustamalDetailPage(item: state.extra! as ItemModel),
+      // ),
+      // GoRoute(
+      //   path: '/search',
+      //   builder: (context, state) => BlocProvider<SearchCubit>(
+      //     create: (context) => getIt<SearchCubit>(),
+      //     child: const SearchPage(),
+      //   ),
+      // ),
+
+      // Matajir Mini-App (WebView)
       GoRoute(
-        path: '/orders/:id/dispute',
-        builder: (context, state) =>
-            DisputePage(orderId: state.pathParameters['id'] ?? ''),
-      ),
-      GoRoute(
-        path: '/mustamal/:id',
-        builder: (context, state) =>
-            MustamalDetailPage(item: state.extra! as ItemModel),
-      ),
-      GoRoute(
-        path: '/search',
-        builder: (context, state) => BlocProvider<SearchCubit>(
-          create: (context) => getIt<SearchCubit>(),
-          child: const SearchPage(),
-        ),
+        path: '/matajir',
+        builder: (_, _) => const SooqWebView(sooq: 'matajir'),
       ),
 
-      // Matajir Mini-App (Isolated Cart)
-      ShellRoute(
-        builder: (context, state, child) {
-          return BlocProvider<MatajirCartCubit>(
-            create: (context) => getIt<MatajirCartCubit>(),
-            child: child,
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/matajir',
-            builder: (context, state) => const MatajirShellPage(),
-            routes: [
-              GoRoute(
-                path: 'cart',
-                builder: (context, state) =>
-                    CartPage(cartCubit: context.read<MatajirCartCubit>()),
-              ),
-              GoRoute(
-                path: 'checkout',
-                builder: (context, state) =>
-                    const CheckoutPage(appContext: 'matajir'),
-              ),
-              GoRoute(
-                path: 'product/:id',
-                builder: (context, state) {
-                  final product = state.extra as ProductModel;
-                  return ProductDetailsPage(product: product);
-                },
-              ),
-              GoRoute(
-                path: 'shop/:slug',
-                builder: (context, state) {
-                  final slug = state.pathParameters['slug'] ?? '';
-                  final shopName = state.uri.queryParameters['name'] ?? 'Shop';
-                  return ShopProductsPage(shopSlug: slug, shopName: shopName);
-                },
-              ),
-              GoRoute(
-                path: 'zaincash/:orderId',
-                builder: (context, state) {
-                  final orderId = state.pathParameters['orderId'] ?? '';
-                  final paymentUrl = state.extra as String? ?? '';
-                  return ZainCashPaymentPage(
-                    orderId: orderId,
-                    paymentUrl: paymentUrl,
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
+      // Balla Mini-App (WebView)
+      GoRoute(
+        path: '/balla',
+        builder: (_, _) => const SooqWebView(sooq: 'balla'),
       ),
 
-      // Balla Mini-App (Isolated Cart)
-      ShellRoute(
-        builder: (context, state, child) {
-          return BlocProvider<BallaCartCubit>(
-            create: (context) => getIt<BallaCartCubit>(),
-            child: child,
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/balla',
-            builder: (context, state) => const BallaPage(),
-            routes: [
-              GoRoute(
-                path: 'create',
-                builder: (context, state) => const AddBallaPage(),
-              ),
-              GoRoute(
-                path: 'cart',
-                builder: (context, state) =>
-                    CartPage(cartCubit: context.read<BallaCartCubit>()),
-              ),
-              GoRoute(
-                path: 'checkout',
-                builder: (context, state) =>
-                    const CheckoutPage(appContext: 'balla'),
-              ),
-              GoRoute(
-                path: 'product/:id',
-                builder: (context, state) {
-                  final product = state.extra as ProductModel;
-                  return BallaProductDetailsPage(product: product);
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-
-      // Mustamal Mini-App
+      // Mustamal Mini-App (WebView)
       GoRoute(
         path: '/mustamal',
-        builder: (_, _) => const MustamalPage(),
-        routes: [
-          GoRoute(
-            path: 'create',
-            builder: (context, state) => const CreateMustamalPage(),
-          ),
-          GoRoute(
-            path: 'my-ads',
-            builder: (_, _) => const MustamalMyAdsPage(),
-          ),
-        ],
+        builder: (_, _) => const SooqWebView(sooq: 'mustamal'),
       ),
 
-      // Mazadat Mini-App
-      ShellRoute(
-        builder: (context, state, child) {
-          return BlocProvider<AuctionsCubit>(
-            create: (context) => getIt<AuctionsCubit>()
-              ..loadAuctions()
-              ..loadMyBids()
-              ..loadWatchedAuctions(),
-            child: child,
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/mazadat',
-            builder: (_, _) => const MazadatShellPage(),
-            routes: [
-              GoRoute(
-                path: 'create',
-                builder: (_, _) => const CreateAuctionPage(),
-              ),
-              GoRoute(
-                path: 'bids',
-                builder: (_, _) => const ActiveBidsPage(),
-              ),
-              GoRoute(
-                path: 'payment/:auctionId',
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
-                  return MazadatPaymentPage(
-                    auctionId: state.pathParameters['auctionId'] ?? '',
-                    itemTitle: extra['itemTitle'] as String? ?? 'عنصر',
-                    winningBid: extra['winningBid'] as int? ?? 0,
-                    imageUrl: extra['imageUrl'] as String? ?? '',
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'won',
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
-                  return AuctionWonPage(
-                    auctionId: extra['auctionId'] as String? ?? '',
-                    itemTitle: extra['itemTitle'] as String? ?? '',
-                    winningBid: extra['winningBid'] as int? ?? 0,
-                    currency: extra['currency'] as String? ?? 'د.ع',
-                    endTime: extra['endTime'] as DateTime? ?? DateTime.now(),
-                    imageUrl: extra['imageUrl'] as String? ??
-                        'https://placehold.co/400x400/png',
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'lost',
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
-                  return AuctionLostPage(
-                    itemTitle: extra['itemTitle'] as String? ?? '',
-                    closingPrice: extra['closingPrice'] as double? ?? 0,
-                    winnerInitials: extra['winnerInitials'] as String? ?? '؟',
-                    imageUrl: extra['imageUrl'] as String? ??
-                        'https://placehold.co/400x400/png',
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'payment-success',
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
-                  return SettlementConfirmPage(
-                    orderId: extra['orderId'] as String? ?? extra['auctionId'] as String?,
-                    amount: extra['amount'] as int? ?? (extra['finalPrice'] as double? ?? 0).toInt(),
-                    sellerName: extra['sellerName'] as String?,
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'settlement-confirm',
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
-                  return SettlementConfirmReceiptPage(
-                    itemTitle: extra['itemTitle'] as String? ?? '',
-                    finalPrice: extra['finalPrice'] as double? ?? 0,
-                    imageUrl: extra['imageUrl'] as String? ??
-                        'https://placehold.co/400x400/png',
-                    transactionId: extra['transactionId'] as String? ?? '',
-                    auctionId: extra['auctionId'] as String? ?? '',
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'second-chance',
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>? ?? {};
-                  return SecondChanceOfferPage(
-                    auctionId: extra['auctionId'] as String? ?? '',
-                    itemTitle: extra['itemTitle'] as String? ?? '',
-                    lastBidPrice: extra['lastBidPrice'] as double? ?? 0,
-                    imageUrl: extra['imageUrl'] as String? ??
-                        'https://placehold.co/400x400/png',
-                    expiresAt: extra['expiresAt'] as DateTime? ??
-                        DateTime.now().add(const Duration(hours: 24)),
-                    itemDescription:
-                        extra['itemDescription'] as String? ?? '',
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
+      // Mazadat Mini-App (WebView)
+      GoRoute(
+        path: '/mazadat',
+        builder: (_, _) => const SooqWebView(sooq: 'mazadat'),
       ),
 
       // ── Main tabbed shell ───────────────────────────────────────────────
@@ -444,29 +276,27 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
           StatefulShellBranch(
             navigatorKey: _homeNavKey,
             routes: [
-              GoRoute(path: '/', builder: (context, state) => const HomePage()),
+              GoRoute(
+                path: '/',
+                builder: (context, state) => const HomePage(),
+                routes: [
+                  GoRoute(
+                    path: 'feed',
+                    builder: (_, state) => const FeedPage(),
+                  ),
+                ],
+              ),
             ],
           ),
 
           // ── Branch 1: Messages ─────────────────────────────────────────
+          // NOTE: Messages now rendered via WebView
           StatefulShellBranch(
             navigatorKey: _messagesNavKey,
             routes: [
               GoRoute(
                 path: '/messages',
-                builder: (context, state) => const MessagesPage(),
-                routes: [
-                  GoRoute(
-                    path: ':sellerId',
-                    builder: (context, state) {
-                      final extra = state.extra as Map<String, dynamic>? ?? {};
-                      return ChatPage(
-                        sellerId: state.pathParameters['sellerId'] ?? '',
-                        sellerName: extra['sellerName'] as String? ?? '',
-                      );
-                    },
-                  ),
-                ],
+                builder: (context, state) => const SooqWebView(sooq: 'chat'),
               ),
             ],
           ),

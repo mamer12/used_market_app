@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/cubit/sooq_config_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/iqd_formatter.dart';
 import '../../../../core/widgets/skeleton_loading.dart';
@@ -33,18 +34,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late final HomeCubit _cubit;
   late final WalletCubit _walletCubit;
+  late final SooqConfigCubit _sooqConfigCubit;
 
   @override
   void initState() {
     super.initState();
     _cubit = getIt<HomeCubit>()..loadFeed();
     _walletCubit = getIt<WalletCubit>()..loadBalance();
+    _sooqConfigCubit = getIt<SooqConfigCubit>()..loadConfig();
   }
 
   @override
   void dispose() {
     _cubit.close();
     _walletCubit.close();
+    _sooqConfigCubit.close();
     super.dispose();
   }
 
@@ -56,6 +60,7 @@ class _HomePageState extends State<HomePage> {
       providers: [
         BlocProvider.value(value: _cubit),
         BlocProvider.value(value: _walletCubit),
+        BlocProvider.value(value: _sooqConfigCubit),
       ],
       child: Scaffold(
         backgroundColor: AppTheme.background,
@@ -142,22 +147,43 @@ class _HomePageState extends State<HomePage> {
                         label: l10n.homeSeeAll,
                         onTap: () {},
                       ),
-                      child: BentoGrid(
-                        labels: {
-                          'mazad': l10n.miniAppMazad,
-                          'matajir': l10n.miniAppMatajir,
-                          'mustamal': l10n.miniAppMustamal,
-                          'balla': l10n.miniAppBalla,
+                      child: BlocBuilder<SooqConfigCubit, SooqConfigState>(
+                        builder: (context, sooqState) {
+                          Set<String>? activeSooqs;
+                          if (sooqState is SooqConfigLoaded) {
+                            activeSooqs = sooqState.sooqs
+                                .where((s) => s.isActive)
+                                .map((s) => s.sooqId == 'mazadat' ? 'mazad' : s.sooqId)
+                                .toSet();
+                          }
+                          return BentoGrid(
+                            labels: {
+                              'mazad': l10n.miniAppMazad,
+                              'matajir': l10n.miniAppMatajir,
+                              'mustamal': l10n.miniAppMustamal,
+                              'balla': l10n.miniAppBalla,
+                            },
+                            taglines: {
+                              'mazad': l10n.miniAppMazadTagline,
+                              'matajir': l10n.miniAppMatajirTagline,
+                              'mustamal': l10n.miniAppMustamalTagline,
+                              'balla': l10n.miniAppBallaTagline,
+                            },
+                            liveAuctionCount: state.liveAuctions.length,
+                            activeSooqs: activeSooqs,
+                            onTileTap: (id) => _onSooqTap(context, id),
+                          );
                         },
-                        taglines: {
-                          'mazad': l10n.miniAppMazadTagline,
-                          'matajir': l10n.miniAppMatajirTagline,
-                          'mustamal': l10n.miniAppMustamalTagline,
-                          'balla': l10n.miniAppBallaTagline,
-                        },
-                        liveAuctionCount: state.liveAuctions.length,
-                        onTileTap: (id) => _onSooqTap(context, id),
                       ),
+                    ),
+                  ),
+
+                  // ── Verified Stores Row ────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: HomeSection(
+                      title: 'متاجر موثقة',
+                      padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
+                      child: VerifiedStoresRow.placeholder(),
                     ),
                   ),
 
@@ -280,6 +306,8 @@ class _HomePageState extends State<HomePage> {
   void _onUtilityTap(BuildContext context, String id) {
     HapticFeedback.selectionClick();
     switch (id) {
+      case 'feed':
+        context.push('/feed');
       case 'orders':
         context.push('/orders');
       case 'messages':

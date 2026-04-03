@@ -15,7 +15,6 @@ const _kBg = Color(0xFFFAFAFA);
 const _kSurface = Colors.white;
 const _kTextPrimary = Color(0xFF1C1713);
 const _kTextSecondary = Color(0xFF6B5E52);
-const _kGreen = Color(0xFF00B37E);
 
 /// ZainCash WebView payment screen with cubit-driven state management.
 ///

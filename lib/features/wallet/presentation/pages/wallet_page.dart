@@ -35,7 +35,7 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   Future<void> _onRefresh() async {
-    HapticFeedback.mediumImpact();
+    await HapticFeedback.mediumImpact();
     await _cubit.loadBalance();
     await _cubit.loadTransactions();
   }
@@ -493,7 +493,7 @@ class _RealTransactionsList extends StatelessWidget {
             padding: EdgeInsetsDirectional.fromSTEB(16.w, 0, 16.w, 100.h),
             sliver: SliverList.separated(
               itemCount: txns.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, _) =>
                   const Divider(height: 1, color: AppTheme.divider),
               itemBuilder: (_, i) => _ApiTransactionRow(tx: txns[i]),
             ),
@@ -504,7 +504,7 @@ class _RealTransactionsList extends StatelessWidget {
           padding: EdgeInsetsDirectional.fromSTEB(16.w, 0, 16.w, 100.h),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (_, __) => Padding(
+              (_, _) => Padding(
                 padding: EdgeInsetsDirectional.symmetric(vertical: 10.h),
                 child: SkeletonBox(
                   width: double.infinity,

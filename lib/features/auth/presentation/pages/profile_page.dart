@@ -86,6 +86,15 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
 
+        // -- Stats row --
+        // SliverToBoxAdapter(child: _buildStatsRow(context)),
+
+        // -- Wallet chip --
+        // SliverToBoxAdapter(child: _buildWalletChip(context, l10n)),
+
+        // -- Orders quick section --
+        // SliverToBoxAdapter(child: _buildOrdersQuickSection(context)),
+
         // -- Edit form --
         if (_isEditing)
           SliverToBoxAdapter(child: _buildEditForm(context, l10n)),

@@ -24,10 +24,10 @@ class _SellerDashboardPageState extends State<SellerDashboardPage> {
   String? _error;
 
   // Stats
-  final int _todayOrders = 0;
-  final int _todayRevenue = 0;
-  final int _storyViews = 0;
-  final int _followers = 0;
+  int _todayOrders = 0;
+  int _todayRevenue = 0;
+  int _storyViews = 0;
+  int _followers = 0;
 
   // Pending items
   List<Map<String, dynamic>> _pendingNegotiations = [];
@@ -49,13 +49,43 @@ class _SellerDashboardPageState extends State<SellerDashboardPage> {
     });
 
     try {
-      // Fetch negotiations (seller) — uses DI Dio with auth interceptor
-      final negRes = await _dio.get<Map<String, dynamic>>(
-        'negotiations/seller',
-      );
+      // Fetch all data in parallel
+      final results = await Future.wait([
+        _dio.get<Map<String, dynamic>>('negotiations/seller').catchError((_) => Response<Map<String, dynamic>>(requestOptions: RequestOptions(), statusCode: 0)),
+        _dio.get<Map<String, dynamic>>('orders/me').catchError((_) => Response<Map<String, dynamic>>(requestOptions: RequestOptions(), statusCode: 0)),
+        _dio.get<Map<String, dynamic>>('shops/followers/count').catchError((_) => Response<Map<String, dynamic>>(requestOptions: RequestOptions(), statusCode: 0)),
+        _dio.get<Map<String, dynamic>>('stories/stats').catchError((_) => Response<Map<String, dynamic>>(requestOptions: RequestOptions(), statusCode: 0)),
+      ]);
+
+      final negRes = results[0];
+      final ordersRes = results[1];
+      final followersRes = results[2];
+      final storiesRes = results[3];
+
       if (negRes.statusCode == 200) {
         final data = negRes.data?['data'] as List? ?? [];
         _pendingNegotiations = data.cast<Map<String, dynamic>>();
+      }
+
+      if (ordersRes.statusCode == 200) {
+        final ordersData = ordersRes.data?['data'] as List? ?? [];
+        final today = DateTime.now();
+        final todayOrders = ordersData.where((o) {
+          final raw = o['created_at'] as String?;
+          if (raw == null) return false;
+          final d = DateTime.tryParse(raw);
+          return d != null && d.year == today.year && d.month == today.month && d.day == today.day;
+        }).toList();
+        _todayOrders = todayOrders.length;
+        _todayRevenue = todayOrders.fold<int>(0, (sum, o) => sum + ((o['total'] as num?)?.toInt() ?? 0));
+      }
+
+      if (followersRes.statusCode == 200) {
+        _followers = (followersRes.data?['data']?['count'] as num?)?.toInt() ?? 0;
+      }
+
+      if (storiesRes.statusCode == 200) {
+        _storyViews = (storiesRes.data?['data']?['total_views'] as num?)?.toInt() ?? 0;
       }
 
       if (!mounted) return;

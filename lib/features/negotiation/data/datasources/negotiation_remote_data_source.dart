@@ -12,6 +12,9 @@ abstract class NegotiationRemoteDataSource {
   Future<bool> acceptNegotiation(String id);
   Future<bool> counterNegotiation(String id, int counterPrice);
   Future<bool> rejectNegotiation(String id);
+
+  /// Initiates payment for a negotiated order and returns payment details.
+  Future<Map<String, String>> initiatePayment(String negotiationId);
 }
 
 @LazySingleton(as: NegotiationRemoteDataSource)
@@ -60,5 +63,17 @@ class NegotiationRemoteDataSourceImpl implements NegotiationRemoteDataSource {
   Future<bool> rejectNegotiation(String id) async {
     final res = await _dio.patch<void>('negotiations/$id/reject');
     return res.statusCode == 200;
+  }
+
+  @override
+  Future<Map<String, String>> initiatePayment(String negotiationId) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      'negotiations/$negotiationId/payment',
+    );
+    final data = res.data;
+    return {
+      'orderId': data?['order_id'] as String? ?? negotiationId,
+      'paymentUrl': data?['payment_url'] as String? ?? '',
+    };
   }
 }

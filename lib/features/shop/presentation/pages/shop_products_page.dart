@@ -323,7 +323,7 @@ class _ShopHeader extends StatefulWidget {
 }
 
 class _ShopHeaderState extends State<_ShopHeader> {
-  bool _isFollowing = false;
+  final bool _isFollowing = false;
 
   ShopModel? get shop => widget.shop;
   String get _name => shop?.name ?? widget.fallbackName;

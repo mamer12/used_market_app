@@ -1,20 +1,24 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:injectable/injectable.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/network/api_constants.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../orders/data/repositories/dispute_repository.dart';
 
 // ── Dispute reason enum ────────────────────────────────────────────────────
 
 enum DisputeReason {
-  itemNotReceived('item_not_received', 'لم يصلني الطلب'),
-  itemDamaged('item_damaged', 'المنتج وصل تالفًا'),
+  itemNotReceived('item_not_received', 'لم يصل المنتج'),
   itemNotAsDescribed('item_not_as_described', 'المنتج لا يطابق الوصف'),
-  other('other', 'سبب آخر');
+  itemDamaged('item_damaged', 'المنتج تالف'),
+  other('other', 'أخرى');
 
   const DisputeReason(this.apiValue, this.arabicLabel);
   final String apiValue;
@@ -23,7 +27,7 @@ enum DisputeReason {
 
 // ── Cubit state ────────────────────────────────────────────────────────────
 
-enum _DisputeStatus { idle, loading, success, error }
+enum _DisputeStatus { idle, uploading, loading, success, error }
 
 class _DisputeState {
   final _DisputeStatus status;
@@ -33,25 +37,6 @@ class _DisputeState {
 
   _DisputeState copyWith({_DisputeStatus? status, String? error}) =>
       _DisputeState(status: status ?? this.status, error: error ?? this.error);
-}
-
-// ── Data source (lightweight, no full repository needed for single endpoint) ─
-
-@injectable
-class DisputeDataSource {
-  final Dio _dio;
-  DisputeDataSource(this._dio);
-
-  Future<void> fileDispute({
-    required String orderId,
-    required String reason,
-    required String description,
-  }) async {
-    await _dio.post(
-      'orders/$orderId/dispute',
-      data: {'reason': reason, 'description': description},
-    );
-  }
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────
@@ -67,20 +52,22 @@ class DisputePage extends StatefulWidget {
 
 class _DisputePageState extends State<DisputePage> {
   static const Color _disputeRed = Color(0xFFD32F2F);
+  static const int _maxPhotos = 3;
 
   final _formKey = GlobalKey<FormState>();
   final _descCtrl = TextEditingController();
+  final _imagePicker = ImagePicker();
 
   DisputeReason? _selectedReason;
   _DisputeState _state = const _DisputeState();
-  bool _photoAdded = false;
+  final List<File> _pickedImages = [];
 
-  late final DisputeDataSource _dataSource;
+  late final DisputeRepository _repository;
 
   @override
   void initState() {
     super.initState();
-    _dataSource = getIt<DisputeDataSource>();
+    _repository = getIt<DisputeRepository>();
   }
 
   @override
@@ -88,6 +75,50 @@ class _DisputePageState extends State<DisputePage> {
     _descCtrl.dispose();
     super.dispose();
   }
+
+  // ── Photo picking ─────────────────────────────────────────────────────────
+
+  Future<void> _pickPhoto() async {
+    if (_pickedImages.length >= _maxPhotos) return;
+
+    final picked = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 75,
+      maxWidth: 1280,
+    );
+    if (picked == null) return;
+
+    setState(() => _pickedImages.add(File(picked.path)));
+  }
+
+  void _removePhoto(int index) {
+    setState(() => _pickedImages.removeAt(index));
+  }
+
+  // ── Upload evidence photos and return URLs ────────────────────────────────
+
+  Future<List<String>> _uploadEvidencePhotos() async {
+    if (_pickedImages.isEmpty) return [];
+
+    final dio = getIt<Dio>();
+    final urls = <String>[];
+
+    for (final file in _pickedImages) {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+        ),
+      });
+      final response = await dio.post(ApiConstants.mediaUpload, data: formData);
+      final url = (response.data as Map<String, dynamic>?)?['url'] as String? ?? '';
+      if (url.isNotEmpty) urls.add(url);
+    }
+
+    return urls;
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -102,14 +133,20 @@ class _DisputePageState extends State<DisputePage> {
       return;
     }
 
-    setState(() => _state = _state.copyWith(status: _DisputeStatus.loading));
-
     try {
-      await _dataSource.fileDispute(
+      // Step 1: upload photos if any
+      setState(() => _state = _state.copyWith(status: _DisputeStatus.uploading));
+      final evidenceUrls = await _uploadEvidencePhotos();
+
+      // Step 2: submit dispute
+      setState(() => _state = _state.copyWith(status: _DisputeStatus.loading));
+      await _repository.createDispute(
         orderId: widget.orderId,
         reason: _selectedReason!.apiValue,
         description: _descCtrl.text.trim(),
+        evidenceUrls: evidenceUrls,
       );
+
       if (!mounted) return;
       setState(() => _state = _state.copyWith(status: _DisputeStatus.success));
     } on DioException catch (e) {
@@ -129,6 +166,8 @@ class _DisputePageState extends State<DisputePage> {
       );
     }
   }
+
+  // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +201,6 @@ class _DisputePageState extends State<DisputePage> {
   }
 
   Widget _buildSuccessState() {
-    // Navigate back with snackbar after short delay
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,7 +242,7 @@ class _DisputePageState extends State<DisputePage> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 40.w),
             child: Text(
-              'سيقوم فريق لقطة بمراجعة نزاعك والتواصل معك في أقرب وقت',
+              'سيقوم فريق مضمون بمراجعة نزاعك والتواصل معك في أقرب وقت',
               textAlign: TextAlign.center,
               style: GoogleFonts.cairo(
                 fontSize: 14.sp,
@@ -218,7 +256,11 @@ class _DisputePageState extends State<DisputePage> {
   }
 
   Widget _buildForm() {
-    final isLoading = _state.status == _DisputeStatus.loading;
+    final isLoading = _state.status == _DisputeStatus.loading ||
+        _state.status == _DisputeStatus.uploading;
+    final loadingLabel = _state.status == _DisputeStatus.uploading
+        ? 'جارٍ رفع الصور...'
+        : 'جارٍ الإرسال...';
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
@@ -227,7 +269,7 @@ class _DisputePageState extends State<DisputePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Order ID banner ─────────────────────────────────────────
+            // ── Order ID banner ──────────────────────────────────────────
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               decoration: BoxDecoration(
@@ -254,7 +296,7 @@ class _DisputePageState extends State<DisputePage> {
             ),
             SizedBox(height: 24.h),
 
-            // ── Reason dropdown ─────────────────────────────────────────
+            // ── Reason dropdown ──────────────────────────────────────────
             _buildSectionLabel('سبب النزاع *'),
             SizedBox(height: 8.h),
             Container(
@@ -304,7 +346,7 @@ class _DisputePageState extends State<DisputePage> {
             ),
             SizedBox(height: 24.h),
 
-            // ── Description ─────────────────────────────────────────────
+            // ── Description ──────────────────────────────────────────────
             _buildSectionLabel('وصف المشكلة * (20 حرف على الأقل)'),
             SizedBox(height: 8.h),
             TextFormField(
@@ -352,51 +394,22 @@ class _DisputePageState extends State<DisputePage> {
             ),
             SizedBox(height: 24.h),
 
-            // ── Photo upload (UI only) ───────────────────────────────────
-            _buildSectionLabel('إرفاق صورة (اختياري)'),
-            SizedBox(height: 8.h),
-            GestureDetector(
-              onTap: isLoading
-                  ? null
-                  : () => setState(() => _photoAdded = !_photoAdded),
-              child: Container(
-                height: 80.h,
-                decoration: BoxDecoration(
-                  color: _photoAdded
-                      ? _disputeRed.withValues(alpha: 0.05)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(14.r),
-                  border: Border.all(
-                    color: _photoAdded
-                        ? _disputeRed.withValues(alpha: 0.4)
-                        : AppTheme.inactive.withValues(alpha: 0.3),
-                    style: BorderStyle.solid,
+            // ── Photo evidence (up to 3) ─────────────────────────────────
+            Row(
+              children: [
+                _buildSectionLabel('صور إثبات (اختياري، حتى 3 صور)'),
+                const Spacer(),
+                Text(
+                  '${_pickedImages.length}/$_maxPhotos',
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.sp,
+                    color: AppTheme.textTertiary,
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      _photoAdded
-                          ? Icons.check_circle_rounded
-                          : Icons.add_a_photo_rounded,
-                      color: _photoAdded ? Colors.green : AppTheme.inactive,
-                      size: 24.sp,
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      _photoAdded ? 'تم إرفاق الصورة' : 'اضغط لإرفاق صورة',
-                      style: GoogleFonts.cairo(
-                        fontSize: 14.sp,
-                        color:
-                            _photoAdded ? Colors.green : AppTheme.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
+            SizedBox(height: 8.h),
+            _buildPhotoRow(isLoading),
             SizedBox(height: 16.h),
 
             // ── Error message ────────────────────────────────────────────
@@ -438,13 +451,26 @@ class _DisputePageState extends State<DisputePage> {
                   elevation: 0,
                 ),
                 child: isLoading
-                    ? SizedBox(
-                        width: 24.w,
-                        height: 24.w,
-                        child: const CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 20.w,
+                            height: 20.w,
+                            child: const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          SizedBox(width: 10.w),
+                          Text(
+                            loadingLabel,
+                            style: GoogleFonts.cairo(
+                              fontSize: 14.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       )
                     : Text(
                         'تقديم النزاع',
@@ -457,6 +483,95 @@ class _DisputePageState extends State<DisputePage> {
               ),
             ),
             SizedBox(height: 40.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Photo row widget ──────────────────────────────────────────────────────
+
+  Widget _buildPhotoRow(bool disabled) {
+    return SizedBox(
+      height: 90.h,
+      child: Row(
+        children: [
+          // Existing picked images
+          for (int i = 0; i < _pickedImages.length; i++) ...[
+            _buildPhotoThumbnail(i, disabled),
+            SizedBox(width: 8.w),
+          ],
+          // Add button (shown if < maxPhotos)
+          if (_pickedImages.length < _maxPhotos)
+            _buildAddPhotoButton(disabled),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoThumbnail(int index, bool disabled) {
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10.r),
+          child: Image.file(
+            _pickedImages[index],
+            width: 80.w,
+            height: 80.h,
+            fit: BoxFit.cover,
+          ),
+        ),
+        if (!disabled)
+          Positioned(
+            top: 2,
+            left: 2,
+            child: GestureDetector(
+              onTap: () => _removePhoto(index),
+              child: Container(
+                width: 20.w,
+                height: 20.w,
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.close, color: Colors.white, size: 12.sp),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAddPhotoButton(bool disabled) {
+    return GestureDetector(
+      onTap: disabled ? null : _pickPhoto,
+      child: Container(
+        width: 80.w,
+        height: 80.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(
+            color: AppTheme.inactive.withValues(alpha: 0.3),
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_a_photo_rounded,
+              color: disabled ? AppTheme.inactive : AppTheme.textSecondary,
+              size: 24.sp,
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              'إضافة',
+              style: GoogleFonts.cairo(
+                fontSize: 11.sp,
+                color: disabled ? AppTheme.inactive : AppTheme.textSecondary,
+              ),
+            ),
           ],
         ),
       ),

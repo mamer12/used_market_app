@@ -31,7 +31,6 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
   final _minBuyersController = TextEditingController(text: '3');
 
   String? _selectedProductId;
-  String _selectedProductName = '';
   int _selectedProductOriginalPrice = 0;
   DateTime? _deadline;
   bool _isSubmitting = false;
@@ -113,7 +112,7 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l10n?.groupBuyCreatedSuccess ?? 'تم إنشاء الشلّة',
+            l10n.groupBuyCreatedSuccess,
             style: GoogleFonts.tajawal(fontWeight: FontWeight.w600),
           ),
           backgroundColor: AppTheme.success,
@@ -131,7 +130,7 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l10n?.groupBuyCreateError ?? 'فشل إنشاء الشلّة',
+            l10n.groupBuyCreateError,
             style: GoogleFonts.tajawal(fontWeight: FontWeight.w600),
           ),
           backgroundColor: AppTheme.error,
@@ -154,7 +153,7 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
         backgroundColor: const Color(0xFFF5F0FF),
         appBar: AppBar(
           title: Text(
-            l10n?.groupBuyCreateTitle ?? 'إنشاء شلّة',
+            l10n.groupBuyCreateTitle,
             style: GoogleFonts.cairo(
               fontWeight: FontWeight.w800,
               fontSize: 18.sp,
@@ -175,13 +174,13 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
               children: [
                 // ── Product Selection ─────────────────────────────────
                 _sectionTitle(
-                    l10n?.groupBuySelectProduct ?? 'اختر المنتج'),
+                    l10n.groupBuySelectProduct),
                 SizedBox(height: 8.h),
                 ...(_inventory.map((p) => _productTile(p))),
                 SizedBox(height: 20.h),
 
                 // ── Group Price ───────────────────────────────────────
-                _sectionTitle(l10n?.groupBuyGroupPrice ?? 'سعر الشلّة'),
+                _sectionTitle(l10n.groupBuyGroupPrice),
                 SizedBox(height: 8.h),
                 TextFormField(
                   controller: _groupPriceController,
@@ -225,7 +224,7 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
 
                 // ── Minimum Buyers ───────────────────────────────────
                 _sectionTitle(
-                    l10n?.groupBuyMinBuyers ?? 'الحد الأدنى للمشاركين'),
+                    l10n.groupBuyMinBuyers),
                 SizedBox(height: 8.h),
                 TextFormField(
                   controller: _minBuyersController,
@@ -258,7 +257,7 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
                 SizedBox(height: 20.h),
 
                 // ── Deadline ─────────────────────────────────────────
-                _sectionTitle(l10n?.groupBuyDeadline ?? 'آخر موعد'),
+                _sectionTitle(l10n.groupBuyDeadline),
                 SizedBox(height: 8.h),
                 GestureDetector(
                   onTap: _pickDeadline,
@@ -318,7 +317,7 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
                           ),
                         )
                       : Text(
-                          l10n?.groupBuySubmit ?? 'إنشاء الشلّة',
+                          l10n.groupBuySubmit,
                           style: GoogleFonts.cairo(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w700,
@@ -350,7 +349,6 @@ class _CreateGroupBuyPageState extends State<CreateGroupBuyPage> {
       onTap: () {
         setState(() {
           _selectedProductId = product['id'] as String;
-          _selectedProductName = product['name'] as String;
           _selectedProductOriginalPrice = product['price'] as int;
         });
       },
